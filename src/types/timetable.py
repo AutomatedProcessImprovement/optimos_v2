@@ -3,6 +3,12 @@ from typing import List, Union
 
 from typing_extensions import TypedDict
 from dataclass_wizard import JSONWizard
+from typing import TYPE_CHECKING
+
+
+if TYPE_CHECKING:
+    from src.store import Store
+from src.types.constraints import BATCH_TYPE, RULE_TYPE, SizeRuleConstraints
 
 
 @dataclass(frozen=True)
@@ -97,10 +103,23 @@ class FiringRule(JSONWizard):
 @dataclass(frozen=True)
 class BatchingRule(JSONWizard):
     task_id: str
-    type: str
+    type: BATCH_TYPE
     size_distrib: List[Distribution]
     duration_distrib: List[Distribution]
     firing_rules: List[List[FiringRule]]
+
+    def can_be_modified(self, store: "Store", size_increment: int):
+        matching_constraints = store.constraints.get_batching_constraints_for_task(
+            self.task_id
+        )
+
+        for constraint in matching_constraints:
+            if constraint is SizeRuleConstraints:
+                if constraint.min_size > int(self.size_distrib[0].key) + size_increment:
+                    return False
+                if constraint.max_size < int(self.size_distrib[0].key) + size_increment:
+                    return False
+        return True
 
 
 @dataclass(frozen=True)

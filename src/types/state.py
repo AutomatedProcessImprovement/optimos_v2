@@ -2,11 +2,14 @@ from dataclasses import dataclass, replace, asdict
 import datetime
 import io
 import pytz
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from src.types.timetable import TimetableType
 from src.SimDiffSetupFileless import SimDiffSetupFileless
 from src.evaluator import Evaluator
 from src.simulation_runner import SimulationRunner
 from src.types.constraints import ConstraintsType
-from src.types.timetable import TimetableType
 from bpdfr_simulation_engine.simulation_setup import SimDiffSetup
 from json import dumps
 
@@ -15,11 +18,7 @@ from json import dumps
 class State:
     bpmn_definition: str
 
-    constraints: ConstraintsType
-    timetable: TimetableType
-
-    def replaceConstraints(self, /, **changes):
-        return replace(self, constraints=replace(self.constraints, **changes))
+    timetable: "TimetableType"
 
     def replaceTimetable(self, /, **changes):
         return replace(self, timetable=replace(self.timetable, **changes))

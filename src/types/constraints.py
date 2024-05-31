@@ -1,49 +1,52 @@
 from dataclasses import dataclass
+from enum import Enum
 from typing import List, TypedDict, Union
 from dataclass_wizard import JSONWizard
 
 
-@dataclass(frozen=True)
-class GlobalConstraints(JSONWizard):
-    max_weekly_cap: float
-    max_daily_cap: float
-    max_consecutive_cap: float
-    max_shifts_day: int
-    max_shifts_week: float
-    is_human: bool
+class BATCH_TYPE(Enum):
+    SEQUENTIAL = "Sequential"  # one after another
+    CONCURRENT = "Concurrent"  # tasks are in progress simultaneously
+    # (executor changes the context between different tasks)
+    PARALLEL = "Parallel"  # tasks are being executed simultaneously
+
+
+class RULE_TYPE(Enum):
+    READY_WT = "ready_wt"
+    LARGE_WT = "large_wt"
+    DAILY_HOUR = "daily_hour"
+    WEEK_DAY = "week_day"
+    SIZE = "size"
 
 
 @dataclass(frozen=True)
-class DailyStartTimes(JSONWizard):
-    monday: Union[int, str]
-    tuesday: Union[int, str]
-    wednesday: Union[int, str]
-    thursday: Union[int, str]
-    friday: Union[None, int, str]
-    saturday: Union[None, int, str]
-    sunday: Union[None, int, str]
+class BatchingConstraints(JSONWizard):
+    tasks: list[str]
+    batch_type: BATCH_TYPE
+    rule_type: RULE_TYPE
+    duration_fn: str
 
 
-@dataclass(frozen=True)
-class Constraints(JSONWizard):
-    global_constraints: GlobalConstraints
-    daily_start_times: DailyStartTimes
-    never_work_masks: DailyStartTimes
-    always_work_masks: DailyStartTimes
+class SizeRuleConstraints(BatchingConstraints, JSONWizard):
+    min_size: int
+    max_size: int
 
-
-@dataclass(frozen=True)
-class ConstraintsResourcesItem(JSONWizard):
-    id: str
-    constraints: Constraints
+    class _(JSONWizard.Meta):
+        key_transform_with_dump = "SNAKE"
+        tag = RULE_TYPE.SIZE.value
+        tag_key = "rule_type"
 
 
 @dataclass(frozen=True)
 class ConstraintsType(JSONWizard):
-    pass
-    # time_var: int
-    # max_cap: int
-    # max_shift_size: int
-    # max_shift_blocks: int
-    # hours_in_day: int
-    # resources: List[ConstraintsResourcesItem]
+    batching_constraints: list[BatchingConstraints]
+
+    class _(JSONWizard.Meta):
+        key_transform_with_dump = "SNAKE"
+
+    def get_batching_constraints_for_task(self, task: str) -> list[BatchingConstraints]:
+        return [
+            constraint
+            for constraint in self.batching_constraints
+            if task in constraint.tasks
+        ]

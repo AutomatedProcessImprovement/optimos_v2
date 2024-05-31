@@ -27,7 +27,10 @@ from bpdfr_simulation_engine.prioritisation import AllPriorityRules
 from bpdfr_simulation_engine.prioritisation_parser import PrioritisationParser
 import pytz
 
-from src.types.timetable import TimetableType
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from src.types.timetable import TimetableType
 
 
 class SimDiffSetupFileless(SimDiffSetup):
@@ -35,7 +38,7 @@ class SimDiffSetupFileless(SimDiffSetup):
         self,
         process_name,
         bpmn: str,
-        timetable: TimetableType,
+        timetable: "TimetableType",
         is_event_added_to_log,
         total_cases,
     ):

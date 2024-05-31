@@ -2,15 +2,15 @@ from dataclasses import dataclass
 from src.pareto_front import FRONT_STATUS, ParetoFront
 from src.actions import Action
 from src.types.constraints import ConstraintsType
-from src.types.evaluation import Evaluation
 from src.types.state import State
-from src.types.timetable import TimetableType
 
 
 class Store:
-    def __init__(self, state: State):
+    def __init__(self, state: State, constraints: ConstraintsType):
         self.state = state
+        self.constraints = constraints
 
+    constraints: ConstraintsType
     state: State
 
     previous_actions: list[Action] = []
@@ -28,6 +28,12 @@ class Store:
     @property
     def base_evaluation(self):
         return self.previous_pareto_fronts[0].evaluations[0]
+
+    @property
+    def current_fastest_evaluation(self):
+        return sorted(
+            self.current_pareto_front.evaluations, key=lambda x: x.total_waiting_time
+        )[0]
 
     def apply_action(self, action: Action):
         self.previous_actions.append(action)
@@ -51,3 +57,11 @@ class Store:
 
     def reset_tabu_list(self):
         self.tabu_list = []
+
+    # Tries an action and returns the status of the new evaluation
+    # Does NOT modify the store
+    def tryAction(self, action: Action):
+        new_state = action.apply(self.state)
+        evaluation = new_state.evaluate()
+        status = self.current_pareto_front.is_in_front(evaluation)
+        return (status, evaluation, new_state, action)

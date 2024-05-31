@@ -8,10 +8,14 @@ import src.hill_climber
 
 def main():
     timetable_path = "examples/purchase_timetable.json"
+    constraints_path = "examples/purchase_constraints.json"
     bpmn_path = "examples/purchase.bpmn"
 
     with open(timetable_path, "r") as f:
         timetable = TimetableType.from_dict(json.load(f))
+
+    with open(constraints_path, "r") as f:
+        constraints = ConstraintsType.from_dict(json.load(f))
 
     with open(bpmn_path, "r") as f:
         bpmn_definition = f.read()
@@ -19,9 +23,11 @@ def main():
     initial_state = src.store.State(
         bpmn_definition=bpmn_definition,
         timetable=timetable,
-        constraints=ConstraintsType(),
     )
-    store = src.store.Store(initial_state)
+    store = src.store.Store(
+        state=initial_state,
+        constraints=constraints,
+    )
     hill_climber = src.hill_climber.HillClimber(store)
     hill_climber.solve()
     # SimulationRunner.run_simulation(store.state)

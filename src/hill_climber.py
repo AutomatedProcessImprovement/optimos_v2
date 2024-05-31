@@ -18,7 +18,7 @@ class HillClimber:
 
             action_to_perform = ActionSelector.select_action(self.store)
             if action_to_perform is None:
-                print("\t>No actions left")
+                print("\t> No actions left")
                 break
             self.store.apply_action(action_to_perform)
             print(f"\t> Performing action {str(action_to_perform)}")
@@ -39,7 +39,6 @@ class HillClimber:
                 print(
                     f"\t> New Evaluation IN current pareto front. Evaluation: {evaluation}"
                 )
-                self.store.reset_tabu_list()
 
         self.print_result()
 
