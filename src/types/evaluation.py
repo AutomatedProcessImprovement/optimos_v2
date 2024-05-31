@@ -31,3 +31,11 @@ class Evaluation:
 
     def __str__(self) -> str:
         return f"Cycle Time: {self.total_cycle_time}, Cost: {self.total_cost}, Waiting Time: {self.total_waiting_time}"
+
+    # Is this evaluation dominated by another evaluation?
+    # (Taking only the total cost & total cycle time into account)
+    def is_dominated_by(self, other):
+        return (
+            self.total_cost >= other.total_cost
+            and self.total_cycle_time >= other.total_cycle_time
+        )

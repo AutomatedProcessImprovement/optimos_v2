@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from src.pareto_front import FRONT_STATUS, ParetoFront
 from src.actions import Action
 from src.types.constraints import ConstraintsType
 from src.types.evaluation import Evaluation
@@ -14,15 +15,19 @@ class Store:
 
     previous_actions: list[Action] = []
     previous_states: list[State] = []
-    previous_evaluations: list[Evaluation] = []
+    previous_pareto_fronts: list[ParetoFront] = []
 
     tabu_list: list[Action] = []
 
     @property
-    def current_evaluation(self):
-        if not self.previous_evaluations:
-            return Evaluation.empty()
-        return self.previous_evaluations[-1]
+    def current_pareto_front(self):
+        if not self.previous_pareto_fronts:
+            self.previous_pareto_fronts = [ParetoFront()]
+        return self.previous_pareto_fronts[-1]
+
+    @property
+    def base_evaluation(self):
+        return self.previous_pareto_fronts[0].evaluations[0]
 
     def apply_action(self, action: Action):
         self.previous_actions.append(action)
@@ -35,8 +40,14 @@ class Store:
 
     def evaluate(self):
         evaluation = self.state.evaluate()
-        self.previous_evaluations.append(evaluation)
-        return evaluation
+        status = self.current_pareto_front.is_in_front(evaluation)
+        if status == FRONT_STATUS.IN_FRONT:
+            self.current_pareto_front.add(evaluation, self.state)
+        elif status == FRONT_STATUS.DOMINATES:
+            self.previous_pareto_fronts.append(ParetoFront())
+            self.current_pareto_front.add(evaluation, self.state)
+
+        return evaluation, status
 
     def reset_tabu_list(self):
         self.tabu_list = []

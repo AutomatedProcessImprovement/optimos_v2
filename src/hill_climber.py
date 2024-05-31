@@ -1,3 +1,4 @@
+from src.pareto_front import FRONT_STATUS
 from src.action_selector import ActionSelector
 from src.store import Store
 from src.types.state import State
@@ -11,8 +12,7 @@ class HillClimber:
     def solve(self):
         print("running base evaluation...")
         self.store.evaluate()
-        print(f"\t> Initial evaluation: {self.store.current_evaluation}")
-        best_evaluation = self.store.current_evaluation
+        print(f"\t> Initial evaluation: {self.store.current_pareto_front}")
         for it in range(self.max_iter):
             print(f"Iteration {it}")
 
@@ -22,21 +22,30 @@ class HillClimber:
                 break
             self.store.apply_action(action_to_perform)
             print(f"\t> Performing action {str(action_to_perform)}")
-            new_evaluation = self.store.evaluate()
-            if new_evaluation <= best_evaluation:
-                print(f"\t> Undoing action {action_to_perform}")
+            (evaluation, status) = self.store.evaluate()
+            if status == FRONT_STATUS.IS_DOMINATED:
+                print(
+                    f"\t> New Evaluation DOMINATED by current pareto front. Undoing action {action_to_perform}"
+                )
                 self.store.undo_action()
-            else:
+            elif status == FRONT_STATUS.DOMINATES:
                 # This is the best evaluation so far,
                 # so we reset the tabu list
-                print(f"\t> Keeping Action, new best Evaluation: {new_evaluation}")
-                best_evaluation = new_evaluation
+                print(
+                    f"\t> New Evaluation DOMINATES old pareto front. New best Evaluation: {evaluation}"
+                )
                 self.store.reset_tabu_list()
+            elif status == FRONT_STATUS.IN_FRONT:
+                print(
+                    f"\t> New Evaluation IN current pareto front. Evaluation: {evaluation}"
+                )
+                self.store.reset_tabu_list()
+
         self.print_result()
 
     def print_result(self):
-        print(f"Best evaluation: \t{self.store.current_evaluation}")
-        print(f"Base evaluation: \t{self.store.previous_evaluations[0]}")
+        print(f"Best evaluation: \t{self.store.current_pareto_front}")
+        print(f"Base evaluation: \t{self.store.base_evaluation}")
         print(
             f"Modifications: {', '.join(list(map(str, self.store.previous_actions)))}"
         )
