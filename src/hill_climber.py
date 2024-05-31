@@ -17,37 +17,42 @@ class HillClimber:
             f"\t> Initial evaluation: {self.store.current_pareto_front.evaluations[-1]}"
         )
         for it in range(self.max_iter):
-            if self.max_non_improving_iter == 0:
-                print("Max non improving iterations reached")
-                break
-            print(f"Iteration {it}")
+            try:
+                if self.max_non_improving_iter == 0:
+                    print("Max non improving iterations reached")
+                    break
+                print(f"Iteration {it}")
 
-            action_to_perform = ActionSelector.select_action(self.store)
-            if action_to_perform is None:
-                print("\t> No actions left")
-                break
-            self.store.apply_action(action_to_perform)
-            print(f"\t> Performing action {str(action_to_perform)}")
-            (evaluation, status) = self.store.evaluate()
-            if status == FRONT_STATUS.IS_DOMINATED:
-                print(
-                    f"\t> New Evaluation DOMINATED by current pareto front. Undoing action {action_to_perform}"
-                )
+                action_to_perform = ActionSelector.select_action(self.store)
+                if action_to_perform is None:
+                    print("\t> No actions left")
+                    break
+                self.store.apply_action(action_to_perform)
+                print(f"\t> Performing action {str(action_to_perform)}")
+                (evaluation, status) = self.store.evaluate()
+                if status == FRONT_STATUS.DOMINATES:
+                    print(
+                        f"\t> Pareto front DOMINATED new evaluation. Undoing action {action_to_perform}"
+                    )
+                    self.store.undo_action()
+                    self.max_non_improving_iter -= 1
+
+                elif status == FRONT_STATUS.IS_DOMINATED:
+                    # This is the best evaluation so far,
+                    # so we reset the tabu list
+                    print(
+                        f"\t> Pareto front IS DOMINATED by new evaluation. New best Evaluation: {evaluation}"
+                    )
+                    self.store.reset_tabu_list()
+                    self.max_non_improving_iter = 25
+                elif status == FRONT_STATUS.IN_FRONT:
+                    print(
+                        f"\t> Pareto front CONTAINS new evaluation. Evaluation: {evaluation}"
+                    )
+            except Exception as e:
+                print(f"\t> Error in iteration, skipping & undoing action: {e}")
                 self.store.undo_action()
-                self.max_non_improving_iter -= 1
-
-            elif status == FRONT_STATUS.DOMINATES:
-                # This is the best evaluation so far,
-                # so we reset the tabu list
-                print(
-                    f"\t> New Evaluation DOMINATES old pareto front. New best Evaluation: {evaluation}"
-                )
-                self.store.reset_tabu_list()
-                self.max_non_improving_iter = 25
-            elif status == FRONT_STATUS.IN_FRONT:
-                print(
-                    f"\t> New Evaluation IN current pareto front. Evaluation: {evaluation}"
-                )
+                continue
 
         self.print_result()
 

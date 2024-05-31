@@ -49,7 +49,7 @@ class Store:
         status = self.current_pareto_front.is_in_front(evaluation)
         if status == FRONT_STATUS.IN_FRONT:
             self.current_pareto_front.add(evaluation, self.state)
-        elif status == FRONT_STATUS.DOMINATES:
+        elif status == FRONT_STATUS.IS_DOMINATED:
             self.previous_pareto_fronts.append(ParetoFront())
             self.current_pareto_front.add(evaluation, self.state)
 
