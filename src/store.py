@@ -61,7 +61,7 @@ class Store:
     # Tries an action and returns the status of the new evaluation
     # Does NOT modify the store
     def tryAction(self, action: Action):
-        new_state = action.apply(self.state)
+        new_state = action.apply(self.state, enable_prints=False)
         evaluation = new_state.evaluate()
         status = self.current_pareto_front.is_in_front(evaluation)
         return (status, evaluation, new_state, action)

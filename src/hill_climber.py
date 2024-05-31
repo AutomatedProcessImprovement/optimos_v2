@@ -8,12 +8,18 @@ class HillClimber:
     def __init__(self, store: Store, max_iter=1000):
         self.store = store
         self.max_iter = max_iter
+        self.max_non_improving_iter = 25
 
     def solve(self):
-        print("running base evaluation...")
+        print("Base Evaluation")
         self.store.evaluate()
-        print(f"\t> Initial evaluation: {self.store.current_pareto_front}")
+        print(
+            f"\t> Initial evaluation: {self.store.current_pareto_front.evaluations[-1]}"
+        )
         for it in range(self.max_iter):
+            if self.max_non_improving_iter == 0:
+                print("Max non improving iterations reached")
+                break
             print(f"Iteration {it}")
 
             action_to_perform = ActionSelector.select_action(self.store)
@@ -28,6 +34,8 @@ class HillClimber:
                     f"\t> New Evaluation DOMINATED by current pareto front. Undoing action {action_to_perform}"
                 )
                 self.store.undo_action()
+                self.max_non_improving_iter -= 1
+
             elif status == FRONT_STATUS.DOMINATES:
                 # This is the best evaluation so far,
                 # so we reset the tabu list
@@ -35,6 +43,7 @@ class HillClimber:
                     f"\t> New Evaluation DOMINATES old pareto front. New best Evaluation: {evaluation}"
                 )
                 self.store.reset_tabu_list()
+                self.max_non_improving_iter = 25
             elif status == FRONT_STATUS.IN_FRONT:
                 print(
                     f"\t> New Evaluation IN current pareto front. Evaluation: {evaluation}"
@@ -43,7 +52,7 @@ class HillClimber:
         self.print_result()
 
     def print_result(self):
-        print(f"Best evaluation: \t{self.store.current_pareto_front}")
+        print(f"Best evaluation: \t{self.store.current_pareto_front.evaluations[-1]}")
         print(f"Base evaluation: \t{self.store.base_evaluation}")
         print(
             f"Modifications: {', '.join(list(map(str, self.store.previous_actions)))}"

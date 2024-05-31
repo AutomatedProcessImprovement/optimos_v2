@@ -2,15 +2,19 @@ from typing import TypedDict
 from src.types.constraints import ConstraintsType
 from src.types.state import State
 from src.types.timetable import BatchingRule, Distribution, FiringRule, TimetableType
-from dataclasses import replace
+from dataclasses import dataclass, replace
 from sympy import Symbol, lambdify
 
 
-class Action:
-    def __init__(self, params):
-        self.params = params
+class BaseActionParamsType(TypedDict):
+    pass
 
-    def apply(self, state: State) -> State:
+
+@dataclass(frozen=True)
+class Action:
+    params: BaseActionParamsType
+
+    def apply(self, state: State, enable_prints=True) -> State:
         raise NotImplementedError
 
     def __str__(self):
@@ -20,26 +24,40 @@ class Action:
         return self.__class__ == other.__class__ and self.params == other.params
 
 
-class RemoveRuleActionParamsType(TypedDict):
-    rule_index: int
+class RemoveRuleActionParamsType(BaseActionParamsType):
+    rule_hash: str
 
 
 class RemoveRuleAction(Action):
-    def __init__(self, params: RemoveRuleActionParamsType):
-        self.params = params
+    params: RemoveRuleActionParamsType
 
     # Returns a copy of the timetable with the rule removed
     # (TimetableType is a frozen dataclass)
-    def apply(self, state: State):
+    def apply(self, state: State, enable_prints=True):
         timetable = state.timetable
+        rule_hash = self.params["rule_hash"]
+
+        rule_index = next(
+            (
+                i
+                for i, rule in enumerate(timetable.batch_processing)
+                if rule.id() == rule_hash
+            ),
+            None,
+        )
+        if rule_index is None:
+            print(f"Rule with hash {rule_hash} not found")
+            return state
+        if enable_prints:
+            print(f"\t\t>> Removing rule {rule_hash}")
         return state.replaceTimetable(
-            batch_processing=timetable.batch_processing[: self.params["rule_index"]]
-            + timetable.batch_processing[self.params["rule_index"] + 1 :],
+            batch_processing=timetable.batch_processing[:rule_index]
+            + timetable.batch_processing[rule_index + 1 :],
         )
 
 
-class AddRuleActionParamsType(TypedDict):
-    rule_index: int
+class AddRuleActionParamsType(BaseActionParamsType):
+    pass
 
 
 class AddRuleAction(Action):
@@ -47,29 +65,29 @@ class AddRuleAction(Action):
         self.rule = params
 
     # Returns a copy of the timetable with the rule added
-    def apply(self, state: State):
-        timetable = state.timetable
-        return state.replaceTimetable(
-            rules=timetable.batch_processing[: self.params["rule_index"]]
-            + [self.rule]
-            + timetable.batch_processing[self.params["rule_index"] :],
-        )
+    def apply(self, state: State, enable_prints=True):
+        raise NotImplementedError
 
 
-class ModifySizeRuleActionParamsType(TypedDict):
-    rule_index: int
+class ModifySizeRuleActionParamsType(BaseActionParamsType):
+    rule_hash: str
     size_increment: int
     duration_fn: str
 
 
 class ModifySizeRuleAction(Action):
-    def __init__(self, params: ModifySizeRuleActionParamsType):
-        self.params = params
+    params: ModifySizeRuleActionParamsType
 
     # Returns a copy of the timetable with the rule size modified
-    def apply(self, state: State):
+    def apply(self, state: State, enable_prints=True):
         timetable = state.timetable
-        oldRule = timetable.batch_processing[self.params["rule_index"]]
+        ruleHash = self.params["rule_hash"]
+
+        (ruleIndex, oldRule) = next(
+            (i, rule)
+            for i, rule in enumerate(timetable.batch_processing)
+            if rule.id() == ruleHash
+        )
         new_size = int(oldRule.size_distrib[0].key) + self.params["size_increment"]
         fn = lambdify(Symbol("size"), self.params["duration_fn"])
         size_distrib = [
@@ -102,8 +120,13 @@ class ModifySizeRuleAction(Action):
             firing_rules=firing_rules,
         )
 
+        if enable_prints:
+            print(
+                f"\t\t>> Modifying rule {oldRule.id()} to new size = {new_size} & duration_modifier = {fn(new_size)}"
+            )
+
         return state.replaceTimetable(
-            batch_processing=timetable.batch_processing[: self.params["rule_index"]]
+            batch_processing=timetable.batch_processing[:ruleIndex]
             + [newRule]
-            + timetable.batch_processing[self.params["rule_index"] + 1 :],
+            + timetable.batch_processing[ruleIndex + 1 :],
         )

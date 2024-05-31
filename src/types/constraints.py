@@ -4,14 +4,14 @@ from typing import List, TypedDict, Union
 from dataclass_wizard import JSONWizard
 
 
-class BATCH_TYPE(Enum):
+class BATCH_TYPE(str, Enum):
     SEQUENTIAL = "Sequential"  # one after another
     CONCURRENT = "Concurrent"  # tasks are in progress simultaneously
     # (executor changes the context between different tasks)
     PARALLEL = "Parallel"  # tasks are being executed simultaneously
 
 
-class RULE_TYPE(Enum):
+class RULE_TYPE(str, Enum):
     READY_WT = "ready_wt"
     LARGE_WT = "large_wt"
     DAILY_HOUR = "daily_hour"
@@ -39,7 +39,8 @@ class SizeRuleConstraints(BatchingConstraints, JSONWizard):
 
 @dataclass(frozen=True)
 class ConstraintsType(JSONWizard):
-    batching_constraints: list[BatchingConstraints]
+    # TODO: Add more constraints here
+    batching_constraints: list[SizeRuleConstraints]
 
     class _(JSONWizard.Meta):
         key_transform_with_dump = "SNAKE"

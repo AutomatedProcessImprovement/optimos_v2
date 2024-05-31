@@ -4,6 +4,8 @@ from src.simulation_runner import SimulationRunner
 from src.types.constraints import ConstraintsType
 import src.store
 import src.hill_climber
+import os
+import random
 
 
 def main():

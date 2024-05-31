@@ -1,9 +1,11 @@
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
+from json import dumps
 from typing import List, Union
 
 from typing_extensions import TypedDict
 from dataclass_wizard import JSONWizard
 from typing import TYPE_CHECKING
+import hashlib
 
 
 if TYPE_CHECKING:
@@ -104,9 +106,9 @@ class FiringRule(JSONWizard):
 class BatchingRule(JSONWizard):
     task_id: str
     type: BATCH_TYPE
-    size_distrib: List[Distribution]
-    duration_distrib: List[Distribution]
-    firing_rules: List[List[FiringRule]]
+    size_distrib: list[Distribution]
+    duration_distrib: list[Distribution]
+    firing_rules: list[list[FiringRule]]
 
     def can_be_modified(self, store: "Store", size_increment: int):
         matching_constraints = store.constraints.get_batching_constraints_for_task(
@@ -120,6 +122,10 @@ class BatchingRule(JSONWizard):
                 if constraint.max_size < int(self.size_distrib[0].key) + size_increment:
                     return False
         return True
+
+    def id(self):
+        # TODO Use a more performant hash function
+        return hashlib.md5(str(dumps(asdict(self))).encode()).hexdigest()
 
 
 @dataclass(frozen=True)
