@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "optimos_v2"
+version = "0.0.1"
+description = "optimos_v2"
+authors = ["Jannis Rosenbaum <jannis@ut.ee>"]
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = ">=3.10,<3.11"
+numpy = "^1.26.4"
+wta = { git = "https://github.com/AutomatedProcessImprovement/waiting-time-analysis.git" }
+click = "^8.1.7"
+pandas = "<=2.1.4"
+dynamik = { path = "../dynamik" }
+dataclass-wizard = "^0.22.3"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
