@@ -16,9 +16,10 @@ from json import dumps
 
 @dataclass(frozen=True)
 class State:
-    bpmn_definition: str
+    bpmn_definition: str 
 
     timetable: "TimetableType"
+    for_testing: bool = False
 
     def replaceTimetable(self, /, **changes):
         return replace(self, timetable=replace(self.timetable, **changes))
@@ -30,7 +31,7 @@ class State:
     def to_sim_diff_setup(self) -> SimDiffSetup:
 
         setup = SimDiffSetupFileless(
-            "test", self.bpmn_definition, self.timetable, False, 1000 # TODO: Reduce cases for testing
+            "test", self.bpmn_definition, self.timetable, False, 1000 if not self.for_testing else 10
         )
         starting_at_datetime = pytz.utc.localize(datetime.datetime.now())
 

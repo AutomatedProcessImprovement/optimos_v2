@@ -12,5 +12,6 @@ def state():
     bpmn_content = open(BPMN_PATH, "r").read()
     return State(
         bpmn_definition= bpmn_content,
-        timetable=TimeTableGenerator(bpmn_content).generate()
+        timetable=TimeTableGenerator(bpmn_content).generate(),
+        for_testing=True
     )

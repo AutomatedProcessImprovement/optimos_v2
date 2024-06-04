@@ -119,11 +119,11 @@ class TimeTableGenerator:
                 probabilities=[
                     Probability(
                         path_id='FLOW_OR_JOIN',
-                        value=0.99
+                        value=0.9
                     ),
                     Probability(
                         path_id='FLOW_OR_LAST',
-                        value=0.01
+                        value=0.1
                     )
                 ]
             )

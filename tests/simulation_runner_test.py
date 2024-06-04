@@ -6,6 +6,7 @@ from o2.types.state import State
 
 def test_simulation_runner(state: State):
     log,stats =  SimulationRunner.run_simulation(state)
-    assert log is not None
+    # We check that the log is "plausible"
+    assert len(log) > 50 
 
     

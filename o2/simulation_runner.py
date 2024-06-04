@@ -2,7 +2,7 @@ import csv
 import io
 from dynamik.input import EventMapping
 from dynamik.input.csv import read_and_merge_csv_logs
-from dynamik.model import Log
+from dynamik.model import Event
 import pytz
 import pandas as pd
 
@@ -17,8 +17,8 @@ from wta import (
     add_enabled_timestamp,
     compute_batch_activation_times,
 )
-
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Collection, TypeAlias
+Log: TypeAlias = Collection[Event]
 
 if TYPE_CHECKING:
     from o2.types.state import State
