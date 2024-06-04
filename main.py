@@ -1,9 +1,9 @@
 import json
-from src.types.timetable import TimetableType
-from src.simulation_runner import SimulationRunner
-from src.types.constraints import ConstraintsType
-import src.store
-import src.hill_climber
+from o2.types.timetable import TimetableType
+from o2.simulation_runner import SimulationRunner
+from o2.types.constraints import ConstraintsType
+import o2.store
+import o2.hill_climber
 import os
 import random
 
@@ -22,15 +22,15 @@ def main():
     with open(bpmn_path, "r") as f:
         bpmn_definition = f.read()
 
-    initial_state = src.store.State(
+    initial_state = o2.store.State(
         bpmn_definition=bpmn_definition,
         timetable=timetable,
     )
-    store = src.store.Store(
+    store = o2.store.Store(
         state=initial_state,
         constraints=constraints,
     )
-    hill_climber = src.hill_climber.HillClimber(store)
+    hill_climber = o2.hill_climber.HillClimber(store)
     hill_climber.solve()
     # SimulationRunner.run_simulation(store.state)
 

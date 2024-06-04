@@ -2,15 +2,15 @@ import concurrent.futures
 import os
 import random
 from typing import Dict, Optional, Union
-from optimos_v2.src.actions.base_action import BaseAction
-from optimos_v2.src.actions.modify_size_rule_action import ModifySizeRuleAction, ModifySizeRuleActionParamsType
-from optimos_v2.src.actions.remove_rule_action import RemoveRuleAction, RemoveRuleActionParamsType
-from src.types.timetable import BatchingRule
-from src.types.evaluation import Evaluation
-from src.pareto_front import FRONT_STATUS
+from o2.actions.base_action import BaseAction
+from o2.actions.modify_size_rule_action import ModifySizeRuleAction, ModifySizeRuleActionParamsType
+from o2.actions.remove_rule_action import RemoveRuleAction, RemoveRuleActionParamsType
+from o2.types.timetable import BatchingRule
+from o2.types.evaluation import Evaluation
+from o2.pareto_front import FRONT_STATUS
 
-from src.store import Store
-from src.types.state import State
+from o2.store import Store
+from o2.types.state import State
 
 
 class ActionSelector:

@@ -1,0 +1,40 @@
+{
+  "resource_profiles": [
+    {
+      "name": "Base profile pool",
+      "id": "Base profile pool",
+      "resource_list": [
+        {
+          "calendar": "24/7",
+          "amount": 50,
+          "cost_per_hour": 10,
+          "name": "Base profile",
+          "id": "Base profile"
+        }
+      ]
+    }
+  ],
+  "arrival_time_distribution": {
+    "distribution_name": "norm",
+    "distribution_params": [
+      {
+        "value": 60
+      }
+    ]
+  },
+  "arrival_time_calendar": [
+    {
+      "from": "MONDAY",
+      "to": "SUNDAY",
+      "beginTime": "08:00:00",
+      "endTime": "17:00:00"
+    }
+  ],
+  "gateway_branching_probabilities": [],
+  "task_resource_distribution": [],
+  "resource_calendars": [],
+  "event_distribution": {},
+  "batch_processing": [],
+  "start_time": "2000-01-01T00:00",
+  "total_cases": 1000
+}

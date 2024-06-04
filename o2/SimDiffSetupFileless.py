@@ -30,7 +30,7 @@ import pytz
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from src.types.timetable import TimetableType
+    from o2.types.timetable import TimetableType
 
 
 class SimDiffSetupFileless(SimDiffSetup):

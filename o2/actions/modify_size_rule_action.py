@@ -1,7 +1,7 @@
 from sympy import Symbol, lambdify
-from optimos_v2.src.actions.base_action import BaseAction, BaseActionParamsType
-from optimos_v2.src.types.state import State
-from optimos_v2.src.types.timetable import BatchingRule, Distribution, FiringRule
+from o2.actions.base_action import BaseAction, BaseActionParamsType
+from o2.types.state import State
+from o2.types.timetable import BatchingRule, Distribution, FiringRule
 
 
 class ModifySizeRuleActionParamsType(BaseActionParamsType):

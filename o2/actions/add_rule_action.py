@@ -1,5 +1,5 @@
-from optimos_v2.src.actions.base_action import BaseAction, BaseActionParamsType
-from optimos_v2.src.types.state import State
+from o2.actions.base_action import BaseAction, BaseActionParamsType
+from o2.types.state import State
 
 
 class AddRuleActionParamsType(BaseActionParamsType):

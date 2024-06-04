@@ -1,9 +1,9 @@
 from dataclasses import dataclass
-from optimos_v2.src.actions.base_action import BaseAction
-from src.pareto_front import FRONT_STATUS, ParetoFront
+from o2.actions.base_action import BaseAction
+from o2.pareto_front import FRONT_STATUS, ParetoFront
 
-from src.types.constraints import ConstraintsType
-from src.types.state import State
+from o2.types.constraints import ConstraintsType
+from o2.types.state import State
 
 
 class Store:

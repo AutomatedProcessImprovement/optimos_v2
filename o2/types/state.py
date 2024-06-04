@@ -5,11 +5,11 @@ import pytz
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from src.types.timetable import TimetableType
-from src.SimDiffSetupFileless import SimDiffSetupFileless
-from src.evaluator import Evaluator
-from src.simulation_runner import SimulationRunner
-from src.types.constraints import ConstraintsType
+    from o2.types.timetable import TimetableType
+from o2.SimDiffSetupFileless import SimDiffSetupFileless
+from o2.evaluator import Evaluator
+from o2.simulation_runner import SimulationRunner
+from o2.types.constraints import ConstraintsType
 from bpdfr_simulation_engine.simulation_setup import SimDiffSetup
 from json import dumps
 
@@ -30,7 +30,7 @@ class State:
     def to_sim_diff_setup(self) -> SimDiffSetup:
 
         setup = SimDiffSetupFileless(
-            "test", self.bpmn_definition, self.timetable, False, 1000
+            "test", self.bpmn_definition, self.timetable, False, 1000 # TODO: Reduce cases for testing
         )
         starting_at_datetime = pytz.utc.localize(datetime.datetime.now())
 

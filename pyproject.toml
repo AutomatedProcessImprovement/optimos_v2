@@ -17,6 +17,17 @@ dataclass-wizard = "^0.22.3"
 sympy = "^1.12.1"
 
 
+[tool.poetry.group.dev.dependencies]
+pytest-cov = "^5.0.0"
+pytest-watch = "^4.2.0"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.coverage.run]
+source = ["o2"]
+
+[tool.pytest.ini_options]
+# addopts = "--cov --cov-report=lcov:lcov.info --cov-report=term"
+pythonpath = ["."]

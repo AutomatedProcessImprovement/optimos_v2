@@ -9,7 +9,7 @@ from dynamik.model import Log
 from dynamik.utils.pm.calendars import Calendar, discover_calendars
 from intervaltree import Interval, IntervalTree
 
-from src.types.evaluation import Evaluation
+from o2.types.evaluation import Evaluation
 
 # Ignore FutureWarnings
 warnings.simplefilter(action="ignore", category=FutureWarning)

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import TypedDict
-from optimos_v2.src.types.state import State
+from o2.types.state import State
 
 
 class BaseActionParamsType(TypedDict):

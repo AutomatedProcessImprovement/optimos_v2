@@ -21,7 +21,7 @@ from wta import (
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from src.types.state import State
+    from o2.types.state import State
 
 
 class SimulationRunner:

@@ -1,20 +1,30 @@
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
+from enum import Enum
 from json import dumps
-from typing import List, Union
+from typing import Any, List, Optional, Union
 
 from typing_extensions import TypedDict
-from dataclass_wizard import JSONWizard
+from dataclass_wizard import JSONWizard, json_field, json_key
 from typing import TYPE_CHECKING
 import hashlib
 
 
 if TYPE_CHECKING:
-    from src.store import Store
-from src.types.constraints import BATCH_TYPE, RULE_TYPE, SizeRuleConstraints
+    from o2.store import Store
+from o2.types.days import DAY
+from o2.types.constraints import BATCH_TYPE, RULE_TYPE, SizeRuleConstraints
 
+
+class DISTRIBUTION_TYPE(str, Enum):
+    FIXED = "fix"
+    NORMAL = "norm"
+    UNIFORM = "uniform"
+    EXPONENTIAL = "expon"
+    EXPONENTIAL_NORMAL = "exponnorm"
+ 
 
 @dataclass(frozen=True)
-class ResourceListItem(JSONWizard):
+class Resource(JSONWizard):
     id: str
     name: str
     cost_per_hour: int
@@ -24,64 +34,72 @@ class ResourceListItem(JSONWizard):
 
 
 @dataclass(frozen=True)
-class ResourceProfilesItem(JSONWizard):
+class ResourcePool(JSONWizard):
     id: str
     name: str
-    resource_list: List[ResourceListItem]
+    resource_list: List[Resource]
 
 
 @dataclass(frozen=True)
-class DistributionParamsItem(JSONWizard):
+class DistributionParameter(JSONWizard):
     value: Union[float, int]
 
 
 @dataclass(frozen=True)
 class ArrivalTimeDistribution(JSONWizard):
-    distribution_name: str
-    distribution_params: List[DistributionParamsItem]
+    distribution_name: DISTRIBUTION_TYPE
+    distribution_params: List[DistributionParameter]
 
-
-TimePeriodsItem = TypedDict(
-    "TimePeriodsItem",
-    {
-        "from": str,
-        "to": str,
-        "beginTime": str,
-        "endTime": str,
-    },
-)
 
 
 @dataclass(frozen=True)
-class ProbabilitiesItem0(JSONWizard):
+class TimePeriod(JSONWizard):
+    from_: DAY
+    to: DAY
+    beginTime: str
+    endTime: str
+
+    class _(JSONWizard.Meta):
+        json_key_to_field:Any={
+            "from": "from_",
+            "to": "to",
+            "beginTime": "beginTime",
+            "endTime": "endTime",
+            "__all__": True
+        }
+
+    
+
+@dataclass(frozen=True)
+class Probability(JSONWizard):
     path_id: str
     value: float
 
 
 @dataclass(frozen=True)
-class GatewayBranchingProbabilitiesItem(JSONWizard):
+class GatewayBranchingProbability(JSONWizard):
     gateway_id: str
-    probabilities: List[ProbabilitiesItem0]
+    probabilities: List[Probability]
 
 
 @dataclass(frozen=True)
-class TimetableResourceItem(JSONWizard):
+class TaskResourceDistribution(JSONWizard):
     resource_id: str
     distribution_name: str
-    distribution_params: List[DistributionParamsItem]
+    distribution_params: List[DistributionParameter]
 
 
 @dataclass(frozen=True)
-class TaskResourceDistributionItem(JSONWizard):
+class TaskResourceDistributions(JSONWizard):
     task_id: str
-    resources: List[TimetableResourceItem]
+    resources: List[TaskResourceDistribution]
 
 
 @dataclass(frozen=True)
-class ResourceCalendarsItem(JSONWizard):
+class ResourceCalendar(JSONWizard):
     id: str
     name: str
-    time_periods: List[TimePeriodsItem]
+    time_periods: List[TimePeriod]
 
 
 @dataclass(frozen=True)
@@ -130,14 +148,16 @@ class BatchingRule(JSONWizard):
 
 @dataclass(frozen=True)
 class TimetableType(JSONWizard):
-    resource_profiles: List[ResourceProfilesItem]
+    resource_profiles: List[ResourcePool]
     arrival_time_distribution: ArrivalTimeDistribution
-    arrival_time_calendar: List[TimePeriodsItem]
-    gateway_branching_probabilities: List[GatewayBranchingProbabilitiesItem]
-    task_resource_distribution: List[TaskResourceDistributionItem]
-    resource_calendars: List[ResourceCalendarsItem]
+    arrival_time_calendar: List[TimePeriod]
+    gateway_branching_probabilities: List[GatewayBranchingProbability]
+    task_resource_distribution: List[TaskResourceDistributions]
+    resource_calendars: List[ResourceCalendar]
     event_distribution: EventDistribution
     batch_processing: List[BatchingRule]
+    start_time:str = "2000-01-01T00:00:00Z"
+    total_cases:int = 1000
 
     class _(JSONWizard.Meta):
         key_transform_with_dump = "SNAKE"

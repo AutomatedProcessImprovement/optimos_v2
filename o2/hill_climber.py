@@ -1,8 +1,8 @@
-from optimos_v2.src.actions.action_selector import ActionSelector
-from src.pareto_front import FRONT_STATUS
+from o2.actions.action_selector import ActionSelector
+from o2.pareto_front import FRONT_STATUS
 
-from src.store import Store
-from src.types.state import State
+from o2.store import Store
+from o2.types.state import State
 
 
 class HillClimber:
