@@ -1,8 +1,10 @@
 from dataclasses import replace
 from o2.types.days import DAY
-from o2.types.timetable import DISTRIBUTION_TYPE, ArrivalTimeDistribution, DistributionParameter, EventDistribution, GatewayBranchingProbability, Probability, Resource, ResourceCalendar, ResourcePool, TaskResourceDistribution, TaskResourceDistributions, TimePeriod, TimetableType
+from o2.types.timetable import DISTRIBUTION_TYPE, ArrivalTimeDistribution, BatchingRule, Distribution, DistributionParameter, EventDistribution, FiringRule, GatewayBranchingProbability, Probability, Resource, ResourceCalendar, ResourcePool, TaskResourceDistribution, TaskResourceDistributions, TimePeriod, TimetableType
 import xml.etree.ElementTree as ET
 import io
+
+from optimos_v2.o2.types.constraints import BATCH_TYPE
 
 
 
@@ -112,7 +114,7 @@ class TimeTableGenerator:
            )
         )
 
-    def create_gateway_branching_probabilities(self):
+    def create_simple_gateway_branching_probabilities(self):
         self.timetable.gateway_branching_probabilities.append(
             GatewayBranchingProbability(
                 gateway_id=self.GATEWAY_ID,
@@ -128,14 +130,46 @@ class TimeTableGenerator:
                 ]
             )
         )
+
+    def create_simple_batch_processing(self):
+        self.timetable = replace(self.timetable, batch_processing= [
+            BatchingRule(
+              task_id=task.attrib["id"],
+              type=BATCH_TYPE.SEQUENTIAL,
+              size_distrib=[
+                  Distribution(
+                      key="3",
+                      value=1.0
+                  )
+              ],
+              duration_distrib=[
+                    Distribution(
+                        key="3",
+                        value=1.0
+                    )
+                ],
+                firing_rules=[
+                    [
+                        FiringRule(  # noqa: F821
+                            attribute="size",
+                            comparison="==",
+                            value=3
+                        )
+                    ]
+                ]
+            ) for task in self.tasks
+        ]
+        )
         
 
-    def generate(self):
+    def generate_simple(self, include_batching=False):
         self.create_simple_resource_profile()
         self.create_simple_arrival_time_calendar()
         self.create_simple_arrival_time_distribution()
         self.create_simple_task_resource_distribution()
         self.create_simple_resource_calendars()
-        self.create_gateway_branching_probabilities()
+        self.create_simple_gateway_branching_probabilities()
+        if include_batching:
+            self.create_simple_batch_processing()
         return self.timetable
     

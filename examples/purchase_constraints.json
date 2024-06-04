@@ -1,6 +1,7 @@
 {
   "batching_constraints": [
     {
+      "id": "batching_constraint_1",
       "tasks": [
         "node_df55f914-8f7d-4077-9696-9288d12431bc",
         "node_c9570e98-4fdc-4d2c-a5dc-e5da82e8eafd",

@@ -72,7 +72,7 @@ class ActionSelector:
     @staticmethod
     def find_most_impactful_batching_rule(
         store: "Store",
-    ) -> Union[BatchingRule, BaseAction, None]:
+    ) -> Union[BatchingRule,  None]:
         batching_rules = store.state.timetable.batch_processing
         tabu_indices = [action.params["rule_hash"] for action in store.tabu_list]  # type: ignore TODO FIX Type
 
@@ -132,19 +132,19 @@ class ActionSelector:
             key=lambda rule_hash: base_line_waiting_time
             - evaluations[rule_hash].total_waiting_time,
         )
-        most_impactful_evaluation = evaluations[most_impactful_rule_hash]
+        # most_impactful_evaluation = evaluations[most_impactful_rule_hash]
 
-        # TODO: This needs to move to a better place
-        if (
-            store.current_pareto_front.is_in_front(most_impactful_evaluation)
-            == FRONT_STATUS.IS_DOMINATED
-        ):
-            print(
-                f"\t> Most impactful rule dominates current pareto front. Rule: {most_impactful_rule_hash}"
-            )
-            return RemoveRuleAction(
-                RemoveRuleActionParamsType(rule_hash=most_impactful_rule_hash)
-            )
+        # # TODO: This needs to move to a better place
+        # if (
+        #     store.current_pareto_front.is_in_front(most_impactful_evaluation)
+        #     == FRONT_STATUS.IS_DOMINATED
+        # ):
+        #     print(
+        #         f"\t> Most impactful rule dominates current pareto front. Rule: {most_impactful_rule_hash}"
+        #     )
+        #     return RemoveRuleAction(
+        #         RemoveRuleActionParamsType(rule_hash=most_impactful_rule_hash)
+        #     )
 
         most_impactful_rule = next(
             (rule for rule in batching_rules if rule.id() == most_impactful_rule_hash),

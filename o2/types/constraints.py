@@ -21,12 +21,13 @@ class RULE_TYPE(str, Enum):
 
 @dataclass(frozen=True)
 class BatchingConstraints(JSONWizard):
+    id: str
     tasks: list[str]
     batch_type: BATCH_TYPE
     rule_type: RULE_TYPE
     duration_fn: str
 
-
+@dataclass(frozen=True)
 class SizeRuleConstraints(BatchingConstraints, JSONWizard):
     min_size: int
     max_size: int

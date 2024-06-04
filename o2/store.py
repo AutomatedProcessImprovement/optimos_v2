@@ -4,6 +4,7 @@ from o2.pareto_front import FRONT_STATUS, ParetoFront
 
 from o2.types.constraints import ConstraintsType
 from o2.types.state import State
+from optimos_v2.o2.types.evaluation import Evaluation
 
 
 class Store:
@@ -32,6 +33,8 @@ class Store:
 
     @property
     def current_fastest_evaluation(self):
+        if(len(self.current_pareto_front.evaluations)) == 0:
+            return Evaluation.empty()
         return sorted(
             self.current_pareto_front.evaluations, key=lambda x: x.total_waiting_time
         )[0]
