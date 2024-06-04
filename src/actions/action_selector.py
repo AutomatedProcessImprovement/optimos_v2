@@ -2,25 +2,22 @@ import concurrent.futures
 import os
 import random
 from typing import Dict, Optional, Union
+from optimos_v2.src.actions.base_action import BaseAction
+from optimos_v2.src.actions.modify_size_rule_action import ModifySizeRuleAction, ModifySizeRuleActionParamsType
+from optimos_v2.src.actions.remove_rule_action import RemoveRuleAction, RemoveRuleActionParamsType
 from src.types.timetable import BatchingRule
 from src.types.evaluation import Evaluation
 from src.pareto_front import FRONT_STATUS
-from src.actions import (
-    Action,
-    ModifySizeRuleAction,
-    ModifySizeRuleActionParamsType,
-    RemoveRuleAction,
-    RemoveRuleActionParamsType,
-)
+
 from src.store import Store
 from src.types.state import State
 
 
 class ActionSelector:
     @staticmethod
-    def select_action(store: Store) -> Optional[Action]:
+    def select_action(store: Store) -> Optional[BaseAction]:
         tries = 0
-        action: Optional[Action] = None
+        action: Optional[BaseAction] = None
         while action is None:
 
             if tries > 10:
@@ -33,7 +30,7 @@ class ActionSelector:
             if most_impactful_rule_or_action is None:
                 return None
 
-            if isinstance(most_impactful_rule_or_action, Action):
+            if isinstance(most_impactful_rule_or_action, BaseAction):
                 return most_impactful_rule_or_action
 
             constraint = store.constraints.get_batching_constraints_for_task(
@@ -54,7 +51,7 @@ class ActionSelector:
             )
             if action in store.tabu_list:
                 print(
-                    f"\t> Action is tabu list, trying again... ({tries}/10): {action}"
+                    f"\t> BaseAction is tabu list, trying again... ({tries}/10): {action}"
                 )
                 action = None
                 tries += 1
@@ -75,7 +72,7 @@ class ActionSelector:
     @staticmethod
     def find_most_impactful_batching_rule(
         store: "Store",
-    ) -> Union[BatchingRule, Action, None]:
+    ) -> Union[BatchingRule, BaseAction, None]:
         batching_rules = store.state.timetable.batch_processing
         tabu_indices = [action.params["rule_hash"] for action in store.tabu_list]  # type: ignore TODO FIX Type
 
@@ -107,7 +104,7 @@ class ActionSelector:
         ) as executor:
             futures: list[
                 concurrent.futures.Future[
-                    tuple[FRONT_STATUS, Evaluation, State, Action]
+                    tuple[FRONT_STATUS, Evaluation, State, BaseAction]
                 ]
             ] = []
             for chunk in chunks:

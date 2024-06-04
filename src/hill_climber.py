@@ -1,5 +1,6 @@
+from optimos_v2.src.actions.action_selector import ActionSelector
 from src.pareto_front import FRONT_STATUS
-from src.action_selector import ActionSelector
+
 from src.store import Store
 from src.types.state import State
 
