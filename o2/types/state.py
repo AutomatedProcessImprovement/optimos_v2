@@ -16,7 +16,7 @@ from json import dumps
 
 @dataclass(frozen=True)
 class State:
-    bpmn_definition: str 
+    bpmn_definition: str
 
     timetable: "TimetableType"
     for_testing: bool = False
@@ -29,9 +29,12 @@ class State:
         return Evaluator.evaluateLog(log, stats)
 
     def to_sim_diff_setup(self) -> SimDiffSetup:
-
         setup = SimDiffSetupFileless(
-            "test", self.bpmn_definition, self.timetable, False, 1000 if not self.for_testing else 10
+            "test",
+            self.bpmn_definition,
+            self.timetable,
+            False,
+            1000 if not self.for_testing else 100,
         )
         starting_at_datetime = pytz.utc.localize(datetime.datetime.now())
 

@@ -3,7 +3,10 @@ import os
 import random
 from typing import Dict, Optional, Union
 from o2.actions.base_action import BaseAction
-from o2.actions.modify_size_rule_action import ModifySizeRuleAction, ModifySizeRuleActionParamsType
+from o2.actions.modify_size_rule_action import (
+    ModifySizeRuleAction,
+    ModifySizeRuleActionParamsType,
+)
 from o2.actions.remove_rule_action import RemoveRuleAction, RemoveRuleActionParamsType
 from o2.types.timetable import BatchingRule
 from o2.types.evaluation import Evaluation
@@ -19,7 +22,6 @@ class ActionSelector:
         tries = 0
         action: Optional[BaseAction] = None
         while action is None:
-
             if tries > 10:
                 return None
 
@@ -72,7 +74,7 @@ class ActionSelector:
     @staticmethod
     def find_most_impactful_batching_rule(
         store: "Store",
-    ) -> Union[BatchingRule,  None]:
+    ) -> Union[BatchingRule, None]:
         batching_rules = store.state.timetable.batch_processing
         tabu_indices = [action.params["rule_hash"] for action in store.tabu_list]  # type: ignore TODO FIX Type
 
@@ -87,6 +89,7 @@ class ActionSelector:
             return None
 
         base_line_waiting_time = store.current_fastest_evaluation.total_waiting_time
+
         evaluations: dict[str, Evaluation] = {}
 
         # Determine the number of threads to use
@@ -129,8 +132,7 @@ class ActionSelector:
         # Find the rule that has the most impact
         most_impactful_rule_hash = max(
             evaluations,
-            key=lambda rule_hash: base_line_waiting_time
-            - evaluations[rule_hash].total_waiting_time,
+            key=lambda rule_hash: evaluations[rule_hash].total_waiting_time,
         )
         # most_impactful_evaluation = evaluations[most_impactful_rule_hash]
 

@@ -3,21 +3,18 @@ import io
 from dynamik.input import EventMapping
 from dynamik.input.csv import read_and_merge_csv_logs
 from dynamik.model import Event
-import pytz
 import pandas as pd
 
 from bpdfr_simulation_engine.simulation_engine import run_simpy_simulation
 from wta import (
     convert_timestamp_columns_to_datetime,
-    activity_transitions,
     WAITING_TIME_BATCHING_KEY,
     WAITING_TIME_TOTAL_KEY,
     EventLogIDs,
-    parallel_activities_with_heuristic_oracle,
     add_enabled_timestamp,
-    compute_batch_activation_times,
 )
 from typing import TYPE_CHECKING, Collection, TypeAlias
+
 Log: TypeAlias = Collection[Event]
 
 if TYPE_CHECKING:

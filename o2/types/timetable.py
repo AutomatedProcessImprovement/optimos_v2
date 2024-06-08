@@ -16,12 +16,21 @@ from o2.types.constraints import BATCH_TYPE, RULE_TYPE, SizeRuleConstraints
 
 
 class DISTRIBUTION_TYPE(str, Enum):
+    # No distribution
     FIXED = "fix"
+
+    # Uniform aka random between, min and max
+    # (Using numpy.random.uniform)
+    UNIFORM = "default"
+
+    # The rest of the distributions are from scipy.stats
     NORMAL = "norm"
-    UNIFORM = "uniform"
     EXPONENTIAL = "expon"
     EXPONENTIAL_NORMAL = "exponnorm"
- 
+    GAMMA = "gamma"
+    TRIANGULAR = "triang"
+    LOG_NORMAL = "lognorm"
+
 
 @dataclass(frozen=True)
 class Resource(JSONWizard):
@@ -51,7 +60,6 @@ class ArrivalTimeDistribution(JSONWizard):
     distribution_params: List[DistributionParameter]
 
 
-
 @dataclass(frozen=True)
 class TimePeriod(JSONWizard):
     from_: DAY
@@ -60,15 +68,14 @@ class TimePeriod(JSONWizard):
     endTime: str
 
     class _(JSONWizard.Meta):
-        json_key_to_field:Any={
+        json_key_to_field: Any = {
             "from": "from_",
             "to": "to",
             "beginTime": "beginTime",
             "endTime": "endTime",
-            "__all__": True
+            "__all__": True,
         }
 
-    
 
 @dataclass(frozen=True)
 class Probability(JSONWizard):
@@ -156,8 +163,8 @@ class TimetableType(JSONWizard):
     resource_calendars: List[ResourceCalendar]
     event_distribution: EventDistribution
     batch_processing: List[BatchingRule]
-    start_time:str = "2000-01-01T00:00:00Z"
-    total_cases:int = 1000
+    start_time: str = "2000-01-01T00:00:00Z"
+    total_cases: int = 1000
 
     class _(JSONWizard.Meta):
         key_transform_with_dump = "SNAKE"

@@ -45,6 +45,7 @@ class Evaluator:
         accumulated_waiting_time = df["Total Waiting Time"].sum()
 
         return Evaluation(
+            df=df,
             total_cost=accumulated_total_cost,
             total_cycle_time=accumulated_total_cycle_time,
             total_waiting_time=accumulated_waiting_time,
@@ -52,7 +53,6 @@ class Evaluator:
 
     @staticmethod
     def evaluateLog(log: Log, stats: str):
-
         return Evaluator.parse_stats(stats)
 
         # # build an interval for the log timeframe

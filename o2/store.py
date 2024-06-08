@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from o2.actions.base_action import BaseAction
 from o2.pareto_front import FRONT_STATUS, ParetoFront
 
@@ -33,7 +33,7 @@ class Store:
 
     @property
     def current_fastest_evaluation(self):
-        if(len(self.current_pareto_front.evaluations)) == 0:
+        if (len(self.current_pareto_front.evaluations)) == 0:
             return Evaluation.empty()
         return sorted(
             self.current_pareto_front.evaluations, key=lambda x: x.total_waiting_time
@@ -69,3 +69,15 @@ class Store:
         evaluation = new_state.evaluate()
         status = self.current_pareto_front.is_in_front(evaluation)
         return (status, evaluation, new_state, action)
+
+    def replaceConstraints(self, /, **changes):
+        self.constraints = replace(self.constraints, **changes)
+        return self.constraints
+
+    def replaceState(self, /, **changes):
+        self.state = replace(self.state, **changes)
+        return self.state
+
+    def replaceTimetable(self, /, **changes):
+        self.state = self.state.replaceTimetable(**changes)
+        return self.state.timetable
