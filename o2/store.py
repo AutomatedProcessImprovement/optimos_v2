@@ -35,9 +35,11 @@ class Store:
     def current_fastest_evaluation(self):
         if (len(self.current_pareto_front.evaluations)) == 0:
             return Evaluation.empty()
-        return sorted(
-            self.current_pareto_front.evaluations, key=lambda x: x.total_waiting_time
-        )[0]
+        return min(
+            # TODO Waiting Time ?
+            self.current_pareto_front.evaluations,
+            key=lambda x: x.total_waiting_time,
+        )
 
     def apply_action(self, action: BaseAction):
         self.previous_actions.append(action)

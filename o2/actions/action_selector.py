@@ -1,7 +1,7 @@
 import concurrent.futures
 import os
 import random
-from typing import Dict, Optional, Union
+from typing import Dict, Optional, Tuple, Union
 from o2.actions.base_action import BaseAction
 from o2.actions.modify_size_rule_action import (
     ModifySizeRuleAction,
@@ -25,18 +25,27 @@ class ActionSelector:
             if tries > 10:
                 return None
 
-            most_impactful_rule_or_action = (
-                ActionSelector.find_most_impactful_batching_rule(store)
-            )
+            (
+                most_impactful_rule,
+                most_impactful_evaluation,
+            ) = ActionSelector.find_most_impactful_batching_rule(store)
 
-            if most_impactful_rule_or_action is None:
+            if most_impactful_rule is None:
                 return None
 
-            if isinstance(most_impactful_rule_or_action, BaseAction):
-                return most_impactful_rule_or_action
+            # Check if this evaluation beats the current pareto front
+            if store.current_fastest_evaluation.is_dominated_by(
+                most_impactful_evaluation
+            ):
+                print(
+                    f"\t> Most impactful rule dominates current. Rule: {most_impactful_rule.id()}"
+                )
+                return RemoveRuleAction(
+                    RemoveRuleActionParamsType(rule_hash=most_impactful_rule.id())
+                )
 
             constraint = store.constraints.get_batching_constraints_for_task(
-                most_impactful_rule_or_action.task_id
+                most_impactful_rule.task_id
             )
             if constraint is None or len(constraint) == 0:
                 print(
@@ -46,7 +55,7 @@ class ActionSelector:
 
             action = ModifySizeRuleAction(
                 ModifySizeRuleActionParamsType(
-                    rule_hash=most_impactful_rule_or_action.id(),
+                    rule_hash=most_impactful_rule.id(),
                     size_increment=-1,
                     duration_fn=constraint[0].duration_fn,
                 )
@@ -74,7 +83,7 @@ class ActionSelector:
     @staticmethod
     def find_most_impactful_batching_rule(
         store: "Store",
-    ) -> Union[BatchingRule, None]:
+    ) -> Union[Tuple[BatchingRule, Evaluation], Tuple[None, None]]:
         batching_rules = store.state.timetable.batch_processing
         tabu_indices = [action.params["rule_hash"] for action in store.tabu_list]  # type: ignore TODO FIX Type
 
@@ -86,7 +95,7 @@ class ActionSelector:
         ]
 
         if len(batching_rules) == 0:
-            return None
+            return None, None
 
         base_line_waiting_time = store.current_fastest_evaluation.total_waiting_time
 
@@ -129,29 +138,21 @@ class ActionSelector:
                     print(f"\t> Error in future: {e}")
                     continue
 
-        # Find the rule that has the most impact
-        most_impactful_rule_hash = max(
+        # Find the rule that has the most impact,
+        # aka. the one that, after being removed, has reduced the waiting time the most
+        # and therefore has the most potential to improve the current fastest evaluation
+        most_impactful_rule_hash = min(
             evaluations,
             key=lambda rule_hash: evaluations[rule_hash].total_waiting_time,
         )
-        # most_impactful_evaluation = evaluations[most_impactful_rule_hash]
-
-        # # TODO: This needs to move to a better place
-        # if (
-        #     store.current_pareto_front.is_in_front(most_impactful_evaluation)
-        #     == FRONT_STATUS.IS_DOMINATED
-        # ):
-        #     print(
-        #         f"\t> Most impactful rule dominates current pareto front. Rule: {most_impactful_rule_hash}"
-        #     )
-        #     return RemoveRuleAction(
-        #         RemoveRuleActionParamsType(rule_hash=most_impactful_rule_hash)
-        #     )
+        most_impactful_evaluation = evaluations[most_impactful_rule_hash]
 
         most_impactful_rule = next(
             (rule for rule in batching_rules if rule.id() == most_impactful_rule_hash),
             None,
         )
-        print("\t> Found most impactful rule: ", most_impactful_rule_hash)
+        if most_impactful_rule is None:
+            return None, None
 
-        return most_impactful_rule
+        print("\t> Found most impactful rule: ", most_impactful_rule_hash)
+        return (most_impactful_rule, most_impactful_evaluation)
