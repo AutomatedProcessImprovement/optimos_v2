@@ -15,6 +15,14 @@ from o2.types.days import DAY
 from o2.types.constraints import BATCH_TYPE, RULE_TYPE, SizeRuleConstraints
 
 
+class COMPARATOR(Enum):
+    LESS_THEN = "<"
+    LESS_THEN_OR_EQUAL = "<="
+    GREATER_THEN = ">"
+    GREATER_THEN_OR_EQUAL = ">="
+    EQUAL = "="
+
+
 class DISTRIBUTION_TYPE(str, Enum):
     # No distribution
     FIXED = "fix"
@@ -122,8 +130,8 @@ class Distribution(JSONWizard):
 
 @dataclass(frozen=True, eq=True)
 class FiringRule(JSONWizard):
-    attribute: str
-    comparison: str
+    attribute: RULE_TYPE
+    comparison: COMPARATOR
     value: int
 
     def __eq__(self, other):

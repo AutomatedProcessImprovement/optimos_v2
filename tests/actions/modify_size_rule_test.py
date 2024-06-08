@@ -7,7 +7,8 @@ from optimos_v2.o2.actions.modify_size_rule_action import (
     ModifySizeRuleAction,
     ModifySizeRuleActionParamsType,
 )
-from optimos_v2.o2.types.timetable import BatchingRule, FiringRule
+from optimos_v2.o2.types.constraints import RULE_TYPE
+from optimos_v2.o2.types.timetable import COMPARATOR, BatchingRule, FiringRule
 from optimos_v2.tests.fixtures.timetable_generator import TimetableGenerator
 
 
@@ -41,7 +42,7 @@ def check_rule_matches_size(rule: BatchingRule, size: int):
     assert len(rule.firing_rules) == 1
     assert len(rule.firing_rules[0]) == 1
     assert rule.firing_rules[0][0] == FiringRule(
-        attribute="size", comparison="=", value=size
+        attribute=RULE_TYPE.SIZE, comparison=COMPARATOR.EQUAL, value=size
     )
     assert len(rule.size_distrib) == 2
     # Check for first distribution rule (that forbids execution without batching)

@@ -1,6 +1,7 @@
 from dataclasses import replace
 from o2.types.days import DAY
 from o2.types.timetable import (
+    COMPARATOR,
     DISTRIBUTION_TYPE,
     ArrivalTimeDistribution,
     BatchingRule,
@@ -21,7 +22,7 @@ from o2.types.timetable import (
 import xml.etree.ElementTree as ET
 import io
 
-from optimos_v2.o2.types.constraints import BATCH_TYPE
+from optimos_v2.o2.types.constraints import BATCH_TYPE, RULE_TYPE
 
 
 class TimetableGenerator:
@@ -176,7 +177,15 @@ class TimetableGenerator:
                 Distribution(key=str(size), value=1.0),
             ],
             duration_distrib=[Distribution(key=str(size), value=1.0)],
-            firing_rules=[[FiringRule(attribute="size", comparison="=", value=size)]],
+            firing_rules=[
+                [
+                    FiringRule(
+                        attribute=RULE_TYPE.SIZE,
+                        comparison=COMPARATOR.EQUAL,
+                        value=size,
+                    )
+                ]
+            ],
         )
 
     def generate_simple(self, include_batching=False):

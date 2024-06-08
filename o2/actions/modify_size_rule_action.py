@@ -1,7 +1,8 @@
 from sympy import Symbol, lambdify
 from o2.actions.base_action import BaseAction, BaseActionParamsType
 from o2.types.state import State
-from o2.types.timetable import BatchingRule, Distribution, FiringRule
+from o2.types.timetable import COMPARATOR, BatchingRule, Distribution, FiringRule
+from optimos_v2.o2.types.constraints import RULE_TYPE
 
 
 class ModifySizeRuleActionParamsType(BaseActionParamsType):
@@ -46,8 +47,8 @@ class ModifySizeRuleAction(BaseAction):
         firing_rules = [
             [
                 FiringRule(
-                    attribute="size",
-                    comparison="=",
+                    attribute=RULE_TYPE.SIZE,
+                    comparison=COMPARATOR.EQUAL,
                     value=new_size,
                 )
             ]

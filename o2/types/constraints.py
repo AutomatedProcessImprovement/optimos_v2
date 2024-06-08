@@ -27,6 +27,7 @@ class BatchingConstraints(JSONWizard):
     rule_type: RULE_TYPE
     duration_fn: str
 
+
 @dataclass(frozen=True)
 class SizeRuleConstraints(BatchingConstraints, JSONWizard):
     min_size: int
