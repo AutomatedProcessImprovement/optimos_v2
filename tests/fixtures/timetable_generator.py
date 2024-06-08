@@ -31,6 +31,8 @@ class TimetableGenerator:
     GATEWAY_ID = "OR_GATEWAY"
 
     FIRST_ACTIVITY = "FIRST_ACTIVITY"
+    SECOND_ACTIVITY = "SECOND_ACTIVITY"
+    THIRD_ACTIVITY = "THIRD_ACTIVITY"
     IN_LOOP_ACTIVITY = "IN_LOOP"
     LAST_ACTIVITY = "LAST_ACTIVITY"
 
@@ -166,10 +168,14 @@ class TimetableGenerator:
     def batching_size_rule(task_id: str, size: int):
         return BatchingRule(
             task_id=task_id,
-            type=BATCH_TYPE.SEQUENTIAL,
-            size_distrib=[Distribution(key=str(size), value=1.0)],
+            type=BATCH_TYPE.PARALLEL,
+            size_distrib=[
+                # Forbid execution of the task without batching
+                Distribution(key=str(1), value=0.0),
+                Distribution(key=str(size), value=1.0),
+            ],
             duration_distrib=[Distribution(key=str(size), value=1.0)],
-            firing_rules=[[FiringRule(attribute="size", comparison="==", value=size)]],
+            firing_rules=[[FiringRule(attribute="size", comparison="=", value=size)]],
         )
 
     def generate_simple(self, include_batching=False):
