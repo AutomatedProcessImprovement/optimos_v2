@@ -124,7 +124,7 @@ class EventDistribution(JSONWizard):
 
 @dataclass(frozen=True)
 class Distribution(JSONWizard):
-    key: str
+    key: Union[str, int]
     value: float
 
 

@@ -1,7 +1,7 @@
 import concurrent.futures
 import os
 import random
-from typing import Dict, Optional, Tuple, Union
+from typing import Optional, Tuple, Union
 from o2.actions.base_action import BaseAction
 from o2.actions.modify_size_rule_action import (
     ModifySizeRuleAction,
