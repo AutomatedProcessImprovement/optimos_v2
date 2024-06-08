@@ -23,13 +23,18 @@ class ModifySizeRuleAction(BaseAction):
             for i, rule in enumerate(timetable.batch_processing)
             if rule.id() == ruleHash
         )
-        new_size = int(oldRule.size_distrib[0].key) + self.params["size_increment"]
+        old_size = self.get_dominant_distribution(oldRule).key
+        new_size = int(old_size) + self.params["size_increment"]
         fn = lambdify(Symbol("size"), self.params["duration_fn"])
         size_distrib = [
             Distribution(
+                key=str(1),
+                value=0,
+            ),
+            Distribution(
                 key=str(new_size),
                 value=1,
-            )
+            ),
         ]
         duration_distrib = [
             Distribution(
@@ -64,4 +69,11 @@ class ModifySizeRuleAction(BaseAction):
             batch_processing=timetable.batch_processing[:ruleIndex]
             + [newRule]
             + timetable.batch_processing[ruleIndex + 1 :],
+        )
+
+    def get_dominant_distribution(self, oldRule: BatchingRule):
+        # Find the size distribution with the highest probability
+        return max(
+            oldRule.size_distrib,
+            key=lambda distribution: distribution.value,
         )

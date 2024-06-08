@@ -120,11 +120,18 @@ class Distribution(JSONWizard):
     value: float
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=True)
 class FiringRule(JSONWizard):
     attribute: str
     comparison: str
     value: int
+
+    def __eq__(self, other):
+        return (
+            self.attribute == other.attribute
+            and self.comparison == other.comparison
+            and self.value == other.value
+        )
 
 
 @dataclass(frozen=True)

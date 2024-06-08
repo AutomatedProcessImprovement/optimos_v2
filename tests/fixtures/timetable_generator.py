@@ -35,6 +35,7 @@ class TimetableGenerator:
     THIRD_ACTIVITY = "THIRD_ACTIVITY"
     IN_LOOP_ACTIVITY = "IN_LOOP"
     LAST_ACTIVITY = "LAST_ACTIVITY"
+    BATCHING_BASE_SIZE = 3
 
     def __init__(self, bpmn: str):
         fileIo = io.StringIO()
@@ -156,11 +157,11 @@ class TimetableGenerator:
             )
         )
 
-    def create_simple_batch_processing(self):
+    def create_simple_batch_processing(self, size=BATCHING_BASE_SIZE):
         self.timetable = replace(
             self.timetable,
             batch_processing=[
-                self.batching_size_rule(task.attrib["id"], 3) for task in self.tasks
+                self.batching_size_rule(task.attrib["id"], size) for task in self.tasks
             ],
         )
 
