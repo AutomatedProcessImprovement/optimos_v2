@@ -15,7 +15,7 @@ from o2.types.days import DAY
 from o2.types.constraints import BATCH_TYPE, RULE_TYPE, SizeRuleConstraints
 
 
-class COMPARATOR(Enum):
+class COMPARATOR(str, Enum):
     LESS_THEN = "<"
     LESS_THEN_OR_EQUAL = "<="
     GREATER_THEN = ">"
