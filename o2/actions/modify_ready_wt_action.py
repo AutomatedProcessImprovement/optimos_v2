@@ -2,7 +2,7 @@ from dataclasses import replace
 from o2.actions.base_action import BaseAction, BaseActionParamsType
 from o2.types.state import State
 from o2.types.timetable import COMPARATOR, BatchingRule, Distribution, FiringRule
-from optimos_v2.o2.types.constraints import RULE_TYPE
+from o2.types.constraints import RULE_TYPE
 
 
 class ModifyReadyWtRuleActionParamsType(BaseActionParamsType):

@@ -1,4 +1,4 @@
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass, field, replace
 from enum import Enum
 from json import dumps
 from typing import Any, List, Optional, Union
@@ -10,6 +10,7 @@ import hashlib
 
 
 if TYPE_CHECKING:
+    from o2.types.rule_selector import RuleSelector
     from o2.store import Store
 from o2.types.days import DAY
 from o2.types.constraints import BATCH_TYPE, RULE_TYPE, SizeRuleConstraints
@@ -141,6 +142,14 @@ class FiringRule(JSONWizard):
             and self.value == other.value
         )
 
+    def id(self):
+        # TODO Use a more performant hash function
+        return hashlib.md5(str(dumps(asdict(self))).encode()).hexdigest()
+
+
+AndRules = List[FiringRule]
+OrRules = List[AndRules]
+
 
 @dataclass(frozen=True)
 class BatchingRule(JSONWizard):
@@ -148,7 +157,7 @@ class BatchingRule(JSONWizard):
     type: BATCH_TYPE
     size_distrib: list[Distribution]
     duration_distrib: list[Distribution]
-    firing_rules: list[list[FiringRule]]
+    firing_rules: OrRules
 
     def can_be_modified(self, store: "Store", size_increment: int):
         matching_constraints = store.constraints.get_batching_constraints_for_task(
@@ -166,6 +175,20 @@ class BatchingRule(JSONWizard):
     def id(self):
         # TODO Use a more performant hash function
         return hashlib.md5(str(dumps(asdict(self))).encode()).hexdigest()
+
+    def remove_firing_rule(self, rule_selector: "RuleSelector"):
+        assert rule_selector.firing_rule_index is not None
+        or_index = rule_selector.firing_rule_index[0]
+        and_index = rule_selector.firing_rule_index[1]
+        new_rules = (
+            self.firing_rules[:or_index]
+            + [
+                self.firing_rules[or_index][:and_index]
+                + self.firing_rules[or_index][and_index + 1 :]
+            ]
+            + self.firing_rules[or_index + 1 :]
+        )
+        return replace(self, firing_rules=new_rules)
 
 
 @dataclass(frozen=True)

@@ -22,7 +22,7 @@ from o2.types.timetable import (
 import xml.etree.ElementTree as ET
 import io
 
-from optimos_v2.o2.types.constraints import BATCH_TYPE, RULE_TYPE
+from o2.types.constraints import BATCH_TYPE, RULE_TYPE
 
 
 class TimetableGenerator:

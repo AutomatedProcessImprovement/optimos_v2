@@ -4,7 +4,7 @@ from o2.pareto_front import FRONT_STATUS, ParetoFront
 
 from o2.types.constraints import ConstraintsType
 from o2.types.state import State
-from optimos_v2.o2.types.evaluation import Evaluation
+from o2.types.evaluation import Evaluation
 
 
 class Store:

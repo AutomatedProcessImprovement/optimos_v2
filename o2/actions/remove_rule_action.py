@@ -3,7 +3,7 @@ from o2.types.state import State
 
 
 class RemoveRuleActionParamsType(BaseActionParamsType):
-    rule_hash: str
+    pass
 
 
 class RemoveRuleAction(BaseAction):
@@ -13,22 +13,26 @@ class RemoveRuleAction(BaseAction):
     # (TimetableType is a frozen dataclass)
     def apply(self, state: State, enable_prints=True):
         timetable = state.timetable
-        rule_hash = self.params["rule_hash"]
+        rule_selector = self.params["rule"]
 
-        rule_index = next(
+        index, rule = next(
             (
-                i
+                (i, rule)
                 for i, rule in enumerate(timetable.batch_processing)
-                if rule.id() == rule_hash
+                if rule_selector.batching_rule_task_id == rule.task_id
             ),
-            None,
+            [None, None],
         )
-        if rule_index is None:
-            print(f"Rule with hash {rule_hash} not found")
+        if rule is None or index is None:
+            print(f"BatchingRule not found for {rule_selector}")
             return state
         if enable_prints:
-            print(f"\t\t>> Removing rule {rule_hash}")
+            print(f"\t\t>> Removing rule {rule_selector}")
+
+        new_batching_rule = rule.remove_firing_rule(rule_selector)
+
         return state.replaceTimetable(
-            batch_processing=timetable.batch_processing[:rule_index]
-            + timetable.batch_processing[rule_index + 1 :],
+            batch_processing=timetable.batch_processing[:index]
+            + [new_batching_rule]
+            + timetable.batch_processing[index + 1 :],
         )

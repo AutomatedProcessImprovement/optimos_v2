@@ -1,10 +1,11 @@
 from dataclasses import dataclass
-from typing import TypedDict
+from typing import Optional, TypedDict
 from o2.types.state import State
+from o2.types.rule_selector import RuleSelector
 
 
 class BaseActionParamsType(TypedDict):
-    pass
+    rule: RuleSelector
 
 
 @dataclass(frozen=True)
@@ -19,4 +20,3 @@ class BaseAction:
 
     def __eq__(self, other):
         return self.__class__ == other.__class__ and self.params == other.params
-
