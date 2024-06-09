@@ -1,4 +1,5 @@
-from dataclasses import dataclass, replace, asdict
+import xml.etree.ElementTree as ET
+from dataclasses import dataclass, field, replace, asdict
 import datetime
 import io
 import pytz
@@ -17,6 +18,7 @@ from json import dumps
 @dataclass(frozen=True)
 class State:
     bpmn_definition: str
+    bpmn_tree: ET.ElementTree
 
     timetable: "TimetableType"
     for_testing: bool = False
@@ -41,3 +43,8 @@ class State:
         setup.set_starting_datetime(starting_at_datetime)
 
         return setup
+
+    def get_name_of_task(self, task_id: str) -> str:
+        node = self.bpmn_tree.find(f".//*[@id='{task_id}']")
+        assert node is not None
+        return node.attrib["name"]

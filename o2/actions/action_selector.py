@@ -1,7 +1,7 @@
 import concurrent.futures
 import os
 import random
-from typing import Optional, Tuple, Union
+from typing import Optional, Tuple, Type, Union
 from o2.actions.base_action import BaseAction
 from o2.actions.modify_size_rule_action import (
     ModifySizeRuleAction,
@@ -18,85 +18,63 @@ from o2.pareto_front import FRONT_STATUS
 from o2.store import Store
 from o2.types.state import State
 from o2.types.rule_selector import RuleSelector
+from o2.types.self_rating import RATING, SelfRatingInput
+
+ACTION_CATALOG: list[Type[BaseAction]] = [
+    ModifySizeRuleAction,
+    RemoveRuleAction,
+]
 
 
 class ActionSelector:
     @staticmethod
     def select_action(store: Store) -> Optional[BaseAction]:
-        tries = 0
-        action: Optional[BaseAction] = None
-        while action is None:
-            if tries > 10:
-                return None
+        evaluations = ActionSelector.evaluate_rules(store)
 
-            (
-                most_impactful_rule_selector,
-                most_impactful_evaluation,
-            ) = ActionSelector.find_most_impactful_firing_rule(store)
+        rating_input = SelfRatingInput.from_rule_evaluations(evaluations)
+        if rating_input is None:
+            print("\t> No rules left...")
+            return None
 
-            if most_impactful_rule_selector is None:
-                return None
-
-            # Check if this evaluation beats the current pareto front
-            if store.current_fastest_evaluation.is_dominated_by(
-                most_impactful_evaluation
-            ):
-                print(
-                    f"\t> Most impactful rule dominates current. Rule: {most_impactful_rule_selector}"
-                )
-                return RemoveRuleAction(
-                    RemoveRuleActionParamsType(rule=most_impactful_rule_selector)
-                )
-
-            constraint = store.constraints.get_batching_constraints_for_task(
-                most_impactful_rule_selector.batching_rule_task_id
-            )
-            if constraint is None or len(constraint) == 0:
-                print(
-                    "\t> TODO: No Constraint set and getting the fn from the rule is not implemented yet"
-                )
-                return None
-
-            action = ModifySizeRuleAction(
-                ModifySizeRuleActionParamsType(
-                    rule=most_impactful_rule_selector,
-                    size_increment=-1,
-                    duration_fn=constraint[0].duration_fn,
-                )
-            )
-            if action in store.tabu_list:
-                print(
-                    f"\t> BaseAction is tabu list, trying again... ({tries}/10): {action}"
-                )
-                action = None
-                tries += 1
-                continue
-
-            return action
-
-            # batching_rules = store.state.timetable.batch_processing
-            # if len(batching_rules) == 0:
-            #     return None
-            # random_index = random.randint(0, len(batching_rules) - 1)
-            # action = RemoveRuleAction({"rule_hash": random_index})
-
-            # return action
-
-    # Tries to remove all batching rules and returns the one that has the most impact
-    # This runs multithreaded.
-    @staticmethod
-    def find_most_impactful_firing_rule(
-        store: "Store",
-    ) -> Union[Tuple[RuleSelector, Evaluation], Tuple[None, None]]:
-        batching_rules = store.state.timetable.batch_processing
-        tabu_indices = [action.params["rule_hash"] for action in store.tabu_list]  # type: ignore TODO FIX Type
-
-        # Only allow rules, that can be decreased / modified in size
-        batching_rules = [
-            rule
-            for i, rule in enumerate(batching_rules)
-            if rule.can_be_modified(store, -1) and rule.id() not in tabu_indices
+        print("\t> Choosing best action...")
+        # Get a list of rated, possible actions
+        possible_actions = [
+            Action.rate_self(store, rating_input) for Action in ACTION_CATALOG
         ]
+
+        possible_actions = [
+            (rating, action)
+            for rating, action in possible_actions
+            if rating != RATING.NOT_APPLICABLE
+            and action is not None
+            and not store.is_tabu(action)
+        ]
+
+        if len(possible_actions) == 0:
+            print("\t> No actions found!")
+            return None
+
+        rating, best_action = max(possible_actions, key=lambda x: x[0])
+        if rating == 0:
+            return None
+        print(f"\t> Choose {best_action} with Rating: {rating}")
+        return best_action
+
+    # Removes every firing rule individually and evaluates the new state
+    @staticmethod
+    def evaluate_rules(
+        store: "Store",
+    ) -> dict[RuleSelector, Evaluation]:
+        batching_rules = store.state.timetable.batch_processing
+        # TODO: Find a smart way to see which rules not to evaluate, because all possible actions are already in the tabu list
+        # # tabu_indices = [action.params["rule_hash"] for action in store.tabu_list]  # type: ignore TODO FIX Type
+
+        # # Only allow rules, that can be decreased / modified in size
+        # batching_rules = [
+        #     rule
+        #     for i, rule in enumerate(batching_rules)
+        #     if rule.can_be_modified(store, -1) and rule.id() not in tabu_indices
+        # ]
 
         firing_rule_selectors = [
             RuleSelector(rule.task_id, (or_index, and_index))
@@ -106,7 +84,7 @@ class ActionSelector:
         ]
 
         if len(batching_rules) == 0:
-            return None, None
+            return {}
 
         base_line_waiting_time = store.current_fastest_evaluation.total_waiting_time
 
@@ -149,14 +127,4 @@ class ActionSelector:
                     print(f"\t> Error in future: {e}")
                     continue
 
-        # Find the rule that has the most impact,
-        # aka. the one that, after being removed, has reduced the waiting time the most
-        # and therefore has the most potential to improve the current fastest evaluation
-        most_impactful_rule_selector = min(
-            evaluations,
-            key=lambda rule_selector: evaluations[rule_selector].total_waiting_time,
-        )
-        most_impactful_evaluation = evaluations[most_impactful_rule_selector]
-
-        print("\t> Found most impactful rule: ", most_impactful_rule_selector)
-        return (most_impactful_rule_selector, most_impactful_evaluation)
+        return evaluations

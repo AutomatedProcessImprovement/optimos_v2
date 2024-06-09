@@ -38,7 +38,7 @@ class Store:
         return min(
             # TODO Waiting Time ?
             self.current_pareto_front.evaluations,
-            key=lambda x: x.total_waiting_time,
+            key=lambda x: x.total_cost,
         )
 
     def apply_action(self, action: BaseAction):
@@ -83,3 +83,6 @@ class Store:
     def replaceTimetable(self, /, **changes):
         self.state = self.state.replaceTimetable(**changes)
         return self.state.timetable
+
+    def is_tabu(self, action: BaseAction):
+        return action in self.tabu_list

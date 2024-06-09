@@ -4,6 +4,7 @@ from o2.types.state import State
 from o2.store import Store
 from tests.fixtures.constraints_generator import ConstraintsGenerator
 from tests.fixtures.timetable_generator import TimetableGenerator
+import xml.etree.ElementTree as ET
 
 
 BPMN_PATH = "./tests/fixtures/SimpleLoop.bpmn"
@@ -14,6 +15,7 @@ def simple_state():
     bpmn_content = open(BPMN_PATH, "r").read()
     return State(
         bpmn_definition=bpmn_content,
+        bpmn_tree=ET.parse(BPMN_PATH),
         timetable=TimetableGenerator(bpmn_content).generate_simple(),
         for_testing=True,
     )
@@ -24,6 +26,7 @@ def batching_state():
     bpmn_content = open(BPMN_PATH, "r").read()
     return State(
         bpmn_definition=bpmn_content,
+        bpmn_tree=ET.parse(BPMN_PATH),
         timetable=TimetableGenerator(bpmn_content).generate_simple(
             include_batching=True
         ),

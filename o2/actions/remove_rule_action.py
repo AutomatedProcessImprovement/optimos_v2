@@ -1,5 +1,7 @@
 from o2.actions.base_action import BaseAction, BaseActionParamsType
 from o2.types.state import State
+from o2.store import Store
+from o2.types.self_rating import RATING, SelfRatingInput
 
 
 class RemoveRuleActionParamsType(BaseActionParamsType):
@@ -36,3 +38,18 @@ class RemoveRuleAction(BaseAction):
             + [new_batching_rule]
             + timetable.batch_processing[index + 1 :],
         )
+
+    @staticmethod
+    def rate_self(store: Store, input: SelfRatingInput):
+        rule_selector = input.most_impactful_rule
+        evaluation = input.most_impactful_rule_evaluation
+        # Check if this evaluation beats the current pareto front
+        if store.current_fastest_evaluation.is_dominated_by(evaluation):
+            print(
+                f"\t\t>> Most impactful rule dominates current. Rule: {rule_selector}"
+            )
+            return (
+                RATING.EXTREME,
+                RemoveRuleAction(RemoveRuleActionParamsType(rule=rule_selector)),
+            )
+        return RATING.NOT_APPLICABLE, None

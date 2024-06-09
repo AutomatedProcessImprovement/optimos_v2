@@ -53,3 +53,12 @@ class ConstraintsType(JSONWizard):
             for constraint in self.batching_constraints
             if task in constraint.tasks
         ]
+
+    def get_batching_size_rule_constraints(
+        self, task_id: str
+    ) -> list[SizeRuleConstraints]:
+        return [
+            constraint
+            for constraint in self.batching_constraints
+            if task_id in constraint.tasks and constraint.rule_type == RULE_TYPE.SIZE
+        ]

@@ -28,8 +28,8 @@ class HillClimber:
                 if action_to_perform is None:
                     print("\t> No actions left")
                     break
-                self.store.apply_action(action_to_perform)
                 print(f"\t> Performing action {str(action_to_perform)}")
+                self.store.apply_action(action_to_perform)
                 (evaluation, status) = self.store.evaluate()
                 if status == FRONT_STATUS.DOMINATES:
                     print(

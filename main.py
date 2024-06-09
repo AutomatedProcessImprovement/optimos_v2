@@ -6,6 +6,7 @@ import o2.store
 import o2.hill_climber
 import os
 import random
+import xml.etree.ElementTree as ET
 
 
 def main():
@@ -22,8 +23,11 @@ def main():
     with open(bpmn_path, "r") as f:
         bpmn_definition = f.read()
 
+    bpmn_tree = ET.parse(bpmn_path)
+
     initial_state = o2.store.State(
         bpmn_definition=bpmn_definition,
+        bpmn_tree=bpmn_tree,
         timetable=timetable,
     )
     store = o2.store.Store(

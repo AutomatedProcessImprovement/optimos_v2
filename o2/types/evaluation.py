@@ -1,6 +1,10 @@
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 import pandas as pd
+
+if TYPE_CHECKING:
+    from o2.store import Store
 
 
 @dataclass(frozen=True)
@@ -12,8 +16,13 @@ class Evaluation:
     total_waiting_time: float
     # TODO: Think about using avg's instead of totals?
 
-    def get_waiting_time_of_task(self, task_id: str):
-        return self.df[self.df["Task"] == task_id]["Waiting Time"].values[0]
+    def get_avg_waiting_time_of_task_id(self, task_id: str, store: "Store"):
+        task_name = store.state.get_name_of_task(task_id)
+        assert task_name is not None
+        return self.get_avg_waiting_time_of_task_name(task_name)
+
+    def get_avg_waiting_time_of_task_name(self, task_name: str) -> float:
+        return self.df[self.df["Name"] == task_name]["Avg Waiting Time"].values[0]
 
     def __lt__(self, other):
         return self.total_cost < other.total_cost
