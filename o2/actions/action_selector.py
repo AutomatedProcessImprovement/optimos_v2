@@ -51,13 +51,13 @@ class ActionSelector:
         ]
 
         if len(possible_actions) == 0:
-            print("\t> No actions found!")
+            print("\t> No actions remaining, after removing Tabu & N/A actions...")
             return None
 
         rating, best_action = max(possible_actions, key=lambda x: x[0])
         if rating == 0:
             return None
-        print(f"\t> Choose {best_action} with Rating: {rating}")
+        print(f"\t> Chose {best_action} with Rating: {rating}")
         return best_action
 
     # Removes every firing rule individually and evaluates the new state
