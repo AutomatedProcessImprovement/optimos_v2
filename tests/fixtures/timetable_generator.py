@@ -188,6 +188,33 @@ class TimetableGenerator:
             ],
         )
 
+    @staticmethod
+    def ready_wt_rule(task_id: str, ready_wt: int, duration_distribution=1.0):
+        return BatchingRule(
+            task_id=task_id,
+            type=BATCH_TYPE.PARALLEL,
+            size_distrib=[
+                # Forbid execution of the task without batching
+                Distribution(key=str(1), value=0.0),
+                Distribution(key=str(TimetableGenerator.BATCHING_BASE_SIZE), value=1.0),
+            ],
+            duration_distrib=[
+                Distribution(
+                    key=str(TimetableGenerator.BATCHING_BASE_SIZE),
+                    value=duration_distribution,
+                )
+            ],
+            firing_rules=[
+                [
+                    FiringRule(
+                        attribute=RULE_TYPE.READY_WT,
+                        comparison=COMPARATOR.EQUAL,
+                        value=ready_wt,
+                    )
+                ]
+            ],
+        )
+
     def generate_simple(self, include_batching=False):
         self.create_simple_resource_profile()
         self.create_simple_arrival_time_calendar()

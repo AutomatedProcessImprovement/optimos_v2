@@ -24,6 +24,14 @@ class Evaluation:
     def get_avg_waiting_time_of_task_name(self, task_name: str) -> float:
         return self.df[self.df["Name"] == task_name]["Avg Waiting Time"].values[0]
 
+    def get_max_waiting_time_of_task_id(self, task_id: str, store: "Store"):
+        task_name = store.state.get_name_of_task(task_id)
+        assert task_name is not None
+        return self.get_max_waiting_time_of_task_name(task_name)
+
+    def get_max_waiting_time_of_task_name(self, task_name: str) -> float:
+        return self.df[self.df["Name"] == task_name]["Max Waiting Time"].values[0]
+
     def __lt__(self, other):
         return self.total_cost < other.total_cost
 

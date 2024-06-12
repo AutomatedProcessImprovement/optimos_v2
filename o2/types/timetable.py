@@ -1,7 +1,7 @@
 from dataclasses import asdict, dataclass, field, replace
 from enum import Enum
 from json import dumps
-from typing import Any, List, Optional, Union
+from typing import Any, List, Optional, Tuple, Union
 
 from typing_extensions import TypedDict
 from dataclass_wizard import JSONWizard, json_field, json_key
@@ -176,6 +176,13 @@ class BatchingRule(JSONWizard):
         # TODO Use a more performant hash function
         return hashlib.md5(str(dumps(asdict(self))).encode()).hexdigest()
 
+    def get_firing_rule(self, rule_selector: "RuleSelector") -> Optional[FiringRule]:
+        if rule_selector.firing_rule_index is None:
+            return None
+        or_index = rule_selector.firing_rule_index[0]
+        and_index = rule_selector.firing_rule_index[1]
+        return self.firing_rules[or_index][and_index]
+
     def remove_firing_rule(self, rule_selector: "RuleSelector"):
         assert rule_selector.firing_rule_index is not None
         or_index = rule_selector.firing_rule_index[0]
@@ -198,6 +205,24 @@ class BatchingRule(JSONWizard):
             return None
         return replace(self, firing_rules=or_rules)
 
+    def replace_firing_rule(self, rule_selector: "RuleSelector", new_rule: FiringRule):
+        assert rule_selector.firing_rule_index is not None
+        or_index = rule_selector.firing_rule_index[0]
+        and_index = rule_selector.firing_rule_index[1]
+        and_rules = (
+            self.firing_rules[or_index][:and_index]
+            + [new_rule]
+            + self.firing_rules[or_index][and_index + 1 :]
+        )
+
+        or_rules = (
+            self.firing_rules[:or_index]
+            + [and_rules]
+            + self.firing_rules[or_index + 1 :]
+        )
+
+        return replace(self, firing_rules=or_rules)
+
 
 @dataclass(frozen=True)
 class TimetableType(JSONWizard):
@@ -214,3 +239,18 @@ class TimetableType(JSONWizard):
 
     class _(JSONWizard.Meta):
         key_transform_with_dump = "SNAKE"
+
+    def get_batching_rule(
+        self, rule_selector: "RuleSelector"
+    ) -> Union[Tuple[int, BatchingRule], Tuple[None, None]]:
+        return next(
+            (
+                (i, rule)
+                for i, rule in enumerate(self.batch_processing)
+                if rule.task_id == rule_selector.batching_rule_task_id
+            ),
+            (
+                None,
+                None,
+            ),
+        )

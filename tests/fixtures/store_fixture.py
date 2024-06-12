@@ -2,7 +2,7 @@ import pytest
 import os
 from o2.types.state import State
 from o2.store import Store
-from optimos_v2.o2.types.constraints import ConstraintsType
+from o2.types.constraints import ConstraintsType
 from tests.fixtures.constraints_generator import ConstraintsGenerator
 from tests.fixtures.timetable_generator import TimetableGenerator
 import xml.etree.ElementTree as ET

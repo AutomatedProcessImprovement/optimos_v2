@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, TypedDict, Union
+from typing import TypeGuard, Union
 from dataclass_wizard import JSONWizard
 
 
@@ -40,9 +40,30 @@ class SizeRuleConstraints(BatchingConstraints, JSONWizard):
 
 
 @dataclass(frozen=True)
+class ReadyWtRuleConstraints(BatchingConstraints, JSONWizard):
+    min_wt: int
+    max_wt: int
+
+    class _(JSONWizard.Meta):
+        key_transform_with_dump = "SNAKE"
+        tag = RULE_TYPE.READY_WT.value
+        tag_key = "rule_type"
+
+
+def is_size_constraint(val: BatchingConstraints) -> TypeGuard[SizeRuleConstraints]:
+    return val.rule_type == RULE_TYPE.SIZE
+
+
+def is_ready_wt_constraint(
+    val: BatchingConstraints,
+) -> TypeGuard[ReadyWtRuleConstraints]:
+    return val.rule_type == RULE_TYPE.READY_WT
+
+
+@dataclass(frozen=True)
 class ConstraintsType(JSONWizard):
     # TODO: Add more constraints here
-    batching_constraints: list[SizeRuleConstraints]
+    batching_constraints: list[BatchingConstraints]
 
     class _(JSONWizard.Meta):
         key_transform_with_dump = "SNAKE"
@@ -60,5 +81,14 @@ class ConstraintsType(JSONWizard):
         return [
             constraint
             for constraint in self.batching_constraints
-            if task_id in constraint.tasks and constraint.rule_type == RULE_TYPE.SIZE
+            if task_id in constraint.tasks and is_size_constraint(constraint)
+        ]
+
+    def get_batching_ready_wt_rule_constraints(
+        self, task_id: str
+    ) -> list[ReadyWtRuleConstraints]:
+        return [
+            constraint
+            for constraint in self.batching_constraints
+            if task_id in constraint.tasks and is_ready_wt_constraint(constraint)
         ]

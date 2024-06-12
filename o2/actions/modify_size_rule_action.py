@@ -23,12 +23,11 @@ class ModifySizeRuleAction(BaseAction):
         timetable = state.timetable
         rule_selector = self.params["rule"]
 
-        (ruleIndex, oldRule) = next(
-            (i, rule)
-            for i, rule in enumerate(timetable.batch_processing)
-            if rule.task_id == rule_selector.batching_rule_task_id
-        )
-        old_size = self.get_dominant_distribution(oldRule).key
+        (rule_index, old_rule) = timetable.get_batching_rule(rule_selector)
+        if old_rule is None or rule_index is None:
+            print(f"BatchingRule not found for {rule_selector}")
+            return state
+        old_size = self.get_dominant_distribution(old_rule).key
         new_size = int(old_size) + self.params["size_increment"]
         fn = lambdify(Symbol("size"), self.params["duration_fn"])
         size_distrib = [
@@ -48,6 +47,7 @@ class ModifySizeRuleAction(BaseAction):
             )
         ]
 
+        # TODO: Do not replace the whole firing rules, just the one that needs to be changed
         firing_rules = [
             [
                 FiringRule(
@@ -58,8 +58,8 @@ class ModifySizeRuleAction(BaseAction):
             ]
         ]
         newRule = BatchingRule(
-            task_id=oldRule.task_id,
-            type=oldRule.type,
+            task_id=old_rule.task_id,
+            type=old_rule.type,
             size_distrib=size_distrib,
             duration_distrib=duration_distrib,
             firing_rules=firing_rules,
@@ -67,13 +67,13 @@ class ModifySizeRuleAction(BaseAction):
 
         if enable_prints:
             print(
-                f"\t\t>> Modifying rule {oldRule.id()} to new size = {old_size} -> {new_size} & duration_modifier = {fn(new_size)}"
+                f"\t\t>> Modifying rule {old_rule.id()} to new size = {old_size} -> {new_size} & duration_modifier = {fn(new_size)}"
             )
 
         return state.replaceTimetable(
-            batch_processing=timetable.batch_processing[:ruleIndex]
+            batch_processing=timetable.batch_processing[:rule_index]
             + [newRule]
-            + timetable.batch_processing[ruleIndex + 1 :],
+            + timetable.batch_processing[rule_index + 1 :],
         )
 
     def get_dominant_distribution(self, oldRule: BatchingRule):

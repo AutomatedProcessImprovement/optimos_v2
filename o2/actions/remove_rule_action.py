@@ -17,14 +17,7 @@ class RemoveRuleAction(BaseAction):
         timetable = state.timetable
         rule_selector = self.params["rule"]
 
-        index, rule = next(
-            (
-                (i, rule)
-                for i, rule in enumerate(timetable.batch_processing)
-                if rule_selector.batching_rule_task_id == rule.task_id
-            ),
-            [None, None],
-        )
+        index, rule = timetable.get_batching_rule(rule_selector)
         if rule is None or index is None:
             print(f"BatchingRule not found for {rule_selector}")
             return state
