@@ -3,6 +3,7 @@ from o2.types.constraints import (
     BATCH_TYPE,
     RULE_TYPE,
     ConstraintsType,
+    ReadyWtRuleConstraints,
     SizeRuleConstraints,
 )
 from o2.types.timetable import TimetableType
@@ -30,7 +31,7 @@ class ConstraintsGenerator:
             SizeRuleConstraints(
                 id=self.SIMPLE_CONSTRAINT_ID,
                 tasks=[task.attrib["id"] for task in self.tasks],
-                batch_type=BATCH_TYPE.SEQUENTIAL,
+                batch_type=BATCH_TYPE.PARALLEL,
                 rule_type=RULE_TYPE.SIZE,
                 duration_fn=f"0.005*(size - {optimal_duration})**2 + {optimal_duration_bonus}",
                 min_size=2,
@@ -39,6 +40,33 @@ class ConstraintsGenerator:
         )
         return self
 
+    def add_ready_wt_constraint(self):
+        self.constraints.batching_constraints.append(
+            ReadyWtRuleConstraints(
+                id=self.SIMPLE_CONSTRAINT_ID,
+                tasks=[task.attrib["id"] for task in self.tasks],
+                batch_type=BATCH_TYPE.PARALLEL,
+                rule_type=RULE_TYPE.READY_WT,
+                min_wt=0,
+                max_wt=24 * 60,
+            )
+        )
+        return self
+
+    def add_large_wt_constraint(self):
+        self.constraints.batching_constraints.append(
+            ReadyWtRuleConstraints(
+                id=self.SIMPLE_CONSTRAINT_ID,
+                tasks=[task.attrib["id"] for task in self.tasks],
+                batch_type=BATCH_TYPE.PARALLEL,
+                rule_type=RULE_TYPE.LARGE_WT,
+                min_wt=0,
+                max_wt=24 * 60,
+            )
+        )
+        return self
+
     def generate(self):
         self.add_size_constraint()
+        self.add_ready_wt_constraint()
         return self.constraints

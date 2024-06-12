@@ -11,14 +11,15 @@ from optimos_v2.o2.actions.modify_size_rule_action import (
 )
 
 SIZE_OF_CHANGE = 100
+CLOSENESS_TO_MAX_WT = 0.01
 
 
-class ModifyReadyWtRuleActionParamsType(BaseActionParamsType):
+class ModifyLargeWtRuleActionParamsType(BaseActionParamsType):
     wt_increment: int
 
 
-class ModifyReadyWtRuleAction(BaseAction):
-    params: ModifyReadyWtRuleActionParamsType
+class ModifyLargeWtRuleAction(BaseAction):
+    params: ModifyLargeWtRuleActionParamsType
 
     # Returns a copy of the timetable with the rule size modified
     def apply(self, state: State, enable_prints=True):
@@ -40,7 +41,7 @@ class ModifyReadyWtRuleAction(BaseAction):
         new_wt = old_wt + wt_increment
 
         new_firing_rule = FiringRule(
-            attribute=RULE_TYPE.READY_WT,
+            attribute=RULE_TYPE.LARGE_WT,
             comparison=COMPARATOR.EQUAL,
             value=new_wt,
         )
@@ -67,18 +68,26 @@ class ModifyReadyWtRuleAction(BaseAction):
 
         firing_rule = rule_selector.get_firing_rule_from_state(store.state)
 
-        if firing_rule is None or firing_rule.attribute != RULE_TYPE.READY_WT:
+        if firing_rule is None or firing_rule.attribute != RULE_TYPE.LARGE_WT:
+            return RATING.NOT_APPLICABLE, None
+
+        # TODO: We might want change the less than as well
+        if firing_rule.comparison not in [
+            COMPARATOR.GREATER_THEN,
+            COMPARATOR.GREATER_THEN_OR_EQUAL,
+        ]:
             return RATING.NOT_APPLICABLE, None
 
         base_max_waiting_time = base_evaluation.get_max_waiting_time_of_task_id(
             rule_selector.batching_rule_task_id, store
         )
 
-        # Waiting time was always smaller than the rule
-        if base_max_waiting_time < firing_rule.value:
+        # If the max waiting time is very close to the firing rule value, that means
+        # that the rule is actually "doing" something, meaning we might want to consider decreasing it
+        if base_max_waiting_time < (firing_rule.value * (1 - CLOSENESS_TO_MAX_WT)):
             return RATING.NOT_APPLICABLE, None
 
-        constraints = store.constraints.get_batching_ready_wt_rule_constraints(
+        constraints = store.constraints.get_batching_large_wt_rule_constraints(
             rule_selector.batching_rule_task_id
         )
 
@@ -92,8 +101,8 @@ class ModifyReadyWtRuleAction(BaseAction):
 
         return (
             RATING.MEDIUM,
-            ModifyReadyWtRuleAction(
-                ModifyReadyWtRuleActionParamsType(
+            ModifyLargeWtRuleAction(
+                ModifyLargeWtRuleActionParamsType(
                     wt_increment=-1 * SIZE_OF_CHANGE,
                     rule=rule_selector,
                 )

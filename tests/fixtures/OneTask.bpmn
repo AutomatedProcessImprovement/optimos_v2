@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1ou5i7i" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="17.7.1">
+  <bpmn:process id="SIMPLE_LOOP_PROCESS" isExecutable="false">
+    <bpmn:startEvent id="START_EVENT">
+      <bpmn:outgoing>FLOW_START_FIRST</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="FLOW_START_FIRST" sourceRef="START_EVENT" targetRef="FIRST_ACTIVITY" />
+
+    <bpmn:task id="FIRST_ACTIVITY" name="First Activity">
+      <bpmn:incoming>FLOW_START_FIRST</bpmn:incoming>
+      <bpmn:outgoing>FLOW_FIRST_END</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:sequenceFlow id="FLOW_FIRST_END" sourceRef="FIRST_ACTIVITY" targetRef="END_EVENT" />
+    <bpmn:endEvent id="END_EVENT">
+      <bpmn:incoming>FLOW_FIRST_END</bpmn:incoming>
+    </bpmn:endEvent>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_15gj957">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="START_EVENT">
+        <dc:Bounds x="156" y="162" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="FIRST_ACTIVITY_di" bpmnElement="FIRST_ACTIVITY">
+        <dc:Bounds x="240" y="140" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="JOIN_GATEWAY_di" bpmnElement="JOIN_GATEWAY" isMarkerVisible="true">
+        <dc:Bounds x="385" y="155" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="IN_LOOP_di" bpmnElement="IN_LOOP">
+        <dc:Bounds x="490" y="140" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="OR_GATEWAY_di" bpmnElement="OR_GATEWAY" isMarkerVisible="true">
+        <dc:Bounds x="645" y="155" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="LAST_ACTIVITY_di" bpmnElement="LAST_ACTIVITY">
+        <dc:Bounds x="750" y="140" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="END_EVENT_di" bpmnElement="END_EVENT">
+        <dc:Bounds x="922" y="162" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="FLOW_START_FIRST_di" bpmnElement="FLOW_START_FIRST">
+        <di:waypoint x="192" y="180" />
+        <di:waypoint x="240" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FLOW_FIRST_JOIN_di" bpmnElement="FLOW_FIRST_JOIN">
+        <di:waypoint x="340" y="180" />
+        <di:waypoint x="385" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FLOW_JOIN_IN_di" bpmnElement="FLOW_JOIN_IN">
+        <di:waypoint x="435" y="180" />
+        <di:waypoint x="490" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FLOW_IN_LOOP_OR_di" bpmnElement="FLOW_IN_LOOP_OR">
+        <di:waypoint x="590" y="180" />
+        <di:waypoint x="645" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FLOW_OR_JOIN_di" bpmnElement="FLOW_OR_JOIN">
+        <di:waypoint x="670" y="155" />
+        <di:waypoint x="670" y="80" />
+        <di:waypoint x="410" y="80" />
+        <di:waypoint x="410" y="155" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FLOW_OR_LAST_di" bpmnElement="FLOW_OR_LAST">
+        <di:waypoint x="695" y="180" />
+        <di:waypoint x="750" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="FLOW_LAST_END_di" bpmnElement="FLOW_LAST_END">
+        <di:waypoint x="850" y="180" />
+        <di:waypoint x="922" y="180" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

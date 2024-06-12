@@ -8,26 +8,46 @@ from tests.fixtures.timetable_generator import TimetableGenerator
 import xml.etree.ElementTree as ET
 
 
-BPMN_PATH = "./tests/fixtures/SimpleLoop.bpmn"
+SIMPLE_LOOP_BPMN_PATH = "./tests/fixtures/SimpleLoop.bpmn"
+ONE_TASK_BPMN_PATH = "./tests/fixtures/OneTask.bpmn"
 
 
 @pytest.fixture
 def simple_state():
-    bpmn_content = open(BPMN_PATH, "r").read()
+    bpmn_content = open(SIMPLE_LOOP_BPMN_PATH, "r").read()
     return State(
         bpmn_definition=bpmn_content,
-        bpmn_tree=ET.parse(BPMN_PATH),
+        bpmn_tree=ET.parse(SIMPLE_LOOP_BPMN_PATH),
         timetable=TimetableGenerator(bpmn_content).generate_simple(),
         for_testing=True,
     )
 
 
 @pytest.fixture
-def batching_state():
-    bpmn_content = open(BPMN_PATH, "r").read()
+def one_task_state():
+    bpmn_content = open(ONE_TASK_BPMN_PATH, "r").read()
     return State(
         bpmn_definition=bpmn_content,
-        bpmn_tree=ET.parse(BPMN_PATH),
+        bpmn_tree=ET.parse(ONE_TASK_BPMN_PATH),
+        timetable=TimetableGenerator(bpmn_content).generate_simple(),
+        for_testing=True,
+    )
+
+
+@pytest.fixture
+def one_task_store(one_task_state: State):
+    return Store(
+        state=one_task_state,
+        constraints=ConstraintsGenerator(one_task_state.bpmn_definition).generate(),
+    )
+
+
+@pytest.fixture
+def batching_state():
+    bpmn_content = open(SIMPLE_LOOP_BPMN_PATH, "r").read()
+    return State(
+        bpmn_definition=bpmn_content,
+        bpmn_tree=ET.parse(SIMPLE_LOOP_BPMN_PATH),
         timetable=TimetableGenerator(bpmn_content).generate_simple(
             include_batching=True
         ),
@@ -37,7 +57,7 @@ def batching_state():
 
 @pytest.fixture
 def constraints():
-    bpmn_content = open(BPMN_PATH, "r").read()
+    bpmn_content = open(SIMPLE_LOOP_BPMN_PATH, "r").read()
     return ConstraintsGenerator(bpmn_content).generate()
 
 

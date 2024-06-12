@@ -25,11 +25,11 @@ class BatchingConstraints(JSONWizard):
     tasks: list[str]
     batch_type: BATCH_TYPE
     rule_type: RULE_TYPE
-    duration_fn: str
 
 
 @dataclass(frozen=True)
 class SizeRuleConstraints(BatchingConstraints, JSONWizard):
+    duration_fn: str
     min_size: int
     max_size: int
 
@@ -50,6 +50,17 @@ class ReadyWtRuleConstraints(BatchingConstraints, JSONWizard):
         tag_key = "rule_type"
 
 
+@dataclass(frozen=True)
+class LargeWtRuleConstraints(BatchingConstraints, JSONWizard):
+    min_wt: int
+    max_wt: int
+
+    class _(JSONWizard.Meta):
+        key_transform_with_dump = "SNAKE"
+        tag = RULE_TYPE.LARGE_WT.value
+        tag_key = "rule_type"
+
+
 def is_size_constraint(val: BatchingConstraints) -> TypeGuard[SizeRuleConstraints]:
     return val.rule_type == RULE_TYPE.SIZE
 
@@ -58,6 +69,12 @@ def is_ready_wt_constraint(
     val: BatchingConstraints,
 ) -> TypeGuard[ReadyWtRuleConstraints]:
     return val.rule_type == RULE_TYPE.READY_WT
+
+
+def is_large_wt_constraint(
+    val: BatchingConstraints,
+) -> TypeGuard[LargeWtRuleConstraints]:
+    return val.rule_type == RULE_TYPE.LARGE_WT
 
 
 @dataclass(frozen=True)
@@ -91,4 +108,13 @@ class ConstraintsType(JSONWizard):
             constraint
             for constraint in self.batching_constraints
             if task_id in constraint.tasks and is_ready_wt_constraint(constraint)
+        ]
+
+    def get_batching_large_wt_rule_constraints(
+        self, task_id: str
+    ) -> list[LargeWtRuleConstraints]:
+        return [
+            constraint
+            for constraint in self.batching_constraints
+            if task_id in constraint.tasks and is_large_wt_constraint(constraint)
         ]

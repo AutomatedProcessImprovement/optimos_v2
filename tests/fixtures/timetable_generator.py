@@ -167,7 +167,11 @@ class TimetableGenerator:
         )
 
     @staticmethod
-    def batching_size_rule(task_id: str, size: int, duration_distribution=1.0):
+    def batching_size_rule(
+        task_id: str,
+        size: int = BATCHING_BASE_SIZE,
+        duration_distribution=1.0,
+    ):
         return BatchingRule(
             task_id=task_id,
             type=BATCH_TYPE.PARALLEL,
@@ -189,18 +193,20 @@ class TimetableGenerator:
         )
 
     @staticmethod
-    def ready_wt_rule(task_id: str, ready_wt: int, duration_distribution=1.0):
+    def ready_wt_rule(
+        task_id: str, ready_wt: int, size=BATCHING_BASE_SIZE, duration_distribution=1.0
+    ):
         return BatchingRule(
             task_id=task_id,
             type=BATCH_TYPE.PARALLEL,
             size_distrib=[
                 # Forbid execution of the task without batching
                 Distribution(key=str(1), value=0.0),
-                Distribution(key=str(TimetableGenerator.BATCHING_BASE_SIZE), value=1.0),
+                Distribution(key=str(size), value=1.0),
             ],
             duration_distrib=[
                 Distribution(
-                    key=str(TimetableGenerator.BATCHING_BASE_SIZE),
+                    key=str(size),
                     value=duration_distribution,
                 )
             ],
@@ -210,8 +216,60 @@ class TimetableGenerator:
                         attribute=RULE_TYPE.READY_WT,
                         comparison=COMPARATOR.EQUAL,
                         value=ready_wt,
-                    )
-                ]
+                    ),
+                    # We need a size rule as well, also it must be last in the list
+                    FiringRule(
+                        attribute=RULE_TYPE.SIZE,
+                        comparison=COMPARATOR.EQUAL,
+                        value=size,
+                    ),
+                ],
+            ],
+        )
+
+    @staticmethod
+    def large_wt_rule(
+        task_id: str,
+        min_wt: int,
+        size=BATCHING_BASE_SIZE,
+        duration_distribution=1.0,
+    ):
+        return BatchingRule(
+            task_id=task_id,
+            type=BATCH_TYPE.PARALLEL,
+            # Forbid execution of the task without batching
+            size_distrib=[
+                Distribution(key=str(1), value=0.0),
+            ]
+            + [
+                Distribution(key=str(s), value=1 / (size - 1))
+                for s in range(2, size + 1)
+            ],
+            duration_distrib=[
+                Distribution(
+                    key=str(s),
+                    value=duration_distribution,
+                )
+                for s in range(1, size + 1)
+            ],
+            firing_rules=[
+                [
+                    FiringRule(
+                        attribute=RULE_TYPE.LARGE_WT,
+                        comparison=COMPARATOR.LESS_THEN_OR_EQUAL,
+                        value=24 * 60 * 60,
+                    ),
+                    FiringRule(
+                        attribute=RULE_TYPE.LARGE_WT,
+                        comparison=COMPARATOR.GREATER_THEN_OR_EQUAL,
+                        value=min_wt,
+                    ),
+                    FiringRule(
+                        attribute=RULE_TYPE.SIZE,
+                        comparison=COMPARATOR.EQUAL,
+                        value=size,
+                    ),
+                ],
             ],
         )
 
