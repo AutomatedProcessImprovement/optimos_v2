@@ -96,16 +96,12 @@ class ModifySizeRuleAction(BaseAction):
         # TODO Get current fastest evaluation by task
         base_evaluation = store.current_fastest_evaluation
 
-        base_avg_wainting_time = (
-            base_evaluation.total_waiting_time
-        )  # base_evaluation.get_avg_waiting_time_of_task_id(
-        # rule_selector.batching_rule_task_id, store
-        # )
-        new_avg_waiting_time = (
-            evaluation.total_waiting_time
-        )  # evaluation.get_avg_waiting_time_of_task_id(
-        # rule_selector.batching_rule_task_id, store
-        # )
+        base_avg_wainting_time = base_evaluation.get_avg_waiting_time_of_task_id(
+            rule_selector.batching_rule_task_id, store
+        )
+        new_avg_waiting_time = evaluation.get_avg_waiting_time_of_task_id(
+            rule_selector.batching_rule_task_id, store
+        )
 
         # This rule does reduce the waiting time, not increment it
         # TODO: We might want to try to increase the size of the rule,

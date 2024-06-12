@@ -70,6 +70,11 @@ def test_self_rating_non_optimal_rule(store: Store):
             TimetableGenerator.batching_size_rule(TimetableGenerator.FIRST_ACTIVITY, 10)
         ]
     )
+    store.replaceConstraints(
+        batching_constraints=ConstraintsGenerator(store.state.bpmn_definition)
+        .add_size_constraint(5)
+        .constraints.batching_constraints
+    )
     store.evaluate()
     evaluations = ActionSelector.evaluate_rules(store)
     rating_input = SelfRatingInput.from_rule_evaluations(evaluations)

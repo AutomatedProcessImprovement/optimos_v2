@@ -127,15 +127,12 @@ def test_remove_complex_firing_rule(store: Store):
 def test_self_rating_optimal_rule(store: Store):
     store.replaceTimetable(
         batch_processing=[
-            TimetableGenerator.batching_size_rule(TimetableGenerator.FIRST_ACTIVITY, 2)
+            TimetableGenerator.batching_size_rule(
+                TimetableGenerator.FIRST_ACTIVITY, 3, 0.1
+            )
         ]
     )
 
-    store.replaceConstraints(
-        batching_constraints=ConstraintsGenerator(store.state.bpmn_definition)
-        .add_size_constraint(2)
-        .constraints.batching_constraints
-    )
     store.evaluate()
     evaluations = ActionSelector.evaluate_rules(store)
     rating_input = SelfRatingInput.from_rule_evaluations(evaluations)
@@ -147,7 +144,9 @@ def test_self_rating_optimal_rule(store: Store):
 def test_self_rating_non_optimal_rule(store: Store):
     store.replaceTimetable(
         batch_processing=[
-            TimetableGenerator.batching_size_rule(TimetableGenerator.FIRST_ACTIVITY, 20)
+            TimetableGenerator.batching_size_rule(
+                TimetableGenerator.FIRST_ACTIVITY, 50, 1
+            )
         ]
     )
     store.evaluate()

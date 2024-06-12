@@ -48,8 +48,9 @@ class RemoveRuleAction(BaseAction):
     def rate_self(store: Store, input: SelfRatingInput):
         rule_selector = input.most_impactful_rule
         evaluation = input.most_impactful_rule_evaluation
+        # TODO: Check constraints
         # Check if this evaluation beats the current pareto front
-        if store.current_fastest_evaluation.is_dominated_by(evaluation):
+        if store.current_pareto_front.is_dominated_by(evaluation):
             print(
                 f"\t\t>> Most impactful rule dominates current. Rule: {rule_selector}"
             )

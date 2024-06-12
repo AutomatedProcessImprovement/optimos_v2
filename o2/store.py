@@ -38,7 +38,7 @@ class Store:
         return min(
             # TODO Waiting Time ?
             self.current_pareto_front.evaluations,
-            key=lambda x: x.total_cost,
+            key=lambda x: x.total_cycle_time,
         )
 
     def apply_action(self, action: BaseAction):

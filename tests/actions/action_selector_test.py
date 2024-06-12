@@ -29,10 +29,10 @@ def test_only_one_rule(store: Store):
 
 def test_two_rules_one_bigger(store: Store):
     small_rule = TimetableGenerator.batching_size_rule(
-        TimetableGenerator.SECOND_ACTIVITY, 2
+        TimetableGenerator.SECOND_ACTIVITY, 2, 1
     )
     big_rule = TimetableGenerator.batching_size_rule(
-        TimetableGenerator.FIRST_ACTIVITY, 10
+        TimetableGenerator.FIRST_ACTIVITY, 20, 1
     )
     store.replaceTimetable(batch_processing=[small_rule, big_rule])
     evaluations = ActionSelector.evaluate_rules(store)

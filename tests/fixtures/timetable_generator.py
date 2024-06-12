@@ -167,7 +167,7 @@ class TimetableGenerator:
         )
 
     @staticmethod
-    def batching_size_rule(task_id: str, size: int):
+    def batching_size_rule(task_id: str, size: int, duration_distribution=1.0):
         return BatchingRule(
             task_id=task_id,
             type=BATCH_TYPE.PARALLEL,
@@ -176,7 +176,7 @@ class TimetableGenerator:
                 Distribution(key=str(1), value=0.0),
                 Distribution(key=str(size), value=1.0),
             ],
-            duration_distrib=[Distribution(key=str(size), value=1.0)],
+            duration_distrib=[Distribution(key=str(size), value=duration_distribution)],
             firing_rules=[
                 [
                     FiringRule(

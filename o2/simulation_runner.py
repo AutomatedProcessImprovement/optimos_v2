@@ -1,5 +1,6 @@
 import csv
 import io
+import time
 from dynamik.input import EventMapping
 from dynamik.input.csv import read_and_merge_csv_logs
 from dynamik.model import Event
@@ -85,6 +86,11 @@ class SimulationRunner:
 
         setup = state.to_sim_diff_setup()
         run_simpy_simulation(setup, statsWriter, logWriter)
+        logStringIO.seek(0)
+
+        with open(f"logs/log-{time.time()}.csv", "w") as f:
+            f.write(logStringIO.getvalue())
+
         logStringIO.seek(0)
         statsStringIO.seek(0)
         log = list(

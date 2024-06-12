@@ -30,3 +30,6 @@ class ParetoFront:
         if self_is_always_dominated:
             return FRONT_STATUS.IS_DOMINATED
         return FRONT_STATUS.IN_FRONT
+
+    def is_dominated_by(self, evaluation: Evaluation):
+        return all(e.is_dominated_by(evaluation) for e in self.evaluations)
