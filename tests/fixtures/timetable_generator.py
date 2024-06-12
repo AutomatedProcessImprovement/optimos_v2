@@ -297,31 +297,23 @@ class TimetableGenerator:
             duration_distrib=[
                 Distribution(
                     key=str(size),
-                    value=1.0,
+                    value=0.75,
                 )
             ],
             firing_rules=[
+                # This is a Dummy Rule! Because we need to have at least one valid rule for the first day of simulation
+                [
+                    FiringRule(
+                        attribute=RULE_TYPE.WEEK_DAY,
+                        comparison=COMPARATOR.EQUAL,
+                        value=DAY.MONDAY,
+                    )
+                ],
                 [
                     FiringRule(
                         attribute=RULE_TYPE.WEEK_DAY,
                         comparison=COMPARATOR.EQUAL,
                         value=week_day,
-                    ),
-                    FiringRule(
-                        attribute=RULE_TYPE.DAILY_HOUR,
-                        comparison=COMPARATOR.GREATER_THEN_OR_EQUAL,
-                        value=5,
-                    ),
-                    FiringRule(
-                        attribute=RULE_TYPE.DAILY_HOUR,
-                        comparison=COMPARATOR.LESS_THEN_OR_EQUAL,
-                        value=16,
-                    ),
-                    # We need a size rule as well, also it must be last in the list
-                    FiringRule(
-                        attribute=RULE_TYPE.SIZE,
-                        comparison=COMPARATOR.EQUAL,
-                        value=size,
                     ),
                 ],
             ],

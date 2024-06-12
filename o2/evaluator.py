@@ -5,11 +5,11 @@ import json
 from pathlib import Path
 import warnings
 
-from dynamik.model import Log
 from dynamik.utils.pm.calendars import Calendar, discover_calendars
 from intervaltree import Interval, IntervalTree
 
 from o2.types.evaluation import Evaluation
+from o2.simulation_runner import Log
 
 # Ignore FutureWarnings
 warnings.simplefilter(action="ignore", category=FutureWarning)
@@ -53,6 +53,9 @@ class Evaluator:
 
     @staticmethod
     def evaluateLog(log: Log, stats: str):
+        if len(log) == 0:
+            return Evaluation.empty()
+
         return Evaluator.parse_stats(stats)
 
         # # build an interval for the log timeframe

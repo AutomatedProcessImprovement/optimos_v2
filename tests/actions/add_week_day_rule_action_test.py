@@ -38,14 +38,19 @@ def test_add_day_simple(store: Store):
     assert len(new_state.timetable.batch_processing[0].firing_rules[1]) == 2
 
 
-def test_self_rate(one_task_store: Store):
+def test_self_rate_simple(one_task_store: Store):
     store = one_task_store
     store.replaceTimetable(
         batch_processing=[
             TimetableGenerator.week_day_rule(
                 TimetableGenerator.FIRST_ACTIVITY, DAY.WEDNESDAY
             )
-        ]
+        ],
+        task_resource_distribution=TimetableGenerator(store.state.bpmn_definition)
+        # 12 Hour Tasks
+        .create_simple_task_resource_distribution(4 * 60 * 60)
+        # TODO: Improve Syntax
+        .timetable.task_resource_distribution,
     )
 
     store.replaceConstraints(
@@ -55,7 +60,13 @@ def test_self_rate(one_task_store: Store):
     )
     store.evaluate()
     evaluations = ActionSelector.evaluate_rules(store)
-    rating_input = SelfRatingInput.from_rule_evaluations(evaluations)
+    rating_input = SelfRatingInput(
+        evaluations,
+        RuleSelector(
+            batching_rule_task_id=TimetableGenerator.FIRST_ACTIVITY,
+            firing_rule_index=(1, 0),
+        ),
+    )
     assert rating_input is not None
     result = AddWeekDayRuleAction.rate_self(store, rating_input)
     assert result[0] == RATING.MEDIUM
