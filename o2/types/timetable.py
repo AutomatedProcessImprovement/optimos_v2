@@ -180,15 +180,23 @@ class BatchingRule(JSONWizard):
         assert rule_selector.firing_rule_index is not None
         or_index = rule_selector.firing_rule_index[0]
         and_index = rule_selector.firing_rule_index[1]
-        new_rules = (
-            self.firing_rules[:or_index]
-            + [
-                self.firing_rules[or_index][:and_index]
-                + self.firing_rules[or_index][and_index + 1 :]
-            ]
-            + self.firing_rules[or_index + 1 :]
+        and_rules = (
+            self.firing_rules[or_index][:and_index]
+            + self.firing_rules[or_index][and_index + 1 :]
         )
-        return replace(self, firing_rules=new_rules)
+
+        if len(and_rules) == 0:
+            or_rules = self.firing_rules[:or_index] + self.firing_rules[or_index + 1 :]
+        else:
+            or_rules = (
+                self.firing_rules[:or_index]
+                + and_rules
+                + self.firing_rules[or_index + 1 :]
+            )
+
+        if len(or_rules) == 0:
+            return None
+        return replace(self, firing_rules=or_rules)
 
 
 @dataclass(frozen=True)

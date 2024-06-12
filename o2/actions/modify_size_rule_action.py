@@ -123,8 +123,8 @@ class ModifySizeRuleAction(BaseAction):
         )
 
         max_allowed_min_size = max(
-            constraints, key=lambda constraint: constraint.min_size
-        ).min_size
+            [constraint.min_size for constraint in constraints], default=1
+        )
 
         # Decrementing the size would break the constraints
         if (firing_rule.value - SIZE_OF_CHANGE) < max_allowed_min_size:

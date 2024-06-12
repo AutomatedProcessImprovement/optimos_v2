@@ -10,6 +10,8 @@ from o2.actions.modify_size_rule_action import (
 from o2.types.constraints import RULE_TYPE
 from o2.types.rule_selector import RuleSelector
 from o2.types.timetable import COMPARATOR, BatchingRule, FiringRule
+from optimos_v2.o2.types.self_rating import RATING, SelfRatingInput
+from optimos_v2.tests.fixtures.constraints_generator import ConstraintsGenerator
 from optimos_v2.tests.fixtures.timetable_generator import TimetableGenerator
 
 
@@ -40,6 +42,41 @@ def test_decrement_size(store: Store):
     new_state = action.apply(state=store.state)
     assert first_rule.task_id == new_state.timetable.batch_processing[0].task_id
     assert helper_rule_matches_size(new_state.timetable.batch_processing[0], new_size)
+
+
+def test_self_rating_optimal_rule(store: Store):
+    store.replaceTimetable(
+        batch_processing=[
+            TimetableGenerator.batching_size_rule(TimetableGenerator.FIRST_ACTIVITY, 2)
+        ]
+    )
+
+    store.replaceConstraints(
+        batching_constraints=ConstraintsGenerator(store.state.bpmn_definition)
+        .add_size_constraint(2)
+        .constraints.batching_constraints
+    )
+    store.evaluate()
+    evaluations = ActionSelector.evaluate_rules(store)
+    rating_input = SelfRatingInput.from_rule_evaluations(evaluations)
+    assert rating_input is not None
+    result = ModifySizeRuleAction.rate_self(store, rating_input)
+    assert result == (0, None)
+
+
+def test_self_rating_non_optimal_rule(store: Store):
+    store.replaceTimetable(
+        batch_processing=[
+            TimetableGenerator.batching_size_rule(TimetableGenerator.FIRST_ACTIVITY, 10)
+        ]
+    )
+    store.evaluate()
+    evaluations = ActionSelector.evaluate_rules(store)
+    rating_input = SelfRatingInput.from_rule_evaluations(evaluations)
+    assert rating_input is not None
+    result = ModifySizeRuleAction.rate_self(store, rating_input)
+    assert result[0] == RATING.MEDIUM
+    assert result[1] is not None
 
 
 def helper_rule_matches_size(rule: BatchingRule, size: int):
