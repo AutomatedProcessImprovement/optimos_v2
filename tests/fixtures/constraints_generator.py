@@ -5,9 +5,12 @@ from o2.types.constraints import (
     ConstraintsType,
     ReadyWtRuleConstraints,
     SizeRuleConstraints,
+    WeekDayRuleConstraints,
 )
 from o2.types.timetable import TimetableType
 import xml.etree.ElementTree as ET
+
+from o2.types.days import DAY
 
 
 class ConstraintsGenerator:
@@ -68,7 +71,20 @@ class ConstraintsGenerator:
         )
         return self
 
+    def add_week_day_constraint(self):
+        self.constraints.batching_constraints.append(
+            WeekDayRuleConstraints(
+                id=self.SIMPLE_CONSTRAINT_ID,
+                tasks=[task.attrib["id"] for task in self.tasks],
+                batch_type=BATCH_TYPE.PARALLEL,
+                rule_type=RULE_TYPE.WEEK_DAY,
+                allowed_days=list(DAY),
+            )
+        )
+        return self
+
     def generate(self):
         self.add_size_constraint()
         self.add_ready_wt_constraint()
+        self.add_large_wt_constraint()
         return self.constraints

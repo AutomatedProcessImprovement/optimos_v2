@@ -1,7 +1,7 @@
 from dataclasses import asdict, dataclass, field, replace
 from enum import Enum
 from json import dumps
-from typing import Any, List, Optional, Tuple, Union
+from typing import Any, Generic, List, Optional, Tuple, TypeGuard, TypeVar, Union
 
 from typing_extensions import TypedDict
 from dataclass_wizard import JSONWizard, json_field, json_key
@@ -129,11 +129,14 @@ class Distribution(JSONWizard):
     value: float
 
 
+V = TypeVar("V", DAY, int)
+
+
 @dataclass(frozen=True, eq=True)
-class FiringRule(JSONWizard):
+class FiringRule(JSONWizard, Generic[V]):
     attribute: RULE_TYPE
     comparison: COMPARATOR
-    value: int
+    value: V
 
     def __eq__(self, other):
         return (
@@ -149,6 +152,22 @@ class FiringRule(JSONWizard):
 
 AndRules = List[FiringRule]
 OrRules = List[AndRules]
+
+
+def rule_is_large_wt(rule: Optional[FiringRule]) -> TypeGuard[FiringRule[int]]:
+    return rule is not None and rule.attribute == RULE_TYPE.LARGE_WT
+
+
+def rule_is_week_day(rule: Optional[FiringRule]) -> TypeGuard[FiringRule[DAY]]:
+    return rule is not None and rule.attribute == RULE_TYPE.WEEK_DAY
+
+
+def rule_is_size(rule: Optional[FiringRule]) -> TypeGuard[FiringRule[int]]:
+    return rule is not None and rule.attribute == RULE_TYPE.SIZE
+
+
+def rule_is_ready_wt(rule: Optional[FiringRule]) -> TypeGuard[FiringRule[int]]:
+    return rule is not None and rule.attribute == RULE_TYPE.READY_WT
 
 
 @dataclass(frozen=True)

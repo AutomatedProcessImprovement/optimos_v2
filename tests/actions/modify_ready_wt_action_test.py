@@ -10,13 +10,13 @@ from o2.actions.modify_size_rule_action import (
 from o2.types.constraints import RULE_TYPE
 from o2.types.rule_selector import RuleSelector
 from o2.types.timetable import COMPARATOR, BatchingRule, FiringRule
-from o2.actions.modify_ready_wt_action import (
+from o2.actions.modify_ready_wt_rule_action import (
     ModifyReadyWtRuleAction,
     ModifyReadyWtRuleActionParamsType,
 )
 from o2.types.self_rating import RATING, SelfRatingInput
-from optimos_v2.tests.fixtures.constraints_generator import ConstraintsGenerator
-from optimos_v2.tests.fixtures.timetable_generator import TimetableGenerator
+from tests.fixtures.constraints_generator import ConstraintsGenerator
+from tests.fixtures.timetable_generator import TimetableGenerator
 
 
 def test_increment_size(store: Store):

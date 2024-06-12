@@ -15,8 +15,8 @@ from o2.actions.remove_rule_action import (
     RemoveRuleActionParamsType,
 )
 from o2.types.self_rating import RATING, SelfRatingInput
-from optimos_v2.tests.fixtures.constraints_generator import ConstraintsGenerator
-from optimos_v2.tests.fixtures.timetable_generator import TimetableGenerator
+from tests.fixtures.constraints_generator import ConstraintsGenerator
+from tests.fixtures.timetable_generator import TimetableGenerator
 
 
 def test_remove_single_rule(store: Store):

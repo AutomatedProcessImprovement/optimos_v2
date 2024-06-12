@@ -1,7 +1,13 @@
 from sympy import Symbol, lambdify
 from o2.actions.base_action import BaseAction, BaseActionParamsType
 from o2.types.state import State
-from o2.types.timetable import COMPARATOR, BatchingRule, Distribution, FiringRule
+from o2.types.timetable import (
+    COMPARATOR,
+    BatchingRule,
+    Distribution,
+    FiringRule,
+    rule_is_size,
+)
 from o2.types.constraints import RULE_TYPE
 from o2.store import Store
 from o2.types.self_rating import RATING, SelfRatingInput
@@ -90,7 +96,7 @@ class ModifySizeRuleAction(BaseAction):
 
         firing_rule = rule_selector.get_firing_rule_from_state(store.state)
 
-        if firing_rule is None or firing_rule.attribute != RULE_TYPE.SIZE:
+        if not rule_is_size(firing_rule):
             return RATING.NOT_APPLICABLE, None
 
         if (firing_rule.value - SIZE_OF_CHANGE) < 1:

@@ -83,6 +83,7 @@ class TimetableGenerator:
                 ],
             )
         )
+        return self
 
     def create_simple_arrival_time_calendar(self):
         self.timetable.arrival_time_calendar.append(
@@ -93,6 +94,7 @@ class TimetableGenerator:
                 endTime="23:59:59",
             )
         )
+        return self
 
     def create_simple_arrival_time_distribution(self, min=60, max=60):
         self.timetable = replace(
@@ -112,8 +114,9 @@ class TimetableGenerator:
                 ],
             ),
         )
+        return self
 
-    def create_simple_task_resource_distribution(self):
+    def create_simple_task_resource_distribution(self, duration=60 * 60):
         self.timetable = replace(
             self.timetable,
             task_resource_distribution=[
@@ -123,13 +126,14 @@ class TimetableGenerator:
                         TaskResourceDistribution(
                             resource_id=self.RESOURCE_ID,
                             distribution_name=DISTRIBUTION_TYPE.FIXED,
-                            distribution_params=[DistributionParameter(value=60)],
+                            distribution_params=[DistributionParameter(value=duration)],
                         )
                     ],
                 )
                 for task in self.tasks
             ],
         )
+        return self
 
     def create_simple_resource_calendars(self):
         self.timetable.resource_calendars.append(
@@ -146,6 +150,7 @@ class TimetableGenerator:
                 ],
             )
         )
+        return self
 
     def create_simple_gateway_branching_probabilities(self):
         self.timetable.gateway_branching_probabilities.append(
@@ -157,6 +162,7 @@ class TimetableGenerator:
                 ],
             )
         )
+        return self
 
     def create_simple_batch_processing(self, size=BATCHING_BASE_SIZE):
         self.timetable = replace(
@@ -165,6 +171,7 @@ class TimetableGenerator:
                 self.batching_size_rule(task.attrib["id"], size) for task in self.tasks
             ],
         )
+        return self
 
     @staticmethod
     def batching_size_rule(
@@ -264,6 +271,96 @@ class TimetableGenerator:
                         comparison=COMPARATOR.GREATER_THEN_OR_EQUAL,
                         value=min_wt,
                     ),
+                    FiringRule(
+                        attribute=RULE_TYPE.SIZE,
+                        comparison=COMPARATOR.EQUAL,
+                        value=size,
+                    ),
+                ],
+            ],
+        )
+
+    @staticmethod
+    def week_day_rule(
+        task_id: str,
+        week_day: DAY = DAY.MONDAY,
+        size=BATCHING_BASE_SIZE,
+    ):
+        return BatchingRule(
+            task_id=task_id,
+            type=BATCH_TYPE.PARALLEL,
+            size_distrib=[
+                # Forbid execution of the task without batching
+                Distribution(key=str(1), value=0.0),
+                Distribution(key=str(size), value=1.0),
+            ],
+            duration_distrib=[
+                Distribution(
+                    key=str(size),
+                    value=1.0,
+                )
+            ],
+            firing_rules=[
+                [
+                    FiringRule(
+                        attribute=RULE_TYPE.WEEK_DAY,
+                        comparison=COMPARATOR.EQUAL,
+                        value=week_day,
+                    ),
+                    FiringRule(
+                        attribute=RULE_TYPE.DAILY_HOUR,
+                        comparison=COMPARATOR.GREATER_THEN_OR_EQUAL,
+                        value=5,
+                    ),
+                    FiringRule(
+                        attribute=RULE_TYPE.DAILY_HOUR,
+                        comparison=COMPARATOR.LESS_THEN_OR_EQUAL,
+                        value=16,
+                    ),
+                    # We need a size rule as well, also it must be last in the list
+                    FiringRule(
+                        attribute=RULE_TYPE.SIZE,
+                        comparison=COMPARATOR.EQUAL,
+                        value=size,
+                    ),
+                ],
+            ],
+        )
+
+    @staticmethod
+    def daily_hour_rule(
+        task_id: str,
+        min_hour: int,
+        max_hour: int,
+        size=BATCHING_BASE_SIZE,
+    ):
+        return BatchingRule(
+            task_id=task_id,
+            type=BATCH_TYPE.PARALLEL,
+            size_distrib=[
+                # Forbid execution of the task without batching
+                Distribution(key=str(1), value=0.0),
+                Distribution(key=str(size), value=1.0),
+            ],
+            duration_distrib=[
+                Distribution(
+                    key=str(size),
+                    value=1.0,
+                )
+            ],
+            firing_rules=[
+                [
+                    FiringRule(
+                        attribute=RULE_TYPE.DAILY_HOUR,
+                        comparison=COMPARATOR.GREATER_THEN_OR_EQUAL,
+                        value=min_hour,
+                    ),
+                    FiringRule(
+                        attribute=RULE_TYPE.DAILY_HOUR,
+                        comparison=COMPARATOR.LESS_THEN_OR_EQUAL,
+                        value=max_hour,
+                    ),
+                    # We need a size rule as well, also it must be last in the list
                     FiringRule(
                         attribute=RULE_TYPE.SIZE,
                         comparison=COMPARATOR.EQUAL,

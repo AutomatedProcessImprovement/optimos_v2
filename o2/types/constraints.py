@@ -3,6 +3,8 @@ from enum import Enum
 from typing import TypeGuard, Union
 from dataclass_wizard import JSONWizard
 
+from o2.types.days import DAY
+
 
 class BATCH_TYPE(str, Enum):
     SEQUENTIAL = "Sequential"  # one after another
@@ -61,6 +63,16 @@ class LargeWtRuleConstraints(BatchingConstraints, JSONWizard):
         tag_key = "rule_type"
 
 
+@dataclass(frozen=True)
+class WeekDayRuleConstraints(BatchingConstraints, JSONWizard):
+    allowed_days: list[DAY]
+
+    class _(JSONWizard.Meta):
+        key_transform_with_dump = "SNAKE"
+        tag = RULE_TYPE.LARGE_WT.value
+        tag_key = "rule_type"
+
+
 def is_size_constraint(val: BatchingConstraints) -> TypeGuard[SizeRuleConstraints]:
     return val.rule_type == RULE_TYPE.SIZE
 
@@ -75,6 +87,12 @@ def is_large_wt_constraint(
     val: BatchingConstraints,
 ) -> TypeGuard[LargeWtRuleConstraints]:
     return val.rule_type == RULE_TYPE.LARGE_WT
+
+
+def is_week_day_constraint(
+    val: BatchingConstraints,
+) -> TypeGuard[WeekDayRuleConstraints]:
+    return val.rule_type == RULE_TYPE.WEEK_DAY
 
 
 @dataclass(frozen=True)
@@ -117,4 +135,13 @@ class ConstraintsType(JSONWizard):
             constraint
             for constraint in self.batching_constraints
             if task_id in constraint.tasks and is_large_wt_constraint(constraint)
+        ]
+
+    def get_week_day_rule_constraints(
+        self, task_id: str
+    ) -> list[WeekDayRuleConstraints]:
+        return [
+            constraint
+            for constraint in self.batching_constraints
+            if task_id in constraint.tasks and is_week_day_constraint(constraint)
         ]

@@ -1,17 +1,14 @@
 import concurrent.futures
 import os
-import random
-from typing import Optional, Tuple, Type, Union
+from typing import Optional, Type
 from o2.actions.base_action import BaseAction
 from o2.actions.modify_size_rule_action import (
     ModifySizeRuleAction,
-    ModifySizeRuleActionParamsType,
 )
 from o2.actions.remove_rule_action import (
     RemoveRuleAction,
     RemoveRuleActionParamsType,
 )
-from o2.types.timetable import BatchingRule
 from o2.types.evaluation import Evaluation
 from o2.pareto_front import FRONT_STATUS
 
@@ -19,8 +16,10 @@ from o2.store import Store
 from o2.types.state import State
 from o2.types.rule_selector import RuleSelector
 from o2.types.self_rating import RATING, SelfRatingInput
+from o2.actions.modify_large_wt_rule_action import ModifyLargeWtRuleAction
 
 ACTION_CATALOG: list[Type[BaseAction]] = [
+    ModifyLargeWtRuleAction,
     ModifySizeRuleAction,
     RemoveRuleAction,
 ]

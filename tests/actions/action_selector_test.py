@@ -4,7 +4,7 @@ import pandas as pd
 from o2.store import Store
 from o2.actions.action_selector import ActionSelector
 from o2.types.self_rating import SelfRatingInput
-from optimos_v2.tests.fixtures.timetable_generator import TimetableGenerator
+from tests.fixtures.timetable_generator import TimetableGenerator
 
 pd.options.display.max_columns = None  # type: ignore
 pd.options.display.max_rows = None  # type: ignore

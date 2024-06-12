@@ -1,14 +1,9 @@
-from dataclasses import replace
 from o2.actions.base_action import BaseAction, BaseActionParamsType
 from o2.types.state import State
-from o2.types.timetable import COMPARATOR, BatchingRule, Distribution, FiringRule
+from o2.types.timetable import COMPARATOR, BatchingRule, FiringRule, rule_is_large_wt
 from o2.types.constraints import RULE_TYPE
 from o2.store import Store
 from o2.types.self_rating import RATING, SelfRatingInput
-from optimos_v2.o2.actions.modify_size_rule_action import (
-    ModifySizeRuleAction,
-    ModifySizeRuleActionParamsType,
-)
 
 SIZE_OF_CHANGE = 100
 CLOSENESS_TO_MAX_WT = 0.01
@@ -33,7 +28,7 @@ class ModifyLargeWtRuleAction(BaseAction):
             return state
 
         firing_rule = rule.get_firing_rule(rule_selector)
-        if firing_rule is None:
+        if not rule_is_large_wt(firing_rule):
             print(f"Firing rule not found for {rule_selector}")
             return state
 
@@ -54,13 +49,6 @@ class ModifyLargeWtRuleAction(BaseAction):
             + timetable.batch_processing[index + 1 :],
         )
 
-    def get_dominant_distribution(self, oldRule: BatchingRule):
-        # Find the size distribution with the highest probability
-        return max(
-            oldRule.size_distrib,
-            key=lambda distribution: distribution.value,
-        )
-
     @staticmethod
     def rate_self(store: Store, input: SelfRatingInput):
         rule_selector = input.most_impactful_rule
@@ -68,7 +56,7 @@ class ModifyLargeWtRuleAction(BaseAction):
 
         firing_rule = rule_selector.get_firing_rule_from_state(store.state)
 
-        if firing_rule is None or firing_rule.attribute != RULE_TYPE.LARGE_WT:
+        if not rule_is_large_wt(firing_rule):
             return RATING.NOT_APPLICABLE, None
 
         # TODO: We might want change the less than as well

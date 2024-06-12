@@ -38,7 +38,11 @@ class State:
             False,
             1000 if not self.for_testing else 100,
         )
-        starting_at_datetime = pytz.utc.localize(datetime.datetime.now())
+        if self.for_testing:
+            # For testing we start on 03.01.2000, a Monday
+            starting_at_datetime = pytz.utc.localize(datetime.datetime(2000, 1, 3))
+        else:
+            starting_at_datetime = pytz.utc.localize(datetime.datetime.now())
 
         setup.set_starting_datetime(starting_at_datetime)
 
