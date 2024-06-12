@@ -26,16 +26,18 @@ class ConstraintsGenerator:
         )
 
     # Add a size constraint to the constraints
-    def add_size_constraint(self, optimal_duration=5, optimal_duration_bonus=0.75):
+    def add_size_constraint(
+        self, optimal_duration=5, optimal_duration_bonus=0.75, min_size=0, max_size=10
+    ):
         self.constraints.batching_constraints.append(
             SizeRuleConstraints(
                 id=self.SIMPLE_CONSTRAINT_ID,
                 tasks=[task.attrib["id"] for task in self.tasks],
                 batch_type=BATCH_TYPE.PARALLEL,
                 rule_type=RULE_TYPE.SIZE,
-                duration_fn=f"0.005*(size - {optimal_duration})**2 + {optimal_duration_bonus}",
-                min_size=2,
-                max_size=10,
+                duration_fn=f"0.2*(size - {optimal_duration})**2 + {optimal_duration_bonus}",
+                min_size=min_size,
+                max_size=max_size,
             )
         )
         return self

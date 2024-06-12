@@ -41,6 +41,17 @@ class RemoveRuleAction(BaseAction):
     def rate_self(store: Store, input: SelfRatingInput):
         rule_selector = input.most_impactful_rule
         evaluation = input.most_impactful_rule_evaluation
+
+        constraints = store.constraints.get_batching_size_rule_constraints(
+            rule_selector.batching_rule_task_id
+        )
+
+        max_allowed_min_size = max(
+            [constraint.min_size for constraint in constraints], default=1
+        )
+        if max_allowed_min_size > 0:
+            return RATING.NOT_APPLICABLE, None
+
         # TODO: Check constraints
         # Check if this evaluation beats the current pareto front
         if store.current_pareto_front.is_dominated_by(evaluation):
@@ -48,7 +59,7 @@ class RemoveRuleAction(BaseAction):
                 f"\t\t>> Most impactful rule dominates current. Rule: {rule_selector}"
             )
             return (
-                RATING.EXTREME,
+                RATING.LOW,
                 RemoveRuleAction(RemoveRuleActionParamsType(rule=rule_selector)),
             )
         return RATING.NOT_APPLICABLE, None

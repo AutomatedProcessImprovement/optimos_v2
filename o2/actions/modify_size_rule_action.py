@@ -93,6 +93,10 @@ class ModifySizeRuleAction(BaseAction):
         if firing_rule is None or firing_rule.attribute != RULE_TYPE.SIZE:
             return RATING.NOT_APPLICABLE, None
 
+        if (firing_rule.value - SIZE_OF_CHANGE) < 1:
+            # We don't want to go below 1, here the remove rule action should be used
+            return RATING.NOT_APPLICABLE, None
+
         # TODO Get current fastest evaluation by task
         base_evaluation = store.current_fastest_evaluation
 
@@ -131,7 +135,8 @@ class ModifySizeRuleAction(BaseAction):
             ModifySizeRuleAction(
                 ModifySizeRuleActionParamsType(
                     size_increment=-1 * SIZE_OF_CHANGE,
-                    duration_fn="size",
+                    # TODO: Don't arbitrarily choose duration fn [0]
+                    duration_fn=constraints[0].duration_fn,
                     rule=rule_selector,
                 )
             ),
