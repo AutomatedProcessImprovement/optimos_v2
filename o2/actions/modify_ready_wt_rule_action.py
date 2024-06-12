@@ -1,33 +1,32 @@
-from dataclasses import replace
+from typing import Literal
+
 from o2.actions.base_action import BaseAction, BaseActionParamsType
+from o2.store import Store
+from o2.types.constraints import RULE_TYPE
+from o2.types.self_rating import RATING, SelfRatingInput
 from o2.types.state import State
 from o2.types.timetable import (
     COMPARATOR,
-    BatchingRule,
-    Distribution,
     FiringRule,
     rule_is_ready_wt,
-)
-from o2.types.constraints import RULE_TYPE
-from o2.store import Store
-from o2.types.self_rating import RATING, SelfRatingInput
-from o2.actions.modify_size_rule_action import (
-    ModifySizeRuleAction,
-    ModifySizeRuleActionParamsType,
 )
 
 SIZE_OF_CHANGE = 100
 
 
 class ModifyReadyWtRuleActionParamsType(BaseActionParamsType):
+    """Parameter for `ModifyReadyWtRuleAction`."""
+
     wt_increment: int
 
 
 class ModifyReadyWtRuleAction(BaseAction):
+    """`ModifyReadyWtRuleAction` will modify the `READY_WT` value of a `FiringRule`."""
+
     params: ModifyReadyWtRuleActionParamsType
 
-    # Returns a copy of the timetable with the rule size modified
-    def apply(self, state: State, enable_prints=True):
+    def apply(self, state: State, enable_prints: bool = True) -> State:
+        """Apply the action to the state."""
         timetable = state.timetable
         rule_selector = self.params["rule"]
         wt_increment = self.params["wt_increment"]
@@ -60,7 +59,13 @@ class ModifyReadyWtRuleAction(BaseAction):
         )
 
     @staticmethod
-    def rate_self(store: Store, input: SelfRatingInput):
+    def rate_self(
+        store: Store, input: SelfRatingInput
+    ) -> (
+        tuple[Literal[RATING.NOT_APPLICABLE], None]
+        | tuple[RATING, "ModifyReadyWtRuleAction"]
+    ):
+        """Generate a best set of parameters & self-evaluates this action."""
         rule_selector = input.most_impactful_rule
         base_evaluation = store.current_fastest_evaluation
 

@@ -13,4 +13,3 @@ class AddRuleAction(BaseAction):
     # Returns a copy of the timetable with the rule added
     def apply(self, state: State, enable_prints=True):
         raise NotImplementedError
-

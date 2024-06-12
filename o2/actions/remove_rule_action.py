@@ -1,19 +1,24 @@
+from typing import Literal
+
 from o2.actions.base_action import BaseAction, BaseActionParamsType
-from o2.types.state import State
 from o2.store import Store
 from o2.types.self_rating import RATING, SelfRatingInput
+from o2.types.state import State
 
 
 class RemoveRuleActionParamsType(BaseActionParamsType):
+    """Parameter for `RemoveRuleAction`."""
+
     pass
 
 
 class RemoveRuleAction(BaseAction):
+    """`RemoveRuleAction` will remove a `FiringRule` from a `BatchingRule`."""
+
     params: RemoveRuleActionParamsType
 
-    # Returns a copy of the timetable with the rule removed
-    # (TimetableType is a frozen dataclass)
-    def apply(self, state: State, enable_prints=True):
+    def apply(self, state: State, enable_prints: bool = True) -> State:
+        """Create a copy of the timetable with the rule removed."""
         timetable = state.timetable
         rule_selector = self.params["rule"]
 
@@ -38,7 +43,12 @@ class RemoveRuleAction(BaseAction):
         )
 
     @staticmethod
-    def rate_self(store: Store, input: SelfRatingInput):
+    def rate_self(
+        store: Store, input: SelfRatingInput
+    ) -> (
+        tuple[Literal[RATING.NOT_APPLICABLE], None] | tuple[RATING, "RemoveRuleAction"]
+    ):
+        """Create a set of parameters & rate this action."""
         rule_selector = input.most_impactful_rule
         evaluation = input.most_impactful_rule_evaluation
 

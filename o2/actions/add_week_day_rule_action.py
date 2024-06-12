@@ -1,26 +1,36 @@
 from dataclasses import replace
-from o2.actions.base_action import BaseAction, BaseActionParamsType
-from o2.types.state import State
-from o2.types.timetable import COMPARATOR, BatchingRule, FiringRule, rule_is_week_day
-from o2.types.constraints import RULE_TYPE
-from o2.store import Store
-from o2.types.self_rating import RATING, SelfRatingInput
-from o2.types.days import DAY
+from typing import Literal
+
 import numpy as np
+
+from o2.actions.base_action import BaseAction, BaseActionParamsType
+from o2.store import Store
+from o2.types.days import DAY
+from o2.types.self_rating import RATING, SelfRatingInput
+from o2.types.state import State
+from o2.types.timetable import rule_is_week_day
 
 SIZE_OF_CHANGE = 100
 CLOSENESS_TO_MAX_WT = 0.01
 
 
 class AddWeekDayRuleActionParamsType(BaseActionParamsType):
+    """Parameter for AddWeekDayRuleAction."""
+
     add_days: list[DAY]
 
 
 class AddWeekDayRuleAction(BaseAction):
+    """AddWeekDayRuleAction will add a new day to the firing rules of a BatchingRule.
+
+    It does this by cloning all the surrounding (AND) `FiringRule`s of
+    the selected `FiringRule` and add one clone per `add_days` day to the BatchingRule.
+    """
+
     params: AddWeekDayRuleActionParamsType
 
-    # Returns a copy of the timetable with the rule size modified
-    def apply(self, state: State, enable_prints=True):
+    def apply(self, state: State, enable_prints: bool = True) -> State:
+        """Apply the action to the state."""
         timetable = state.timetable
         rule_selector = self.params["rule"]
         add_days = self.params["add_days"]
@@ -68,7 +78,13 @@ class AddWeekDayRuleAction(BaseAction):
         )
 
     @staticmethod
-    def rate_self(store: Store, input: SelfRatingInput):
+    def rate_self(
+        store: Store, input: SelfRatingInput
+    ) -> (
+        tuple[Literal[RATING.NOT_APPLICABLE], None]
+        | tuple[RATING, "AddWeekDayRuleAction"]
+    ):
+        """Generate a best set of parameters & self-evaluates this action."""
         rule_selector = input.most_impactful_rule
 
         firing_rule = rule_selector.get_firing_rule_from_state(store.state)

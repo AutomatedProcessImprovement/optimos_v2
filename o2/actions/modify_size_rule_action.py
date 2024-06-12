@@ -1,5 +1,11 @@
+from typing import Literal
+
 from sympy import Symbol, lambdify
+
 from o2.actions.base_action import BaseAction, BaseActionParamsType
+from o2.store import Store
+from o2.types.constraints import RULE_TYPE
+from o2.types.self_rating import RATING, SelfRatingInput
 from o2.types.state import State
 from o2.types.timetable import (
     COMPARATOR,
@@ -8,24 +14,29 @@ from o2.types.timetable import (
     FiringRule,
     rule_is_size,
 )
-from o2.types.constraints import RULE_TYPE
-from o2.store import Store
-from o2.types.self_rating import RATING, SelfRatingInput
 
 MARGIN_OF_ERROR = 0.03
 SIZE_OF_CHANGE = 1
 
 
 class ModifySizeRuleActionParamsType(BaseActionParamsType):
+    """Parameter for ModifySizeRuleAction."""
+
     size_increment: int
     duration_fn: str
 
 
 class ModifySizeRuleAction(BaseAction):
+    """ModifySizeRuleAction will modify the size of a BatchingRule.
+
+    This will effect the size distribution and the duration distribution of the rule,
+    as well as the firing rule.
+    """
+
     params: ModifySizeRuleActionParamsType
 
-    # Returns a copy of the timetable with the rule size modified
-    def apply(self, state: State, enable_prints=True):
+    def apply(self, state: State, enable_prints: bool = True) -> State:
+        """Create a copy of the timetable with the rule size modified."""
         timetable = state.timetable
         rule_selector = self.params["rule"]
 
@@ -53,7 +64,8 @@ class ModifySizeRuleAction(BaseAction):
             )
         ]
 
-        # TODO: Do not replace the whole firing rules, just the one that needs to be changed
+        # TODO: Do not replace the whole firing rules,
+        # just the one that needs to be changed
         firing_rules = [
             [
                 FiringRule(
@@ -63,7 +75,7 @@ class ModifySizeRuleAction(BaseAction):
                 )
             ]
         ]
-        newRule = BatchingRule(
+        new_rule = BatchingRule(
             task_id=old_rule.task_id,
             type=old_rule.type,
             size_distrib=size_distrib,
@@ -73,24 +85,31 @@ class ModifySizeRuleAction(BaseAction):
 
         if enable_prints:
             print(
-                f"\t\t>> Modifying rule {old_rule.id()} to new size = {old_size} -> {new_size} & duration_modifier = {fn(new_size)}"
+                f"\t\t>> Modifying rule {old_rule.id()} to new size = {old_size} -> \
+                {new_size} & duration_modifier = {fn(new_size)}"
             )
 
         return state.replaceTimetable(
             batch_processing=timetable.batch_processing[:rule_index]
-            + [newRule]
+            + [new_rule]
             + timetable.batch_processing[rule_index + 1 :],
         )
 
-    def get_dominant_distribution(self, oldRule: BatchingRule):
-        # Find the size distribution with the highest probability
+    def get_dominant_distribution(self, old_rule: BatchingRule) -> Distribution:
+        """Find the size distribution with the highest probability."""
         return max(
-            oldRule.size_distrib,
+            old_rule.size_distrib,
             key=lambda distribution: distribution.value,
         )
 
     @staticmethod
-    def rate_self(store: Store, input: SelfRatingInput):
+    def rate_self(
+        store: Store, input: SelfRatingInput
+    ) -> (
+        tuple[Literal[RATING.NOT_APPLICABLE], None]
+        | tuple[RATING, "ModifySizeRuleAction"]
+    ):
+        """Create a "optimal" action & it's rating."""
         rule_selector = input.most_impactful_rule
         evaluation = input.most_impactful_rule_evaluation
 
@@ -106,7 +125,7 @@ class ModifySizeRuleAction(BaseAction):
         # TODO Get current fastest evaluation by task
         base_evaluation = store.current_fastest_evaluation
 
-        base_avg_wainting_time = base_evaluation.get_avg_waiting_time_of_task_id(
+        base_avg_waiting_time = base_evaluation.get_avg_waiting_time_of_task_id(
             rule_selector.batching_rule_task_id, store
         )
         new_avg_waiting_time = evaluation.get_avg_waiting_time_of_task_id(
@@ -117,11 +136,11 @@ class ModifySizeRuleAction(BaseAction):
         # TODO: We might want to try to increase the size of the rule,
         # but this only makes sense if we are looking for those positive rules
         # in the action_selector as well (see TODO there)
-        if new_avg_waiting_time > base_avg_wainting_time:
+        if new_avg_waiting_time > base_avg_waiting_time:
             return RATING.NOT_APPLICABLE, None
 
         # If the change is only very small, we don't want to apply it
-        if (1 - (new_avg_waiting_time / base_avg_wainting_time)) < MARGIN_OF_ERROR:
+        if (1 - (new_avg_waiting_time / base_avg_waiting_time)) < MARGIN_OF_ERROR:
             return RATING.NOT_APPLICABLE, None
 
         constraints = store.constraints.get_batching_size_rule_constraints(

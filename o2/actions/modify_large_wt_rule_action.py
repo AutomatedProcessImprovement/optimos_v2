@@ -1,23 +1,30 @@
+from typing import Literal
+
 from o2.actions.base_action import BaseAction, BaseActionParamsType
-from o2.types.state import State
-from o2.types.timetable import COMPARATOR, BatchingRule, FiringRule, rule_is_large_wt
-from o2.types.constraints import RULE_TYPE
 from o2.store import Store
+from o2.types.constraints import RULE_TYPE
 from o2.types.self_rating import RATING, SelfRatingInput
+from o2.types.state import State
+from o2.types.timetable import COMPARATOR, FiringRule, rule_is_large_wt
 
 SIZE_OF_CHANGE = 100
 CLOSENESS_TO_MAX_WT = 0.01
 
 
 class ModifyLargeWtRuleActionParamsType(BaseActionParamsType):
+    """Parameter for `ModifyLargeWtRuleAction`."""
+
     wt_increment: int
 
 
 class ModifyLargeWtRuleAction(BaseAction):
+    """`ModifyLargeWtRuleAction` will modify the `LARGE_WT` value of a `FiringRule`."""
+
     params: ModifyLargeWtRuleActionParamsType
 
     # Returns a copy of the timetable with the rule size modified
-    def apply(self, state: State, enable_prints=True):
+    def apply(self, state: State, enable_prints: bool = True) -> State:
+        """Apply the action to the state."""
         timetable = state.timetable
         rule_selector = self.params["rule"]
         wt_increment = self.params["wt_increment"]
@@ -50,7 +57,13 @@ class ModifyLargeWtRuleAction(BaseAction):
         )
 
     @staticmethod
-    def rate_self(store: Store, input: SelfRatingInput):
+    def rate_self(
+        store: Store, input: SelfRatingInput
+    ) -> (
+        tuple[Literal[RATING.NOT_APPLICABLE], None]
+        | tuple[RATING, "ModifyLargeWtRuleAction"]
+    ):
+        """Generate a best set of parameters & self-evaluates this action."""
         rule_selector = input.most_impactful_rule
         base_evaluation = store.current_fastest_evaluation
 
@@ -71,7 +84,8 @@ class ModifyLargeWtRuleAction(BaseAction):
         )
 
         # If the max waiting time is very close to the firing rule value, that means
-        # that the rule is actually "doing" something, meaning we might want to consider decreasing it
+        # that the rule is actually "doing" something, meaning we might want to consider
+        # decreasing it
         if base_max_waiting_time < (firing_rule.value * (1 - CLOSENESS_TO_MAX_WT)):
             return RATING.NOT_APPLICABLE, None
 

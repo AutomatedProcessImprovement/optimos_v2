@@ -31,3 +31,23 @@ source = ["o2"]
 [tool.pytest.ini_options]
 # addopts = "--cov --cov-report=lcov:lcov.info --cov-report=term"
 pythonpath = ["."]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle
+    "F",   # Pyflakes
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "SIM", # flake8-simplify
+    "I",   # isort
+    "D",   # Docstring conventions (pydocstyle)
+    "N",   # PEP 8 naming conventions
+    "W",   # Pycodestyle warnings
+    "B",   # Bugbear
+    "Q",   # Flake8-quotes
+    "ANN", # Annotations (flake8-annotations)
+]
+ignore = [
+    "D100",   # Missing docstring in public module
+    "ANN101", # Missing type annotation for self in method
+]

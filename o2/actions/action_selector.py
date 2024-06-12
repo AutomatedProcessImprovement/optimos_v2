@@ -1,7 +1,9 @@
 import concurrent.futures
 import os
 from typing import Optional, Type
+
 from o2.actions.base_action import BaseAction
+from o2.actions.modify_large_wt_rule_action import ModifyLargeWtRuleAction
 from o2.actions.modify_size_rule_action import (
     ModifySizeRuleAction,
 )
@@ -9,14 +11,12 @@ from o2.actions.remove_rule_action import (
     RemoveRuleAction,
     RemoveRuleActionParamsType,
 )
-from o2.types.evaluation import Evaluation
 from o2.pareto_front import FRONT_STATUS
-
 from o2.store import Store
-from o2.types.state import State
+from o2.types.evaluation import Evaluation
 from o2.types.rule_selector import RuleSelector
 from o2.types.self_rating import RATING, SelfRatingInput
-from o2.actions.modify_large_wt_rule_action import ModifyLargeWtRuleAction
+from o2.types.state import State
 
 ACTION_CATALOG: list[Type[BaseAction]] = [
     ModifyLargeWtRuleAction,
@@ -26,8 +26,11 @@ ACTION_CATALOG: list[Type[BaseAction]] = [
 
 
 class ActionSelector:
+    """Selects the best action to take next, based on the current state of the store."""
+
     @staticmethod
     def select_action(store: Store) -> Optional[BaseAction]:
+        """Select the best action to take next."""
         evaluations = ActionSelector.evaluate_rules(store)
 
         rating_input = SelfRatingInput.from_rule_evaluations(evaluations)
@@ -64,9 +67,12 @@ class ActionSelector:
     def evaluate_rules(
         store: "Store",
     ) -> dict[RuleSelector, Evaluation]:
+        """Evaluate the impact of removing each rule individually."""
         batching_rules = store.state.timetable.batch_processing
-        # TODO: Find a smart way to see which rules not to evaluate, because all possible actions are already in the tabu list
-        # # tabu_indices = [action.params["rule_hash"] for action in store.tabu_list]  # type: ignore TODO FIX Type
+        # TODO: Find a smart way to see which rules not to evaluate,
+        #  when all possible actions are already in the tabu list
+        # # tabu_indices = [action.params["rule_hash"] for action in store.tabu_list]
+        #  type: ignore TODO FIX Type
 
         # # Only allow rules, that can be decreased / modified in size
         # batching_rules = [
@@ -84,8 +90,6 @@ class ActionSelector:
 
         if len(batching_rules) == 0:
             return {}
-
-        base_line_waiting_time = store.current_fastest_evaluation.total_waiting_time
 
         evaluations: dict[RuleSelector, Evaluation] = {}
 
