@@ -190,7 +190,7 @@ class BatchingRule(JSONWizard):
         else:
             or_rules = (
                 self.firing_rules[:or_index]
-                + and_rules
+                + [and_rules]
                 + self.firing_rules[or_index + 1 :]
             )
 

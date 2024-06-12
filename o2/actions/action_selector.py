@@ -122,7 +122,8 @@ class ActionSelector:
             for future in concurrent.futures.as_completed(futures):
                 try:
                     status, evaluation, new_state, action = future.result()
-                    evaluations[action.params["rule"]] = evaluation  # type: ignore TODO Fix Type
+                    # TODO Fix Type
+                    evaluations[action.params["rule"]] = evaluation  # type: ignore
                 except Exception as e:
                     print(f"\t> Error in future: {e}")
                     continue
