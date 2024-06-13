@@ -124,10 +124,6 @@ class ModifySizeRuleAction(BaseAction):
         if not rule_is_size(firing_rule):
             return RATING.NOT_APPLICABLE, None
 
-        if (firing_rule.value - SIZE_OF_CHANGE) < 1:
-            # We don't want to go below 1, here the remove rule action should be used
-            return RATING.NOT_APPLICABLE, None
-
         # TODO Get current fastest evaluation by task
         base_evaluation = store.current_fastest_evaluation
 
@@ -150,6 +146,12 @@ class ModifySizeRuleAction(BaseAction):
             if 1 - (new_avg_waiting_time / base_avg_waiting_time) < MARGIN_OF_ERROR:
                 return RATING.NOT_APPLICABLE, None
 
+        new_size = firing_rule.value + size_increment
+
+        if new_size < 1:
+            # We don't want to go below 1, here the remove rule action should be used
+            return RATING.NOT_APPLICABLE, None
+
         constraints = store.constraints.get_batching_size_rule_constraints(
             rule_selector.batching_rule_task_id
         )
@@ -157,9 +159,12 @@ class ModifySizeRuleAction(BaseAction):
         max_allowed_min_size = max(
             [constraint.min_size for constraint in constraints], default=1
         )
+        min_allowed_max_size = min(
+            [constraint.max_size for constraint in constraints], default=1
+        )
 
         # Decrementing the size would break the constraints
-        if (firing_rule.value - SIZE_OF_CHANGE) < max_allowed_min_size:
+        if new_size < max_allowed_min_size or new_size > min_allowed_max_size:
             return RATING.NOT_APPLICABLE, None
 
         return (
