@@ -141,13 +141,19 @@ def test_self_rating_optimal_rule(store: Store):
     assert result == (0, None)
 
 
-def test_self_rating_non_optimal_rule(store: Store):
+def test_self_rating_non_optimal_rule(one_task_store: Store):
+    store = one_task_store
     store.replaceTimetable(
         batch_processing=[
             TimetableGenerator.batching_size_rule(
                 TimetableGenerator.FIRST_ACTIVITY, 50, 1
             )
-        ]
+        ],
+        task_resource_distribution=TimetableGenerator(store.state.bpmn_definition)
+        # 1 Minute Tasks
+        .create_simple_task_resource_distribution(60)
+        # TODO: Improve Syntax
+        .timetable.task_resource_distribution,
     )
     store.evaluate()
     evaluations = ActionSelector.evaluate_rules(store)

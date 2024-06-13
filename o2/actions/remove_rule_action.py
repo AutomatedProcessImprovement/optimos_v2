@@ -50,6 +50,9 @@ class RemoveRuleAction(BaseAction):
     ):
         """Create a set of parameters & rate this action."""
         rule_selector = input.most_wt_increase
+        if rule_selector is None:
+            return RATING.NOT_APPLICABLE, None
+
         evaluation = input.most_wt_increase_evaluation
 
         constraints = store.constraints.get_batching_size_rule_constraints(

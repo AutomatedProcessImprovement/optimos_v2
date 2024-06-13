@@ -34,7 +34,14 @@ def test_two_rules_one_bigger(store: Store):
     big_rule = TimetableGenerator.batching_size_rule(
         TimetableGenerator.FIRST_ACTIVITY, 20, 1
     )
-    store.replaceTimetable(batch_processing=[small_rule, big_rule])
+    store.replaceTimetable(
+        batch_processing=[small_rule, big_rule],
+        task_resource_distribution=TimetableGenerator(store.state.bpmn_definition)
+        # 1 minute Tasks
+        .create_simple_task_resource_distribution(60)
+        # TODO: Improve Syntax
+        .timetable.task_resource_distribution,
+    )
     evaluations = ActionSelector.evaluate_rules(store)
     rating_input = SelfRatingInput.from_rule_evaluations(store, evaluations)
     assert rating_input is not None

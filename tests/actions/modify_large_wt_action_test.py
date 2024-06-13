@@ -51,7 +51,11 @@ def test_self_rating_optimal(one_task_store: Store):
             TimetableGenerator.large_wt_rule(
                 TimetableGenerator.FIRST_ACTIVITY, 30 * 60, size=2
             )
-        ]
+        ],
+        task_resource_distribution=TimetableGenerator(store.state.bpmn_definition)
+        # 1 Minute Tasks
+        .create_simple_task_resource_distribution(60)
+        .timetable.task_resource_distribution,
     )
 
     store.replaceConstraints(

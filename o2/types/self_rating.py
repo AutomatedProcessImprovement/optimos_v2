@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Union
+from typing import Optional, Union
 
 from optimos_v2.o2.store import Store
 
@@ -16,7 +16,7 @@ class RATING(float, Enum):
     EXTREME = 99
 
 
-@dataclass
+@dataclass(frozen=True)
 class SelfRatingInput:
     # A Evaluation object,
     # containing the results of the simulation without
@@ -31,18 +31,20 @@ class SelfRatingInput:
         return self.rule_evaluations[self.most_impactful_rule]
 
     @property
-    def most_wt_increase(self) -> RuleSelector:
+    def most_wt_increase(self) -> Optional[RuleSelector]:
         """Return the rule that has the most negative impact on the waiting time.
 
         Meaning the rule, that when removed reduced the waiting time the most.
         """
+        increasing_rules = {
+            rule_selector: evaluation
+            for rule_selector, evaluation in self.rule_evaluations.items()
+            if evaluation.total_waiting_time < self.base_evaluation.total_waiting_time
+        }
+        if len(increasing_rules) == 0:
+            return None
         return max(
-            {
-                rule_selector: evaluation
-                for rule_selector, evaluation in self.rule_evaluations.items()
-                if evaluation.total_waiting_time
-                < self.base_evaluation.total_waiting_time
-            },
+            increasing_rules,
             key=lambda rule_selector: self.base_evaluation.total_waiting_time
             - self.rule_evaluations[rule_selector].total_waiting_time,
         )
@@ -50,21 +52,26 @@ class SelfRatingInput:
     @property
     def most_wt_increase_evaluation(self) -> Evaluation:
         """Return the evaluation of the `most_wt_increase` rule."""
-        return self.rule_evaluations[self.most_wt_increase]
+        most_wt_increase = self.most_wt_increase
+        if most_wt_increase is None:
+            return Evaluation.empty()
+        return self.rule_evaluations[most_wt_increase]
 
     @property
-    def most_wt_reduction(self) -> RuleSelector:
+    def most_wt_reduction(self) -> Optional[RuleSelector]:
         """Return the rule that has the most positive impact on the waiting time.
 
         Meaning the rule, that when removed increased the waiting time the most.
         """
+        reducing_rules = {
+            rule_selector: evaluation
+            for rule_selector, evaluation in self.rule_evaluations.items()
+            if evaluation.total_waiting_time > self.base_evaluation.total_waiting_time
+        }
+        if len(reducing_rules) == 0:
+            return None
         return min(
-            {
-                rule_selector: evaluation
-                for rule_selector, evaluation in self.rule_evaluations.items()
-                if evaluation.total_waiting_time
-                > self.base_evaluation.total_waiting_time
-            },
+            reducing_rules,
             key=lambda rule_selector: self.base_evaluation.total_waiting_time
             - self.rule_evaluations[rule_selector].total_waiting_time,
         )
@@ -72,7 +79,10 @@ class SelfRatingInput:
     @property
     def most_wt_reduction_evaluation(self) -> Evaluation:
         """Return the evaluation of the `most_wt_reduction` rule."""
-        return self.rule_evaluations[self.most_wt_reduction]
+        most_wt_reduction = self.most_wt_reduction
+        if most_wt_reduction is None:
+            return Evaluation.empty()
+        return self.rule_evaluations[most_wt_reduction]
 
     @staticmethod
     def from_rule_evaluations(
