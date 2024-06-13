@@ -13,14 +13,14 @@ pd.options.display.max_rows = None  # type: ignore
 def test_no_rules(store: Store):
     store.replaceTimetable(batch_processing=[])
     evaluations = ActionSelector.evaluate_rules(store)
-    rating_input = SelfRatingInput.from_rule_evaluations(evaluations)
+    rating_input = SelfRatingInput.from_rule_evaluations(store, evaluations)
     assert rating_input is None
 
 
 def test_only_one_rule(store: Store):
     store.replaceTimetable(batch_processing=[store.state.timetable.batch_processing[0]])
     evaluations = ActionSelector.evaluate_rules(store)
-    rating_input = SelfRatingInput.from_rule_evaluations(evaluations)
+    rating_input = SelfRatingInput.from_rule_evaluations(store, evaluations)
     assert rating_input is not None
     bestAction = rating_input.most_impactful_rule
     assert bestAction.batching_rule_task_id == TimetableGenerator.FIRST_ACTIVITY
@@ -36,7 +36,7 @@ def test_two_rules_one_bigger(store: Store):
     )
     store.replaceTimetable(batch_processing=[small_rule, big_rule])
     evaluations = ActionSelector.evaluate_rules(store)
-    rating_input = SelfRatingInput.from_rule_evaluations(evaluations)
+    rating_input = SelfRatingInput.from_rule_evaluations(store, evaluations)
     assert rating_input is not None
     bestAction = rating_input.most_impactful_rule
     assert bestAction.batching_rule_task_id == TimetableGenerator.FIRST_ACTIVITY
@@ -44,7 +44,7 @@ def test_two_rules_one_bigger(store: Store):
 
     store.replaceTimetable(batch_processing=[big_rule, small_rule])
     evaluations = ActionSelector.evaluate_rules(store)
-    rating_input = SelfRatingInput.from_rule_evaluations(evaluations)
+    rating_input = SelfRatingInput.from_rule_evaluations(store, evaluations)
     assert rating_input is not None
     bestActionRev = rating_input.most_impactful_rule
 

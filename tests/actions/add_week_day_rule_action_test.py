@@ -61,6 +61,7 @@ def test_self_rate_simple(one_task_store: Store):
     store.evaluate()
     evaluations = ActionSelector.evaluate_rules(store)
     rating_input = SelfRatingInput(
+        store.current_fastest_evaluation,
         evaluations,
         RuleSelector(
             batching_rule_task_id=TimetableGenerator.FIRST_ACTIVITY,

@@ -1,10 +1,13 @@
 from dataclasses import dataclass, replace
-from o2.actions.base_action import BaseAction
-from o2.pareto_front import FRONT_STATUS, ParetoFront
+from typing import TYPE_CHECKING
 
+from o2.pareto_front import FRONT_STATUS, ParetoFront
 from o2.types.constraints import ConstraintsType
-from o2.types.state import State
 from o2.types.evaluation import Evaluation
+from o2.types.state import State
+
+if TYPE_CHECKING:
+    from o2.actions.base_action import BaseAction
 
 
 class Store:
@@ -15,20 +18,25 @@ class Store:
     constraints: ConstraintsType
     state: State
 
-    previous_actions: list[BaseAction] = []
+    previous_actions: list["BaseAction"] = []
     previous_states: list[State] = []
     previous_pareto_fronts: list[ParetoFront] = []
 
-    tabu_list: list[BaseAction] = []
+    tabu_list: list["BaseAction"] = []
 
     @property
-    def current_pareto_front(self):
+    def current_pareto_front(self) -> ParetoFront:
+        """Returns the current Pareto Front.
+
+        If there is no Pareto Front, creates a new one and returns it.
+        """
         if not self.previous_pareto_fronts:
             self.previous_pareto_fronts = [ParetoFront()]
         return self.previous_pareto_fronts[-1]
 
     @property
-    def base_evaluation(self):
+    def base_evaluation(self) -> Evaluation:
+        """Returns the base evaluation, e.g. the fist evaluation with no changes."""
         return self.previous_pareto_fronts[0].evaluations[0]
 
     @property
@@ -41,7 +49,7 @@ class Store:
             key=lambda x: x.total_cycle_time,
         )
 
-    def apply_action(self, action: BaseAction):
+    def apply_action(self, action: "BaseAction"):
         self.previous_actions.append(action)
         self.previous_states.append(self.state)
         self.state = action.apply(self.state)
@@ -66,7 +74,7 @@ class Store:
 
     # Tries an action and returns the status of the new evaluation
     # Does NOT modify the store
-    def tryAction(self, action: BaseAction):
+    def tryAction(self, action: "BaseAction"):
         new_state = action.apply(self.state, enable_prints=False)
         evaluation = new_state.evaluate()
         status = self.current_pareto_front.is_in_front(evaluation)
@@ -84,5 +92,5 @@ class Store:
         self.state = self.state.replaceTimetable(**changes)
         return self.state.timetable
 
-    def is_tabu(self, action: BaseAction):
+    def is_tabu(self, action: "BaseAction"):
         return action in self.tabu_list

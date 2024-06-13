@@ -139,15 +139,16 @@ class ModifySizeRuleAction(BaseAction):
         )
 
         # This rule does reduce the waiting time, not increment it
-        # TODO: We might want to try to increase the size of the rule,
-        # but this only makes sense if we are looking for those positive rules
-        # in the action_selector as well (see TODO there)
         if new_avg_waiting_time > base_avg_waiting_time:
-            return RATING.NOT_APPLICABLE, None
-
-        # If the change is only very small, we don't want to apply it
-        if (1 - (new_avg_waiting_time / base_avg_waiting_time)) < MARGIN_OF_ERROR:
-            return RATING.NOT_APPLICABLE, None
+            size_increment = SIZE_OF_CHANGE
+            # If the change is only very small, we don't want to apply it
+            if 1 - (base_avg_waiting_time / new_avg_waiting_time) < MARGIN_OF_ERROR:
+                return RATING.NOT_APPLICABLE, None
+        else:
+            size_increment = -1 * SIZE_OF_CHANGE
+            # If the change is only very small, we don't want to apply it
+            if 1 - (new_avg_waiting_time / base_avg_waiting_time) < MARGIN_OF_ERROR:
+                return RATING.NOT_APPLICABLE, None
 
         constraints = store.constraints.get_batching_size_rule_constraints(
             rule_selector.batching_rule_task_id
@@ -165,7 +166,7 @@ class ModifySizeRuleAction(BaseAction):
             RATING.MEDIUM,
             ModifySizeRuleAction(
                 ModifySizeRuleActionParamsType(
-                    size_increment=-1 * SIZE_OF_CHANGE,
+                    size_increment=size_increment,
                     # TODO: Don't arbitrarily choose duration fn [0]
                     duration_fn=constraints[0].duration_fn,
                     rule=rule_selector,

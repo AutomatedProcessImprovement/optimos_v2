@@ -135,7 +135,7 @@ def test_self_rating_optimal_rule(store: Store):
 
     store.evaluate()
     evaluations = ActionSelector.evaluate_rules(store)
-    rating_input = SelfRatingInput.from_rule_evaluations(evaluations)
+    rating_input = SelfRatingInput.from_rule_evaluations(store, evaluations)
     assert rating_input is not None
     result = RemoveRuleAction.rate_self(store, rating_input)
     assert result == (0, None)
@@ -151,7 +151,7 @@ def test_self_rating_non_optimal_rule(store: Store):
     )
     store.evaluate()
     evaluations = ActionSelector.evaluate_rules(store)
-    rating_input = SelfRatingInput.from_rule_evaluations(evaluations)
+    rating_input = SelfRatingInput.from_rule_evaluations(store, evaluations)
     assert rating_input is not None
     result = RemoveRuleAction.rate_self(store, rating_input)
     assert result[0] == RATING.LOW

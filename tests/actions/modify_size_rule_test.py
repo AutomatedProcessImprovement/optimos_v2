@@ -75,13 +75,13 @@ def test_self_rating_optimal_rule(store: Store):
     )
     store.evaluate()
     evaluations = ActionSelector.evaluate_rules(store)
-    rating_input = SelfRatingInput.from_rule_evaluations(evaluations)
+    rating_input = SelfRatingInput.from_rule_evaluations(store, evaluations)
     assert rating_input is not None
     result = ModifySizeRuleAction.rate_self(store, rating_input)
     assert result == (0, None)
 
 
-def test_self_rating_non_optimal_rule(one_task_store: Store):
+def test_self_rating_non_optimal_rule_decrement(one_task_store: Store):
     store = one_task_store
     store.replaceTimetable(
         batch_processing=[
@@ -97,11 +97,38 @@ def test_self_rating_non_optimal_rule(one_task_store: Store):
     )
     store.evaluate()
     evaluations = ActionSelector.evaluate_rules(store)
-    rating_input = SelfRatingInput.from_rule_evaluations(evaluations)
+    rating_input = SelfRatingInput.from_rule_evaluations(store, evaluations)
     assert rating_input is not None
     result = ModifySizeRuleAction.rate_self(store, rating_input)
     assert result[0] == RATING.MEDIUM
     assert result[1] is not None
+    assert result[1].params["size_increment"] == -1
+
+
+def test_self_rating_non_optimal_rule_increment(one_task_store: Store):
+    store = one_task_store
+    store.replaceTimetable(
+        batch_processing=[
+            TimetableGenerator.batching_size_rule(
+                TimetableGenerator.FIRST_ACTIVITY, 4, duration_distribution=0.75
+            )
+        ]
+    )
+    store.replaceConstraints(
+        batching_constraints=ConstraintsGenerator(store.state.bpmn_definition)
+        .add_size_constraint(
+            min_size=3, optimal_duration=5, max_size=7, optimal_duration_bonus=0.5
+        )
+        .constraints.batching_constraints
+    )
+    store.evaluate()
+    evaluations = ActionSelector.evaluate_rules(store)
+    rating_input = SelfRatingInput.from_rule_evaluations(store, evaluations)
+    assert rating_input is not None
+    result = ModifySizeRuleAction.rate_self(store, rating_input)
+    assert result[0] == RATING.MEDIUM
+    assert result[1] is not None
+    assert result[1].params["size_increment"] == 1
 
 
 def helper_rule_matches_size(rule: BatchingRule, size: int) -> Literal[True]:

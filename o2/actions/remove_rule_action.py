@@ -49,8 +49,8 @@ class RemoveRuleAction(BaseAction):
         tuple[Literal[RATING.NOT_APPLICABLE], None] | tuple[RATING, "RemoveRuleAction"]
     ):
         """Create a set of parameters & rate this action."""
-        rule_selector = input.most_impactful_rule
-        evaluation = input.most_impactful_rule_evaluation
+        rule_selector = input.most_wt_increase
+        evaluation = input.most_wt_increase_evaluation
 
         constraints = store.constraints.get_batching_size_rule_constraints(
             rule_selector.batching_rule_task_id

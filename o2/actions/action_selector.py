@@ -33,7 +33,7 @@ class ActionSelector:
         """Select the best action to take next."""
         evaluations = ActionSelector.evaluate_rules(store)
 
-        rating_input = SelfRatingInput.from_rule_evaluations(evaluations)
+        rating_input = SelfRatingInput.from_rule_evaluations(store, evaluations)
         if rating_input is None:
             print("\t> No rules left...")
             return None
