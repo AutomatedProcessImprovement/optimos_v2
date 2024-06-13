@@ -16,7 +16,7 @@ def test_add_day_simple(store: Store):
     store.replaceTimetable(
         batch_processing=[
             TimetableGenerator.week_day_rule(
-                TimetableGenerator.FIRST_ACTIVITY, DAY.MONDAY
+                TimetableGenerator.FIRST_ACTIVITY, DAY.MONDAY, include_monday=False
             )
         ]
     )

@@ -47,16 +47,22 @@ class ModifySizeRuleAction(BaseAction):
         old_size = self.get_dominant_distribution(old_rule).key
         new_size = int(old_size) + self.params["size_increment"]
         fn = lambdify(Symbol("size"), self.params["duration_fn"])
+
         size_distrib = [
-            Distribution(
-                key=str(1),
-                value=0,
-            ),
             Distribution(
                 key=str(new_size),
                 value=1,
             ),
         ]
+        if new_size != 1:
+            size_distrib.insert(
+                0,
+                Distribution(
+                    key=str(1),
+                    value=0,
+                ),
+            )
+
         duration_distrib = [
             Distribution(
                 key=str(new_size),

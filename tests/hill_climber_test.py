@@ -1,10 +1,17 @@
 from o2.hill_climber import HillClimber
 from o2.store import Store
+from optimos_v2.o2.types.constraints import BATCH_TYPE, RULE_TYPE
+from optimos_v2.o2.types.timetable import (
+    COMPARATOR,
+    BatchingRule,
+    Distribution,
+    FiringRule,
+)
 from tests.fixtures.constraints_generator import ConstraintsGenerator
 from tests.fixtures.timetable_generator import TimetableGenerator
 
 
-def test_simulation_runner(one_task_store: Store):
+def test_hill_climber_simple(one_task_store: Store):
     store = one_task_store
 
     store.replaceTimetable(
@@ -25,5 +32,5 @@ def test_simulation_runner(one_task_store: Store):
     hill_climber = HillClimber(store)
     hill_climber.solve()
 
-    # 9x Decrease Batching Size
-    assert len(store.previous_actions) == 9
+    # 3x Decrease Batching Size (10 -> 9 -> 8 -> 7)
+    assert len(store.previous_actions) == 3

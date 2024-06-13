@@ -285,6 +285,8 @@ class TimetableGenerator:
         task_id: str,
         week_day: DAY = DAY.MONDAY,
         size=BATCHING_BASE_SIZE,
+        include_monday=True,
+        include_size=True,
     ):
         return BatchingRule(
             task_id=task_id,
@@ -315,7 +317,37 @@ class TimetableGenerator:
                         comparison=COMPARATOR.EQUAL,
                         value=week_day,
                     ),
+                    FiringRule(
+                        attribute=RULE_TYPE.SIZE,
+                        comparison=COMPARATOR.EQUAL,
+                        value=size,
+                    ),
                 ],
+            ]
+            if include_monday
+            else [
+                [
+                    FiringRule(
+                        attribute=RULE_TYPE.WEEK_DAY,
+                        comparison=COMPARATOR.EQUAL,
+                        value=week_day,
+                    ),
+                    FiringRule(
+                        attribute=RULE_TYPE.SIZE,
+                        comparison=COMPARATOR.EQUAL,
+                        value=size,
+                    ),
+                ],
+            ]
+            if include_size
+            else [
+                [
+                    FiringRule(
+                        attribute=RULE_TYPE.WEEK_DAY,
+                        comparison=COMPARATOR.EQUAL,
+                        value=week_day,
+                    ),
+                ]
             ],
         )
 
