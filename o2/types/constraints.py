@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import TypeGuard, Union
+from typing import List, TypeGuard, Union
 from dataclass_wizard import JSONWizard
 
 from o2.types.days import DAY
@@ -98,7 +98,14 @@ def is_week_day_constraint(
 @dataclass(frozen=True)
 class ConstraintsType(JSONWizard):
     # TODO: Add more constraints here
-    batching_constraints: list[BatchingConstraints]
+    batching_constraints: List[
+        Union[
+            SizeRuleConstraints,
+            ReadyWtRuleConstraints,
+            LargeWtRuleConstraints,
+            WeekDayRuleConstraints,
+        ]
+    ]
 
     class _(JSONWizard.Meta):
         key_transform_with_dump = "SNAKE"
@@ -145,3 +152,7 @@ class ConstraintsType(JSONWizard):
             for constraint in self.batching_constraints
             if task_id in constraint.tasks and is_week_day_constraint(constraint)
         ]
+
+    class _(JSONWizard.Meta):
+        key_transform_with_dump = "SNAKE"
+        tag_key = "rule_type"

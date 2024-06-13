@@ -1,7 +1,7 @@
 {
   "batching_constraints": [
     {
-      "id": "batching_constraint_1",
+      "id": "simple_constraint",
       "tasks": [
         "node_df55f914-8f7d-4077-9696-9288d12431bc",
         "node_c9570e98-4fdc-4d2c-a5dc-e5da82e8eafd",
@@ -27,10 +27,106 @@
       ],
       "batch_type": "Parallel",
       "rule_type": "size",
-
-      "min_size": 1,
-      "max_size": 10,
-      "duration_fn": "0.005*(size - 5)**2 + 0.8"
+      "duration_fn": "0.2*(size - 5)**2 + 0.75",
+      "min_size": 0,
+      "max_size": 10
+    },
+    {
+      "id": "simple_constraint",
+      "tasks": [
+        "node_df55f914-8f7d-4077-9696-9288d12431bc",
+        "node_c9570e98-4fdc-4d2c-a5dc-e5da82e8eafd",
+        "node_398473bf-498a-4c20-a05d-b80791f1df4f",
+        "node_7b7d691b-cea6-4e3c-bd69-6547ffa822d7",
+        "node_1ef3d66c-9cf4-418d-b582-330d292668af",
+        "node_fab9a42e-ca7f-4dde-90e1-eb3ee9612c9c",
+        "node_b933d84e-ef4a-4630-ae45-71c31db5c86f",
+        "node_a941a61b-e6b9-4c2f-b556-223a195f17e5",
+        "node_cbbd6b55-5e52-44c5-a46c-90344cf02549",
+        "node_5f0c0d91-845f-49e6-840d-5595ade70118",
+        "node_c70c39d2-01de-4f4a-972a-f36122619f76",
+        "node_f7fa3239-5e39-47ac-9a11-68a47cec8dd0",
+        "node_33b917d4-4896-49c7-bcca-ddd71460bec1",
+        "node_e82a5c1b-997e-4002-9678-e121033833cd",
+        "node_4664fda9-369a-4a95-9c3d-89da28e91bb9",
+        "node_3e4c5429-dea9-4101-800a-299d0295d56c",
+        "node_3650b9b1-e937-4fe8-a1e1-e05f88c0629f",
+        "node_55612242-5600-46dd-be3a-4fd3490be056",
+        "node_a77705d9-9389-4645-880a-cb4db3e0e94c",
+        "node_ca90407c-88e3-4590-b2fe-24ba738c1140",
+        "node_156435c3-9cb7-4b7a-9f59-e5def40d4159"
+      ],
+      "batch_type": "Parallel",
+      "rule_type": "ready_wt",
+      "min_wt": 0,
+      "max_wt": 1440
+    },
+    {
+      "id": "simple_constraint",
+      "tasks": [
+        "node_df55f914-8f7d-4077-9696-9288d12431bc",
+        "node_c9570e98-4fdc-4d2c-a5dc-e5da82e8eafd",
+        "node_398473bf-498a-4c20-a05d-b80791f1df4f",
+        "node_7b7d691b-cea6-4e3c-bd69-6547ffa822d7",
+        "node_1ef3d66c-9cf4-418d-b582-330d292668af",
+        "node_fab9a42e-ca7f-4dde-90e1-eb3ee9612c9c",
+        "node_b933d84e-ef4a-4630-ae45-71c31db5c86f",
+        "node_a941a61b-e6b9-4c2f-b556-223a195f17e5",
+        "node_cbbd6b55-5e52-44c5-a46c-90344cf02549",
+        "node_5f0c0d91-845f-49e6-840d-5595ade70118",
+        "node_c70c39d2-01de-4f4a-972a-f36122619f76",
+        "node_f7fa3239-5e39-47ac-9a11-68a47cec8dd0",
+        "node_33b917d4-4896-49c7-bcca-ddd71460bec1",
+        "node_e82a5c1b-997e-4002-9678-e121033833cd",
+        "node_4664fda9-369a-4a95-9c3d-89da28e91bb9",
+        "node_3e4c5429-dea9-4101-800a-299d0295d56c",
+        "node_3650b9b1-e937-4fe8-a1e1-e05f88c0629f",
+        "node_55612242-5600-46dd-be3a-4fd3490be056",
+        "node_a77705d9-9389-4645-880a-cb4db3e0e94c",
+        "node_ca90407c-88e3-4590-b2fe-24ba738c1140",
+        "node_156435c3-9cb7-4b7a-9f59-e5def40d4159"
+      ],
+      "batch_type": "Parallel",
+      "rule_type": "ready_wt",
+      "min_wt": 0,
+      "max_wt": 1440
+    },
+    {
+      "id": "simple_constraint",
+      "tasks": [
+        "node_df55f914-8f7d-4077-9696-9288d12431bc",
+        "node_c9570e98-4fdc-4d2c-a5dc-e5da82e8eafd",
+        "node_398473bf-498a-4c20-a05d-b80791f1df4f",
+        "node_7b7d691b-cea6-4e3c-bd69-6547ffa822d7",
+        "node_1ef3d66c-9cf4-418d-b582-330d292668af",
+        "node_fab9a42e-ca7f-4dde-90e1-eb3ee9612c9c",
+        "node_b933d84e-ef4a-4630-ae45-71c31db5c86f",
+        "node_a941a61b-e6b9-4c2f-b556-223a195f17e5",
+        "node_cbbd6b55-5e52-44c5-a46c-90344cf02549",
+        "node_5f0c0d91-845f-49e6-840d-5595ade70118",
+        "node_c70c39d2-01de-4f4a-972a-f36122619f76",
+        "node_f7fa3239-5e39-47ac-9a11-68a47cec8dd0",
+        "node_33b917d4-4896-49c7-bcca-ddd71460bec1",
+        "node_e82a5c1b-997e-4002-9678-e121033833cd",
+        "node_4664fda9-369a-4a95-9c3d-89da28e91bb9",
+        "node_3e4c5429-dea9-4101-800a-299d0295d56c",
+        "node_3650b9b1-e937-4fe8-a1e1-e05f88c0629f",
+        "node_55612242-5600-46dd-be3a-4fd3490be056",
+        "node_a77705d9-9389-4645-880a-cb4db3e0e94c",
+        "node_ca90407c-88e3-4590-b2fe-24ba738c1140",
+        "node_156435c3-9cb7-4b7a-9f59-e5def40d4159"
+      ],
+      "batch_type": "Parallel",
+      "rule_type": "large_wt",
+      "allowed_days": [
+        "MONDAY",
+        "TUESDAY",
+        "WEDNESDAY",
+        "THURSDAY",
+        "FRIDAY",
+        "SATURDAY",
+        "SUNDAY"
+      ]
     }
   ]
 }

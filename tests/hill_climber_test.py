@@ -1,7 +1,7 @@
 from o2.hill_climber import HillClimber
 from o2.store import Store
-from optimos_v2.o2.types.constraints import BATCH_TYPE, RULE_TYPE
-from optimos_v2.o2.types.timetable import (
+from o2.types.constraints import BATCH_TYPE, RULE_TYPE
+from o2.types.timetable import (
     COMPARATOR,
     BatchingRule,
     Distribution,

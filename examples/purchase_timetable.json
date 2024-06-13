@@ -3211,6 +3211,12 @@
           "endTime": "16:00:00"
         },
         {
+          "from": "SUNDAY",
+          "to": "SUNDAY",
+          "beginTime": "15:00:00",
+          "endTime": "16:00:00"
+        },
+        {
           "from": "SATURDAY",
           "to": "SATURDAY",
           "beginTime": "17:00:00",
@@ -3464,6 +3470,12 @@
           "endTime": "16:00:00"
         },
         {
+          "from": "SUNDAY",
+          "to": "SUNDAY",
+          "beginTime": "15:00:00",
+          "endTime": "16:00:00"
+        },
+        {
           "from": "SATURDAY",
           "to": "SATURDAY",
           "beginTime": "17:00:00",
@@ -3706,6 +3718,12 @@
         {
           "from": "SATURDAY",
           "to": "SATURDAY",
+          "beginTime": "15:00:00",
+          "endTime": "16:00:00"
+        },
+        {
+          "from": "SUNDAY",
+          "to": "SUNDAY",
           "beginTime": "15:00:00",
           "endTime": "16:00:00"
         },
@@ -4600,6 +4618,12 @@
         {
           "from": "SATURDAY",
           "to": "SATURDAY",
+          "beginTime": "15:00:00",
+          "endTime": "16:00:00"
+        },
+        {
+          "from": "SUNDAY",
+          "to": "SUNDAY",
           "beginTime": "15:00:00",
           "endTime": "16:00:00"
         }
@@ -5694,6 +5718,12 @@
         {
           "from": "SATURDAY",
           "to": "SATURDAY",
+          "beginTime": "15:00:00",
+          "endTime": "16:00:00"
+        },
+        {
+          "from": "SUNDAY",
+          "to": "SUNDAY",
           "beginTime": "15:00:00",
           "endTime": "16:00:00"
         },
@@ -6894,8 +6924,12 @@
   "batch_processing": [
     {
       "task_id": "node_a941a61b-e6b9-4c2f-b556-223a195f17e5",
-      "type": "Sequential",
+      "type": "Parallel",
       "size_distrib": [
+        {
+          "key": "1",
+          "value": 0
+        },
         {
           "key": "7",
           "value": 1
@@ -6903,8 +6937,8 @@
       ],
       "duration_distrib": [
         {
-          "key": "3",
-          "value": 0.8
+          "key": "7",
+          "value": 2
         }
       ],
       "firing_rules": [
@@ -6912,15 +6946,19 @@
           {
             "attribute": "size",
             "comparison": "=",
-            "value": 3
+            "value": 7
           }
         ]
       ]
     },
     {
       "task_id": "node_c9570e98-4fdc-4d2c-a5dc-e5da82e8eafd",
-      "type": "Sequential",
+      "type": "Parallel",
       "size_distrib": [
+        {
+          "key": "1",
+          "value": 0
+        },
         {
           "key": "7",
           "value": 1
@@ -6928,8 +6966,8 @@
       ],
       "duration_distrib": [
         {
-          "key": "3",
-          "value": 0.8
+          "key": "7",
+          "value": 2
         }
       ],
       "firing_rules": [
@@ -6937,15 +6975,19 @@
           {
             "attribute": "size",
             "comparison": "=",
-            "value": 3
+            "value": 7
           }
         ]
       ]
     },
     {
       "task_id": "node_398473bf-498a-4c20-a05d-b80791f1df4f",
-      "type": "Sequential",
+      "type": "Parallel",
       "size_distrib": [
+        {
+          "key": "1",
+          "value": 0
+        },
         {
           "key": "7",
           "value": 1
@@ -6953,8 +6995,8 @@
       ],
       "duration_distrib": [
         {
-          "key": "3",
-          "value": 0.8
+          "key": "7",
+          "value": 2
         }
       ],
       "firing_rules": [
@@ -6962,15 +7004,19 @@
           {
             "attribute": "size",
             "comparison": "=",
-            "value": 3
+            "value": 7
           }
         ]
       ]
     },
     {
       "task_id": "node_7b7d691b-cea6-4e3c-bd69-6547ffa822d7",
-      "type": "Sequential",
+      "type": "Parallel",
       "size_distrib": [
+        {
+          "key": "1",
+          "value": 0
+        },
         {
           "key": "7",
           "value": 1
@@ -6978,8 +7024,8 @@
       ],
       "duration_distrib": [
         {
-          "key": "3",
-          "value": 0.8
+          "key": "7",
+          "value": 2
         }
       ],
       "firing_rules": [
@@ -6987,15 +7033,19 @@
           {
             "attribute": "size",
             "comparison": "=",
-            "value": 3
+            "value": 7
           }
         ]
       ]
     },
     {
       "task_id": "node_1ef3d66c-9cf4-418d-b582-330d292668af",
-      "type": "Sequential",
+      "type": "Parallel",
       "size_distrib": [
+        {
+          "key": "1",
+          "value": 0
+        },
         {
           "key": "7",
           "value": 1
@@ -7003,8 +7053,8 @@
       ],
       "duration_distrib": [
         {
-          "key": "3",
-          "value": 0.8
+          "key": "7",
+          "value": 2
         }
       ],
       "firing_rules": [
@@ -7012,15 +7062,19 @@
           {
             "attribute": "size",
             "comparison": "=",
-            "value": 3
+            "value": 7
           }
         ]
       ]
     },
     {
       "task_id": "node_fab9a42e-ca7f-4dde-90e1-eb3ee9612c9c",
-      "type": "Sequential",
+      "type": "Parallel",
       "size_distrib": [
+        {
+          "key": "1",
+          "value": 0
+        },
         {
           "key": "7",
           "value": 1
@@ -7028,8 +7082,8 @@
       ],
       "duration_distrib": [
         {
-          "key": "3",
-          "value": 0.8
+          "key": "7",
+          "value": 2
         }
       ],
       "firing_rules": [
@@ -7037,15 +7091,19 @@
           {
             "attribute": "size",
             "comparison": "=",
-            "value": 3
+            "value": 7
           }
         ]
       ]
     },
     {
       "task_id": "node_b933d84e-ef4a-4630-ae45-71c31db5c86f",
-      "type": "Sequential",
+      "type": "Parallel",
       "size_distrib": [
+        {
+          "key": "1",
+          "value": 0
+        },
         {
           "key": "7",
           "value": 1
@@ -7053,8 +7111,8 @@
       ],
       "duration_distrib": [
         {
-          "key": "3",
-          "value": 0.8
+          "key": "7",
+          "value": 2
         }
       ],
       "firing_rules": [
@@ -7062,15 +7120,19 @@
           {
             "attribute": "size",
             "comparison": "=",
-            "value": 3
+            "value": 7
           }
         ]
       ]
     },
     {
       "task_id": "node_a941a61b-e6b9-4c2f-b556-223a195f17e5",
-      "type": "Sequential",
+      "type": "Parallel",
       "size_distrib": [
+        {
+          "key": "1",
+          "value": 0
+        },
         {
           "key": "7",
           "value": 1
@@ -7078,8 +7140,8 @@
       ],
       "duration_distrib": [
         {
-          "key": "3",
-          "value": 0.8
+          "key": "7",
+          "value": 2
         }
       ],
       "firing_rules": [
@@ -7087,15 +7149,19 @@
           {
             "attribute": "size",
             "comparison": "=",
-            "value": 3
+            "value": 7
           }
         ]
       ]
     },
     {
       "task_id": "node_cbbd6b55-5e52-44c5-a46c-90344cf02549",
-      "type": "Sequential",
+      "type": "Parallel",
       "size_distrib": [
+        {
+          "key": "1",
+          "value": 0
+        },
         {
           "key": "7",
           "value": 1
@@ -7103,8 +7169,8 @@
       ],
       "duration_distrib": [
         {
-          "key": "3",
-          "value": 0.8
+          "key": "7",
+          "value": 2
         }
       ],
       "firing_rules": [
@@ -7112,15 +7178,19 @@
           {
             "attribute": "size",
             "comparison": "=",
-            "value": 3
+            "value": 7
           }
         ]
       ]
     },
     {
       "task_id": "node_5f0c0d91-845f-49e6-840d-5595ade70118",
-      "type": "Sequential",
+      "type": "Parallel",
       "size_distrib": [
+        {
+          "key": "1",
+          "value": 0
+        },
         {
           "key": "7",
           "value": 1
@@ -7128,8 +7198,8 @@
       ],
       "duration_distrib": [
         {
-          "key": "3",
-          "value": 0.8
+          "key": "7",
+          "value": 2
         }
       ],
       "firing_rules": [
@@ -7137,15 +7207,19 @@
           {
             "attribute": "size",
             "comparison": "=",
-            "value": 3
+            "value": 7
           }
         ]
       ]
     },
     {
       "task_id": "node_c70c39d2-01de-4f4a-972a-f36122619f76",
-      "type": "Sequential",
+      "type": "Parallel",
       "size_distrib": [
+        {
+          "key": "1",
+          "value": 0
+        },
         {
           "key": "7",
           "value": 1
@@ -7153,8 +7227,8 @@
       ],
       "duration_distrib": [
         {
-          "key": "3",
-          "value": 0.8
+          "key": "7",
+          "value": 2
         }
       ],
       "firing_rules": [
@@ -7162,15 +7236,19 @@
           {
             "attribute": "size",
             "comparison": "=",
-            "value": 3
+            "value": 7
           }
         ]
       ]
     },
     {
       "task_id": "node_f7fa3239-5e39-47ac-9a11-68a47cec8dd0",
-      "type": "Sequential",
+      "type": "Parallel",
       "size_distrib": [
+        {
+          "key": "1",
+          "value": 0
+        },
         {
           "key": "7",
           "value": 1
@@ -7178,8 +7256,8 @@
       ],
       "duration_distrib": [
         {
-          "key": "3",
-          "value": 0.8
+          "key": "7",
+          "value": 2
         }
       ],
       "firing_rules": [
@@ -7187,15 +7265,19 @@
           {
             "attribute": "size",
             "comparison": "=",
-            "value": 3
+            "value": 7
           }
         ]
       ]
     },
     {
       "task_id": "node_33b917d4-4896-49c7-bcca-ddd71460bec1",
-      "type": "Sequential",
+      "type": "Parallel",
       "size_distrib": [
+        {
+          "key": "1",
+          "value": 0
+        },
         {
           "key": "7",
           "value": 1
@@ -7203,8 +7285,8 @@
       ],
       "duration_distrib": [
         {
-          "key": "3",
-          "value": 0.8
+          "key": "7",
+          "value": 2
         }
       ],
       "firing_rules": [
@@ -7212,15 +7294,19 @@
           {
             "attribute": "size",
             "comparison": "=",
-            "value": 3
+            "value": 7
           }
         ]
       ]
     },
     {
       "task_id": "node_e82a5c1b-997e-4002-9678-e121033833cd",
-      "type": "Sequential",
+      "type": "Parallel",
       "size_distrib": [
+        {
+          "key": "1",
+          "value": 0
+        },
         {
           "key": "7",
           "value": 1
@@ -7228,8 +7314,8 @@
       ],
       "duration_distrib": [
         {
-          "key": "3",
-          "value": 0.8
+          "key": "7",
+          "value": 2
         }
       ],
       "firing_rules": [
@@ -7237,15 +7323,19 @@
           {
             "attribute": "size",
             "comparison": "=",
-            "value": 3
+            "value": 7
           }
         ]
       ]
     },
     {
       "task_id": "node_4664fda9-369a-4a95-9c3d-89da28e91bb9",
-      "type": "Sequential",
+      "type": "Parallel",
       "size_distrib": [
+        {
+          "key": "1",
+          "value": 0
+        },
         {
           "key": "7",
           "value": 1
@@ -7253,8 +7343,8 @@
       ],
       "duration_distrib": [
         {
-          "key": "3",
-          "value": 0.8
+          "key": "7",
+          "value": 2
         }
       ],
       "firing_rules": [
@@ -7262,15 +7352,19 @@
           {
             "attribute": "size",
             "comparison": "=",
-            "value": 3
+            "value": 7
           }
         ]
       ]
     },
     {
       "task_id": "node_3e4c5429-dea9-4101-800a-299d0295d56c",
-      "type": "Sequential",
+      "type": "Parallel",
       "size_distrib": [
+        {
+          "key": "1",
+          "value": 0
+        },
         {
           "key": "7",
           "value": 1
@@ -7278,8 +7372,8 @@
       ],
       "duration_distrib": [
         {
-          "key": "3",
-          "value": 0.8
+          "key": "7",
+          "value": 2
         }
       ],
       "firing_rules": [
@@ -7287,15 +7381,19 @@
           {
             "attribute": "size",
             "comparison": "=",
-            "value": 3
+            "value": 7
           }
         ]
       ]
     },
     {
       "task_id": "node_3650b9b1-e937-4fe8-a1e1-e05f88c0629f",
-      "type": "Sequential",
+      "type": "Parallel",
       "size_distrib": [
+        {
+          "key": "1",
+          "value": 0
+        },
         {
           "key": "7",
           "value": 1
@@ -7303,8 +7401,8 @@
       ],
       "duration_distrib": [
         {
-          "key": "3",
-          "value": 0.8
+          "key": "7",
+          "value": 2
         }
       ],
       "firing_rules": [
@@ -7312,15 +7410,19 @@
           {
             "attribute": "size",
             "comparison": "=",
-            "value": 3
+            "value": 7
           }
         ]
       ]
     },
     {
       "task_id": "node_55612242-5600-46dd-be3a-4fd3490be056",
-      "type": "Sequential",
+      "type": "Parallel",
       "size_distrib": [
+        {
+          "key": "1",
+          "value": 0
+        },
         {
           "key": "7",
           "value": 1
@@ -7328,8 +7430,8 @@
       ],
       "duration_distrib": [
         {
-          "key": "3",
-          "value": 0.8
+          "key": "7",
+          "value": 2
         }
       ],
       "firing_rules": [
@@ -7337,15 +7439,19 @@
           {
             "attribute": "size",
             "comparison": "=",
-            "value": 3
+            "value": 7
           }
         ]
       ]
     },
     {
       "task_id": "node_a77705d9-9389-4645-880a-cb4db3e0e94c",
-      "type": "Sequential",
+      "type": "Parallel",
       "size_distrib": [
+        {
+          "key": "1",
+          "value": 0
+        },
         {
           "key": "7",
           "value": 1
@@ -7353,8 +7459,8 @@
       ],
       "duration_distrib": [
         {
-          "key": "3",
-          "value": 0.8
+          "key": "7",
+          "value": 2
         }
       ],
       "firing_rules": [
@@ -7362,15 +7468,19 @@
           {
             "attribute": "size",
             "comparison": "=",
-            "value": 3
+            "value": 7
           }
         ]
       ]
     },
     {
       "task_id": "node_ca90407c-88e3-4590-b2fe-24ba738c1140",
-      "type": "Sequential",
+      "type": "Parallel",
       "size_distrib": [
+        {
+          "key": "1",
+          "value": 0
+        },
         {
           "key": "7",
           "value": 1
@@ -7378,8 +7488,8 @@
       ],
       "duration_distrib": [
         {
-          "key": "3",
-          "value": 0.8
+          "key": "7",
+          "value": 2
         }
       ],
       "firing_rules": [
@@ -7387,15 +7497,19 @@
           {
             "attribute": "size",
             "comparison": "=",
-            "value": 3
+            "value": 7
           }
         ]
       ]
     },
     {
       "task_id": "node_156435c3-9cb7-4b7a-9f59-e5def40d4159",
-      "type": "Sequential",
+      "type": "Parallel",
       "size_distrib": [
+        {
+          "key": "1",
+          "value": 0
+        },
         {
           "key": "7",
           "value": 1
@@ -7403,8 +7517,8 @@
       ],
       "duration_distrib": [
         {
-          "key": "3",
-          "value": 0.8
+          "key": "7",
+          "value": 2
         }
       ],
       "firing_rules": [
@@ -7412,7 +7526,7 @@
           {
             "attribute": "size",
             "comparison": "=",
-            "value": 3
+            "value": 7
           }
         ]
       ]

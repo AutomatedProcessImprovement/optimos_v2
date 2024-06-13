@@ -87,4 +87,5 @@ class ConstraintsGenerator:
         self.add_size_constraint()
         self.add_ready_wt_constraint()
         self.add_large_wt_constraint()
+        self.add_week_day_constraint()
         return self.constraints

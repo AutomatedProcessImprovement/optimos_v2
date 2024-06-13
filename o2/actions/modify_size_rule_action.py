@@ -91,8 +91,7 @@ class ModifySizeRuleAction(BaseAction):
 
         if enable_prints:
             print(
-                f"\t\t>> Modifying rule {old_rule.id()} to new size = {old_size} -> \
-                {new_size} & duration_modifier = {fn(new_size)}"
+                f"\t\t>> Modifying rule {old_rule.id()} to new size = {old_size} -> {new_size} & duration_modifier = {fn(new_size)}"  # noqa: E501
             )
 
         return state.replaceTimetable(

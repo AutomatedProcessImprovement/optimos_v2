@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Optional, Union
 
-from optimos_v2.o2.store import Store
+from o2.store import Store
 
 from o2.types.evaluation import Evaluation
 from o2.types.rule_selector import RuleSelector
