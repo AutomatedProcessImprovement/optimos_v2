@@ -85,13 +85,13 @@ class TimetableGenerator:
         )
         return self
 
-    def create_simple_arrival_time_calendar(self):
+    def create_simple_arrival_time_calendar(self, start=0, end=24):
         self.timetable.arrival_time_calendar.append(
             TimePeriod(
                 from_=DAY.MONDAY,
                 to=DAY.SUNDAY,
-                beginTime="00:00:00",
-                endTime="23:59:59",
+                beginTime=f"{start}:00:00",
+                endTime="23:59:59" if end == 24 else f"{end}:00:00",
             )
         )
         return self
@@ -357,6 +357,7 @@ class TimetableGenerator:
         min_hour: int,
         max_hour: int,
         size=BATCHING_BASE_SIZE,
+        duration_distribution=1.0,
     ):
         return BatchingRule(
             task_id=task_id,
@@ -369,7 +370,7 @@ class TimetableGenerator:
             duration_distrib=[
                 Distribution(
                     key=str(size),
-                    value=1.0,
+                    value=duration_distribution,
                 )
             ],
             firing_rules=[
@@ -397,8 +398,8 @@ class TimetableGenerator:
     def generate_simple(self, include_batching=False):
         self.create_simple_resource_profile()
         self.create_simple_arrival_time_calendar()
-        # Arrival time between 5:00 and 16:00
-        self.create_simple_arrival_time_distribution(min=5 * 60, max=16 * 60)
+        # Create an event on avg. every 10 minutes
+        self.create_simple_arrival_time_distribution(min=5 * 60, max=15 * 60)
         self.create_simple_task_resource_distribution()
         self.create_simple_resource_calendars()
         self.create_simple_gateway_branching_probabilities()

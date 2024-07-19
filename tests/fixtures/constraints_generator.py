@@ -1,15 +1,15 @@
 import io
+import xml.etree.ElementTree as ET
+
 from o2.types.constraints import (
     BATCH_TYPE,
     RULE_TYPE,
     ConstraintsType,
+    DailyHourRuleConstraints,
     ReadyWtRuleConstraints,
     SizeRuleConstraints,
     WeekDayRuleConstraints,
 )
-from o2.types.timetable import TimetableType
-import xml.etree.ElementTree as ET
-
 from o2.types.days import DAY
 
 
@@ -83,9 +83,22 @@ class ConstraintsGenerator:
         )
         return self
 
+    def add_daily_hour_constraint(self):
+        self.constraints.batching_constraints.append(
+            DailyHourRuleConstraints(
+                id=self.SIMPLE_CONSTRAINT_ID,
+                tasks=[task.attrib["id"] for task in self.tasks],
+                batch_type=BATCH_TYPE.PARALLEL,
+                rule_type=RULE_TYPE.DAILY_HOUR,
+                allowed_hours=list(range(24)),
+            )
+        )
+        return self
+
     def generate(self):
-        self.add_size_constraint()
         self.add_ready_wt_constraint()
         self.add_large_wt_constraint()
         self.add_week_day_constraint()
+        self.add_daily_hour_constraint()
+        self.add_size_constraint()
         return self.constraints

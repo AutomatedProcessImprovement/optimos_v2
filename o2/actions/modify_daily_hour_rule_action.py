@@ -1,0 +1,150 @@
+from dataclasses import replace
+from typing import Literal, Optional
+
+import numpy as np
+
+from o2.actions.base_action import BaseAction, BaseActionParamsType
+from o2.store import Store
+from o2.types.days import DAY
+from o2.types.self_rating import RATING, SelfRatingInput
+from o2.types.state import State
+from o2.types.timetable import COMPARATOR, rule_is_daily_hour, rule_is_week_day
+
+SIZE_OF_CHANGE = 1
+CLOSENESS_TO_MAX_WT = 0.01
+
+
+class ModifyDailyHourRuleActionParamsType(BaseActionParamsType):
+    """Parameter for ModifyDailyHourRuleAction.
+
+    hour_increment may also be negative to remove hours.
+    """
+
+    hour_increment: int
+
+
+class ModifyDailyHourRuleAction(BaseAction):
+    """ModifyDailyHourRuleAction will add a new day to the firing rules of a BatchingRule.
+
+    It does this by cloning all the surrounding (AND) `FiringRule`s of
+    the selected `FiringRule` and add one clone per `add_days` day to the BatchingRule.
+
+    Why are we not also removing weekdays? This would result in simply removing the
+    firing rule, which is already implemented in RemoveRuleAction.
+    """
+
+    params: ModifyDailyHourRuleActionParamsType
+
+    def apply(self, state: State, enable_prints: bool = True) -> State:
+        """Apply the action to the state."""
+        timetable = state.timetable
+        rule_selector = self.params["rule"]
+        hour_increment = self.params["hour_increment"]
+
+        index, rule = timetable.get_batching_rule(rule_selector)
+        if rule is None or index is None:
+            print(f"BatchingRule not found for {rule_selector}")
+            return state
+
+        firing_rule = rule.get_firing_rule(rule_selector)
+        if not rule_is_daily_hour(firing_rule):
+            print(f"Firing rule not found for {rule_selector}")
+            return state
+
+        if hour_increment == 0:
+            print("No change in hours")
+            return state
+
+        new_hour = firing_rule.value + hour_increment
+        if (new_hour < 0) or (new_hour > 24):
+            print("Hour out of bounds")
+            return state
+
+        assert rule_selector.firing_rule_index is not None
+
+        new_batching_rule = rule.replace_firing_rule(
+            rule_selector, replace(firing_rule, value=new_hour)
+        )
+
+        return state.replaceTimetable(
+            batch_processing=timetable.batch_processing[:index]
+            + [new_batching_rule]
+            + timetable.batch_processing[index + 1 :],
+        )
+
+    @staticmethod
+    def rate_self(
+        store: Store, input: SelfRatingInput
+    ) -> (
+        tuple[Literal[RATING.NOT_APPLICABLE], None]
+        | tuple[RATING, "ModifyDailyHourRuleAction"]
+    ):
+        """Generate a best set of parameters & self-evaluates this action."""
+        most_reduction_selector = input.most_wt_reduction
+        most_increase_selector = input.most_wt_increase
+
+        # TODO Clean this loop up, and think of a better style, e.g. moving it
+        # to a helper fn
+
+        possible_candidates = (
+            [
+                most_reduction_selector,
+                most_increase_selector,
+            ]
+            if most_reduction_selector == input.most_impactful_rule
+            else [
+                most_increase_selector,
+                most_reduction_selector,
+            ]
+        )
+
+        for rule_selector in possible_candidates:
+            if rule_selector is None:
+                continue
+
+            rule = rule_selector.get_firing_rule_from_state(store.state)
+            if rule is None:
+                continue
+
+            if not rule_is_daily_hour(rule):
+                continue
+
+            if rule.comparison == COMPARATOR.EQUAL:
+                # TODO Do something with EQUAL
+                continue
+
+            constraints = store.constraints.get_daily_hour_rule_constraints(
+                rule_selector.batching_rule_task_id
+            )
+            if constraints is None:
+                continue
+
+            hour_change = 0
+            if rule_selector == most_increase_selector and "<" in rule.comparison:
+                hour_change = SIZE_OF_CHANGE * 1
+            elif rule_selector == most_increase_selector and ">" in rule.comparison:
+                hour_change = SIZE_OF_CHANGE * -1
+            elif rule_selector == most_reduction_selector and ">" in rule.comparison:
+                hour_change = SIZE_OF_CHANGE * 1
+            elif rule_selector == most_reduction_selector and "<" in rule.comparison:
+                hour_change = SIZE_OF_CHANGE * -1
+
+            else:
+                continue
+
+            new_hour = rule.value + hour_change
+            if new_hour < 0 or new_hour > 24:
+                continue
+
+            allowed_hours = set(
+                hour for constraint in constraints for hour in constraint.allowed_hours
+            )
+            if new_hour not in allowed_hours:
+                continue
+            return RATING.MEDIUM, ModifyDailyHourRuleAction(
+                ModifyDailyHourRuleActionParamsType(
+                    rule=rule_selector, hour_increment=hour_change
+                )
+            )
+
+        return RATING.NOT_APPLICABLE, None

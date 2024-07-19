@@ -25,6 +25,9 @@ class AddWeekDayRuleAction(BaseAction):
 
     It does this by cloning all the surrounding (AND) `FiringRule`s of
     the selected `FiringRule` and add one clone per `add_days` day to the BatchingRule.
+
+    Why are we not also removing weekdays? This would result in simply removing the
+    firing rule, which is already implemented in RemoveRuleAction.
     """
 
     params: AddWeekDayRuleActionParamsType

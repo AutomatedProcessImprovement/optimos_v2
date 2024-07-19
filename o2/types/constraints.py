@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum
 from typing import List, TypeGuard, Union
+
 from dataclass_wizard import JSONWizard
 
 from o2.types.days import DAY
@@ -73,6 +74,16 @@ class WeekDayRuleConstraints(BatchingConstraints, JSONWizard):
         tag_key = "rule_type"
 
 
+@dataclass(frozen=True)
+class DailyHourRuleConstraints(BatchingConstraints, JSONWizard):
+    allowed_hours: list[int]
+
+    class _(JSONWizard.Meta):
+        key_transform_with_dump = "SNAKE"
+        tag = RULE_TYPE.DAILY_HOUR.value
+        tag_key = "rule_type"
+
+
 def is_size_constraint(val: BatchingConstraints) -> TypeGuard[SizeRuleConstraints]:
     return val.rule_type == RULE_TYPE.SIZE
 
@@ -95,6 +106,12 @@ def is_week_day_constraint(
     return val.rule_type == RULE_TYPE.WEEK_DAY
 
 
+def is_daily_hour_constraint(
+    val: BatchingConstraints,
+) -> TypeGuard[DailyHourRuleConstraints]:
+    return val.rule_type == RULE_TYPE.DAILY_HOUR
+
+
 @dataclass(frozen=True)
 class ConstraintsType(JSONWizard):
     # TODO: Add more constraints here
@@ -104,6 +121,7 @@ class ConstraintsType(JSONWizard):
             ReadyWtRuleConstraints,
             LargeWtRuleConstraints,
             WeekDayRuleConstraints,
+            DailyHourRuleConstraints,
         ]
     ]
 
@@ -151,6 +169,15 @@ class ConstraintsType(JSONWizard):
             constraint
             for constraint in self.batching_constraints
             if task_id in constraint.tasks and is_week_day_constraint(constraint)
+        ]
+
+    def get_daily_hour_rule_constraints(
+        self, task_id: str
+    ) -> list[DailyHourRuleConstraints]:
+        return [
+            constraint
+            for constraint in self.batching_constraints
+            if task_id in constraint.tasks and is_daily_hour_constraint(constraint)
         ]
 
     class _(JSONWizard.Meta):

@@ -13,6 +13,7 @@ from o2.actions.remove_rule_action import (
 )
 from o2.pareto_front import FRONT_STATUS
 from o2.store import Store
+from o2.types.constraints import RULE_TYPE
 from o2.types.evaluation import Evaluation
 from o2.types.rule_selector import RuleSelector
 from o2.types.self_rating import RATING, SelfRatingInput
@@ -66,8 +67,13 @@ class ActionSelector:
     @staticmethod
     def evaluate_rules(
         store: "Store",
+        skip_size_rules: bool = False,
     ) -> dict[RuleSelector, Evaluation]:
-        """Evaluate the impact of removing each rule individually."""
+        """Evaluate the impact of removing each rule individually.
+
+        You may skip size rules, because they are required in many scenarios,
+        so for e.g. testing certain actions set this to true.
+        """
         batching_rules = store.state.timetable.batch_processing
         # TODO: Find a smart way to see which rules not to evaluate,
         #  when all possible actions are already in the tabu list
@@ -86,6 +92,8 @@ class ActionSelector:
             for rule in batching_rules
             for or_index, or_rule in enumerate(rule.firing_rules)
             for and_index, _ in enumerate(or_rule)
+            if not skip_size_rules
+            or rule.firing_rules[or_index][and_index].attribute != RULE_TYPE.SIZE
         ]
 
         if len(batching_rules) == 0:

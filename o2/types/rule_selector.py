@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from o2.types.timetable import BatchingRule
 from o2.types.state import State
+from o2.types.timetable import BatchingRule, FiringRule
 
 
 @dataclass(frozen=True)
@@ -21,27 +21,35 @@ class RuleSelector:
         )
 
     @property
-    def has_firing_rule(self):
+    def has_firing_rule(self) -> bool:
+        """Check if the selector has a firing rule."""
         return self.firing_rule_index is not None
 
-    def get_batching_rule_from_state(self, state: State):
+    def get_batching_rule_from_state(self, state: State) -> Optional[BatchingRule]:
+        """Get a batching rule by rule selector."""
         return next(
-            rule
-            for rule in state.timetable.batch_processing
-            if rule.task_id == self.batching_rule_task_id
+            (
+                rule
+                for rule in state.timetable.batch_processing
+                if rule.task_id == self.batching_rule_task_id
+            ),
+            None,
         )
 
-    def get_firing_rule_from_state(self, state: State):
+    def get_firing_rule_from_state(self, state: State) -> Optional[FiringRule]:
+        """Get a firing rule by rule selector."""
         if self.firing_rule_index is None:
             return None
         batching_rule = self.get_batching_rule_from_state(state)
+        if batching_rule is None:
+            return None
         return batching_rule.firing_rules[self.firing_rule_index[0]][
             self.firing_rule_index[1]
         ]
 
     def id(self):
         if self.firing_rule_index is None:
-            return "#{}".format(self.batching_rule_task_id)
+            return f"#{self.batching_rule_task_id}"
         return "#{}-{}-{}".format(
             self.batching_rule_task_id,
             self.firing_rule_index[0],

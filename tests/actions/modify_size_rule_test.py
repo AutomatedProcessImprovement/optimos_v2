@@ -1,4 +1,5 @@
 from typing import Literal
+
 from o2.actions.action_selector import ActionSelector
 from o2.actions.modify_size_rule_action import (
     ModifySizeRuleAction,
@@ -66,10 +67,6 @@ def test_self_rating_optimal_rule(store: Store):
         batch_processing=[
             TimetableGenerator.batching_size_rule(TimetableGenerator.FIRST_ACTIVITY, 2)
         ],
-        task_resource_distribution=TimetableGenerator(store.state.bpmn_definition)
-        # 1 Hour Tasks
-        .create_simple_task_resource_distribution(60 * 60)
-        .timetable.task_resource_distribution,
     )
 
     store.replaceConstraints(
@@ -121,11 +118,7 @@ def test_self_rating_non_optimal_rule_increment(one_task_store: Store):
             TimetableGenerator.batching_size_rule(
                 TimetableGenerator.FIRST_ACTIVITY, 4, duration_distribution=0.75
             )
-        ],
-        task_resource_distribution=TimetableGenerator(store.state.bpmn_definition)
-        # 1 Hour Tasks
-        .create_simple_task_resource_distribution(60 * 60)
-        .timetable.task_resource_distribution,
+        ]
     )
     store.replaceConstraints(
         batching_constraints=ConstraintsGenerator(store.state.bpmn_definition)
