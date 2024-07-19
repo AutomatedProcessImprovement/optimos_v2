@@ -50,4 +50,9 @@ select = [
 ignore = [
     "D100",   # Missing docstring in public module
     "ANN101", # Missing type annotation for self in method
+    "D107",
+    "ANN202",
 ]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["D", "ANN"]

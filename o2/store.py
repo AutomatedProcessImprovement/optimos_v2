@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 
 class Store:
-    def __init__(self, state: State, constraints: ConstraintsType):
+    def __init__(self, state: State, constraints: ConstraintsType) -> None:
         self.state = state
         self.constraints = constraints
 

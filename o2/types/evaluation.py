@@ -61,6 +61,6 @@ class Evaluation:
     # (Taking only the total cost & total cycle time into account)
     def is_dominated_by(self, other):
         return (
-            self.total_cost >= other.total_cost
-            and self.total_cycle_time >= other.total_cycle_time
+            other.total_cost < self.total_cost
+            and other.total_cycle_time < self.total_cycle_time
         )

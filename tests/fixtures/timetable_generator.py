@@ -1,4 +1,8 @@
+import io
+import xml.etree.ElementTree as ET
 from dataclasses import replace
+
+from o2.types.constraints import BATCH_TYPE, RULE_TYPE
 from o2.types.days import DAY
 from o2.types.timetable import (
     COMPARATOR,
@@ -19,10 +23,6 @@ from o2.types.timetable import (
     TimePeriod,
     TimetableType,
 )
-import xml.etree.ElementTree as ET
-import io
-
-from o2.types.constraints import BATCH_TYPE, RULE_TYPE
 
 
 class TimetableGenerator:
