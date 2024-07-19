@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import Literal
 
 from o2.actions.base_action import BaseAction, BaseActionParamsType
@@ -17,6 +18,7 @@ class ModifyLargeWtRuleActionParamsType(BaseActionParamsType):
     wt_increment: int
 
 
+@dataclass(frozen=True)
 class ModifyLargeWtRuleAction(BaseAction):
     """`ModifyLargeWtRuleAction` will modify the `LARGE_WT` value of a `FiringRule`."""
 

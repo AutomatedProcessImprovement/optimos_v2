@@ -67,14 +67,14 @@ def test_self_rating_optimal_rule(store: Store):
             TimetableGenerator.batching_size_rule(TimetableGenerator.FIRST_ACTIVITY, 2)
         ],
         task_resource_distribution=TimetableGenerator(store.state.bpmn_definition)
-        # 1 Minute Tasks
-        .create_simple_task_resource_distribution(60)
+        # 1 Hour Tasks
+        .create_simple_task_resource_distribution(60 * 60)
         .timetable.task_resource_distribution,
     )
 
     store.replaceConstraints(
         batching_constraints=ConstraintsGenerator(store.state.bpmn_definition)
-        .add_size_constraint(2)
+        .add_size_constraint(optimal_duration=2, optimal_duration_bonus=0.2)
         .constraints.batching_constraints
     )
     store.evaluate()

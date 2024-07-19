@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import Literal
 
 from o2.actions.base_action import BaseAction, BaseActionParamsType
@@ -14,12 +15,14 @@ from o2.types.timetable import (
 SIZE_OF_CHANGE = 100
 
 
+@dataclass
 class ModifyReadyWtRuleActionParamsType(BaseActionParamsType):
     """Parameter for `ModifyReadyWtRuleAction`."""
 
     wt_increment: int
 
 
+@dataclass(frozen=True)
 class ModifyReadyWtRuleAction(BaseAction):
     """`ModifyReadyWtRuleAction` will modify the `READY_WT` value of a `FiringRule`."""
 

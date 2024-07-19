@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import Literal
 
 from sympy import Symbol, lambdify
@@ -26,6 +27,7 @@ class ModifySizeRuleActionParamsType(BaseActionParamsType):
     duration_fn: str
 
 
+@dataclass(frozen=True)
 class ModifySizeRuleAction(BaseAction):
     """ModifySizeRuleAction will modify the size of a BatchingRule.
 

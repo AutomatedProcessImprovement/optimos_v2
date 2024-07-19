@@ -1,33 +1,30 @@
 import datetime
 import io
-from bpdfr_simulation_engine.simulation_setup import (
-    SimDiffSetup,
-    parse_json_sim_parameters,
-    parse_simulation_model,
-    parse_json_sim_parameters,
-)
-from bpdfr_simulation_engine.simulation_properties_parser import (
-    parse_resource_profiles,
-    parse_resource_calendars,
-    parse_task_resource_distributions,
-    parse_arrival_branching_probabilities,
-    parse_arrival_calendar,
-    parse_event_distribution,
-    parse_case_attr,
-    EVENT_DISTRIBUTION_SECTION,
-    BATCH_PROCESSING_SECTION,
-    CASE_ATTRIBUTES_SECTION,
-    PRIORITISATION_RULES_SECTION,
-    ARRIVAL_TIME_CALENDAR,
-    RESOURCE_CALENDARS,
-)
+from typing import TYPE_CHECKING
+
+import pytz
 from bpdfr_simulation_engine.batch_processing_parser import BatchProcessingParser
-from bpdfr_simulation_engine.case_attributes import AllCaseAttributes, CaseAttribute
+from bpdfr_simulation_engine.case_attributes import AllCaseAttributes
 from bpdfr_simulation_engine.prioritisation import AllPriorityRules
 from bpdfr_simulation_engine.prioritisation_parser import PrioritisationParser
-import pytz
-
-from typing import TYPE_CHECKING
+from bpdfr_simulation_engine.simulation_properties_parser import (
+    BATCH_PROCESSING_SECTION,
+    CASE_ATTRIBUTES_SECTION,
+    EVENT_DISTRIBUTION_SECTION,
+    PRIORITISATION_RULES_SECTION,
+    RESOURCE_CALENDARS,
+    parse_arrival_branching_probabilities,
+    parse_arrival_calendar,
+    parse_case_attr,
+    parse_event_distribution,
+    parse_resource_calendars,
+    parse_resource_profiles,
+    parse_task_resource_distributions,
+)
+from bpdfr_simulation_engine.simulation_setup import (
+    SimDiffSetup,
+    parse_simulation_model,
+)
 
 if TYPE_CHECKING:
     from o2.types.timetable import TimetableType

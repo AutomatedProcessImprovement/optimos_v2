@@ -1,20 +1,20 @@
 import csv
 import io
 import time
+from typing import TYPE_CHECKING, Collection, TypeAlias
+
+import pandas as pd
+from bpdfr_simulation_engine.simulation_engine import run_simpy_simulation
 from dynamik.input import EventMapping
 from dynamik.input.csv import read_and_merge_csv_logs
 from dynamik.model import Event
-import pandas as pd
-
-from bpdfr_simulation_engine.simulation_engine import run_simpy_simulation
 from wta import (
-    convert_timestamp_columns_to_datetime,
     WAITING_TIME_BATCHING_KEY,
     WAITING_TIME_TOTAL_KEY,
     EventLogIDs,
     add_enabled_timestamp,
+    convert_timestamp_columns_to_datetime,
 )
-from typing import TYPE_CHECKING, Collection, TypeAlias
 
 Log: TypeAlias = Collection[Event]
 

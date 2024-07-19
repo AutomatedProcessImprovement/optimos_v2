@@ -12,11 +12,21 @@
 
     <bpmn:task id="FIRST_ACTIVITY" name="First Activity">
       <bpmn:incoming>FLOW_START_FIRST</bpmn:incoming>
-      <bpmn:outgoing>FLOW_FIRST_END</bpmn:outgoing>
+      <bpmn:outgoing>FLOW_FIRST_SECOND</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:sequenceFlow id="FLOW_FIRST_END" sourceRef="FIRST_ACTIVITY" targetRef="END_EVENT" />
+
+    <bpmn:sequenceFlow id="FLOW_FIRST_SECOND" sourceRef="FIRST_ACTIVITY" targetRef="SECOND_ACTIVITY" />
+
+    <bpmn:task id="SECOND_ACTIVITY" name="First Activity">
+      <bpmn:incoming>FLOW_FIRST_SECOND</bpmn:incoming>
+      <bpmn:outgoing>FLOW_SECOND_END</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:sequenceFlow id="FLOW_SECOND_END" sourceRef="SECOND_ACTIVITY" targetRef="END_EVENT" />
+
+
     <bpmn:endEvent id="END_EVENT">
-      <bpmn:incoming>FLOW_FIRST_END</bpmn:incoming>
+      <bpmn:incoming>FLOW_SECOND_END</bpmn:incoming>
     </bpmn:endEvent>
   </bpmn:process>
 </bpmn:definitions>

@@ -57,6 +57,9 @@ def test_is_in_front(simple_state: State):
     assert evaluation4.is_dominated_by(base_evaluation) is False
     assert base_evaluation.is_dominated_by(evaluation4) is True
 
+    # Test for empty front
+    assert front.is_in_front(evaluation1) == FRONT_STATUS.IN_FRONT
+
     front.add(base_evaluation, simple_state)
 
     assert front.is_in_front(evaluation4) == FRONT_STATUS.IS_DOMINATED

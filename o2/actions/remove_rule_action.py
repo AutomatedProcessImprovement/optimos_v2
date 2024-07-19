@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import Literal
 
 from o2.actions.base_action import BaseAction, BaseActionParamsType
@@ -12,6 +13,7 @@ class RemoveRuleActionParamsType(BaseActionParamsType):
     pass
 
 
+@dataclass(frozen=True)
 class RemoveRuleAction(BaseAction):
     """`RemoveRuleAction` will remove a `FiringRule` from a `BatchingRule`."""
 

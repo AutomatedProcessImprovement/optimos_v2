@@ -15,14 +15,11 @@ class Store:
         self.state = state
         self.constraints = constraints
 
-    constraints: ConstraintsType
-    state: State
+        self.previous_actions: list["BaseAction"] = []
+        self.previous_states: list[State] = []
+        self.pareto_fronts: list[ParetoFront] = []
 
-    previous_actions: list["BaseAction"] = []
-    previous_states: list[State] = []
-    previous_pareto_fronts: list[ParetoFront] = []
-
-    tabu_list: list["BaseAction"] = []
+        self.tabu_list: list["BaseAction"] = []
 
     @property
     def current_pareto_front(self) -> ParetoFront:
@@ -30,19 +27,19 @@ class Store:
 
         If there is no Pareto Front, creates a new one and returns it.
         """
-        if not self.previous_pareto_fronts:
-            self.previous_pareto_fronts = [ParetoFront()]
-        return self.previous_pareto_fronts[-1]
+        if not self.pareto_fronts:
+            self.pareto_fronts = [ParetoFront()]
+        return self.pareto_fronts[-1]
 
     @property
     def base_evaluation(self) -> Evaluation:
         """Returns the base evaluation, e.g. the fist evaluation with no changes."""
-        return self.previous_pareto_fronts[0].evaluations[0]
+        return self.pareto_fronts[0].evaluations[0]
 
     @property
     def current_fastest_evaluation(self):
         if (len(self.current_pareto_front.evaluations)) == 0:
-            return Evaluation.empty()
+            raise ValueError("No Base Evaluation found in Pareto Front")
         return min(
             # TODO Waiting Time ?
             self.current_pareto_front.evaluations,
@@ -64,7 +61,7 @@ class Store:
         if status == FRONT_STATUS.IN_FRONT:
             self.current_pareto_front.add(evaluation, self.state)
         elif status == FRONT_STATUS.IS_DOMINATED:
-            self.previous_pareto_fronts.append(ParetoFront())
+            self.pareto_fronts.append(ParetoFront())
             self.current_pareto_front.add(evaluation, self.state)
 
         return evaluation, status

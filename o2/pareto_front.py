@@ -13,10 +13,11 @@ class FRONT_STATUS(Enum):
 class ParetoFront:
     """A set of solutions, where no solution is dominated by another solution."""
 
-    evaluations: list[Evaluation] = []
-    states: list[State] = []
-    removed_solutions: list[Evaluation] = []
-    removed_states: list[State] = []
+    def __init__(self) -> None:
+        self.evaluations: list[Evaluation] = []
+        self.states: list[State] = []
+        self.removed_solutions: list[Evaluation] = []
+        self.removed_states: list[State] = []
 
     def add(self, evaluation: Evaluation, state: State) -> None:
         """Add a new solution to the front.
@@ -25,14 +26,12 @@ class ParetoFront:
         other solution. This should be done before calling this method.
         """
         # Remove all solutions dominated by the new solution
-        dominated_indices = [
-            i for i, e in enumerate(self.evaluations) if e.is_dominated_by(evaluation)
-        ]
-        for i in dominated_indices:
-            removed_evaluation = self.evaluations.pop(i)
-            removed_state = self.states.pop(i)
-            self.removed_solutions.append(removed_evaluation)
-            self.removed_states.append(removed_state)
+        for e, s in zip(self.evaluations, self.states):
+            if e.is_dominated_by(evaluation):
+                self.evaluations.remove(e)
+                self.states.remove(s)
+                self.removed_solutions.append(e)
+                self.removed_states.append(s)
 
         self.evaluations.append(evaluation)
         self.states.append(state)
@@ -44,6 +43,9 @@ class ParetoFront:
         Returns DOMINATES if the front dominates the evaluation
         Returns IN_FRONT if the evaluation is in the front
         """
+        if not self.evaluations:
+            return FRONT_STATUS.IN_FRONT
+
         self_is_always_dominated = True
         for e in self.evaluations:
             if not e.is_dominated_by(evaluation):
