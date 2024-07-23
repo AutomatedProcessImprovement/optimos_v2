@@ -90,6 +90,11 @@ def test_self_rate_simple(one_task_store: Store):
 
 
 def test_self_rate_simple2(one_task_store: Store):
+    """
+    Tests for the greater then rule, being detected as the most
+    impactful (most increasing ) one
+    """
+
     store = one_task_store
     store.replaceTimetable(
         batch_processing=[
