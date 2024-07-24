@@ -4,6 +4,10 @@ from typing import Literal
 from sympy import Symbol, lambdify
 
 from o2.actions.base_action import BaseAction, BaseActionParamsType
+from o2.actions.batching_rule_action import (
+    BatchingRuleAction,
+    BatchingRuleActionParamsType,
+)
 from o2.store import Store
 from o2.types.constraints import RULE_TYPE
 from o2.types.self_rating import RATING, SelfRatingInput
@@ -20,7 +24,7 @@ MARGIN_OF_ERROR = 0.03
 SIZE_OF_CHANGE = 1
 
 
-class ModifySizeRuleActionParamsType(BaseActionParamsType):
+class ModifySizeRuleActionParamsType(BatchingRuleActionParamsType):
     """Parameter for ModifySizeRuleAction."""
 
     size_increment: int
@@ -28,7 +32,7 @@ class ModifySizeRuleActionParamsType(BaseActionParamsType):
 
 
 @dataclass(frozen=True)
-class ModifySizeRuleAction(BaseAction):
+class ModifySizeRuleAction(BatchingRuleAction):
     """ModifySizeRuleAction will modify the size of a BatchingRule.
 
     This will effect the size distribution and the duration distribution of the rule,

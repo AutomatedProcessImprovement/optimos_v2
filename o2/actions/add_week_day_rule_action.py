@@ -9,18 +9,22 @@ from o2.types.days import DAY
 from o2.types.self_rating import RATING, SelfRatingInput
 from o2.types.state import State
 from o2.types.timetable import rule_is_week_day
+from o2.actions.batching_rule_action import (
+    BatchingRuleAction,
+    BatchingRuleActionParamsType,
+)
 
 SIZE_OF_CHANGE = 100
 CLOSENESS_TO_MAX_WT = 0.01
 
 
-class AddWeekDayRuleActionParamsType(BaseActionParamsType):
+class AddWeekDayRuleActionParamsType(BatchingRuleActionParamsType):
     """Parameter for AddWeekDayRuleAction."""
 
     add_days: list[DAY]
 
 
-class AddWeekDayRuleAction(BaseAction):
+class AddWeekDayRuleAction(BatchingRuleAction):
     """AddWeekDayRuleAction will add a new day to the firing rules of a BatchingRule.
 
     It does this by cloning all the surrounding (AND) `FiringRule`s of

@@ -12,8 +12,6 @@ from o2.types.self_rating import RATING, SelfRatingInput
 class BaseActionParamsType(TypedDict):
     """Base type for all action parameters."""
 
-    rule: RuleSelector
-
 
 @dataclass(frozen=True)
 class BaseAction(ABC):

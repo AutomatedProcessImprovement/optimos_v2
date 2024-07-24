@@ -2,19 +2,23 @@ from dataclasses import dataclass
 from typing import Literal
 
 from o2.actions.base_action import BaseAction, BaseActionParamsType
+from o2.actions.batching_rule_action import (
+    BatchingRuleAction,
+    BatchingRuleActionParamsType,
+)
 from o2.store import Store
 from o2.types.self_rating import RATING, SelfRatingInput
 from o2.types.state import State
 
 
-class RemoveRuleActionParamsType(BaseActionParamsType):
+class RemoveRuleActionParamsType(BatchingRuleActionParamsType):
     """Parameter for `RemoveRuleAction`."""
 
     pass
 
 
 @dataclass(frozen=True)
-class RemoveRuleAction(BaseAction):
+class RemoveRuleAction(BatchingRuleAction):
     """`RemoveRuleAction` will remove a `FiringRule` from a `BatchingRule`."""
 
     params: RemoveRuleActionParamsType

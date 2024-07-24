@@ -1,20 +1,20 @@
 from dataclasses import replace
-from typing import Literal, Optional
+from typing import Literal
 
-import numpy as np
-
-from o2.actions.base_action import BaseAction, BaseActionParamsType
+from o2.actions.batching_rule_action import (
+    BatchingRuleAction,
+    BatchingRuleActionParamsType,
+)
 from o2.store import Store
-from o2.types.days import DAY
 from o2.types.self_rating import RATING, SelfRatingInput
 from o2.types.state import State
-from o2.types.timetable import COMPARATOR, rule_is_daily_hour, rule_is_week_day
+from o2.types.timetable import COMPARATOR, rule_is_daily_hour
 
 SIZE_OF_CHANGE = 1
 CLOSENESS_TO_MAX_WT = 0.01
 
 
-class ModifyDailyHourRuleActionParamsType(BaseActionParamsType):
+class ModifyDailyHourRuleActionParamsType(BatchingRuleActionParamsType):
     """Parameter for ModifyDailyHourRuleAction.
 
     hour_increment may also be negative to remove hours.
@@ -23,7 +23,7 @@ class ModifyDailyHourRuleActionParamsType(BaseActionParamsType):
     hour_increment: int
 
 
-class ModifyDailyHourRuleAction(BaseAction):
+class ModifyDailyHourRuleAction(BatchingRuleAction):
     """ModifyDailyHourRuleAction will add a new day to the firing rules of a BatchingRule.
 
     It does this by cloning all the surrounding (AND) `FiringRule`s of

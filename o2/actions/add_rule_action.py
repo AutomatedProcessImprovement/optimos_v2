@@ -1,12 +1,18 @@
 from o2.actions.base_action import BaseAction, BaseActionParamsType
 from o2.types.state import State
+from o2.actions.batching_rule_action import (
+    BatchingRuleAction,
+    BatchingRuleActionParamsType,
+)
+
+# TODO: Implement Me!
 
 
-class AddRuleActionParamsType(BaseActionParamsType):
+class AddRuleActionParamsType(BatchingRuleActionParamsType):
     pass
 
 
-class AddRuleAction(BaseAction):
+class AddRuleAction(BatchingRuleAction):
     def __init__(self, params: AddRuleActionParamsType):
         self.rule = params
 

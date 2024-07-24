@@ -2,6 +2,10 @@ from dataclasses import dataclass
 from typing import Literal
 
 from o2.actions.base_action import BaseAction, BaseActionParamsType
+from o2.actions.batching_rule_action import (
+    BatchingRuleAction,
+    BatchingRuleActionParamsType,
+)
 from o2.store import Store
 from o2.types.constraints import RULE_TYPE
 from o2.types.self_rating import RATING, SelfRatingInput
@@ -12,14 +16,14 @@ SIZE_OF_CHANGE = 100
 CLOSENESS_TO_MAX_WT = 0.01
 
 
-class ModifyLargeWtRuleActionParamsType(BaseActionParamsType):
+class ModifyLargeWtRuleActionParamsType(BatchingRuleActionParamsType):
     """Parameter for `ModifyLargeWtRuleAction`."""
 
     wt_increment: int
 
 
 @dataclass(frozen=True)
-class ModifyLargeWtRuleAction(BaseAction):
+class ModifyLargeWtRuleAction(BatchingRuleAction):
     """`ModifyLargeWtRuleAction` will modify the `LARGE_WT` value of a `FiringRule`."""
 
     params: ModifyLargeWtRuleActionParamsType
