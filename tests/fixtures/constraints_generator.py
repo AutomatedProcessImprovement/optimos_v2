@@ -1,7 +1,7 @@
 import io
-import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as ElementTree
 
-from o2.types.constraints import (
+from o2.models.constraints import (
     BATCH_TYPE,
     RULE_TYPE,
     ConstraintsType,
@@ -10,7 +10,7 @@ from o2.types.constraints import (
     SizeRuleConstraints,
     WeekDayRuleConstraints,
 )
-from o2.types.days import DAY
+from o2.models.days import DAY
 
 
 class ConstraintsGenerator:
@@ -21,7 +21,7 @@ class ConstraintsGenerator:
         fileIo = io.StringIO()
         fileIo.write(bpmn)
         fileIo.seek(0)
-        self.bpmn = ET.parse(fileIo)
+        self.bpmn = ElementTree.parse(fileIo)
         self.bpmnRoot = self.bpmn.getroot()
         # Get all the Elements of kind bpmn:task in bpmn:process
         self.tasks = self.bpmnRoot.findall(

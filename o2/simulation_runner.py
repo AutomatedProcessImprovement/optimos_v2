@@ -19,7 +19,7 @@ from wta import (
 Log: TypeAlias = Collection[Event]
 
 if TYPE_CHECKING:
-    from o2.types.state import State
+    from o2.models.state import State
 
 
 class SimulationRunner:

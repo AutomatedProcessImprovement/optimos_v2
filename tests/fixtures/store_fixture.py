@@ -1,12 +1,12 @@
+import xml.etree.ElementTree as ElementTree
+
 import pytest
-import os
-from o2.types.state import State
+
+from o2.models.constraints import ConstraintsType
+from o2.models.state import State
 from o2.store import Store
-from o2.types.constraints import ConstraintsType
 from tests.fixtures.constraints_generator import ConstraintsGenerator
 from tests.fixtures.timetable_generator import TimetableGenerator
-import xml.etree.ElementTree as ET
-
 
 SIMPLE_LOOP_BPMN_PATH = "./tests/fixtures/SimpleLoop.bpmn"
 ONE_TASK_BPMN_PATH = "./tests/fixtures/OneTask.bpmn"
@@ -19,7 +19,7 @@ def simple_state():
     bpmn_content = open(SIMPLE_LOOP_BPMN_PATH).read()
     return State(
         bpmn_definition=bpmn_content,
-        bpmn_tree=ET.parse(SIMPLE_LOOP_BPMN_PATH),
+        bpmn_tree=ElementTree.parse(SIMPLE_LOOP_BPMN_PATH),
         timetable=TimetableGenerator(bpmn_content).generate_simple(),
         for_testing=True,
     )
@@ -31,7 +31,7 @@ def one_task_state():
     bpmn_content = open(ONE_TASK_BPMN_PATH).read()
     return State(
         bpmn_definition=bpmn_content,
-        bpmn_tree=ET.parse(ONE_TASK_BPMN_PATH),
+        bpmn_tree=ElementTree.parse(ONE_TASK_BPMN_PATH),
         timetable=TimetableGenerator(bpmn_content).generate_simple(),
         for_testing=True,
     )
@@ -52,7 +52,7 @@ def two_tasks_state():
     bpmn_content = open(TWO_TASKS_BPMN_PATH).read()
     return State(
         bpmn_definition=bpmn_content,
-        bpmn_tree=ET.parse(TWO_TASKS_BPMN_PATH),
+        bpmn_tree=ElementTree.parse(TWO_TASKS_BPMN_PATH),
         timetable=TimetableGenerator(bpmn_content).generate_simple(),
         for_testing=True,
     )
@@ -73,7 +73,7 @@ def batching_state():
     bpmn_content = open(SIMPLE_LOOP_BPMN_PATH).read()
     return State(
         bpmn_definition=bpmn_content,
-        bpmn_tree=ET.parse(SIMPLE_LOOP_BPMN_PATH),
+        bpmn_tree=ElementTree.parse(SIMPLE_LOOP_BPMN_PATH),
         timetable=TimetableGenerator(bpmn_content).generate_simple(
             include_batching=True
         ),

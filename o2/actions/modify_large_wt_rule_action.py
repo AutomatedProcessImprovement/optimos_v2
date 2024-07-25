@@ -1,16 +1,15 @@
 from dataclasses import dataclass
 from typing import Literal
 
-from o2.actions.base_action import BaseAction, BaseActionParamsType
 from o2.actions.batching_rule_action import (
     BatchingRuleAction,
     BatchingRuleActionParamsType,
 )
+from o2.models.constraints import RULE_TYPE
+from o2.models.self_rating import RATING, SelfRatingInput
+from o2.models.state import State
+from o2.models.timetable import COMPARATOR, FiringRule, rule_is_large_wt
 from o2.store import Store
-from o2.types.constraints import RULE_TYPE
-from o2.types.self_rating import RATING, SelfRatingInput
-from o2.types.state import State
-from o2.types.timetable import COMPARATOR, FiringRule, rule_is_large_wt
 
 SIZE_OF_CHANGE = 100
 CLOSENESS_TO_MAX_WT = 0.01

@@ -1,7 +1,7 @@
 from enum import Enum
 
-from o2.types.evaluation import Evaluation
-from o2.types.state import State
+from o2.models.evaluation import Evaluation
+from o2.models.state import State
 
 
 class FRONT_STATUS(Enum):

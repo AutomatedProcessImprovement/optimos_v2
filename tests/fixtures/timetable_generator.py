@@ -1,10 +1,10 @@
 import io
-import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as ElementTree
 from dataclasses import replace
 
-from o2.types.constraints import BATCH_TYPE, RULE_TYPE
-from o2.types.days import DAY
-from o2.types.timetable import (
+from o2.models.constraints import BATCH_TYPE, RULE_TYPE
+from o2.models.days import DAY
+from o2.models.timetable import (
     COMPARATOR,
     DISTRIBUTION_TYPE,
     ArrivalTimeDistribution,
@@ -42,7 +42,7 @@ class TimetableGenerator:
         fileIo = io.StringIO()
         fileIo.write(bpmn)
         fileIo.seek(0)
-        self.bpmn = ET.parse(fileIo)
+        self.bpmn = ElementTree.parse(fileIo)
         self.bpmnRoot = self.bpmn.getroot()
         # Get all the Elements of kind bpmn:task in bpmn:process
         self.tasks = self.bpmnRoot.findall(
@@ -90,8 +90,8 @@ class TimetableGenerator:
             TimePeriod(
                 from_=DAY.MONDAY,
                 to=DAY.SUNDAY,
-                beginTime=f"{start}:00:00",
-                endTime="23:59:59" if end == 24 else f"{end}:00:00",
+                begin_time=f"{start}:00:00",
+                end_time="23:59:59" if end == 24 else f"{end}:00:00",
             )
         )
         return self
@@ -144,8 +144,8 @@ class TimetableGenerator:
                     TimePeriod(
                         from_=DAY.MONDAY,
                         to=DAY.SUNDAY,
-                        beginTime="00:00:00",
-                        endTime="23:59:59",
+                        begin_time="00:00:00",
+                        end_time="23:59:59",
                     )
                 ],
             )

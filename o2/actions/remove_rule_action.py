@@ -6,9 +6,9 @@ from o2.actions.batching_rule_action import (
     BatchingRuleAction,
     BatchingRuleActionParamsType,
 )
+from o2.models.self_rating import RATING, SelfRatingInput
+from o2.models.state import State
 from o2.store import Store
-from o2.types.self_rating import RATING, SelfRatingInput
-from o2.types.state import State
 
 
 class RemoveRuleActionParamsType(BatchingRuleActionParamsType):

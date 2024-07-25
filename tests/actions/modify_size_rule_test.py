@@ -5,11 +5,11 @@ from o2.actions.modify_size_rule_action import (
     ModifySizeRuleAction,
     ModifySizeRuleActionParamsType,
 )
+from o2.models.constraints import RULE_TYPE
+from o2.models.rule_selector import RuleSelector
+from o2.models.self_rating import RATING, SelfRatingInput
+from o2.models.timetable import COMPARATOR, BatchingRule, FiringRule
 from o2.store import Store
-from o2.types.constraints import RULE_TYPE
-from o2.types.rule_selector import RuleSelector
-from o2.types.self_rating import RATING, SelfRatingInput
-from o2.types.timetable import COMPARATOR, BatchingRule, FiringRule
 from tests.fixtures.constraints_generator import ConstraintsGenerator
 from tests.fixtures.timetable_generator import TimetableGenerator
 

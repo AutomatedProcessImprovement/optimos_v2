@@ -4,15 +4,15 @@ from typing import Literal
 import numpy as np
 
 from o2.actions.base_action import BaseAction, BaseActionParamsType
-from o2.store import Store
-from o2.types.days import DAY
-from o2.types.self_rating import RATING, SelfRatingInput
-from o2.types.state import State
-from o2.types.timetable import rule_is_week_day
 from o2.actions.batching_rule_action import (
     BatchingRuleAction,
     BatchingRuleActionParamsType,
 )
+from o2.models.days import DAY
+from o2.models.self_rating import RATING, SelfRatingInput
+from o2.models.state import State
+from o2.models.timetable import rule_is_week_day
+from o2.store import Store
 
 SIZE_OF_CHANGE = 100
 CLOSENESS_TO_MAX_WT = 0.01

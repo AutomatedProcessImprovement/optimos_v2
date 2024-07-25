@@ -3,8 +3,8 @@ from dataclasses import replace
 import pandas as pd
 
 from o2.actions.action_selector import ActionSelector
+from o2.models.self_rating import SelfRatingInput
 from o2.store import Store
-from o2.types.self_rating import SelfRatingInput
 from tests.fixtures.timetable_generator import TimetableGenerator
 
 pd.options.display.max_columns = None  # type: ignore

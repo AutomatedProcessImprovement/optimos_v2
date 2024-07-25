@@ -1,8 +1,6 @@
 from o2.actions.action_selector import ActionSelector
 from o2.pareto_front import FRONT_STATUS
-
 from o2.store import Store
-from o2.types.state import State
 
 
 class HillClimber:

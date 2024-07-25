@@ -1,29 +1,16 @@
 from __future__ import annotations
 
-import io
-import json
-from pathlib import Path
+# Ignore FutureWarnings
 import warnings
 
-from dynamik.utils.pm.calendars import Calendar, discover_calendars
-from intervaltree import Interval, IntervalTree
-
-from o2.types.evaluation import Evaluation
-from o2.simulation_runner import Log
-
-# Ignore FutureWarnings
 warnings.simplefilter(action="ignore", category=FutureWarning)
 
-from dynamik.input import EventMapping
-from dynamik.input.csv import read_and_merge_csv_logs
-from dynamik.utils.logger import LOGGER
-from dynamik.utils.pm.batching import discover_batches
-from dynamik.utils.pm.waiting import WaitingTimeCanvas
-from dynamik.utils.timer import DEFAULT_TIMER as TIMER
+import io
 
 import pandas as pd
-import time
-import csv
+
+from o2.models.evaluation import Evaluation
+from o2.simulation_runner import Log
 
 
 class Evaluator:

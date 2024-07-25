@@ -4,7 +4,7 @@ from typing import List, TypeGuard, Union
 
 from dataclass_wizard import JSONWizard
 
-from o2.types.days import DAY
+from o2.models.days import DAY
 
 
 class BATCH_TYPE(str, Enum):

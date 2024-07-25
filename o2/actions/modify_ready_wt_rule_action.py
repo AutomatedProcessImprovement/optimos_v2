@@ -6,15 +6,15 @@ from o2.actions.batching_rule_action import (
     BatchingRuleAction,
     BatchingRuleActionParamsType,
 )
-from o2.store import Store
-from o2.types.constraints import RULE_TYPE
-from o2.types.self_rating import RATING, SelfRatingInput
-from o2.types.state import State
-from o2.types.timetable import (
+from o2.models.constraints import RULE_TYPE
+from o2.models.self_rating import RATING, SelfRatingInput
+from o2.models.state import State
+from o2.models.timetable import (
     COMPARATOR,
     FiringRule,
     rule_is_ready_wt,
 )
+from o2.store import Store
 
 SIZE_OF_CHANGE = 100
 

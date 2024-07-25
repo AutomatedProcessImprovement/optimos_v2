@@ -4,10 +4,10 @@ from o2.actions.add_week_day_rule_action import (
     AddWeekDayRuleActionParamsType,
 )
 from o2.actions.modify_large_wt_rule_action import ModifyLargeWtRuleAction
+from o2.models.days import DAY
+from o2.models.rule_selector import RuleSelector
+from o2.models.self_rating import RATING, SelfRatingInput
 from o2.store import Store
-from o2.types.days import DAY
-from o2.types.rule_selector import RuleSelector
-from o2.types.self_rating import RATING, SelfRatingInput
 from optimos_v2.tests.fixtures.constraints_generator import ConstraintsGenerator
 from tests.fixtures.timetable_generator import TimetableGenerator
 

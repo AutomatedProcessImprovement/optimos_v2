@@ -1,12 +1,12 @@
 from o2.hill_climber import HillClimber
-from o2.store import Store
-from o2.types.constraints import BATCH_TYPE, RULE_TYPE
-from o2.types.timetable import (
+from o2.models.constraints import BATCH_TYPE, RULE_TYPE
+from o2.models.timetable import (
     COMPARATOR,
     BatchingRule,
     Distribution,
     FiringRule,
 )
+from o2.store import Store
 from tests.fixtures.constraints_generator import ConstraintsGenerator
 from tests.fixtures.timetable_generator import TimetableGenerator
 

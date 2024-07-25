@@ -1,11 +1,14 @@
+from functools import reduce
 import hashlib
 from dataclasses import asdict, dataclass, replace
 from enum import Enum
+from itertools import groupby
 from json import dumps
 from typing import (
     TYPE_CHECKING,
     Any,
     Generic,
+    Iterator,
     List,
     Optional,
     Tuple,
@@ -15,12 +18,15 @@ from typing import (
 )
 
 from dataclass_wizard import JSONWizard
+from optimos_v2.o2.util.bit_mask_helper import get_ranges_from_bitmask
 
 if TYPE_CHECKING:
+    from o2.models.rule_selector import RuleSelector
     from o2.store import Store
-    from o2.types.rule_selector import RuleSelector
-from o2.types.constraints import BATCH_TYPE, RULE_TYPE, SizeRuleConstraints
-from o2.types.days import DAY
+import operator
+
+from o2.models.constraints import BATCH_TYPE, RULE_TYPE, SizeRuleConstraints
+from o2.models.days import DAY, DAYS, day_range
 
 
 class COMPARATOR(str, Enum):
@@ -82,19 +88,101 @@ class ArrivalTimeDistribution(JSONWizard):
 
 @dataclass(frozen=True)
 class TimePeriod(JSONWizard):
+    """A Time Period in a resource calendar."""
+
     from_: DAY
+    """The start of the time period (day, uppercase, e.g. MONDAY)"""
+
     to: DAY
-    beginTime: str
-    endTime: str
+    """The end of the time period (day, uppercase, e.g. FRIDAY)"""
+
+    begin_time: str
+    """The start time of the time period (24h format, e.g. 08:00)"""
+    end_time: str  # noqa: N815
+    """The end time of the time period (24h format, e.g. 17:00)"""
 
     class _(JSONWizard.Meta):
         json_key_to_field: Any = {
             "from": "from_",
             "to": "to",
-            "beginTime": "beginTime",
-            "endTime": "endTime",
+            "beginTime": "begin_time",
+            "endTime": "end_time",
             "__all__": True,
         }
+
+    @property
+    def begin_time_hour(self) -> int:
+        """Get the start time hour."""
+        return int(self.begin_time.split(":")[0])
+
+    @property
+    def end_time_hour(self) -> int:
+        """Get the end time hour."""
+        return int(self.end_time.split(":")[0])
+
+    @property
+    def begin_time_minute(self) -> int:
+        """Get the start time minute."""
+        return int(self.begin_time.split(":")[1])
+
+    @property
+    def end_time_minute(self) -> int:
+        """Get the end time minute."""
+        return int(self.end_time.split(":")[1])
+
+    def add_hours_before(self, hours: int) -> "TimePeriod":
+        """Get new TimePeriod with hours added before."""
+        return self._modify(add_start=hours)
+
+    def add_hours_after(self, hours: int) -> "TimePeriod":
+        """Get new TimePeriod with hours added after."""
+        return self._modify(add_end=hours)
+
+    def shift_hours(self, hours: int) -> "TimePeriod":
+        """Get new TimePeriod with hours shifted.
+
+        If hours is positive, the period is shifted forward.
+        """
+        return self._modify(add_start=-hours, add_end=hours)
+
+    def _modify(self, add_start: int = 0, add_end: int = 0):
+        new_begin = self.begin_time_hour + add_start
+        new_end = self.end_time_hour + add_end
+        if new_begin < 0 or new_begin >= 24 or new_end < 0 or new_end >= 24:
+            raise ValueError("Out of bounds")
+
+        return replace(
+            self,
+            begin_time=f"{new_begin:02}:{self.begin_time_minute}",
+            end_time=f"{new_end:02}:{self.end_time_minute}",
+        )
+
+    def split_by_day(self) -> List["TimePeriod"]:
+        """Split the time period by day.
+
+        Return a list of time periods, one for each day in the range.
+        """
+        return [
+            replace(self, from_=day, to=day) for day in day_range(self.from_, self.to)
+        ]
+
+    def to_bitmask(self) -> int:
+        """Get a bitmask for the time period."""
+        return sum(1 << i for i in range(self.begin_time_hour, self.end_time_hour))
+
+    @staticmethod
+    def from_bitmask(bitmask: int, day: DAY) -> List["TimePeriod"]:
+        """Create a time period from a bitmask."""
+        hour_ranges = get_ranges_from_bitmask(bitmask)
+        return [
+            TimePeriod(
+                from_=day,
+                to=day,
+                begin_time=f"{start:02}:00",
+                end_time=f"{end:02}:00",
+            )
+            for start, end in hour_ranges
+        ]
 
 
 @dataclass(frozen=True)
@@ -127,6 +215,35 @@ class ResourceCalendar(JSONWizard):
     id: str
     name: str
     time_periods: List[TimePeriod]
+
+    def is_valid(self) -> bool:
+        """Check if the calendar is valid.
+
+        The calendar is valid if all time periods have a begin time before the end time.
+        And if the time periods are not overlapping.
+        """
+        grouped_time_periods = self.split_group_by_day()
+        for _, time_periods_iter in grouped_time_periods:
+            time_periods = list(time_periods_iter)
+            for tp in time_periods:
+                if tp.begin_time >= tp.end_time:
+                    return False
+
+            bitmasks = [tp.to_bitmask() for tp in time_periods]
+            if reduce(operator.or_, bitmasks, False):
+                return False
+        return True
+
+    def split_group_by_day(self) -> Iterator[tuple[DAY, Iterator[TimePeriod]]]:
+        """Split the time periods by day."""
+        return groupby(self.split_time_periods_by_day(), key=lambda tp: tp.from_)
+
+    def split_time_periods_by_day(self) -> List[TimePeriod]:
+        """Split the time periods by day and sort them."""
+        return sorted(
+            (tp for tp in self.time_periods for tp in tp.split_by_day()),
+            key=lambda tp: tp.from_,
+        )
 
 
 @dataclass(frozen=True)

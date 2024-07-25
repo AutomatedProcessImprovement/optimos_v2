@@ -1,9 +1,9 @@
 from o2.actions.base_action import BaseAction, BaseActionParamsType
-from o2.types.state import State
 from o2.actions.batching_rule_action import (
     BatchingRuleAction,
     BatchingRuleActionParamsType,
 )
+from o2.models.state import State
 
 # TODO: Implement Me!
 

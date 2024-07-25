@@ -1,21 +1,9 @@
-from dataclasses import replace
-
-import pandas as pd
-from o2.store import Store
-from o2.actions.action_selector import ActionSelector
-from o2.actions.modify_size_rule_action import (
-    ModifySizeRuleAction,
-    ModifySizeRuleActionParamsType,
-)
-from o2.types.constraints import RULE_TYPE
-from o2.types.rule_selector import RuleSelector
-from o2.types.timetable import COMPARATOR, BatchingRule, FiringRule
 from o2.actions.modify_ready_wt_rule_action import (
     ModifyReadyWtRuleAction,
     ModifyReadyWtRuleActionParamsType,
 )
-from o2.types.self_rating import RATING, SelfRatingInput
-from tests.fixtures.constraints_generator import ConstraintsGenerator
+from o2.models.rule_selector import RuleSelector
+from o2.store import Store
 from tests.fixtures.timetable_generator import TimetableGenerator
 
 

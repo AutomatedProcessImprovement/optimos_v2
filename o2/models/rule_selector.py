@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from o2.types.state import State
-from o2.types.timetable import BatchingRule, FiringRule
+from o2.models.state import State
+from o2.models.timetable import BatchingRule, FiringRule
 
 
 @dataclass(frozen=True)

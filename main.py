@@ -1,12 +1,10 @@
 import json
-from o2.types.timetable import TimetableType
-from o2.simulation_runner import SimulationRunner
-from o2.types.constraints import ConstraintsType
-import o2.store
+import xml.etree.ElementTree as ElementTree
+
 import o2.hill_climber
-import os
-import random
-import xml.etree.ElementTree as ET
+import o2.store
+from o2.models.constraints import ConstraintsType
+from o2.models.timetable import TimetableType
 
 
 def main():
@@ -23,7 +21,7 @@ def main():
     with open(bpmn_path, "r") as f:
         bpmn_definition = f.read()
 
-    bpmn_tree = ET.parse(bpmn_path)
+    bpmn_tree = ElementTree.parse(bpmn_path)
 
     initial_state = o2.store.State(
         bpmn_definition=bpmn_definition,

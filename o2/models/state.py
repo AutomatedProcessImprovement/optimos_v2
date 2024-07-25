@@ -6,11 +6,11 @@ import pytz
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from o2.types.timetable import TimetableType
+    from o2.models.timetable import TimetableType
 from o2.SimDiffSetupFileless import SimDiffSetupFileless
 from o2.evaluator import Evaluator
 from o2.simulation_runner import SimulationRunner
-from o2.types.constraints import ConstraintsType
+from o2.models.constraints import ConstraintsType
 from bpdfr_simulation_engine.simulation_setup import SimDiffSetup
 from json import dumps
 

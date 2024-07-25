@@ -11,19 +11,21 @@ from o2.actions.remove_rule_action import (
     RemoveRuleAction,
     RemoveRuleActionParamsType,
 )
+from o2.models.constraints import RULE_TYPE
+from o2.models.evaluation import Evaluation
+from o2.models.rule_selector import RuleSelector
+from o2.models.self_rating import RATING, SelfRatingInput
+from o2.models.state import State
 from o2.pareto_front import FRONT_STATUS
 from o2.store import Store
-from o2.types.constraints import RULE_TYPE
-from o2.types.evaluation import Evaluation
-from o2.types.rule_selector import RuleSelector
-from o2.types.self_rating import RATING, SelfRatingInput
-from o2.types.state import State
 
 ACTION_CATALOG: list[Type[BaseAction]] = [
     ModifyLargeWtRuleAction,
     ModifySizeRuleAction,
     RemoveRuleAction,
 ]
+
+# TODO: Try out multiple Actions at once
 
 
 class ActionSelector:

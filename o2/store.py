@@ -1,10 +1,10 @@
 from dataclasses import dataclass, replace
 from typing import TYPE_CHECKING
 
+from o2.models.constraints import ConstraintsType
+from o2.models.evaluation import Evaluation
+from o2.models.state import State
 from o2.pareto_front import FRONT_STATUS, ParetoFront
-from o2.types.constraints import ConstraintsType
-from o2.types.evaluation import Evaluation
-from o2.types.state import State
 
 if TYPE_CHECKING:
     from o2.actions.base_action import BaseAction
