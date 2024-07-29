@@ -5,6 +5,9 @@ from typing import List, TypeGuard, Union
 from dataclass_wizard import JSONWizard
 
 from o2.models.days import DAY
+from o2.models.evaluation import Evaluation
+from o2.models.legacy_constraints import ConstraintsResourcesItem
+from o2.models.timetable import TimetableType
 
 
 class BATCH_TYPE(str, Enum):
@@ -124,9 +127,37 @@ class ConstraintsType(JSONWizard):
             DailyHourRuleConstraints,
         ]
     ]
+    # Legacy Optimos constraints
+    max_cap: int = 9999999
+    """Legacy Optimos Constraint: Max number of hours a resource can work in a week"""
+    max_shift_size: int = 24
+    """Legacy Optimos Constraint: Max number of hours in a continuous shift block"""
+    max_shift_blocks: int = 24
+    """Legacy Optimos Constraint: Max number of continuos shift block in a day"""
+    hours_in_day: int = 24
+    """Legacy Optimos Constraint: Hours/Slots per day"""
+    resources: List[ConstraintsResourcesItem] = []
+    """Legacy Optimos Constraint: Resource Constraints"""
+    time_var: int = 60
+    """Legacy Optimos Constraint: Slot duration in minutes"""
 
     class _(JSONWizard.Meta):
         key_transform_with_dump = "SNAKE"
+
+    def verify_legacy_constraints(self, timetable: TimetableType) -> bool:
+        """Check if the timetable is valid against the constraints.
+
+        Will check resource constraints for all resources as well as the base constraints.
+        """
+        return (
+            timetable.max_total_hours_per_resource <= self.max_cap
+            and timetable.max_consecutive_hours_per_resource <= self.max_shift_size
+            and timetable.max_periods_per_day_per_resource <= self.max_shift_blocks
+            and all(
+                resource_calendar.is_valid()
+                for resource_calendar in timetable.resource_calendars
+            )
+        )
 
     def get_batching_constraints_for_task(self, task: str) -> list[BatchingConstraints]:
         return [

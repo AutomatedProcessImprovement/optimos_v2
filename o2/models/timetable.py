@@ -1,7 +1,7 @@
-from functools import reduce
 import hashlib
 from dataclasses import asdict, dataclass, replace
 from enum import Enum
+from functools import reduce
 from itertools import groupby
 from json import dumps
 from typing import (
@@ -245,6 +245,49 @@ class ResourceCalendar(JSONWizard):
             key=lambda tp: tp.from_,
         )
 
+    def get_periods_for_day(self, day: DAY) -> List[TimePeriod]:
+        """Get the time periods for a specific day."""
+        return [tp for tp in self.split_time_periods_by_day() if tp.from_ == day]
+
+    @property
+    def total_hours(self) -> int:
+        """Get the total number of hours in the calendar."""
+        return sum((tp.end_time_hour - tp.begin_time_hour) for tp in self.time_periods)
+
+    @property
+    def max_consecutive_hours(self) -> int:
+        """Get the maximum number of continuous hours in the calendar."""
+        return max((tp.end_time_hour - tp.begin_time_hour) for tp in self.time_periods)
+
+    @property
+    def max_periods_per_day(self) -> int:
+        """Get the maximum number of periods in a day."""
+        return max(len(list(tp.split_by_day())) for tp in self.time_periods)
+
+    @property
+    def max_hours_per_day(self) -> int:
+        """Get the maximum number of hours in a day."""
+        return max(
+            sum(tp.end_time_hour - tp.begin_time_hour for tp in time_periods)
+            for _, time_periods in self.split_group_by_day()
+        )
+
+    @property
+    def total_periods(self) -> int:
+        """Get the total number of shifts in the calendar."""
+        return len(self.split_time_periods_by_day())
+
+    def replace_time_period(
+        self, time_period_index: int, time_period: TimePeriod
+    ) -> "ResourceCalendar":
+        """Replace a time period. Returns a new ResourceCalendar."""
+        time_periods = (
+            self.time_periods[:time_period_index]
+            + [time_period]
+            + self.time_periods[time_period_index + 1 :]
+        )
+        return replace(self, time_periods=time_periods)
+
 
 @dataclass(frozen=True)
 class EventDistribution(JSONWizard):
@@ -425,4 +468,49 @@ class TimetableType(JSONWizard):
                 None,
                 None,
             ),
+        )
+
+    def get_resource_calendar(self, resource_id: str) -> Optional[ResourceCalendar]:
+        """Get a resource calendar by resource id."""
+        return next(
+            (
+                resource_calendar
+                for resource_calendar in self.resource_calendars
+                if resource_calendar.id == resource_id
+            ),
+            None,
+        )
+
+    def replace_resource_calendar(
+        self, new_calendar: ResourceCalendar
+    ) -> "TimetableType":
+        """Replace a resource calendar. Returns a new TimetableType."""
+        resource_calendars = [
+            new_calendar if rc.id == new_calendar.id else rc
+            for rc in self.resource_calendars
+        ]
+        return replace(self, resource_calendars=resource_calendars)
+
+    @property
+    def max_total_hours_per_resource(self) -> int:
+        """Get the maximum total hours per resource."""
+        return max(
+            resource_calendar.total_hours
+            for resource_calendar in self.resource_calendars
+        )
+
+    @property
+    def max_consecutive_hours_per_resource(self) -> int:
+        """Get the maximum shift size per resource."""
+        return max(
+            resource_calendar.max_consecutive_hours
+            for resource_calendar in self.resource_calendars
+        )
+
+    @property
+    def max_periods_per_day_per_resource(self) -> int:
+        """Get the maximum shifts per day per resource."""
+        return max(
+            resource_calendar.max_periods_per_day
+            for resource_calendar in self.resource_calendars
         )

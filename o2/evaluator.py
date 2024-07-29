@@ -20,11 +20,54 @@ class Evaluator:
             0
         ]
 
-        # Read the CSV data into a DataFrame
+        # Read the CSV data into a DataFrame. Columns for reference:
+        # Name,
+        # Count,
+        # Min Duration,
+        # Max Duration,
+        # Avg Duration,
+        # Total Duration,
+        # Min Waiting Time,
+        # Max Waiting Time,
+        # Avg Waiting Time,
+        # Total Waiting Time,
+        # Min Processing Time,
+        # Max Processing Time,
+        # Avg Processing Time,
+        # Total Processing Time,
+        # Min Cycle Time,
+        # Max Cycle Time,
+        # Avg Cycle Time,
+        # Total Cycle Time,
+        # Min Idle Time,
+        # Max Idle Time,
+        # Avg Idle Time,
+        # Total Idle Time,
+        # Min Idle Cycle Time,
+        # Max Idle Cycle Time,
+        # Avg Idle Cycle Time,
+        # Total Idle Cycle Time,
+        # Min Idle Processing Time,
+        # Max Idle Processing Time,
+        # Avg Idle Processing Time,
+        # Total Idle Processing Time,
+        # Min Cost,
+        # Max Cost,
+        # Avg Cost,
+        # Total Cost
         df = pd.read_csv(
             io.StringIO(global_stats),
             sep=",",
         )
+
+        return df
+
+    @staticmethod
+    def evaluateLog(log: Log, stats: str):
+        if len(log) == 0:
+            return Evaluation.empty()
+
+        df = Evaluator.parse_stats(stats)
 
         # Calculate the accumulated total cycle time and total cost
         accumulated_total_cycle_time = df["Total Cycle Time"].sum()
@@ -32,18 +75,12 @@ class Evaluator:
         accumulated_waiting_time = df["Total Waiting Time"].sum()
 
         return Evaluation(
-            df=df,
-            total_cost=accumulated_total_cost,
-            total_cycle_time=accumulated_total_cycle_time,
-            total_waiting_time=accumulated_waiting_time,
+            df,
+            log,
+            accumulated_total_cycle_time,
+            accumulated_total_cost,
+            accumulated_waiting_time,
         )
-
-    @staticmethod
-    def evaluateLog(log: Log, stats: str):
-        if len(log) == 0:
-            return Evaluation.empty()
-
-        return Evaluator.parse_stats(stats)
 
         # # build an interval for the log timeframe
         # log_timeframe = Interval(

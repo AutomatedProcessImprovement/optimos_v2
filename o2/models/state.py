@@ -1,18 +1,17 @@
-import xml.etree.ElementTree as ET
-from dataclasses import dataclass, field, replace, asdict
 import datetime
-import io
-import pytz
+import xml.etree.ElementTree as ET
+from dataclasses import dataclass, replace
 from typing import TYPE_CHECKING
+
+import pytz
+from bpdfr_simulation_engine.simulation_setup import SimDiffSetup
+
+from o2.evaluator import Evaluator
+from o2.SimDiffSetupFileless import SimDiffSetupFileless
+from o2.simulation_runner import SimulationRunner
 
 if TYPE_CHECKING:
     from o2.models.timetable import TimetableType
-from o2.SimDiffSetupFileless import SimDiffSetupFileless
-from o2.evaluator import Evaluator
-from o2.simulation_runner import SimulationRunner
-from o2.models.constraints import ConstraintsType
-from bpdfr_simulation_engine.simulation_setup import SimDiffSetup
-from json import dumps
 
 
 @dataclass(frozen=True)

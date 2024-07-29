@@ -1,4 +1,4 @@
-from dataclasses import dataclass, replace
+from dataclasses import replace
 from typing import TYPE_CHECKING
 
 from o2.models.constraints import ConstraintsType
@@ -45,6 +45,10 @@ class Store:
             self.current_pareto_front.evaluations,
             key=lambda x: x.total_cycle_time,
         )
+
+    @property
+    def current_timetable(self):
+        return self.state.timetable
 
     def apply_action(self, action: "BaseAction"):
         self.previous_actions.append(action)
