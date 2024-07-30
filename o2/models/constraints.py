@@ -1,13 +1,15 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
-from typing import List, TypeGuard, Union
+from typing import TYPE_CHECKING, List, TypeGuard, Union
 
 from dataclass_wizard import JSONWizard
 
 from o2.models.days import DAY
 from o2.models.evaluation import Evaluation
-from o2.models.legacy_constraints import ConstraintsResourcesItem
-from o2.models.timetable import TimetableType
+
+if TYPE_CHECKING:
+    from o2.models.legacy_constraints import ConstraintsResourcesItem
+    from o2.models.timetable import TimetableType
 
 
 class BATCH_TYPE(str, Enum):
@@ -126,8 +128,10 @@ class ConstraintsType(JSONWizard):
             WeekDayRuleConstraints,
             DailyHourRuleConstraints,
         ]
-    ]
+    ] = field(default_factory=list)
     # Legacy Optimos constraints
+    resources: List["ConstraintsResourcesItem"] = field(default_factory=list)
+    """Legacy Optimos Constraint: Resource Constraints"""
     max_cap: int = 9999999
     """Legacy Optimos Constraint: Max number of hours a resource can work in a week"""
     max_shift_size: int = 24
@@ -136,15 +140,13 @@ class ConstraintsType(JSONWizard):
     """Legacy Optimos Constraint: Max number of continuos shift block in a day"""
     hours_in_day: int = 24
     """Legacy Optimos Constraint: Hours/Slots per day"""
-    resources: List[ConstraintsResourcesItem] = []
-    """Legacy Optimos Constraint: Resource Constraints"""
     time_var: int = 60
     """Legacy Optimos Constraint: Slot duration in minutes"""
 
     class _(JSONWizard.Meta):
         key_transform_with_dump = "SNAKE"
 
-    def verify_legacy_constraints(self, timetable: TimetableType) -> bool:
+    def verify_legacy_constraints(self, timetable: "TimetableType") -> bool:
         """Check if the timetable is valid against the constraints.
 
         Will check resource constraints for all resources as well as the base constraints.
@@ -154,8 +156,8 @@ class ConstraintsType(JSONWizard):
             and timetable.max_consecutive_hours_per_resource <= self.max_shift_size
             and timetable.max_periods_per_day_per_resource <= self.max_shift_blocks
             and all(
-                resource_calendar.is_valid()
-                for resource_calendar in timetable.resource_calendars
+                resource_constraints.verify_timetable(timetable)
+                for resource_constraints in self.resources
             )
         )
 

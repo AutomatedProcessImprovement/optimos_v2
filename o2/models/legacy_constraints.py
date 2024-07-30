@@ -1,12 +1,15 @@
+import operator
 from dataclasses import dataclass
 from functools import reduce
-import operator
-from typing import List, Optional, TypedDict, Union
+from typing import TYPE_CHECKING, List, Optional, TypedDict, Union
 
 from dataclass_wizard import JSONWizard
 
-from o2.models.timetable import ResourceCalendar
 from o2.models.days import DAY
+from o2.models.timetable import TimetableType
+
+if TYPE_CHECKING:
+    from o2.models.timetable import ResourceCalendar
 
 
 @dataclass(frozen=True)
@@ -25,26 +28,29 @@ class WorkMasks(JSONWizard):
         """Get the mask for a specific day."""
         return getattr(self, day.name.lower()) or 0
 
-    def has_intersection(self, calendar: ResourceCalendar) -> bool:
+    def has_intersection(self, calendar: "ResourceCalendar") -> bool:
         """Check if the calendar has an overlap (intersection) with the work masks."""
         for day, periods in calendar.split_group_by_day():
-            day_mask = reduce(operator.or_, periods)
+            masks = [period.to_bitmask() for period in periods]
+            day_mask = reduce(operator.or_, masks)
             if day_mask & self.get(day):
                 return True
         return False
 
-    def is_super_set(self, calendar: ResourceCalendar) -> bool:
+    def is_super_set(self, calendar: "ResourceCalendar") -> bool:
         """Check if the work masks are a super set of the calendar."""
         for day, periods in calendar.split_group_by_day():
-            day_mask = reduce(operator.or_, periods)
+            masks = [period.to_bitmask() for period in periods]
+            day_mask = reduce(operator.or_, masks)
             if day_mask & ~self.get(day):
                 return False
         return True
 
-    def is_subset(self, calendar: ResourceCalendar) -> bool:
+    def is_subset(self, calendar: "ResourceCalendar") -> bool:
         """Check if the work masks are a subset of the calendar."""
         for day, periods in calendar.split_group_by_day():
-            day_mask = reduce(operator.or_, periods)
+            masks = [period.to_bitmask() for period in periods]
+            day_mask = reduce(operator.or_, masks)
             if ~day_mask & self.get(day):
                 return False
         return True
@@ -61,7 +67,7 @@ class GlobalConstraints(JSONWizard):
     max_shifts_week: float
     is_human: bool
 
-    def verify_timetable(self, calendar: ResourceCalendar) -> bool:
+    def verify_timetable(self, calendar: "ResourceCalendar") -> bool:
         """Check if the timetable is valid against the constraints."""
         return (
             calendar.total_hours <= self.max_weekly_cap
@@ -80,14 +86,6 @@ class ResourceConstraints(JSONWizard):
     never_work_masks: WorkMasks
     always_work_masks: WorkMasks
 
-    def verify_timetable(self, timetable: ResourceCalendar) -> bool:
-        """Check if the timetable is valid against the constraints."""
-        return (
-            self.global_constraints.verify_timetable(timetable)
-            and not self.never_work_masks.has_intersection(timetable)
-            and self.always_work_masks.is_subset(timetable)
-        )
-
 
 @dataclass(frozen=True)
 class ConstraintsResourcesItem(JSONWizard):
@@ -95,3 +93,14 @@ class ConstraintsResourcesItem(JSONWizard):
 
     id: str
     constraints: ResourceConstraints
+
+    def verify_timetable(self, timetable: "TimetableType") -> bool:
+        """Check if the timetable is valid against the constraints."""
+        calendar = timetable.get_calendar_for_resource(self.id)
+        if calendar is None:
+            return True
+        return (
+            self.constraints.global_constraints.verify_timetable(calendar)
+            and not self.constraints.never_work_masks.has_intersection(calendar)
+            and self.constraints.always_work_masks.is_subset(calendar)
+        )

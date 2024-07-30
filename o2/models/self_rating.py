@@ -109,6 +109,18 @@ class SelfRatingInput:
             most_impactful_rule=most_impactful_rule_selector,
         )
 
+    @staticmethod
+    def from_base_evaluation(base_evaluation: Evaluation) -> "SelfRatingInput":
+        """Create a SelfRatingInput object from a base evaluation.
+
+        Please only use this if you are know what you are doing, or in tests!
+        """
+        return SelfRatingInput(
+            base_evaluation=base_evaluation,
+            rule_evaluations={},
+            most_impactful_rule=RuleSelector("NO_ID", None),
+        )
+
     def __repr__(self) -> str:
         """Return a string representation of the object."""
         return (

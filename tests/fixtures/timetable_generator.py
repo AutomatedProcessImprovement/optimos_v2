@@ -74,8 +74,8 @@ class TimetableGenerator:
                 resource_list=[
                     Resource(
                         id=self.RESOURCE_ID,
-                        name="Base Resource",
-                        calendar="BASE_CALENDAR",
+                        name=self.RESOURCE_ID,
+                        calendar=self.CALENDAR_ID,
                         cost_per_hour=1,
                         amount=1,
                         assigned_tasks=[task.attrib["id"] for task in self.tasks],
@@ -136,19 +136,9 @@ class TimetableGenerator:
         return self
 
     def create_simple_resource_calendars(self):
-        self.timetable.resource_calendars.append(
-            ResourceCalendar(
-                id=self.CALENDAR_ID,
-                name="Base Calendar",
-                time_periods=[
-                    TimePeriod(
-                        from_=DAY.MONDAY,
-                        to=DAY.SUNDAY,
-                        begin_time="00:00:00",
-                        end_time="23:59:59",
-                    )
-                ],
-            )
+        self.timetable = replace(
+            self.timetable,
+            resource_calendars=TimetableGenerator.resource_calendars(),
         )
         return self
 
@@ -172,6 +162,24 @@ class TimetableGenerator:
             ],
         )
         return self
+
+    @staticmethod
+    def resource_calendars(begin_hour=0, end_hour=23, include_end_hour=True):
+        return [
+            ResourceCalendar(
+                id=TimetableGenerator.CALENDAR_ID,
+                name=TimetableGenerator.CALENDAR_ID,
+                time_periods=[
+                    TimePeriod(
+                        from_=DAY.MONDAY,
+                        to=DAY.SUNDAY,
+                        begin_time=f"{begin_hour:02}:00:00",
+                        end_time=f"{end_hour:02}:"
+                        + ("59:59" if include_end_hour else "00:00"),
+                    )
+                ],
+            )
+        ]
 
     @staticmethod
     def batching_size_rule(

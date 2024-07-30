@@ -1,3 +1,6 @@
+from functools import reduce
+
+
 def bitmask_to_string(bitmask: int, padLeft=24) -> str:
     """Convert a bitmask to a string of 1s and 0s.
 
@@ -35,3 +38,17 @@ def get_ranges_from_bitmask(bitmask: int) -> list[tuple[int, int]]:
     if start is not None:
         ranges.append((start, len(bitmask_str)))
     return ranges
+
+
+def has_overlap(bitmaskA: int, bitmaskB: int) -> bool:
+    """Check if two bitmasks have an overlap."""
+    return bitmaskA & bitmaskB != 0
+
+
+def any_has_overlap(bitmasks: list[int]) -> bool:
+    """Check if any of the bitmasks have an overlap with any other."""
+    acc = 0
+    for bitmask in bitmasks:
+        if acc & bitmask != 0:
+            return True
+        acc |= bitmask

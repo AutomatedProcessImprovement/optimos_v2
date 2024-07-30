@@ -55,7 +55,9 @@ class ModifyCalendarByWTAction(BaseAction):
             resources = base_evaluation.get_most_frequent_resources(task)
             for day in days:
                 for resource in resources:
-                    calendar = store.current_timetable.get_resource_calendar(resource)
+                    calendar = store.current_timetable.get_calendar_for_resource(
+                        resource
+                    )
                     if calendar is None:
                         continue
                     periods = calendar.get_periods_for_day(day)

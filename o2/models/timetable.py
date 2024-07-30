@@ -18,7 +18,8 @@ from typing import (
 )
 
 from dataclass_wizard import JSONWizard
-from optimos_v2.o2.util.bit_mask_helper import get_ranges_from_bitmask
+
+from o2.util.bit_mask_helper import any_has_overlap, get_ranges_from_bitmask
 
 if TYPE_CHECKING:
     from o2.models.rule_selector import RuleSelector
@@ -26,7 +27,7 @@ if TYPE_CHECKING:
 import operator
 
 from o2.models.constraints import BATCH_TYPE, RULE_TYPE, SizeRuleConstraints
-from o2.models.days import DAY, DAYS, day_range
+from o2.models.days import DAY, DAYS, day_range, is_day_in_range
 
 
 class COMPARATOR(str, Enum):
@@ -126,6 +127,22 @@ class TimePeriod(JSONWizard):
         return int(self.begin_time.split(":")[1])
 
     @property
+    def begin_time_second(self) -> int:
+        """Get the start time second."""
+        spited = self.begin_time.split(":")
+        if len(spited) == 3:
+            return int(spited[2])
+        return 0
+
+    @property
+    def end_time_second(self) -> int:
+        """Get the end time second."""
+        spited = self.end_time.split(":")
+        if len(spited) == 3:
+            return int(spited[2])
+        return 0
+
+    @property
     def end_time_minute(self) -> int:
         """Get the end time minute."""
         return int(self.end_time.split(":")[1])
@@ -146,15 +163,15 @@ class TimePeriod(JSONWizard):
         return self._modify(add_start=-hours, add_end=hours)
 
     def _modify(self, add_start: int = 0, add_end: int = 0):
-        new_begin = self.begin_time_hour + add_start
+        new_begin = self.begin_time_hour - add_start
         new_end = self.end_time_hour + add_end
         if new_begin < 0 or new_begin >= 24 or new_end < 0 or new_end >= 24:
             raise ValueError("Out of bounds")
 
         return replace(
             self,
-            begin_time=f"{new_begin:02}:{self.begin_time_minute}",
-            end_time=f"{new_end:02}:{self.end_time_minute}",
+            begin_time=f"{new_begin:02}:{self.begin_time_minute:02}:{self.begin_time_second:02}",
+            end_time=f"{new_end:02}:{self.end_time_minute:02}:{self.end_time_second:02}",
         )
 
     def split_by_day(self) -> List["TimePeriod"]:
@@ -167,8 +184,20 @@ class TimePeriod(JSONWizard):
         ]
 
     def to_bitmask(self) -> int:
-        """Get a bitmask for the time period."""
-        return sum(1 << i for i in range(self.begin_time_hour, self.end_time_hour))
+        """Get a bitmask for the time period.
+
+        Each bit represents an hour in the day.
+        The left most bit represents the first hour of the day.
+        The right most bit represents the last hour of the day.
+        Of course this only includes one day.
+        """
+        bitarray = [0] * 24
+        end = self.end_time_hour
+        if self.end_time_minute > 0 or self.end_time_second > 0:
+            end += 1
+        for i in range(self.begin_time_hour, end):
+            bitarray[i] = 1
+        return int("".join(map(str, bitarray)), 2)
 
     @staticmethod
     def from_bitmask(bitmask: int, day: DAY) -> List["TimePeriod"]:
@@ -183,6 +212,17 @@ class TimePeriod(JSONWizard):
             )
             for start, end in hour_ranges
         ]
+
+    @staticmethod
+    def from_start_end(start: int, end: int, day: DAY = DAY.MONDAY) -> "TimePeriod":
+        return TimePeriod(
+            from_=day,
+            to=day,
+            begin_time=f"{start:02}:00:00",
+            end_time=f"{end:02}:00:00",
+        )
+
+    ALL_DAY_BITMASK = 0b111111111111111111111111
 
 
 @dataclass(frozen=True)
@@ -230,7 +270,7 @@ class ResourceCalendar(JSONWizard):
                     return False
 
             bitmasks = [tp.to_bitmask() for tp in time_periods]
-            if reduce(operator.or_, bitmasks, False):
+            if any_has_overlap(bitmasks):
                 return False
         return True
 
@@ -281,12 +321,31 @@ class ResourceCalendar(JSONWizard):
         self, time_period_index: int, time_period: TimePeriod
     ) -> "ResourceCalendar":
         """Replace a time period. Returns a new ResourceCalendar."""
-        time_periods = (
-            self.time_periods[:time_period_index]
-            + [time_period]
-            + self.time_periods[time_period_index + 1 :]
-        )
-        return replace(self, time_periods=time_periods)
+        old_time_period = self.time_periods[time_period_index]
+        if (
+            old_time_period.from_ != time_period.from_
+            or old_time_period.to != time_period.to
+        ):
+            # If the days are different, we need to split the time
+            # periods by day, and only replace the time period
+            # for the correct day.
+            new_time_periods = time_period.split_by_day()
+            old_time_periods = old_time_period.split_by_day()
+
+            combined_time_periods = new_time_periods + [
+                tp
+                for tp in old_time_periods
+                if not is_day_in_range(tp.from_, time_period.from_, time_period.to)
+            ]
+
+            return replace(self, time_periods=combined_time_periods)
+        else:
+            return replace(
+                self,
+                time_periods=self.time_periods[:time_period_index]
+                + [time_period]
+                + self.time_periods[time_period_index + 1 :],
+            )
 
 
 @dataclass(frozen=True)
@@ -470,16 +529,40 @@ class TimetableType(JSONWizard):
             ),
         )
 
-    def get_resource_calendar(self, resource_id: str) -> Optional[ResourceCalendar]:
-        """Get a resource calendar by resource id."""
-        return next(
-            (
-                resource_calendar
-                for resource_calendar in self.resource_calendars
-                if resource_calendar.id == resource_id
-            ),
-            None,
-        )
+    def get_resource(self, resource_name: str) -> Optional[Resource]:
+        """Get resource (from resource_profiles) with the given name.
+
+        Looks through all resource profiles and returns the first resource,
+        that matches the given id.
+        """
+        for resource_profile in self.resource_profiles:
+            for resource in resource_profile.resource_list:
+                if resource.name == resource_name:
+                    return resource
+        return None
+
+    def get_resource_calendar_id(self, resource_id: str) -> Optional[str]:
+        """Get the resource calendar id for a resource."""
+        resource = self.get_resource(resource_id)
+        if resource is None:
+            return None
+        return resource.calendar
+
+    def get_calendar_for_resource(
+        self, resource_name: str
+    ) -> Optional[ResourceCalendar]:
+        """Get a resource calendar by resource name."""
+        calendar_id = self.get_resource_calendar_id(resource_name)
+        if calendar_id is None:
+            return None
+        return self.get_calendar(calendar_id)
+
+    def get_calendar(self, calendar_id: str) -> Optional[ResourceCalendar]:
+        """Get a resource calendar by calendar id."""
+        for resource_calendar in self.resource_calendars:
+            if resource_calendar.id == calendar_id:
+                return resource_calendar
+        return None
 
     def replace_resource_calendar(
         self, new_calendar: ResourceCalendar
