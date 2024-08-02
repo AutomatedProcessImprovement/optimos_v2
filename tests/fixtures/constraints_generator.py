@@ -1,6 +1,8 @@
 import io
-from typing import Optional
 import xml.etree.ElementTree as ElementTree
+from typing import Optional
+
+from o2.models.timetable import TimePeriod
 
 from o2.models.constraints import (
     BATCH_TYPE,
@@ -18,7 +20,6 @@ from o2.models.legacy_constraints import (
     ResourceConstraints,
     WorkMasks,
 )
-from optimos_v2.o2.models.timetable import TimePeriod
 from tests.fixtures.timetable_generator import TimetableGenerator
 
 

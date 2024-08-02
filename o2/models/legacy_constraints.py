@@ -6,10 +6,9 @@ from typing import TYPE_CHECKING, List, Optional, TypedDict, Union
 from dataclass_wizard import JSONWizard
 
 from o2.models.days import DAY
-from o2.models.timetable import TimetableType
 
 if TYPE_CHECKING:
-    from o2.models.timetable import ResourceCalendar
+    from o2.models.timetable import ResourceCalendar, TimetableType
 
 
 @dataclass(frozen=True)

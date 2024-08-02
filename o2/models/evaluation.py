@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Counter
 import pandas as pd
 
 from o2.simulation_runner import Log
-from optimos_v2.o2.models.days import DAY
+from o2.models.days import DAY
 
 if TYPE_CHECKING:
     from o2.store import Store

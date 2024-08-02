@@ -8,9 +8,9 @@ from o2.models.timetable import TimetableType
 
 
 def main():
-    timetable_path = "examples/purchase_timetable.json"
-    constraints_path = "examples/purchase_constraints.json"
-    bpmn_path = "examples/purchase.bpmn"
+    timetable_path = "examples/demo/timetable.json"
+    constraints_path = "examples/demo/constraints.json"
+    bpmn_path = "examples/demo/model.bpmn"
 
     with open(timetable_path, "r") as f:
         timetable = TimetableType.from_dict(json.load(f))

@@ -1,5 +1,5 @@
 import hashlib
-from dataclasses import asdict, dataclass, replace
+from dataclasses import Field, asdict, dataclass, field, replace
 from enum import Enum
 from functools import reduce
 from itertools import groupby
@@ -111,6 +111,8 @@ class TimePeriod(JSONWizard):
             "__all__": True,
         }
 
+    ALL_DAY_BITMASK = 0b111111111111111111111111
+
     @property
     def begin_time_hour(self) -> int:
         """Get the start time hour."""
@@ -147,15 +149,15 @@ class TimePeriod(JSONWizard):
         """Get the end time minute."""
         return int(self.end_time.split(":")[1])
 
-    def add_hours_before(self, hours: int) -> "TimePeriod":
+    def add_hours_before(self, hours: int) -> Optional["TimePeriod"]:
         """Get new TimePeriod with hours added before."""
         return self._modify(add_start=hours)
 
-    def add_hours_after(self, hours: int) -> "TimePeriod":
+    def add_hours_after(self, hours: int) -> Optional["TimePeriod"]:
         """Get new TimePeriod with hours added after."""
         return self._modify(add_end=hours)
 
-    def shift_hours(self, hours: int) -> "TimePeriod":
+    def shift_hours(self, hours: int) -> Optional["TimePeriod"]:
         """Get new TimePeriod with hours shifted.
 
         If hours is positive, the period is shifted forward.
@@ -166,7 +168,7 @@ class TimePeriod(JSONWizard):
         new_begin = self.begin_time_hour - add_start
         new_end = self.end_time_hour + add_end
         if new_begin < 0 or new_begin >= 24 or new_end < 0 or new_end >= 24:
-            raise ValueError("Out of bounds")
+            return None
 
         return replace(
             self,
@@ -199,6 +201,11 @@ class TimePeriod(JSONWizard):
             bitarray[i] = 1
         return int("".join(map(str, bitarray)), 2)
 
+    def __str__(self) -> str:
+        return (
+            f"TimePeriod({self.from_},{self.begin_time} -> {self.to},{self.end_time})"
+        )
+
     @staticmethod
     def from_bitmask(bitmask: int, day: DAY) -> List["TimePeriod"]:
         """Create a time period from a bitmask."""
@@ -221,8 +228,6 @@ class TimePeriod(JSONWizard):
             begin_time=f"{start:02}:00:00",
             end_time=f"{end:02}:00:00",
         )
-
-    ALL_DAY_BITMASK = 0b111111111111111111111111
 
 
 @dataclass(frozen=True)
@@ -346,6 +351,14 @@ class ResourceCalendar(JSONWizard):
                 + [time_period]
                 + self.time_periods[time_period_index + 1 :],
             )
+
+    def __str__(self) -> str:
+        """Get a string representation of the calendar."""
+        return (
+            f"ResourceCalendar(id={self.id},\n"
+            + ",\t\n".join(map(str, self.time_periods))
+            + "\t\n)"
+        )
 
 
 @dataclass(frozen=True)
@@ -506,7 +519,7 @@ class TimetableType(JSONWizard):
     task_resource_distribution: List[TaskResourceDistributions]
     resource_calendars: List[ResourceCalendar]
     event_distribution: EventDistribution
-    batch_processing: List[BatchingRule]
+    batch_processing: List[BatchingRule] = field(default_factory=list)
     start_time: str = "2000-01-01T00:00:00Z"
     total_cases: int = 1000
 

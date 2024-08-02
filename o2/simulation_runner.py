@@ -16,6 +16,8 @@ from wta import (
     convert_timestamp_columns_to_datetime,
 )
 
+from o2.constants import WRITE_EVENT_LOGS
+
 Log: TypeAlias = Collection[Event]
 
 if TYPE_CHECKING:
@@ -88,10 +90,11 @@ class SimulationRunner:
         run_simpy_simulation(setup, statsWriter, logWriter)
         logStringIO.seek(0)
 
-        with open(f"logs/log-{time.time()}.csv", "w") as f:
-            f.write(logStringIO.getvalue())
+        if WRITE_EVENT_LOGS:
+            with open(f"logs/log-{time.time()}.csv", "w") as f:
+                logStringIO.seek(0)
+                f.write(logStringIO.getvalue())
 
-        logStringIO.seek(0)
         statsStringIO.seek(0)
         log = list(
             read_and_merge_csv_logs(

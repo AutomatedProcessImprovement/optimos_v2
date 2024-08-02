@@ -5,10 +5,9 @@ from typing import TYPE_CHECKING, List, TypeGuard, Union
 from dataclass_wizard import JSONWizard
 
 from o2.models.days import DAY
-from o2.models.evaluation import Evaluation
+from o2.models.legacy_constraints import ConstraintsResourcesItem
 
 if TYPE_CHECKING:
-    from o2.models.legacy_constraints import ConstraintsResourcesItem
     from o2.models.timetable import TimetableType
 
 
@@ -130,7 +129,7 @@ class ConstraintsType(JSONWizard):
         ]
     ] = field(default_factory=list)
     # Legacy Optimos constraints
-    resources: List["ConstraintsResourcesItem"] = field(default_factory=list)
+    resources: List[ConstraintsResourcesItem] = field(default_factory=list)
     """Legacy Optimos Constraint: Resource Constraints"""
     max_cap: int = 9999999
     """Legacy Optimos Constraint: Max number of hours a resource can work in a week"""

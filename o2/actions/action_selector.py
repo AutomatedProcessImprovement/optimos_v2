@@ -2,8 +2,14 @@ import concurrent.futures
 import os
 from typing import Optional, Type
 
+from o2.util.indented_printer import print_l1, print_l2
+
+from o2.actions.add_week_day_rule_action import AddWeekDayRuleAction
 from o2.actions.base_action import BaseAction
+from o2.actions.modify_calendar_by_wt_action import ModifyCalendarByWTAction
+from o2.actions.modify_daily_hour_rule_action import ModifyDailyHourRuleAction
 from o2.actions.modify_large_wt_rule_action import ModifyLargeWtRuleAction
+from o2.actions.modify_ready_wt_rule_action import ModifyReadyWtRuleAction
 from o2.actions.modify_size_rule_action import (
     ModifySizeRuleAction,
 )
@@ -11,6 +17,7 @@ from o2.actions.remove_rule_action import (
     RemoveRuleAction,
     RemoveRuleActionParamsType,
 )
+from o2.constants import OPTIMOS_LEGACY_MODE
 from o2.models.constraints import RULE_TYPE
 from o2.models.evaluation import Evaluation
 from o2.models.rule_selector import RuleSelector
@@ -20,10 +27,19 @@ from o2.pareto_front import FRONT_STATUS
 from o2.store import Store
 
 ACTION_CATALOG: list[Type[BaseAction]] = [
+    AddWeekDayRuleAction,
+    ModifyCalendarByWTAction,
+    ModifyDailyHourRuleAction,
     ModifyLargeWtRuleAction,
+    ModifyReadyWtRuleAction,
     ModifySizeRuleAction,
     RemoveRuleAction,
 ]
+
+if OPTIMOS_LEGACY_MODE:
+    ACTION_CATALOG = [
+        ModifyCalendarByWTAction,
+    ]
 
 # TODO: Try out multiple Actions at once
 
@@ -38,10 +54,11 @@ class ActionSelector:
 
         rating_input = SelfRatingInput.from_rule_evaluations(store, evaluations)
         if rating_input is None:
-            print("\t> No rules left...")
-            return None
+            rating_input = SelfRatingInput.from_base_evaluation(
+                store.current_fastest_evaluation
+            )
 
-        print("\t> Choosing best action...")
+        print_l1("Choosing best action...")
         # Get a list of rated, possible actions
         possible_actions = [
             Action.rate_self(store, rating_input) for Action in ACTION_CATALOG
@@ -56,13 +73,14 @@ class ActionSelector:
         ]
 
         if len(possible_actions) == 0:
-            print("\t> No actions remaining, after removing Tabu & N/A actions...")
+            print_l1("No actions remaining, after removing Tabu & N/A actions...")
             return None
 
         rating, best_action = max(possible_actions, key=lambda x: x[0])
         if rating == 0:
             return None
-        print(f"\t> Chose {best_action} with Rating: {rating}")
+        print_l1(f"Chose with Rating: {rating}:")
+        print_l2(str(best_action))
         return best_action
 
     # Removes every firing rule individually and evaluates the new state
@@ -88,6 +106,10 @@ class ActionSelector:
         #     for i, rule in enumerate(batching_rules)
         #     if rule.can_be_modified(store, -1) and rule.id() not in tabu_indices
         # ]
+
+        if OPTIMOS_LEGACY_MODE:
+            # Disable rule evaluation in legacy mode
+            return {}
 
         firing_rule_selectors = [
             RuleSelector(rule.task_id, (or_index, and_index))
@@ -138,7 +160,7 @@ class ActionSelector:
                     # TODO Fix Type
                     evaluations[action.params["rule"]] = evaluation  # type: ignore
                 except Exception as e:
-                    print(f"\t> Error in future: {e}")
+                    print_l1(f"Error in future: {e}")
                     continue
 
         return evaluations

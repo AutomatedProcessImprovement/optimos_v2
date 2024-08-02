@@ -3,16 +3,21 @@ from typing import Literal, Optional
 
 from o2.actions.base_action import BaseAction, BaseActionParamsType
 from o2.models.constraints import ConstraintsType
+from o2.models.days import DAY
 from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.state import State
 from o2.models.timetable import ResourceCalendar, TimetableType
 from o2.store import Store
+from o2.util.indented_printer import print_l2
 
 
 class ModifyCalendarByWTActionParamsType(BaseActionParamsType):
     """Parameter for `ModifyCalendarByWTAction`."""
 
-    updated_calendar: ResourceCalendar
+    calendar_id: str
+    period_index: int
+    shift_hours: int
+    add_hours_before: int
 
 
 @dataclass(frozen=True)
@@ -34,12 +39,28 @@ class ModifyCalendarByWTAction(BaseAction):
 
     def apply(self, state: State, enable_prints: bool = True) -> State:
         """Create a copy of the timetable with the rule removed."""
-        return replace(
-            state,
-            timetable=state.timetable.replace_resource_calendar(
-                self.params["updated_calendar"]
-            ),
-        )
+        calendar_id = self.params["calendar_id"]
+        period_index = self.params["period_index"]
+
+        calendar = state.timetable.get_calendar(calendar_id)
+        assert calendar is not None
+
+        period = calendar.time_periods[period_index]
+        if self.params["shift_hours"] > 0:
+            new_period = period.shift_hours(self.params["shift_hours"])
+        else:
+            new_period = period.add_hours_before(self.params["add_hours_before"])
+
+        if new_period is None:
+            return state
+
+        if enable_prints:
+            print_l2(f"Modification Made:{period} to {new_period}")
+
+        new_calendar = calendar.replace_time_period(period_index, new_period)
+        new_timetable = state.timetable.replace_resource_calendar(new_calendar)
+
+        return replace(state, timetable=new_timetable)
 
     @staticmethod
     def rate_self(
@@ -61,35 +82,51 @@ class ModifyCalendarByWTAction(BaseAction):
                     if calendar is None:
                         continue
                     periods = calendar.get_periods_for_day(day)
-                    for index, period in enumerate(periods):
+                    for period in periods:
+                        index = calendar.time_periods.index(period)
                         # Try to add hours to the start of the shift
                         new_period = period.add_hours_before(1)
+                        if new_period is None:
+                            continue
                         new_calendar = calendar.replace_time_period(index, new_period)
-                        action = ModifyCalendarByWTAction._verify_and_build_action(
-                            store, new_calendar
-                        )
-                        if action is not None:
-                            return RATING.EXTREME, action
+                        valid = ModifyCalendarByWTAction._verify(store, new_calendar)
+                        if valid:
+                            return RATING.EXTREME, ModifyCalendarByWTAction(
+                                ModifyCalendarByWTActionParamsType(
+                                    calendar_id=calendar.id,
+                                    period_index=index,
+                                    add_hours_before=1,
+                                    shift_hours=0,
+                                )
+                            )
 
                         # Try to shift the shift to start earlier
                         new_period = period.shift_hours(-1)
+                        if new_period is None:
+                            continue
                         new_calendar = calendar.replace_time_period(index, new_period)
-                        action = ModifyCalendarByWTAction._verify_and_build_action(
-                            store, new_calendar
-                        )
-                        if action is not None:
-                            return RATING.EXTREME, action
+                        valid = ModifyCalendarByWTAction._verify(store, new_calendar)
+                        if valid:
+                            return RATING.EXTREME, ModifyCalendarByWTAction(
+                                ModifyCalendarByWTActionParamsType(
+                                    calendar_id=calendar.id,
+                                    period_index=index,
+                                    add_hours_before=0,
+                                    shift_hours=1,
+                                )
+                            )
 
         return RATING.NOT_APPLICABLE, None
 
     @staticmethod
-    def _verify_and_build_action(
-        store: Store,
-        new_calendar: ResourceCalendar,
-    ) -> Optional["ModifyCalendarByWTAction"]:
+    def _verify(store: Store, new_calendar: ResourceCalendar) -> bool:
         if not new_calendar.is_valid():
-            return None
+            return False
         new_timetable = store.current_timetable.replace_resource_calendar(new_calendar)
-        if not store.constraints.verify_legacy_constraints(new_timetable):
-            return None
-        return ModifyCalendarByWTAction(params={"updated_calendar": new_calendar})
+        return store.constraints.verify_legacy_constraints(new_timetable)
+
+    def __str__(self) -> str:
+        """Return a string representation of the action."""
+        if self.params["shift_hours"] > 0:
+            return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['period_index']}) -- Shift {self.params['shift_hours']} hours)"  # noqa: E501
+        return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['period_index']}) -- Add {self.params['add_hours_before']} hours before)"  # noqa: E501

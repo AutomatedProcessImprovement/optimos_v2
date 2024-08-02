@@ -9,8 +9,7 @@ from o2.models.rule_selector import RuleSelector
 from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.timetable import ResourceCalendar, TimePeriod
 from o2.store import Store
-from optimos_v2.o2.models.legacy_constraints import ConstraintsResourcesItem
-from optimos_v2.o2.models.state import State
+from o2.models.state import State
 from tests.fixtures.constraints_generator import ConstraintsGenerator
 from tests.fixtures.timetable_generator import TimetableGenerator
 
