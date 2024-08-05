@@ -16,6 +16,7 @@ class ModifyCalendarByWTActionParamsType(BaseActionParamsType):
 
     calendar_id: str
     period_index: int
+    day: DAY
     shift_hours: int
     add_hours_before: int
 
@@ -41,15 +42,21 @@ class ModifyCalendarByWTAction(BaseAction):
         """Create a copy of the timetable with the rule removed."""
         calendar_id = self.params["calendar_id"]
         period_index = self.params["period_index"]
+        day = self.params["day"]
 
         calendar = state.timetable.get_calendar(calendar_id)
         assert calendar is not None
 
         period = calendar.time_periods[period_index]
-        if self.params["shift_hours"] > 0:
-            new_period = period.shift_hours(self.params["shift_hours"])
+        fixed_day_period = replace(period, from_=period.from_, to=day)
+        if self.params["shift_hours"] != 0:
+            new_period = fixed_day_period.shift_hours(self.params["shift_hours"])
+        elif self.params["add_hours_before"] != 0:
+            new_period = fixed_day_period.add_hours_before(
+                self.params["add_hours_before"]
+            )
         else:
-            new_period = period.add_hours_before(self.params["add_hours_before"])
+            return state
 
         if new_period is None:
             return state
@@ -81,11 +88,15 @@ class ModifyCalendarByWTAction(BaseAction):
                     )
                     if calendar is None:
                         continue
-                    periods = calendar.get_periods_for_day(day)
+                    periods = calendar.get_periods_containing_day(day)
                     for period in periods:
                         index = calendar.time_periods.index(period)
+                        # We need to fix the day period to not change
+                        # change the times of other days
+                        fixed_day_period = replace(period, from_=day, to=day)
+
                         # Try to add hours to the start of the shift
-                        new_period = period.add_hours_before(1)
+                        new_period = fixed_day_period.add_hours_before(1)
                         if new_period is None:
                             continue
                         new_calendar = calendar.replace_time_period(index, new_period)
@@ -95,13 +106,14 @@ class ModifyCalendarByWTAction(BaseAction):
                                 ModifyCalendarByWTActionParamsType(
                                     calendar_id=calendar.id,
                                     period_index=index,
+                                    day=day,
                                     add_hours_before=1,
                                     shift_hours=0,
                                 )
                             )
 
                         # Try to shift the shift to start earlier
-                        new_period = period.shift_hours(-1)
+                        new_period = fixed_day_period.shift_hours(-1)
                         if new_period is None:
                             continue
                         new_calendar = calendar.replace_time_period(index, new_period)
@@ -111,6 +123,7 @@ class ModifyCalendarByWTAction(BaseAction):
                                 ModifyCalendarByWTActionParamsType(
                                     calendar_id=calendar.id,
                                     period_index=index,
+                                    day=day,
                                     add_hours_before=0,
                                     shift_hours=1,
                                 )
@@ -128,5 +141,5 @@ class ModifyCalendarByWTAction(BaseAction):
     def __str__(self) -> str:
         """Return a string representation of the action."""
         if self.params["shift_hours"] > 0:
-            return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['period_index']}) -- Shift {self.params['shift_hours']} hours)"  # noqa: E501
-        return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['period_index']}) -- Add {self.params['add_hours_before']} hours before)"  # noqa: E501
+            return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['day']}) -- Shift {self.params['shift_hours']} hours)"  # noqa: E501
+        return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['day']}) -- Add {self.params['add_hours_before']} hours before)"  # noqa: E501

@@ -294,6 +294,10 @@ class ResourceCalendar(JSONWizard):
         """Get the time periods for a specific day."""
         return [tp for tp in self.split_time_periods_by_day() if tp.from_ == day]
 
+    def get_periods_containing_day(self, day: DAY) -> List[TimePeriod]:
+        """Get the time periods that contain a specific day."""
+        return [tp for tp in self.time_periods if is_day_in_range(day, tp.from_, tp.to)]
+
     @property
     def total_hours(self) -> int:
         """Get the total number of hours in the calendar."""

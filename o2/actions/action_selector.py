@@ -2,8 +2,6 @@ import concurrent.futures
 import os
 from typing import Optional, Type
 
-from o2.util.indented_printer import print_l1, print_l2
-
 from o2.actions.add_week_day_rule_action import AddWeekDayRuleAction
 from o2.actions.base_action import BaseAction
 from o2.actions.modify_calendar_by_wt_action import ModifyCalendarByWTAction
@@ -25,10 +23,12 @@ from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.state import State
 from o2.pareto_front import FRONT_STATUS
 from o2.store import Store
+from o2.util.indented_printer import print_l1, print_l2
 
 ACTION_CATALOG: list[Type[BaseAction]] = [
     AddWeekDayRuleAction,
-    ModifyCalendarByWTAction,
+    # TODO Disabled for now for tests
+    # ModifyCalendarByWTAction,
     ModifyDailyHourRuleAction,
     ModifyLargeWtRuleAction,
     ModifyReadyWtRuleAction,
