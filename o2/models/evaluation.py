@@ -47,6 +47,10 @@ class Evaluation:
             "Name"
         ].tolist()
 
+    def get_task_names_sorted_by_idle_time_desc(self) -> list[str]:
+        """Get a list of task names sorted by the average idle time in desc order."""
+        return self.df.sort_values(by="Avg Idle Time", ascending=False)["Name"].tolist()
+
     def _get_log_entries_for_task(self, task_name: str):
         return filter(lambda log_entry: log_entry.activity == task_name, self.log)
 

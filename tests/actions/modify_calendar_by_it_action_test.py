@@ -1,5 +1,5 @@
-from o2.actions.modify_calendar_by_wt_action import (
-    ModifyCalendarByWTAction,
+from o2.actions.modify_calendar_by_it_action import (
+    ModifyCalendarByITAction,
 )
 from o2.models.days import DAY
 from o2.models.self_rating import SelfRatingInput
@@ -17,7 +17,7 @@ def test_action_creation_simple_addition(one_task_store: Store):
     evaluation, _ = one_task_store.evaluate()
     input = SelfRatingInput.from_base_evaluation(evaluation)
 
-    rating, action = ModifyCalendarByWTAction.rate_self(one_task_store, input)
+    rating, action = ModifyCalendarByITAction.rate_self(one_task_store, input)
 
     assert action is not None
     assert action.params["add_hours_before"] == 1
@@ -41,7 +41,7 @@ def test_action_creation_simple_shift(one_task_store: Store):
     evaluation, _ = one_task_store.evaluate()
     input = SelfRatingInput.from_base_evaluation(evaluation)
 
-    rating, action = ModifyCalendarByWTAction.rate_self(one_task_store, input)
+    rating, action = ModifyCalendarByITAction.rate_self(one_task_store, input)
 
     assert action is not None
     assert action.params["shift_hours"] == 1
@@ -56,7 +56,7 @@ def test_other_days_not_affected(one_task_store: Store):
     evaluation, _ = one_task_store.evaluate()
     input = SelfRatingInput.from_base_evaluation(evaluation)
 
-    rating, action = ModifyCalendarByWTAction.rate_self(one_task_store, input)
+    rating, action = ModifyCalendarByITAction.rate_self(one_task_store, input)
     assert action is not None
     one_task_store.apply_action(action)
     new_calendar = one_task_store.state.timetable.get_calendar(

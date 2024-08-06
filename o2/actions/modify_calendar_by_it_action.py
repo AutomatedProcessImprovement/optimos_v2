@@ -1,28 +1,27 @@
 from dataclasses import dataclass, replace
 from typing import Literal
 
-from optimos_v2.o2.actions.modify_calendar_base_action import (
+from o2.actions.modify_calendar_base_action import (
     ModifyCalendarBaseAction,
     ModifyCalendarBaseActionParamsType,
 )
-
 from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.timetable import ResourceCalendar
 from o2.store import Store
 
 
-class ModifyCalendarByWTActionParamsType(ModifyCalendarBaseActionParamsType):
-    """Parameter for `ModifyCalendarByWTAction`."""
+class ModifyCalendarByITActionParamsType(ModifyCalendarBaseActionParamsType):
+    """Parameter for `ModifyCalendarByITAction`."""
 
 
 @dataclass(frozen=True)
-class ModifyCalendarByWTAction(ModifyCalendarBaseAction):
-    """`ModifyCalendarByWTAction` will modify the resource calendars based on wt.
+class ModifyCalendarByITAction(ModifyCalendarBaseAction):
+    """`ModifyCalendarByITAction` will modify the resource calendars based on wt.
 
     This action is based on the original optimos implementation,
-    see `solution_traces_sorting_by_waiting_times` in that project.
+    see `solution_traces_sorting_by_idle_times` in that project.
 
-    It will first find the tasks with the most waiting time, then find the days where
+    It will first find the tasks with the most idle time, then find the days where
     those are executed the most, and then find the resources
     that does this task the most. (Although not for that day, as it was in Optimos).
     Then it will look at the resource calendars for those resources on those days,
@@ -35,10 +34,10 @@ class ModifyCalendarByWTAction(ModifyCalendarBaseAction):
         store: Store, input: SelfRatingInput
     ) -> (
         tuple[Literal[RATING.NOT_APPLICABLE], None]
-        | tuple[RATING, "ModifyCalendarByWTAction"]
+        | tuple[RATING, "ModifyCalendarByITAction"]
     ):
         base_evaluation = input.base_evaluation
-        tasks = base_evaluation.get_task_names_sorted_by_waiting_time_desc()
+        tasks = base_evaluation.get_task_names_sorted_by_idle_time_desc()
         for task in tasks:
             days = base_evaluation.get_most_frequent_enablement_weekdays(task)
             resources = base_evaluation.get_most_frequent_resources(task)
@@ -61,10 +60,10 @@ class ModifyCalendarByWTAction(ModifyCalendarBaseAction):
                         if new_period is None:
                             continue
                         new_calendar = calendar.replace_time_period(index, new_period)
-                        valid = ModifyCalendarByWTAction._verify(store, new_calendar)
+                        valid = ModifyCalendarByITAction._verify(store, new_calendar)
                         if valid:
-                            return RATING.EXTREME, ModifyCalendarByWTAction(
-                                ModifyCalendarByWTActionParamsType(
+                            return RATING.EXTREME, ModifyCalendarByITAction(
+                                ModifyCalendarByITActionParamsType(
                                     calendar_id=calendar.id,
                                     period_index=index,
                                     day=day,
@@ -78,10 +77,10 @@ class ModifyCalendarByWTAction(ModifyCalendarBaseAction):
                         if new_period is None:
                             continue
                         new_calendar = calendar.replace_time_period(index, new_period)
-                        valid = ModifyCalendarByWTAction._verify(store, new_calendar)
+                        valid = ModifyCalendarByITAction._verify(store, new_calendar)
                         if valid:
-                            return RATING.EXTREME, ModifyCalendarByWTAction(
-                                ModifyCalendarByWTActionParamsType(
+                            return RATING.EXTREME, ModifyCalendarByITAction(
+                                ModifyCalendarByITActionParamsType(
                                     calendar_id=calendar.id,
                                     period_index=index,
                                     day=day,
