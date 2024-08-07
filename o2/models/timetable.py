@@ -68,6 +68,13 @@ class Resource(JSONWizard):
     calendar: str
     assigned_tasks: List[str]
 
+    def get_total_cost(self, timetable: "TimetableType") -> int:
+        """Get the total cost of the resource."""
+        calendar = timetable.get_calendar(self.calendar)
+        if calendar is None:
+            return 0
+        return self.cost_per_hour * calendar.total_hours
+
 
 @dataclass(frozen=True)
 class ResourcePool(JSONWizard):
@@ -149,6 +156,16 @@ class TimePeriod(JSONWizard):
         """Get the end time minute."""
         return int(self.end_time.split(":")[1])
 
+    @property
+    def duration(self) -> int:
+        """Get the duration of the time period in hours."""
+        return self.end_time_hour - self.begin_time_hour
+
+    @property
+    def is_empty(self) -> bool:
+        """Check if the time period is empty."""
+        return self.begin_time == self.end_time
+
     def add_hours_before(self, hours: int) -> Optional["TimePeriod"]:
         """Get new TimePeriod with hours added before."""
         return self._modify(add_start=hours)
@@ -181,6 +198,8 @@ class TimePeriod(JSONWizard):
 
         Return a list of time periods, one for each day in the range.
         """
+        if self.is_empty:
+            return []
         return [
             replace(self, from_=day, to=day) for day in day_range(self.from_, self.to)
         ]
@@ -227,6 +246,15 @@ class TimePeriod(JSONWizard):
             to=day,
             begin_time=f"{start:02}:00:00",
             end_time=f"{end:02}:00:00",
+        )
+
+    @staticmethod
+    def empty(day: DAY = DAY.MONDAY) -> "TimePeriod":
+        return TimePeriod(
+            from_=day,
+            to=day,
+            begin_time="00:00:00",
+            end_time="00:00:00",
         )
 
 
@@ -301,7 +329,10 @@ class ResourceCalendar(JSONWizard):
     @property
     def total_hours(self) -> int:
         """Get the total number of hours in the calendar."""
-        return sum((tp.end_time_hour - tp.begin_time_hour) for tp in self.time_periods)
+        return sum(
+            (tp.end_time_hour - tp.begin_time_hour)
+            for tp in self.split_time_periods_by_day()
+        )
 
     @property
     def max_consecutive_hours(self) -> int:
@@ -348,13 +379,13 @@ class ResourceCalendar(JSONWizard):
             ]
 
             return replace(self, time_periods=combined_time_periods)
-        else:
-            return replace(
-                self,
-                time_periods=self.time_periods[:time_period_index]
-                + [time_period]
-                + self.time_periods[time_period_index + 1 :],
-            )
+
+        return replace(
+            self,
+            time_periods=self.time_periods[:time_period_index]
+            + [time_period]
+            + self.time_periods[time_period_index + 1 :],
+        )
 
     def __str__(self) -> str:
         """Get a string representation of the calendar."""
@@ -580,6 +611,29 @@ class TimetableType(JSONWizard):
             if resource_calendar.id == calendar_id:
                 return resource_calendar
         return None
+
+    def get_all_resources(self) -> List[Resource]:
+        """Get all resources."""
+        resources = {
+            resource.id: resource
+            for resource_profile in self.resource_profiles
+            for resource in resource_profile.resource_list
+        }
+        return list(resources.values())
+
+    def get_resources_with_cost(self) -> List[tuple[Resource, int]]:
+        """Get all resources with cost. Sorted desc."""
+        return sorted(
+            (
+                (
+                    resource_profile,
+                    resource_profile.get_total_cost(self),
+                )
+                for resource_profile in self.get_all_resources()
+            ),
+            key=operator.itemgetter(1),
+            reverse=True,
+        )
 
     def replace_resource_calendar(
         self, new_calendar: ResourceCalendar

@@ -4,6 +4,10 @@ from typing import Optional, Type
 
 from o2.actions.add_week_day_rule_action import AddWeekDayRuleAction
 from o2.actions.base_action import BaseAction
+from o2.actions.modify_calendar_by_cost_action import (
+    ModifyCalendarByCostAction,
+)
+from o2.actions.modify_calendar_by_it_action import ModifyCalendarByITAction
 from o2.actions.modify_calendar_by_wt_action import ModifyCalendarByWTAction
 from o2.actions.modify_daily_hour_rule_action import ModifyDailyHourRuleAction
 from o2.actions.modify_large_wt_rule_action import ModifyLargeWtRuleAction
@@ -39,6 +43,8 @@ ACTION_CATALOG: list[Type[BaseAction]] = [
 if OPTIMOS_LEGACY_MODE:
     ACTION_CATALOG = [
         ModifyCalendarByWTAction,
+        ModifyCalendarByCostAction,
+        ModifyCalendarByITAction,
     ]
 
 # TODO: Try out multiple Actions at once

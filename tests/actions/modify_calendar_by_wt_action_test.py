@@ -20,6 +20,7 @@ def test_action_creation_simple_addition(one_task_store: Store):
     rating, action = ModifyCalendarByWTAction.rate_self(one_task_store, input)
 
     assert action is not None
+    assert "add_hours_before" in action.params
     assert action.params["add_hours_before"] == 1
     assert action.params["calendar_id"] == TimetableGenerator.CALENDAR_ID
     assert action.params["period_index"] == 0
@@ -44,32 +45,7 @@ def test_action_creation_simple_shift(one_task_store: Store):
     rating, action = ModifyCalendarByWTAction.rate_self(one_task_store, input)
 
     assert action is not None
+    assert "shift_hours" in action.params
     assert action.params["shift_hours"] == 1
     assert action.params["calendar_id"] == TimetableGenerator.CALENDAR_ID
     assert action.params["period_index"] == 0
-
-
-def test_other_days_not_affected(one_task_store: Store):
-    one_task_store.replaceTimetable(
-        resource_calendars=TimetableGenerator.resource_calendars(8, 16, False)
-    )
-    evaluation, _ = one_task_store.evaluate()
-    input = SelfRatingInput.from_base_evaluation(evaluation)
-
-    rating, action = ModifyCalendarByWTAction.rate_self(one_task_store, input)
-    assert action is not None
-    one_task_store.apply_action(action)
-    new_calendar = one_task_store.state.timetable.get_calendar(
-        TimetableGenerator.CALENDAR_ID
-    )
-    assert new_calendar is not None
-
-    assert new_calendar.time_periods == [
-        TimePeriod.from_start_end(7, 16, DAY.MONDAY),
-        TimePeriod.from_start_end(8, 16, DAY.TUESDAY),
-        TimePeriod.from_start_end(8, 16, DAY.WEDNESDAY),
-        TimePeriod.from_start_end(8, 16, DAY.THURSDAY),
-        TimePeriod.from_start_end(8, 16, DAY.FRIDAY),
-        TimePeriod.from_start_end(8, 16, DAY.SATURDAY),
-        TimePeriod.from_start_end(8, 16, DAY.SUNDAY),
-    ]

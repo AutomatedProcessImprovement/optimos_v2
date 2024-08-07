@@ -1,11 +1,10 @@
 from dataclasses import dataclass, replace
 from typing import Literal
 
-from optimos_v2.o2.actions.modify_calendar_base_action import (
+from o2.actions.modify_calendar_base_action import (
     ModifyCalendarBaseAction,
     ModifyCalendarBaseActionParamsType,
 )
-
 from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.timetable import ResourceCalendar
 from o2.store import Store
@@ -37,6 +36,7 @@ class ModifyCalendarByWTAction(ModifyCalendarBaseAction):
         tuple[Literal[RATING.NOT_APPLICABLE], None]
         | tuple[RATING, "ModifyCalendarByWTAction"]
     ):
+        """Rate the action based on the input."""
         base_evaluation = input.base_evaluation
         tasks = base_evaluation.get_task_names_sorted_by_waiting_time_desc()
         for task in tasks:
@@ -69,7 +69,6 @@ class ModifyCalendarByWTAction(ModifyCalendarBaseAction):
                                     period_index=index,
                                     day=day,
                                     add_hours_before=1,
-                                    shift_hours=0,
                                 )
                             )
 
@@ -91,16 +90,3 @@ class ModifyCalendarByWTAction(ModifyCalendarBaseAction):
                             )
 
         return RATING.NOT_APPLICABLE, None
-
-    @staticmethod
-    def _verify(store: Store, new_calendar: ResourceCalendar) -> bool:
-        if not new_calendar.is_valid():
-            return False
-        new_timetable = store.current_timetable.replace_resource_calendar(new_calendar)
-        return store.constraints.verify_legacy_constraints(new_timetable)
-
-    def __str__(self) -> str:
-        """Return a string representation of the action."""
-        if self.params["shift_hours"] > 0:
-            return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['day']}) -- Shift {self.params['shift_hours']} hours)"  # noqa: E501
-        return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['day']}) -- Add {self.params['add_hours_before']} hours before)"  # noqa: E501

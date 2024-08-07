@@ -25,8 +25,9 @@ class ModifyCalendarByITAction(ModifyCalendarBaseAction):
     those are executed the most, and then find the resources
     that does this task the most. (Although not for that day, as it was in Optimos).
     Then it will look at the resource calendars for those resources on those days,
-    and first try to add hours to the start of the shifts, and if that is not possible,
-    it will try to shift the shifts to start earlier.
+    and first try to add hours to the end of the shifts, and if that is not possible,
+    it will try to shift the shifts to start later. Finally it will try to add hours
+    to be beginning & start of the shift.
     """
 
     @staticmethod
@@ -36,6 +37,7 @@ class ModifyCalendarByITAction(ModifyCalendarBaseAction):
         tuple[Literal[RATING.NOT_APPLICABLE], None]
         | tuple[RATING, "ModifyCalendarByITAction"]
     ):
+        """Rate the action based on the input."""
         base_evaluation = input.base_evaluation
         tasks = base_evaluation.get_task_names_sorted_by_idle_time_desc()
         for task in tasks:
@@ -55,8 +57,8 @@ class ModifyCalendarByITAction(ModifyCalendarBaseAction):
                         # change the times of other days
                         fixed_day_period = replace(period, from_=day, to=day)
 
-                        # Try to add hours to the start of the shift
-                        new_period = fixed_day_period.add_hours_before(1)
+                        # Try to add hours to the end of the shift
+                        new_period = fixed_day_period.add_hours_after(1)
                         if new_period is None:
                             continue
                         new_calendar = calendar.replace_time_period(index, new_period)
@@ -67,12 +69,11 @@ class ModifyCalendarByITAction(ModifyCalendarBaseAction):
                                     calendar_id=calendar.id,
                                     period_index=index,
                                     day=day,
-                                    add_hours_before=1,
-                                    shift_hours=0,
+                                    add_hours_after=1,
                                 )
                             )
 
-                        # Try to shift the shift to start earlier
+                        # Try to shift the shift to begin later
                         new_period = fixed_day_period.shift_hours(-1)
                         if new_period is None:
                             continue
@@ -84,22 +85,29 @@ class ModifyCalendarByITAction(ModifyCalendarBaseAction):
                                     calendar_id=calendar.id,
                                     period_index=index,
                                     day=day,
-                                    add_hours_before=0,
-                                    shift_hours=1,
+                                    shift_hours=-1,
+                                )
+                            )
+
+                        # Try to add hours to the start & end of the shift
+                        # TODO: Ask whether this shouldn't move up?
+                        new_period = fixed_day_period.add_hours_before(1)
+                        if new_period is None:
+                            continue
+                        new_period = new_period.add_hours_after(1)
+                        if new_period is None:
+                            continue
+                        new_calendar = calendar.replace_time_period(index, new_period)
+                        valid = ModifyCalendarByITAction._verify(store, new_calendar)
+                        if valid:
+                            return RATING.EXTREME, ModifyCalendarByITAction(
+                                ModifyCalendarByITActionParamsType(
+                                    calendar_id=calendar.id,
+                                    period_index=index,
+                                    day=day,
+                                    add_hours_before=1,
+                                    add_hours_after=1,
                                 )
                             )
 
         return RATING.NOT_APPLICABLE, None
-
-    @staticmethod
-    def _verify(store: Store, new_calendar: ResourceCalendar) -> bool:
-        if not new_calendar.is_valid():
-            return False
-        new_timetable = store.current_timetable.replace_resource_calendar(new_calendar)
-        return store.constraints.verify_legacy_constraints(new_timetable)
-
-    def __str__(self) -> str:
-        """Return a string representation of the action."""
-        if self.params["shift_hours"] > 0:
-            return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['day']}) -- Shift {self.params['shift_hours']} hours)"  # noqa: E501
-        return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['day']}) -- Add {self.params['add_hours_before']} hours before)"  # noqa: E501

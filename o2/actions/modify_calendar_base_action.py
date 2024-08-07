@@ -2,12 +2,14 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, replace
 from typing import Literal, Optional
 
+from typing_extensions import NotRequired
+
 from o2.actions.base_action import BaseAction, BaseActionParamsType
 from o2.models.constraints import ConstraintsType
 from o2.models.days import DAY
 from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.state import State
-from o2.models.timetable import ResourceCalendar, TimetableType
+from o2.models.timetable import ResourceCalendar, TimePeriod, TimetableType
 from o2.store import Store
 from o2.util.indented_printer import print_l2
 
@@ -18,8 +20,10 @@ class ModifyCalendarBaseActionParamsType(BaseActionParamsType):
     calendar_id: str
     period_index: int
     day: DAY
-    shift_hours: int
-    add_hours_before: int
+    shift_hours: NotRequired[int]
+    add_hours_before: NotRequired[int]
+    add_hours_after: NotRequired[int]
+    remove_period: NotRequired[bool]
 
 
 @dataclass(frozen=True)
@@ -42,14 +46,16 @@ class ModifyCalendarBaseAction(BaseAction, ABC):
 
         period = calendar.time_periods[period_index]
         fixed_day_period = replace(period, from_=period.from_, to=day)
-        if self.params["shift_hours"] != 0:
-            new_period = fixed_day_period.shift_hours(self.params["shift_hours"])
-        elif self.params["add_hours_before"] != 0:
-            new_period = fixed_day_period.add_hours_before(
-                self.params["add_hours_before"]
-            )
-        else:
-            return state
+
+        new_period = fixed_day_period
+        if "shift_hours" in self.params:
+            new_period = new_period.shift_hours(self.params["shift_hours"])
+        if "add_hours_before" in self.params and new_period is not None:
+            new_period = new_period.add_hours_before(self.params["add_hours_before"])
+        if "add_hours_after" in self.params and new_period is not None:
+            new_period = new_period.add_hours_after(self.params["add_hours_after"])
+        if "remove_period" in self.params and self.params["remove_period"]:
+            new_period = TimePeriod.empty()
 
         if new_period is None:
             return state
@@ -81,6 +87,12 @@ class ModifyCalendarBaseAction(BaseAction, ABC):
 
     def __str__(self) -> str:
         """Return a string representation of the action."""
-        if self.params["shift_hours"] > 0:
+        if "shift_hours" in self.params:
             return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['day']}) -- Shift {self.params['shift_hours']} hours)"  # noqa: E501
-        return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['day']}) -- Add {self.params['add_hours_before']} hours before)"  # noqa: E501
+        elif "add_hours_after" in self.params:
+            return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['day']}) -- Add {self.params['add_hours_after']} hours after)"  # noqa: E501
+        elif "add_hours_before" in self.params:
+            return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['day']}) -- Add {self.params['add_hours_before']} hours before)"  # noqa: E501
+        elif "remove_period" in self.params:
+            return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['day']}) -- Remove)"  # noqa: E501
+        return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['day']}) -- Unknown)"  # noqa: E501

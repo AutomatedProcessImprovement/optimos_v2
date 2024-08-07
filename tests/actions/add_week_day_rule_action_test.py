@@ -8,7 +8,7 @@ from o2.models.days import DAY
 from o2.models.rule_selector import RuleSelector
 from o2.models.self_rating import RATING, SelfRatingInput
 from o2.store import Store
-from optimos_v2.tests.fixtures.constraints_generator import ConstraintsGenerator
+from tests.fixtures.constraints_generator import ConstraintsGenerator
 from tests.fixtures.timetable_generator import TimetableGenerator
 
 
