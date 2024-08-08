@@ -53,6 +53,8 @@ class AddResourceAction(ModifyResourceBaseAction):
                 continue
             if len(resource_profile.resource_list) == 1:
                 resource = resource_profile.resource_list[0]
+                if len(resource.assigned_tasks) == 0:
+                    continue
                 if len(resource.assigned_tasks) == 1:
                     return RATING.HIGH, AddResourceAction(
                         AddResourceActionParamsType(
@@ -80,6 +82,8 @@ class AddResourceAction(ModifyResourceBaseAction):
                 for resource_id in sorted_resources:
                     resource = timetable.get_resource(resource_id)
                     if resource is None:
+                        continue
+                    if len(resource.assigned_tasks) == 0:
                         continue
                     if len(resource.assigned_tasks) == 1:
                         return RATING.HIGH, AddResourceAction(

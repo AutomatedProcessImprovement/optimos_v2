@@ -224,8 +224,7 @@ def test_clone_resource_basic(two_tasks_state: State):
     timetable = state.timetable.clone_resource(
         TimetableGenerator.RESOURCE_ID, [TimetableGenerator.FIRST_ACTIVITY]
     )
-    original = timetable.resource_profiles[1].resource_list[0]
-    clone = timetable.resource_profiles[1].resource_list[1]
+    original, clone = timetable.resource_profiles[1].resource_list
 
     assert clone.is_clone_of(original)
     assert Resource.name_is_clone_of(
@@ -240,7 +239,7 @@ def test_clone_resource_timetable(two_tasks_state: State):
     timetable = state.timetable.clone_resource(
         TimetableGenerator.RESOURCE_ID, [TimetableGenerator.FIRST_ACTIVITY]
     )
-    clone = timetable.resource_profiles[1].resource_list[1]
+    original, clone = timetable.resource_profiles[1].resource_list
 
     assert len(timetable.resource_calendars) == 2
 
@@ -265,8 +264,7 @@ def test_clone_resource_profiles(two_tasks_state: State):
     )
     resource_profile = timetable.get_resource_profile(TimetableGenerator.FIRST_ACTIVITY)
     assert resource_profile is not None
-    original = resource_profile.resource_list[0]
-    clone = resource_profile.resource_list[1]
+    original, clone = resource_profile.resource_list
     assert "_clone_" in clone.id
     assert clone.assigned_tasks == [TimetableGenerator.FIRST_ACTIVITY]
 
@@ -280,8 +278,7 @@ def test_clone_distribution(two_tasks_state: State):
     timetable = state.timetable.clone_resource(
         TimetableGenerator.RESOURCE_ID, [TimetableGenerator.FIRST_ACTIVITY]
     )
-    original = timetable.resource_profiles[1].resource_list[0]
-    clone = timetable.resource_profiles[1].resource_list[1]
+    original, clone = timetable.resource_profiles[1].resource_list
 
     distribution = timetable.get_task_resource_distribution(
         TimetableGenerator.FIRST_ACTIVITY
@@ -346,3 +343,28 @@ def test_remove_task_distribution(two_tasks_state: State):
     assert distribution is not None
     assert len(distribution.resources) == 1
     assert distribution.resources[0].resource_id != TimetableGenerator.RESOURCE_ID
+
+
+def test_remove_task_from_resource(two_tasks_state: State):
+    timetable = two_tasks_state.timetable.clone_resource(
+        TimetableGenerator.RESOURCE_ID,
+        [TimetableGenerator.FIRST_ACTIVITY, TimetableGenerator.SECOND_ACTIVITY],
+    )
+
+    timetable = timetable.remove_task_from_resource(
+        TimetableGenerator.RESOURCE_ID, TimetableGenerator.SECOND_ACTIVITY
+    )
+
+    resource_profile = timetable.get_resource_profile(
+        TimetableGenerator.SECOND_ACTIVITY
+    )
+    assert resource_profile is not None
+    assert len(resource_profile.resource_list) == 1
+
+    profile = timetable.get_resource_profile(TimetableGenerator.FIRST_ACTIVITY)
+    assert profile is not None
+    assert len(profile.resource_list) == 2
+    resource = profile.resource_list[0]
+
+    assert resource.id == TimetableGenerator.RESOURCE_ID
+    assert resource.assigned_tasks == [TimetableGenerator.FIRST_ACTIVITY]

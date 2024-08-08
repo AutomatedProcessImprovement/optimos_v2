@@ -1,6 +1,7 @@
 from dataclasses import replace
 
 import pandas as pd
+from bpdfr_simulation_engine.simulation_stats_calculator import KPIInfo, KPIMap
 
 from o2.models.evaluation import Evaluation
 from o2.models.state import State
@@ -71,6 +72,12 @@ def test_is_in_front(simple_state: State):
 
 
 def __create_evaluation(total_cycle_time, total_cost, total_waiting_time=0):
-    return Evaluation(
-        pd.DataFrame(), [], total_cycle_time, total_cost, total_waiting_time
-    )
+    kpis = KPIMap()
+    kpis.cycle_time = KPIInfo()
+    kpis.cycle_time.total = total_cycle_time
+    kpis.waiting_time = KPIInfo()
+    kpis.waiting_time.total = total_cycle_time
+    cost_kpi = KPIMap()
+    cost_kpi.cost.total = total_cost
+
+    return Evaluation(kpis, {"_": cost_kpi}, {}, None)  # type: ignore

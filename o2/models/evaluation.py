@@ -26,8 +26,17 @@ class Evaluation:
 
     @property
     def total_cost(self) -> float:
-        """Get the total cost of the simulation."""
-        return self.global_kpis.cost.total
+        """Get the total cost of the simulation.
+
+        Because this is not calculated in the simulation, we need to sum up the
+        costs of all tasks.
+        """
+        return sum(
+            map(
+                lambda task_kpi: task_kpi.cost.total,
+                self.task_kpis.values(),
+            )
+        )
 
     @property
     def total_cycle_time(self) -> float:

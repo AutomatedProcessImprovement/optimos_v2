@@ -2,6 +2,7 @@ import concurrent.futures
 import os
 from typing import Optional, Type
 
+from o2.actions.add_resource_action import AddResourceAction
 from o2.actions.add_week_day_rule_action import AddWeekDayRuleAction
 from o2.actions.base_action import BaseAction
 from o2.actions.modify_calendar_by_cost_action import (
@@ -18,7 +19,7 @@ from o2.actions.modify_size_rule_action import (
 from o2.actions.remove_resource_by_cost_action import (
     RemoveResourceByCostAction,
 )
-from o2.actions.remove_resource_by_utilization import (
+from o2.actions.remove_resource_by_utilization_action import (
     RemoveResourceByUtilizationAction,
 )
 from o2.actions.remove_rule_action import (
@@ -46,11 +47,12 @@ ACTION_CATALOG: list[Type[BaseAction]] = [
 
 if OPTIMOS_LEGACY_MODE:
     ACTION_CATALOG = [
-        ModifyCalendarByWTAction,
+        AddResourceAction,
         ModifyCalendarByCostAction,
         ModifyCalendarByITAction,
-        RemoveResourceByUtilizationAction,
+        ModifyCalendarByWTAction,
         RemoveResourceByCostAction,
+        RemoveResourceByUtilizationAction,
     ]
 
 # TODO: Try out multiple Actions at once

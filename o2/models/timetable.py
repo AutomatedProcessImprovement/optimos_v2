@@ -90,6 +90,13 @@ class Resource(JSONWizard):
             assigned_tasks=assigned_tasks,
         )
 
+    def remove_task(self, task_id: str) -> "Resource":
+        """Remove a task from the resource."""
+        return replace(
+            self,
+            assigned_tasks=[task for task in self.assigned_tasks if task != task_id],
+        )
+
     def is_clone_of(self, resource: "Resource") -> bool:
         """Check if the resource is a clone of another resource."""
         match = CLONE_REGEX.match(self.name)
@@ -116,6 +123,16 @@ class ResourcePool(JSONWizard):
                 resource
                 for resource in self.resource_list
                 if resource.id != resource_id
+            ],
+        )
+
+    def update_resource(self, updated_resource: Resource) -> "ResourcePool":
+        """Update a resource in the pool."""
+        return replace(
+            self,
+            resource_list=[
+                updated_resource if updated_resource.id == resource.id else resource
+                for resource in self.resource_list
             ],
         )
 
@@ -440,6 +457,29 @@ class ResourceCalendar(JSONWizard):
     ) -> "ResourceCalendar":
         """Replace a time period. Returns a new ResourceCalendar."""
         old_time_period = self.time_periods[time_period_index]
+
+        if time_period.is_empty:
+            # The old period was only one day long, so we can just remove it
+            if old_time_period.from_ == old_time_period.to:
+                return replace(
+                    self,
+                    time_periods=self.time_periods[:time_period_index]
+                    + self.time_periods[time_period_index + 1 :],
+                )
+            else:
+                # The old period was multiple days long, so we need to split it
+                # and only remove the correct day
+                new_time_periods = [
+                    tp
+                    for tp in old_time_period.split_by_day()
+                    if tp.from_ != time_period.from_
+                ]
+                return replace(
+                    self,
+                    time_periods=self.time_periods[:time_period_index]
+                    + new_time_periods
+                    + self.time_periods[time_period_index + 1 :],
+                )
         if (
             old_time_period.from_ != time_period.from_
             or old_time_period.to != time_period.to
@@ -846,16 +886,12 @@ class TimetableType(JSONWizard):
         if resource is None:
             return self
 
-        new_assigned_tasks = [t for t in resource.assigned_tasks if t != task_id]
-        new_resource = replace(resource, assigned_tasks=new_assigned_tasks)
+        updated_resource = resource.remove_task(task_id)
+
         new_resource_profiles = [
-            replace(
-                resource_profile,
-                resource_list=[
-                    resource if resource.id != resource_id else new_resource
-                    for resource in resource_profile.resource_list
-                ],
-            )
+            resource_profile.remove_resource(resource_id)
+            if resource_profile.id == task_id
+            else resource_profile.update_resource(updated_resource)
             for resource_profile in self.resource_profiles
         ]
 
