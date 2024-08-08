@@ -15,10 +15,29 @@ from o2.simulation_runner import Log
 
 class Evaluator:
     @staticmethod
-    def parse_stats(stats: str):
-        global_stats = stats.split("Individual Task Statistics\r\n")[1].split('""\r\n')[
+    def parse_stats(stats: str) -> tuple[pd.DataFrame, pd.DataFrame]:
+        """Parse the csv statistics to a dataframe."""
+        resource_stats_csv = stats.split("Resource Utilization\r\n")[1].split('""\r\n')[
             0
         ]
+
+        # Read the CSV data into a DataFrame. Columns for reference:
+        # Resource ID,
+        # Resource name,
+        # Utilization Ratio,
+        # Tasks Allocated,
+        # Worked Time (seconds),
+        # Available Time (seconds),
+        # Pool ID,
+        # Pool name
+        resource_statistics_df = pd.read_csv(
+            io.StringIO(resource_stats_csv),
+            sep=",",
+        )
+
+        task_stats_csv = stats.split("Individual Task Statistics\r\n")[1].split(
+            '""\r\n'
+        )[0]
 
         # Read the CSV data into a DataFrame. Columns for reference:
         # Name,
@@ -55,27 +74,29 @@ class Evaluator:
         # Max Cost,
         # Avg Cost,
         # Total Cost
-        df = pd.read_csv(
-            io.StringIO(global_stats),
+        task_statistics_df = pd.read_csv(
+            io.StringIO(task_stats_csv),
             sep=",",
         )
 
-        return df
+        return task_statistics_df, resource_statistics_df
 
     @staticmethod
-    def evaluateLog(log: Log, stats: str):
+    def evaluate_log(log: Log, stats: str) -> Evaluation:
+        """Evaluate the log and statistics to return an Evaluation object."""
         if len(log) == 0:
             return Evaluation.empty()
 
-        df = Evaluator.parse_stats(stats)
+        task_statistics_df, resource_statistics = Evaluator.parse_stats(stats)
 
         # Calculate the accumulated total cycle time and total cost
-        accumulated_total_cycle_time = df["Total Cycle Time"].sum()
-        accumulated_total_cost = df["Total Cost"].sum()
-        accumulated_waiting_time = df["Total Waiting Time"].sum()
+        accumulated_total_cycle_time = task_statistics_df["Total Cycle Time"].sum()
+        accumulated_total_cost = task_statistics_df["Total Cost"].sum()
+        accumulated_waiting_time = task_statistics_df["Total Waiting Time"].sum()
 
         return Evaluation(
-            df,
+            task_statistics_df,
+            resource_statistics,
             log,
             accumulated_total_cycle_time,
             accumulated_total_cost,

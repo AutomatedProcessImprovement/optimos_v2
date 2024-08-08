@@ -37,7 +37,7 @@ class ModifyCalendarByCostAction(ModifyCalendarBaseAction):
         tuple[Literal[RATING.NOT_APPLICABLE], None]
         | tuple[RATING, "ModifyCalendarByCostAction"]
     ):
-        """Rate the action based on the input."""
+        """Generate a best set of parameters & self-evaluates this action."""
         resources = store.state.timetable.get_resources_with_cost()
         for resource, _cost in resources:
             calendar = store.current_timetable.get_calendar(resource.calendar)

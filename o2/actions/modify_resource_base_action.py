@@ -18,6 +18,7 @@ class ModifyResourceBaseActionParamsType(BaseActionParamsType):
     """Parameter for `ModifyResourceBaseAction`."""
 
     resource_id: str
+    task_id: NotRequired[str]
     clone_resource: NotRequired[bool]
     remove_resource: NotRequired[bool]
 
@@ -36,6 +37,16 @@ class ModifyResourceBaseAction(BaseAction, ABC):
         if "remove_resource" in self.params and self.params["remove_resource"]:
             new_timetable = state.timetable.remove_resource(self.params["resource_id"])
             return replace(state, timetable=new_timetable)
+        elif (
+            "clone_resource" in self.params
+            and self.params["clone_resource"]
+            and "task_id" in self.params
+        ):
+            new_timetable = state.timetable.clone_resource(
+                self.params["resource_id"],
+                [self.params["task_id"]],
+            )
+            return replace(state, timetable=new_timetable)
 
     @staticmethod
     @abstractmethod
@@ -45,7 +56,7 @@ class ModifyResourceBaseAction(BaseAction, ABC):
         tuple[Literal[RATING.NOT_APPLICABLE], None]
         | tuple[RATING, "ModifyResourceBaseAction"]
     ):
-        """Rate the action based on the input.
+        """Generate a best set of parameters & self-evaluates this action.
 
         To be implemented by subclasses.
         """
@@ -60,12 +71,8 @@ class ModifyResourceBaseAction(BaseAction, ABC):
 
     def __str__(self) -> str:
         """Return a string representation of the action."""
-        if "shift_hours" in self.params:
-            return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['day']}) -- Shift {self.params['shift_hours']} hours)"  # noqa: E501
-        elif "add_hours_after" in self.params:
-            return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['day']}) -- Add {self.params['add_hours_after']} hours after)"  # noqa: E501
-        elif "add_hours_before" in self.params:
-            return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['day']}) -- Add {self.params['add_hours_before']} hours before)"  # noqa: E501
-        elif "remove_period" in self.params:
-            return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['day']}) -- Remove)"  # noqa: E501
-        return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['day']}) -- Unknown)"  # noqa: E501
+        if "remove_resource" in self.params and self.params["remove_resource"]:
+            return f"{self.__class__.__name__}(Resource '{self.params['resource_id']}' -- Remove)"  # noqa: E501
+        elif "clone_resource" in self.params and self.params["clone_resource"]:
+            return f"{self.__class__.__name__}(Resource '{self.params['resource_id']}' -- Clone)"  # noqa: E501
+        return f"{self.__class__.__name__}(Resource '{self.params['resource_id']}' -- Unknown)"

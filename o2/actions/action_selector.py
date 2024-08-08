@@ -15,6 +15,12 @@ from o2.actions.modify_ready_wt_rule_action import ModifyReadyWtRuleAction
 from o2.actions.modify_size_rule_action import (
     ModifySizeRuleAction,
 )
+from o2.actions.remove_resource_by_cost_action import (
+    RemoveResourceByCostAction,
+)
+from o2.actions.remove_resource_by_utilization import (
+    RemoveResourceByUtilizationAction,
+)
 from o2.actions.remove_rule_action import (
     RemoveRuleAction,
     RemoveRuleActionParamsType,
@@ -31,8 +37,6 @@ from o2.util.indented_printer import print_l1, print_l2
 
 ACTION_CATALOG: list[Type[BaseAction]] = [
     AddWeekDayRuleAction,
-    # TODO Disabled for now for tests
-    # ModifyCalendarByWTAction,
     ModifyDailyHourRuleAction,
     ModifyLargeWtRuleAction,
     ModifyReadyWtRuleAction,
@@ -45,6 +49,8 @@ if OPTIMOS_LEGACY_MODE:
         ModifyCalendarByWTAction,
         ModifyCalendarByCostAction,
         ModifyCalendarByITAction,
+        RemoveResourceByUtilizationAction,
+        RemoveResourceByCostAction,
     ]
 
 # TODO: Try out multiple Actions at once

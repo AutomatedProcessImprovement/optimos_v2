@@ -13,7 +13,8 @@ if TYPE_CHECKING:
 
 @dataclass(frozen=True)
 class Evaluation:
-    df: pd.DataFrame
+    task_statistics_df: pd.DataFrame
+    resource_statistics_df: pd.DataFrame
     log: Log
 
     total_cycle_time: float
@@ -29,7 +30,9 @@ class Evaluation:
 
     def get_avg_waiting_time_of_task_name(self, task_name: str) -> float:
         """Get the average waiting time of a task."""
-        return self.df[self.df["Name"] == task_name]["Avg Waiting Time"].values[0]
+        return self.task_statistics_df[self.task_statistics_df["Name"] == task_name][
+            "Avg Waiting Time"
+        ].values[0]
 
     def get_max_waiting_time_of_task_id(self, task_id: str, store: "Store") -> float:
         """Get the maximum waiting time of a task."""
@@ -39,17 +42,21 @@ class Evaluation:
 
     def get_max_waiting_time_of_task_name(self, task_name: str) -> float:
         """Get the maximum waiting time of a task."""
-        return self.df[self.df["Name"] == task_name]["Max Waiting Time"].values[0]
+        return self.task_statistics_df[self.task_statistics_df["Name"] == task_name][
+            "Max Waiting Time"
+        ].values[0]
 
     def get_task_names_sorted_by_waiting_time_desc(self) -> list[str]:
         """Get a list of task names sorted by the average waiting time in desc order."""
-        return self.df.sort_values(by="Avg Waiting Time", ascending=False)[
-            "Name"
-        ].tolist()
+        return self.task_statistics_df.sort_values(
+            by="Avg Waiting Time", ascending=False
+        )["Name"].tolist()
 
     def get_task_names_sorted_by_idle_time_desc(self) -> list[str]:
         """Get a list of task names sorted by the average idle time in desc order."""
-        return self.df.sort_values(by="Avg Idle Time", ascending=False)["Name"].tolist()
+        return self.task_statistics_df.sort_values(by="Avg Idle Time", ascending=False)[
+            "Name"
+        ].tolist()
 
     def _get_log_entries_for_task(self, task_name: str):
         return filter(lambda log_entry: log_entry.activity == task_name, self.log)
@@ -77,6 +84,12 @@ class Evaluation:
         return [
             resource for resource, _ in counter.most_common() if resource is not None
         ]
+
+    def get_least_utilized_resources(self) -> list[str]:
+        """Get a list of resources that have the least utilization."""
+        return self.resource_statistics_df.sort_values(
+            by="Utilization Ratio", ascending=True
+        )["Resource ID"].tolist()
 
     def __lt__(self, other):
         return self.total_cost < other.total_cost

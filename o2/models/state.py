@@ -27,7 +27,7 @@ class State:
 
     def evaluate(self):
         (log, stats) = SimulationRunner.run_simulation(self)
-        return Evaluator.evaluateLog(log, stats)
+        return Evaluator.evaluate_log(log, stats)
 
     def to_sim_diff_setup(self) -> SimDiffSetup:
         setup = SimDiffSetupFileless(

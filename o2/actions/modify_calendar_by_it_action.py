@@ -37,7 +37,7 @@ class ModifyCalendarByITAction(ModifyCalendarBaseAction):
         tuple[Literal[RATING.NOT_APPLICABLE], None]
         | tuple[RATING, "ModifyCalendarByITAction"]
     ):
-        """Rate the action based on the input."""
+        """Generate a best set of parameters & self-evaluates this action."""
         base_evaluation = input.base_evaluation
         tasks = base_evaluation.get_task_names_sorted_by_idle_time_desc()
         for task in tasks:

@@ -35,6 +35,7 @@ class HillClimber:
                     print_l1(
                         f"Pareto front DOMINATED new evaluation. Undoing action {action_to_perform}"
                     )
+                    print_l2(f"Evaluation: {evaluation}")
                     self.store.undo_action()
                     self.max_non_improving_iter -= 1
 
