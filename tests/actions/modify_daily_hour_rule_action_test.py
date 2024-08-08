@@ -74,7 +74,7 @@ def test_self_rate_simple(one_task_store: Store):
     evaluations = ActionSelector.evaluate_rules(store, skip_size_rules=True)
     rating_input = SelfRatingInput.from_rule_evaluations(store, evaluations)
     assert rating_input is not None
-    rating, action = ModifyDailyHourRuleAction.rate_self(store, rating_input)
+    rating, action = next(ModifyDailyHourRuleAction.rate_self(store, rating_input))
 
     # It's easy to see why the second rule is more impactful: If we remove <= 12:00,
     # than we can work from 9:00-23:59 (which is even more than needed, because we only
@@ -122,7 +122,7 @@ def test_self_rate_simple2(one_task_store: Store):
     evaluations = ActionSelector.evaluate_rules(store, skip_size_rules=True)
     rating_input = SelfRatingInput.from_rule_evaluations(store, evaluations)
     assert rating_input is not None
-    rating, action = ModifyDailyHourRuleAction.rate_self(store, rating_input)
+    rating, action = next(ModifyDailyHourRuleAction.rate_self(store, rating_input))
 
     # Because events are coming only until 12:00, we can't work significantly
     # past that time. Therefore the first rule is more impactful.

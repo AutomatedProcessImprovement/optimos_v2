@@ -1,18 +1,14 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, replace
-from typing import Literal, Optional
+from typing import Literal
 
 from typing_extensions import NotRequired
 
-from o2.actions.base_action import BaseAction, BaseActionParamsType
-from o2.models.constraints import ConstraintsType
-from o2.models.days import DAY
+from o2.actions.base_action import BaseAction, BaseActionParamsType, RateSelfReturnType
+from o2.constants import OPTIMIZE_CALENDAR_FIRST
 from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.state import State
-from o2.models.timetable import ResourceCalendar, TimePeriod, TimetableType
 from o2.store import Store
-from o2.util.indented_printer import print_l2
-from optimos_v2.o2.constants import OPTIMIZE_CALENDAR_FIRST
 
 
 class ModifyResourceBaseActionParamsType(BaseActionParamsType):
@@ -62,12 +58,7 @@ class ModifyResourceBaseAction(BaseAction, ABC):
 
     @staticmethod
     @abstractmethod
-    def rate_self(
-        store: Store, input: SelfRatingInput
-    ) -> (
-        tuple[Literal[RATING.NOT_APPLICABLE], None]
-        | tuple[RATING, "ModifyResourceBaseAction"]
-    ):
+    def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
         """Generate a best set of parameters & self-evaluates this action.
 
         To be implemented by subclasses.

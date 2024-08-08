@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Literal
 
-from o2.actions.base_action import BaseAction, BaseActionParamsType
+from o2.actions.base_action import BaseAction, BaseActionParamsType, RateSelfReturnType
 from o2.actions.batching_rule_action import (
     BatchingRuleAction,
     BatchingRuleActionParamsType,
@@ -66,12 +66,7 @@ class ModifyReadyWtRuleAction(BatchingRuleAction):
         )
 
     @staticmethod
-    def rate_self(
-        store: Store, input: SelfRatingInput
-    ) -> (
-        tuple[Literal[RATING.NOT_APPLICABLE], None]
-        | tuple[RATING, "ModifyReadyWtRuleAction"]
-    ):
+    def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
         """Generate a best set of parameters & self-evaluates this action."""
         rule_selector = input.most_impactful_rule
         base_evaluation = store.current_fastest_evaluation
@@ -79,7 +74,7 @@ class ModifyReadyWtRuleAction(BatchingRuleAction):
         firing_rule = rule_selector.get_firing_rule_from_state(store.state)
 
         if not rule_is_ready_wt(firing_rule):
-            return RATING.NOT_APPLICABLE, None
+            yield RATING.NOT_APPLICABLE, None
 
         base_max_waiting_time = base_evaluation.get_max_waiting_time_of_task_id(
             rule_selector.batching_rule_task_id, store
@@ -87,7 +82,7 @@ class ModifyReadyWtRuleAction(BatchingRuleAction):
 
         # Waiting time was always smaller than the rule
         if base_max_waiting_time < firing_rule.value:
-            return RATING.NOT_APPLICABLE, None
+            yield RATING.NOT_APPLICABLE, None
 
         constraints = store.constraints.get_batching_ready_wt_rule_constraints(
             rule_selector.batching_rule_task_id
@@ -99,9 +94,9 @@ class ModifyReadyWtRuleAction(BatchingRuleAction):
 
         # Decrementing the size would break the constraints
         if (firing_rule.value - SIZE_OF_CHANGE) < max_allowed_min_size:
-            return RATING.NOT_APPLICABLE, None
+            yield RATING.NOT_APPLICABLE, None
 
-        return (
+        yield (
             RATING.MEDIUM,
             ModifyReadyWtRuleAction(
                 ModifyReadyWtRuleActionParamsType(

@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import Literal, Optional
 
+from o2.actions.base_action import RateSelfReturnType
 from o2.actions.modify_resource_base_action import (
     ModifyResourceBaseAction,
     ModifyResourceBaseActionParamsType,
@@ -38,11 +39,7 @@ class AddResourceAction(ModifyResourceBaseAction):
     """
 
     @staticmethod
-    def rate_self(
-        store: Store, input: SelfRatingInput
-    ) -> (
-        tuple[Literal[RATING.NOT_APPLICABLE], None] | tuple[RATING, "AddResourceAction"]
-    ):
+    def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
         """Generate a best set of parameters & self-evaluates this action."""
         base_evaluation = input.base_evaluation
         timetable = store.state.timetable
@@ -56,24 +53,30 @@ class AddResourceAction(ModifyResourceBaseAction):
                 if len(resource.assigned_tasks) == 0:
                     continue
                 if len(resource.assigned_tasks) == 1:
-                    return AddResourceAction.DEFAULT_RATING, AddResourceAction(
-                        AddResourceActionParamsType(
-                            resource_id=resource.id,
-                            task_id=task,
-                            clone_resource=True,
-                        )
+                    yield (
+                        AddResourceAction.DEFAULT_RATING,
+                        AddResourceAction(
+                            AddResourceActionParamsType(
+                                resource_id=resource.id,
+                                task_id=task,
+                                clone_resource=True,
+                            )
+                        ),
                     )
                 else:
                     least_done_task = AddResourceAction._find_least_done_task_to_remove(
                         store, input, resource.id, task
                     )
                     if least_done_task is not None:
-                        return AddResourceAction.DEFAULT_RATING, AddResourceAction(
-                            AddResourceActionParamsType(
-                                resource_id=resource.id,
-                                task_id=least_done_task,
-                                remove_task_from_resource=True,
-                            )
+                        yield (
+                            AddResourceAction.DEFAULT_RATING,
+                            AddResourceAction(
+                                AddResourceActionParamsType(
+                                    resource_id=resource.id,
+                                    task_id=least_done_task,
+                                    remove_task_from_resource=True,
+                                )
+                            ),
                         )
             else:
                 sorted_resources = (
@@ -86,12 +89,15 @@ class AddResourceAction(ModifyResourceBaseAction):
                     if len(resource.assigned_tasks) == 0:
                         continue
                     if len(resource.assigned_tasks) == 1:
-                        return AddResourceAction.DEFAULT_RATING, AddResourceAction(
-                            AddResourceActionParamsType(
-                                resource_id=resource.id,
-                                task_id=task,
-                                clone_resource=True,
-                            )
+                        yield (
+                            AddResourceAction.DEFAULT_RATING,
+                            AddResourceAction(
+                                AddResourceActionParamsType(
+                                    resource_id=resource.id,
+                                    task_id=task,
+                                    clone_resource=True,
+                                )
+                            ),
                         )
                     else:
                         least_done_task = (
@@ -100,15 +106,18 @@ class AddResourceAction(ModifyResourceBaseAction):
                             )
                         )
                         if least_done_task is not None:
-                            return AddResourceAction.DEFAULT_RATING, AddResourceAction(
-                                AddResourceActionParamsType(
-                                    resource_id=resource.id,
-                                    task_id=least_done_task,
-                                    remove_task_from_resource=True,
-                                )
+                            yield (
+                                AddResourceAction.DEFAULT_RATING,
+                                AddResourceAction(
+                                    AddResourceActionParamsType(
+                                        resource_id=resource.id,
+                                        task_id=least_done_task,
+                                        remove_task_from_resource=True,
+                                    )
+                                ),
                             )
 
-        return RATING.NOT_APPLICABLE, None
+        yield RATING.NOT_APPLICABLE, None
 
     @staticmethod
     def _find_least_done_task_to_remove(

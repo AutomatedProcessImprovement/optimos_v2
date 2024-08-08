@@ -1,10 +1,19 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Optional, Tuple, TypedDict
+from typing import (
+    TYPE_CHECKING,
+    Generator,
+    Optional,
+    Tuple,
+    TypedDict,
+)
 
 if TYPE_CHECKING:
     from o2.store import State, Store
 from o2.models.self_rating import RATING, SelfRatingInput
+
+
+RateSelfReturnType = Generator[Tuple[RATING, Optional["BaseAction"]], None, None]
 
 
 class BaseActionParamsType(TypedDict):
@@ -24,9 +33,7 @@ class BaseAction(ABC):
 
     @staticmethod
     @abstractmethod
-    def rate_self(
-        store: "Store", input: SelfRatingInput
-    ) -> Tuple[RATING, Optional["BaseAction"]]:
+    def rate_self(store: "Store", input: SelfRatingInput) -> RateSelfReturnType:
         """Generate a best set of parameters & self-evaluates this action."""
         pass
 

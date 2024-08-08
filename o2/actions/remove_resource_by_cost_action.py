@@ -8,6 +8,7 @@ from o2.actions.modify_resource_base_action import (
 from o2.models.self_rating import RATING, SelfRatingInput
 from o2.store import Store
 from o2.constants import OPTIMIZE_CALENDAR_FIRST
+from o2.actions.base_action import RateSelfReturnType
 
 
 class RemoveResourceByCostActionParamsType(ModifyResourceBaseActionParamsType):
@@ -26,16 +27,11 @@ class RemoveResourceByCostAction(ModifyResourceBaseAction):
     """
 
     @staticmethod
-    def rate_self(
-        store: Store, input: SelfRatingInput
-    ) -> (
-        tuple[Literal[RATING.NOT_APPLICABLE], None]
-        | tuple[RATING, "RemoveResourceByCostAction"]
-    ):
+    def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
         """Generate a best set of parameters & self-evaluates this action."""
         resources = store.state.timetable.get_resources_with_cost()
         for resource, _cost in resources:
-            return (
+            yield (
                 RemoveResourceByCostAction.DEFAULT_RATING,
                 RemoveResourceByCostAction(
                     RemoveResourceByCostActionParamsType(
@@ -45,4 +41,4 @@ class RemoveResourceByCostAction(ModifyResourceBaseAction):
                 ),
             )
 
-        return RATING.NOT_APPLICABLE, None
+        yield RATING.NOT_APPLICABLE, None

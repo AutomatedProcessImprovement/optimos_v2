@@ -18,7 +18,7 @@ def test_action_creation_simple_shrink(one_task_store: Store):
     evaluation, _ = one_task_store.evaluate()
     input = SelfRatingInput.from_base_evaluation(evaluation)
 
-    rating, action = ModifyCalendarByCostAction.rate_self(one_task_store, input)
+    rating, action = next(ModifyCalendarByCostAction.rate_self(one_task_store, input))
 
     assert action is not None
     assert "add_hours_before" in action.params
@@ -43,7 +43,7 @@ def test_action_creation_simple_removal(one_task_store: Store):
     evaluation, _ = one_task_store.evaluate()
     input = SelfRatingInput.from_base_evaluation(evaluation)
 
-    rating, action = ModifyCalendarByCostAction.rate_self(one_task_store, input)
+    rating, action = next(ModifyCalendarByCostAction.rate_self(one_task_store, input))
 
     assert action is not None
     assert "remove_period" in action.params
@@ -65,7 +65,7 @@ def test_action_creation_shrink_start(one_task_store: Store):
     evaluation, _ = one_task_store.evaluate()
     input = SelfRatingInput.from_base_evaluation(evaluation)
 
-    rating, action = ModifyCalendarByCostAction.rate_self(one_task_store, input)
+    rating, action = next(ModifyCalendarByCostAction.rate_self(one_task_store, input))
 
     assert action is not None
     assert "add_hours_before" in action.params
@@ -88,7 +88,7 @@ def test_action_creation_shrink_end(one_task_store: Store):
     evaluation, _ = one_task_store.evaluate()
     input = SelfRatingInput.from_base_evaluation(evaluation)
 
-    rating, action = ModifyCalendarByCostAction.rate_self(one_task_store, input)
+    rating, action = next(ModifyCalendarByCostAction.rate_self(one_task_store, input))
 
     assert action is not None
     assert "add_hours_after" in action.params

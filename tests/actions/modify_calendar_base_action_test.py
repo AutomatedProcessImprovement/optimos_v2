@@ -5,7 +5,7 @@ from o2.actions.modify_calendar_by_wt_action import (
 from o2.models.days import DAY
 from o2.models.timetable import ResourceCalendar, TimePeriod
 from o2.store import Store
-from optimos_v2.o2.models.self_rating import SelfRatingInput
+from o2.models.self_rating import SelfRatingInput
 from tests.fixtures.timetable_generator import TimetableGenerator
 
 """

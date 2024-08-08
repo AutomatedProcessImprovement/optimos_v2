@@ -67,7 +67,7 @@ def test_self_rating_optimal(one_task_store: Store):
     evaluations = ActionSelector.evaluate_rules(store)
     rating_input = SelfRatingInput.from_rule_evaluations(store, evaluations)
     assert rating_input is not None
-    result = ModifyLargeWtRuleAction.rate_self(store, rating_input)
+    result = next(ModifyLargeWtRuleAction.rate_self(store, rating_input))
     assert result == (0, None)
 
 
@@ -94,6 +94,6 @@ def test_self_rating_non_optimal(one_task_store: Store):
         RuleSelector(TimetableGenerator.FIRST_ACTIVITY, (0, 1)),
     )
     assert rating_input is not None
-    result = ModifyLargeWtRuleAction.rate_self(store, rating_input)
+    result = next(ModifyLargeWtRuleAction.rate_self(store, rating_input))
     assert result[0] == RATING.MEDIUM
     assert result[1] is not None

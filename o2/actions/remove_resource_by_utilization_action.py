@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from typing import Literal
 
+from o2.actions.base_action import RateSelfReturnType
+
 from o2.actions.modify_resource_base_action import (
     ModifyResourceBaseAction,
     ModifyResourceBaseActionParamsType,
@@ -25,16 +27,11 @@ class RemoveResourceByUtilizationAction(ModifyResourceBaseAction):
     """
 
     @staticmethod
-    def rate_self(
-        store: Store, input: SelfRatingInput
-    ) -> (
-        tuple[Literal[RATING.NOT_APPLICABLE], None]
-        | tuple[RATING, "RemoveResourceByUtilizationAction"]
-    ):
+    def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
         """Generate a best set of parameters & self-evaluates this action."""
         resources = input.base_evaluation.get_least_utilized_resources()
         for resource_id in resources:
-            return (
+            yield (
                 RemoveResourceByUtilizationAction.DEFAULT_RATING,
                 RemoveResourceByUtilizationAction(
                     RemoveResourceByUtilizationActionParamsType(
@@ -44,4 +41,4 @@ class RemoveResourceByUtilizationAction(ModifyResourceBaseAction):
                 ),
             )
 
-        return RATING.NOT_APPLICABLE, None
+        yield RATING.NOT_APPLICABLE, None

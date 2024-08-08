@@ -69,6 +69,6 @@ def test_self_rate_simple(one_task_store: Store):
         ),
     )
     assert rating_input is not None
-    result = AddWeekDayRuleAction.rate_self(store, rating_input)
-    assert result[0] == RATING.MEDIUM
-    assert result[1] is not None
+    rating, action = next(AddWeekDayRuleAction.rate_self(store, rating_input))
+    assert rating == RATING.MEDIUM
+    assert action is not None

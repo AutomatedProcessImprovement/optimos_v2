@@ -10,6 +10,7 @@ from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.state import State
 from o2.models.timetable import COMPARATOR, FiringRule, rule_is_large_wt
 from o2.store import Store
+from o2.actions.base_action import RateSelfReturnType
 
 SIZE_OF_CHANGE = 100
 CLOSENESS_TO_MAX_WT = 0.01
@@ -62,12 +63,7 @@ class ModifyLargeWtRuleAction(BatchingRuleAction):
         )
 
     @staticmethod
-    def rate_self(
-        store: Store, input: SelfRatingInput
-    ) -> (
-        tuple[Literal[RATING.NOT_APPLICABLE], None]
-        | tuple[RATING, "ModifyLargeWtRuleAction"]
-    ):
+    def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
         """Generate a best set of parameters & self-evaluates this action."""
         rule_selector = input.most_impactful_rule
         base_evaluation = store.current_fastest_evaluation
@@ -75,14 +71,14 @@ class ModifyLargeWtRuleAction(BatchingRuleAction):
         firing_rule = rule_selector.get_firing_rule_from_state(store.state)
 
         if not rule_is_large_wt(firing_rule):
-            return RATING.NOT_APPLICABLE, None
+            yield RATING.NOT_APPLICABLE, None
 
         # TODO: We might want change the less than as well
         if firing_rule.comparison not in [
             COMPARATOR.GREATER_THEN,
             COMPARATOR.GREATER_THEN_OR_EQUAL,
         ]:
-            return RATING.NOT_APPLICABLE, None
+            yield RATING.NOT_APPLICABLE, None
 
         base_max_waiting_time = base_evaluation.get_max_waiting_time_of_task_id(
             rule_selector.batching_rule_task_id, store
@@ -92,7 +88,7 @@ class ModifyLargeWtRuleAction(BatchingRuleAction):
         # that the rule is actually "doing" something, meaning we might want to consider
         # decreasing it
         if base_max_waiting_time < (firing_rule.value * (1 - CLOSENESS_TO_MAX_WT)):
-            return RATING.NOT_APPLICABLE, None
+            yield RATING.NOT_APPLICABLE, None
 
         constraints = store.constraints.get_batching_large_wt_rule_constraints(
             rule_selector.batching_rule_task_id
@@ -104,9 +100,9 @@ class ModifyLargeWtRuleAction(BatchingRuleAction):
 
         # Decrementing the size would break the constraints
         if (firing_rule.value - SIZE_OF_CHANGE) < max_allowed_min_size:
-            return RATING.NOT_APPLICABLE, None
+            yield RATING.NOT_APPLICABLE, None
 
-        return (
+        yield (
             RATING.MEDIUM,
             ModifyLargeWtRuleAction(
                 ModifyLargeWtRuleActionParamsType(

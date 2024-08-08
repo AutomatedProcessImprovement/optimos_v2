@@ -4,7 +4,8 @@ from typing import Literal, Optional
 
 from typing_extensions import NotRequired
 
-from o2.actions.base_action import BaseAction, BaseActionParamsType
+from o2.actions.base_action import BaseAction, BaseActionParamsType, RateSelfReturnType
+from o2.constants import OPTIMIZE_CALENDAR_FIRST
 from o2.models.constraints import ConstraintsType
 from o2.models.days import DAY
 from o2.models.self_rating import RATING, SelfRatingInput
@@ -12,7 +13,6 @@ from o2.models.state import State
 from o2.models.timetable import ResourceCalendar, TimePeriod, TimetableType
 from o2.store import Store
 from o2.util.indented_printer import print_l2
-from optimos_v2.o2.constants import OPTIMIZE_CALENDAR_FIRST
 
 
 class ModifyCalendarBaseActionParamsType(BaseActionParamsType):
@@ -71,12 +71,7 @@ class ModifyCalendarBaseAction(BaseAction, ABC):
 
     @staticmethod
     @abstractmethod
-    def rate_self(
-        store: Store, input: SelfRatingInput
-    ) -> (
-        tuple[Literal[RATING.NOT_APPLICABLE], None]
-        | tuple[RATING, "ModifyCalendarBaseAction"]
-    ):
+    def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
         pass
 
     @staticmethod
@@ -89,13 +84,13 @@ class ModifyCalendarBaseAction(BaseAction, ABC):
     def __str__(self) -> str:
         """Return a string representation of the action."""
         if "shift_hours" in self.params:
-            return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['day']}) -- Shift {self.params['shift_hours']} hours)"  # noqa: E501
+            return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['day']}-{self.params['period_index']}) -- Shift {self.params['shift_hours']} hours)"  # noqa: E501
         elif "add_hours_after" in self.params:
-            return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['day']}) -- Add {self.params['add_hours_after']} hours after)"  # noqa: E501
+            return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['day']}-{self.params['period_index']}) -- Add {self.params['add_hours_after']} hours after)"  # noqa: E501
         elif "add_hours_before" in self.params:
-            return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['day']}) -- Add {self.params['add_hours_before']} hours before)"  # noqa: E501
+            return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['day']}-{self.params['period_index']}) -- Add {self.params['add_hours_before']} hours before)"  # noqa: E501
         elif "remove_period" in self.params:
-            return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['day']}) -- Remove)"  # noqa: E501
-        return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['day']}) -- Unknown)"  # noqa: E501
+            return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['day']}-{self.params['period_index']}) -- Remove)"  # noqa: E501
+        return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['day']}-{self.params['period_index']}) -- Unknown)"  # noqa: E501
 
     DEFAULT_RATING = RATING.HIGH if OPTIMIZE_CALENDAR_FIRST else RATING.LOW

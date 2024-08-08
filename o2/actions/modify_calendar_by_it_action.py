@@ -8,6 +8,7 @@ from o2.actions.modify_calendar_base_action import (
 from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.timetable import ResourceCalendar
 from o2.store import Store
+from o2.actions.base_action import RateSelfReturnType
 
 
 class ModifyCalendarByITActionParamsType(ModifyCalendarBaseActionParamsType):
@@ -31,12 +32,7 @@ class ModifyCalendarByITAction(ModifyCalendarBaseAction):
     """
 
     @staticmethod
-    def rate_self(
-        store: Store, input: SelfRatingInput
-    ) -> (
-        tuple[Literal[RATING.NOT_APPLICABLE], None]
-        | tuple[RATING, "ModifyCalendarByITAction"]
-    ):
+    def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
         """Generate a best set of parameters & self-evaluates this action."""
         base_evaluation = input.base_evaluation
         tasks = base_evaluation.get_task_names_sorted_by_idle_time_desc()
@@ -64,7 +60,7 @@ class ModifyCalendarByITAction(ModifyCalendarBaseAction):
                         new_calendar = calendar.replace_time_period(index, new_period)
                         valid = ModifyCalendarByITAction._verify(store, new_calendar)
                         if valid:
-                            return (
+                            yield (
                                 ModifyCalendarByITAction.DEFAULT_RATING,
                                 ModifyCalendarByITAction(
                                     ModifyCalendarByITActionParamsType(
@@ -83,7 +79,7 @@ class ModifyCalendarByITAction(ModifyCalendarBaseAction):
                         new_calendar = calendar.replace_time_period(index, new_period)
                         valid = ModifyCalendarByITAction._verify(store, new_calendar)
                         if valid:
-                            return (
+                            yield (
                                 ModifyCalendarByITAction.DEFAULT_RATING,
                                 ModifyCalendarByITAction(
                                     ModifyCalendarByITActionParamsType(
@@ -106,7 +102,7 @@ class ModifyCalendarByITAction(ModifyCalendarBaseAction):
                         new_calendar = calendar.replace_time_period(index, new_period)
                         valid = ModifyCalendarByITAction._verify(store, new_calendar)
                         if valid:
-                            return (
+                            yield (
                                 ModifyCalendarByITAction.DEFAULT_RATING,
                                 ModifyCalendarByITAction(
                                     ModifyCalendarByITActionParamsType(
@@ -119,4 +115,4 @@ class ModifyCalendarByITAction(ModifyCalendarBaseAction):
                                 ),
                             )
 
-        return RATING.NOT_APPLICABLE, None
+        yield RATING.NOT_APPLICABLE, None

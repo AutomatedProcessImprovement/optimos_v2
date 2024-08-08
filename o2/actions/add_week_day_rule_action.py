@@ -3,7 +3,7 @@ from typing import Literal
 
 import numpy as np
 
-from o2.actions.base_action import BaseAction, BaseActionParamsType
+from o2.actions.base_action import BaseAction, BaseActionParamsType, RateSelfReturnType
 from o2.actions.batching_rule_action import (
     BatchingRuleAction,
     BatchingRuleActionParamsType,
@@ -85,19 +85,14 @@ class AddWeekDayRuleAction(BatchingRuleAction):
         )
 
     @staticmethod
-    def rate_self(
-        store: Store, input: SelfRatingInput
-    ) -> (
-        tuple[Literal[RATING.NOT_APPLICABLE], None]
-        | tuple[RATING, "AddWeekDayRuleAction"]
-    ):
+    def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
         """Generate a best set of parameters & self-evaluates this action."""
         rule_selector = input.most_impactful_rule
 
         firing_rule = rule_selector.get_firing_rule_from_state(store.state)
 
         if not rule_is_week_day(firing_rule):
-            return RATING.NOT_APPLICABLE, None
+            yield RATING.NOT_APPLICABLE, None
 
         # TODO: Think of some smart heuristic to rate the action
 
@@ -106,7 +101,7 @@ class AddWeekDayRuleAction(BatchingRuleAction):
         )
 
         if not constraints:
-            return RATING.NOT_APPLICABLE, None
+            yield RATING.NOT_APPLICABLE, None
 
         allowed_days = set(
             day
@@ -116,11 +111,11 @@ class AddWeekDayRuleAction(BatchingRuleAction):
         )
 
         if len(allowed_days) == 0:
-            return RATING.NOT_APPLICABLE, None
+            yield RATING.NOT_APPLICABLE, None
 
         random_day = np.random.choice(list(allowed_days))
 
-        return (
+        yield (
             RATING.MEDIUM,
             AddWeekDayRuleAction(
                 AddWeekDayRuleActionParamsType(

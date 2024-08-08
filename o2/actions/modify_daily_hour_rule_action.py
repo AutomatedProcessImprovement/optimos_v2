@@ -9,6 +9,7 @@ from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.state import State
 from o2.models.timetable import COMPARATOR, rule_is_daily_hour
 from o2.store import Store
+from o2.actions.base_action import RateSelfReturnType
 
 SIZE_OF_CHANGE = 1
 CLOSENESS_TO_MAX_WT = 0.01
@@ -73,12 +74,7 @@ class ModifyDailyHourRuleAction(BatchingRuleAction):
         )
 
     @staticmethod
-    def rate_self(
-        store: Store, input: SelfRatingInput
-    ) -> (
-        tuple[Literal[RATING.NOT_APPLICABLE], None]
-        | tuple[RATING, "ModifyDailyHourRuleAction"]
-    ):
+    def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
         """Generate a best set of parameters & self-evaluates this action."""
         most_reduction_selector = input.most_wt_reduction
         most_increase_selector = input.most_wt_increase
@@ -141,10 +137,13 @@ class ModifyDailyHourRuleAction(BatchingRuleAction):
             )
             if new_hour not in allowed_hours:
                 continue
-            return RATING.MEDIUM, ModifyDailyHourRuleAction(
-                ModifyDailyHourRuleActionParamsType(
-                    rule=rule_selector, hour_increment=hour_change
-                )
+            yield (
+                RATING.MEDIUM,
+                ModifyDailyHourRuleAction(
+                    ModifyDailyHourRuleActionParamsType(
+                        rule=rule_selector, hour_increment=hour_change
+                    )
+                ),
             )
 
-        return RATING.NOT_APPLICABLE, None
+        yield RATING.NOT_APPLICABLE, None

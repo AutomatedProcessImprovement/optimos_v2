@@ -3,7 +3,7 @@ import pytest
 
 from o2.models.state import State
 from o2.simulation_runner import SimulationRunner
-from optimos_v2.o2.models.evaluation import Evaluation
+from o2.models.evaluation import Evaluation
 
 
 def test_simulation_runner(simple_state: State):

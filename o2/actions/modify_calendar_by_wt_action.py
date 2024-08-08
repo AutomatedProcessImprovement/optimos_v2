@@ -1,6 +1,8 @@
 from dataclasses import dataclass, replace
 from typing import Literal
 
+from o2.actions.base_action import RateSelfReturnType
+
 from o2.actions.modify_calendar_base_action import (
     ModifyCalendarBaseAction,
     ModifyCalendarBaseActionParamsType,
@@ -30,12 +32,7 @@ class ModifyCalendarByWTAction(ModifyCalendarBaseAction):
     """
 
     @staticmethod
-    def rate_self(
-        store: Store, input: SelfRatingInput
-    ) -> (
-        tuple[Literal[RATING.NOT_APPLICABLE], None]
-        | tuple[RATING, "ModifyCalendarByWTAction"]
-    ):
+    def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
         """Generate a best set of parameters & self-evaluates this action."""
         base_evaluation = input.base_evaluation
         tasks = base_evaluation.get_task_names_sorted_by_waiting_time_desc()
@@ -63,7 +60,7 @@ class ModifyCalendarByWTAction(ModifyCalendarBaseAction):
                         new_calendar = calendar.replace_time_period(index, new_period)
                         valid = ModifyCalendarByWTAction._verify(store, new_calendar)
                         if valid:
-                            return (
+                            yield (
                                 ModifyCalendarByWTAction.DEFAULT_RATING,
                                 ModifyCalendarByWTAction(
                                     ModifyCalendarByWTActionParamsType(
@@ -82,7 +79,7 @@ class ModifyCalendarByWTAction(ModifyCalendarBaseAction):
                         new_calendar = calendar.replace_time_period(index, new_period)
                         valid = ModifyCalendarByWTAction._verify(store, new_calendar)
                         if valid:
-                            return (
+                            yield (
                                 ModifyCalendarByWTAction.DEFAULT_RATING,
                                 ModifyCalendarByWTAction(
                                     ModifyCalendarByWTActionParamsType(
@@ -95,4 +92,4 @@ class ModifyCalendarByWTAction(ModifyCalendarBaseAction):
                                 ),
                             )
 
-        return RATING.NOT_APPLICABLE, None
+        yield RATING.NOT_APPLICABLE, None

@@ -1,5 +1,6 @@
 from dataclasses import replace
 
+from o2.actions.add_resource_action import AddResourceAction
 from o2.actions.modify_calendar_by_cost_action import (
     ModifyCalendarByCostAction,
 )
@@ -10,7 +11,6 @@ from o2.models.days import DAY
 from o2.models.self_rating import SelfRatingInput
 from o2.models.timetable import Resource, TimePeriod
 from o2.store import Store
-from optimos_v2.o2.actions.add_resource_action import AddResourceAction
 from tests.fixtures.constraints_generator import ConstraintsGenerator
 from tests.fixtures.timetable_generator import TimetableGenerator
 
@@ -19,7 +19,7 @@ def test_action_creation_one_resource_one_task(one_task_store: Store):
     evaluation, _ = one_task_store.evaluate()
     input = SelfRatingInput.from_base_evaluation(evaluation)
 
-    rating, action = AddResourceAction.rate_self(one_task_store, input)
+    rating, action = next(AddResourceAction.rate_self(one_task_store, input))
 
     assert action is not None
     assert "resource_id" in action.params
@@ -34,7 +34,7 @@ def test_action_creation_one_resource_two_tasks(two_tasks_store: Store):
     evaluation, _ = two_tasks_store.evaluate()
     input = SelfRatingInput.from_base_evaluation(evaluation)
 
-    rating, action = AddResourceAction.rate_self(two_tasks_store, input)
+    rating, action = next(AddResourceAction.rate_self(two_tasks_store, input))
 
     assert action is not None
     assert "resource_id" in action.params
@@ -57,7 +57,7 @@ def test_action_creation_two_resources_one_task(one_task_store: Store):
 
     input = SelfRatingInput.from_base_evaluation(evaluation)
 
-    rating, action = AddResourceAction.rate_self(one_task_store, input)
+    rating, action = next(AddResourceAction.rate_self(one_task_store, input))
 
     assert action is not None
     assert "resource_id" in action.params
@@ -81,7 +81,7 @@ def test_action_creation_two_resources_two_tasks(two_tasks_store: Store):
 
     input = SelfRatingInput.from_base_evaluation(evaluation)
 
-    rating, action = AddResourceAction.rate_self(two_tasks_store, input)
+    rating, action = next(AddResourceAction.rate_self(two_tasks_store, input))
 
     assert action is not None
     assert "resource_id" in action.params

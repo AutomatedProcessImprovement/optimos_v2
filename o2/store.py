@@ -87,6 +87,7 @@ class Store:
                 self.current_pareto_front.add(evaluation, new_state)
                 self.reset_tabu_list()
             else:
+                self.tabu_list.append(action)
                 not_chosen_tries.append(action_try)
         return chosen_tries, not_chosen_tries
 

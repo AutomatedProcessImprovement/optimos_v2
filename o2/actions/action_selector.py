@@ -4,7 +4,7 @@ from typing import Optional, Type
 
 from o2.actions.add_resource_action import AddResourceAction
 from o2.actions.add_week_day_rule_action import AddWeekDayRuleAction
-from o2.actions.base_action import BaseAction
+from o2.actions.base_action import BaseAction, RateSelfReturnType
 from o2.actions.modify_calendar_by_cost_action import (
     ModifyCalendarByCostAction,
 )
@@ -76,18 +76,18 @@ class ActionSelector:
             )
 
         print_l1("Choosing best action...")
-        # Get a list of rated, possible actions
-        possible_actions = [
+        # Get a list rating generators for all actions
+        action_generators = [
             Action.rate_self(store, rating_input) for Action in ACTION_CATALOG
         ]
 
+        # Try to get one valid action from each generator
         possible_actions = [
-            (rating, action)
-            for rating, action in possible_actions
-            if rating != RATING.NOT_APPLICABLE
-            and action is not None
-            and not store.is_tabu(action)
+            ActionSelector._get_first_valid_action(store, action_generator)
+            for action_generator in action_generators
         ]
+        # Remove None values
+        possible_actions = [action for action in possible_actions if action is not None]
 
         if len(possible_actions) == 0:
             print_l1("No actions remaining, after removing Tabu & N/A actions...")
@@ -194,3 +194,18 @@ class ActionSelector:
                     continue
 
         return evaluations
+
+    @staticmethod
+    def _get_first_valid_action(
+        store: "Store", action_generator: RateSelfReturnType
+    ) -> Optional[tuple[RATING, BaseAction]]:
+        """Get the first valid action from a action generator."""
+        return next(
+            (
+                (rating, action)
+                for rating, action in action_generator
+                if rating != RATING.NOT_APPLICABLE
+                and action is not None
+                and not store.is_tabu(action)
+            ),
+        )
