@@ -63,13 +63,16 @@ class ModifyCalendarByWTAction(ModifyCalendarBaseAction):
                         new_calendar = calendar.replace_time_period(index, new_period)
                         valid = ModifyCalendarByWTAction._verify(store, new_calendar)
                         if valid:
-                            return RATING.EXTREME, ModifyCalendarByWTAction(
-                                ModifyCalendarByWTActionParamsType(
-                                    calendar_id=calendar.id,
-                                    period_index=index,
-                                    day=day,
-                                    add_hours_before=1,
-                                )
+                            return (
+                                ModifyCalendarByWTAction.DEFAULT_RATING,
+                                ModifyCalendarByWTAction(
+                                    ModifyCalendarByWTActionParamsType(
+                                        calendar_id=calendar.id,
+                                        period_index=index,
+                                        day=day,
+                                        add_hours_before=1,
+                                    )
+                                ),
                             )
 
                         # Try to shift the shift to start earlier
@@ -79,14 +82,17 @@ class ModifyCalendarByWTAction(ModifyCalendarBaseAction):
                         new_calendar = calendar.replace_time_period(index, new_period)
                         valid = ModifyCalendarByWTAction._verify(store, new_calendar)
                         if valid:
-                            return RATING.EXTREME, ModifyCalendarByWTAction(
-                                ModifyCalendarByWTActionParamsType(
-                                    calendar_id=calendar.id,
-                                    period_index=index,
-                                    day=day,
-                                    add_hours_before=0,
-                                    shift_hours=1,
-                                )
+                            return (
+                                ModifyCalendarByWTAction.DEFAULT_RATING,
+                                ModifyCalendarByWTAction(
+                                    ModifyCalendarByWTActionParamsType(
+                                        calendar_id=calendar.id,
+                                        period_index=index,
+                                        day=day,
+                                        add_hours_before=0,
+                                        shift_hours=1,
+                                    )
+                                ),
                             )
 
         return RATING.NOT_APPLICABLE, None

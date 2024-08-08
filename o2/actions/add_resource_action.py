@@ -56,7 +56,7 @@ class AddResourceAction(ModifyResourceBaseAction):
                 if len(resource.assigned_tasks) == 0:
                     continue
                 if len(resource.assigned_tasks) == 1:
-                    return RATING.HIGH, AddResourceAction(
+                    return AddResourceAction.DEFAULT_RATING, AddResourceAction(
                         AddResourceActionParamsType(
                             resource_id=resource.id,
                             task_id=task,
@@ -68,7 +68,7 @@ class AddResourceAction(ModifyResourceBaseAction):
                         store, input, resource.id, task
                     )
                     if least_done_task is not None:
-                        return RATING.HIGH, AddResourceAction(
+                        return AddResourceAction.DEFAULT_RATING, AddResourceAction(
                             AddResourceActionParamsType(
                                 resource_id=resource.id,
                                 task_id=least_done_task,
@@ -86,7 +86,7 @@ class AddResourceAction(ModifyResourceBaseAction):
                     if len(resource.assigned_tasks) == 0:
                         continue
                     if len(resource.assigned_tasks) == 1:
-                        return RATING.HIGH, AddResourceAction(
+                        return AddResourceAction.DEFAULT_RATING, AddResourceAction(
                             AddResourceActionParamsType(
                                 resource_id=resource.id,
                                 task_id=task,
@@ -100,7 +100,7 @@ class AddResourceAction(ModifyResourceBaseAction):
                             )
                         )
                         if least_done_task is not None:
-                            return RATING.HIGH, AddResourceAction(
+                            return AddResourceAction.DEFAULT_RATING, AddResourceAction(
                                 AddResourceActionParamsType(
                                     resource_id=resource.id,
                                     task_id=least_done_task,

@@ -17,6 +17,13 @@ text_wrapper_l2 = TextWrapper(
     subsequent_indent=" " * len(l2_prefix),
 )
 
+l3_prefix = 8 * " " + ">>> "
+text_wrapper_l3 = TextWrapper(
+    initial_indent=l3_prefix,
+    width=PREFERRED_WIDTH,
+    subsequent_indent=" " * len(l3_prefix),
+)
+
 
 def print_l0(string) -> None:
     """Print a string with no indentation."""
@@ -31,3 +38,8 @@ def print_l1(string) -> None:
 def print_l2(string) -> None:
     """Print a string with l2 indentation."""
     print(text_wrapper_l2.fill(string))
+
+
+def print_l3(string) -> None:
+    """Print a string with l3 indentation."""
+    print(text_wrapper_l3.fill(string))

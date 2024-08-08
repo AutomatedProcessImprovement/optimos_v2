@@ -34,11 +34,14 @@ class RemoveResourceByUtilizationAction(ModifyResourceBaseAction):
         """Generate a best set of parameters & self-evaluates this action."""
         resources = input.base_evaluation.get_least_utilized_resources()
         for resource_id in resources:
-            return RATING.LOW, RemoveResourceByUtilizationAction(
-                RemoveResourceByUtilizationActionParamsType(
-                    resource_id=resource_id,
-                    remove_resource=True,
-                )
+            return (
+                RemoveResourceByUtilizationAction.DEFAULT_RATING,
+                RemoveResourceByUtilizationAction(
+                    RemoveResourceByUtilizationActionParamsType(
+                        resource_id=resource_id,
+                        remove_resource=True,
+                    )
+                ),
             )
 
         return RATING.NOT_APPLICABLE, None

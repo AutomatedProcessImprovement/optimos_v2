@@ -59,13 +59,16 @@ class ModifyCalendarByCostAction(ModifyCalendarBaseAction):
                         )
                         valid = ModifyCalendarByCostAction._verify(store, new_calendar)
                         if valid:
-                            return RATING.EXTREME, ModifyCalendarByCostAction(
-                                params=ModifyCalendarByCostActionParamsType(
-                                    calendar_id=calendar.id,
-                                    period_index=index,
-                                    day=day,
-                                    remove_period=True,
-                                )
+                            return (
+                                ModifyCalendarByCostAction.DEFAULT_RATING,
+                                ModifyCalendarByCostAction(
+                                    params=ModifyCalendarByCostActionParamsType(
+                                        calendar_id=calendar.id,
+                                        period_index=index,
+                                        day=day,
+                                        remove_period=True,
+                                    )
+                                ),
                             )
                     # Try to shrink the period from start & end
                     new_period = fixed_day_period.add_hours_after(-1)
@@ -79,14 +82,17 @@ class ModifyCalendarByCostAction(ModifyCalendarBaseAction):
                                 store, new_calendar
                             )
                             if valid:
-                                return RATING.EXTREME, ModifyCalendarByCostAction(
-                                    params=ModifyCalendarByCostActionParamsType(
-                                        calendar_id=calendar.id,
-                                        period_index=index,
-                                        day=day,
-                                        add_hours_before=-1,
-                                        add_hours_after=-1,
-                                    )
+                                return (
+                                    ModifyCalendarByCostAction.DEFAULT_RATING,
+                                    ModifyCalendarByCostAction(
+                                        params=ModifyCalendarByCostActionParamsType(
+                                            calendar_id=calendar.id,
+                                            period_index=index,
+                                            day=day,
+                                            add_hours_before=-1,
+                                            add_hours_after=-1,
+                                        )
+                                    ),
                                 )
                     # Try to shrink the period from start
                     new_period = fixed_day_period.add_hours_before(-1)
@@ -94,13 +100,16 @@ class ModifyCalendarByCostAction(ModifyCalendarBaseAction):
                         new_calendar = calendar.replace_time_period(index, new_period)
                         valid = ModifyCalendarByCostAction._verify(store, new_calendar)
                         if valid:
-                            return RATING.EXTREME, ModifyCalendarByCostAction(
-                                params=ModifyCalendarByCostActionParamsType(
-                                    calendar_id=calendar.id,
-                                    period_index=index,
-                                    day=day,
-                                    add_hours_before=-1,
-                                )
+                            return (
+                                ModifyCalendarByCostAction.DEFAULT_RATING,
+                                ModifyCalendarByCostAction(
+                                    params=ModifyCalendarByCostActionParamsType(
+                                        calendar_id=calendar.id,
+                                        period_index=index,
+                                        day=day,
+                                        add_hours_before=-1,
+                                    )
+                                ),
                             )
                     # Try to shrink the period from end
                     new_period = fixed_day_period.add_hours_after(-1)
@@ -108,13 +117,16 @@ class ModifyCalendarByCostAction(ModifyCalendarBaseAction):
                         new_calendar = calendar.replace_time_period(index, new_period)
                         valid = ModifyCalendarByCostAction._verify(store, new_calendar)
                         if valid:
-                            return RATING.EXTREME, ModifyCalendarByCostAction(
-                                params=ModifyCalendarByCostActionParamsType(
-                                    calendar_id=calendar.id,
-                                    period_index=index,
-                                    day=day,
-                                    add_hours_after=-1,
-                                )
+                            return (
+                                ModifyCalendarByCostAction.DEFAULT_RATING,
+                                ModifyCalendarByCostAction(
+                                    params=ModifyCalendarByCostActionParamsType(
+                                        calendar_id=calendar.id,
+                                        period_index=index,
+                                        day=day,
+                                        add_hours_after=-1,
+                                    )
+                                ),
                             )
 
         return RATING.NOT_APPLICABLE, None

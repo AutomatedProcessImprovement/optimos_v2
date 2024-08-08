@@ -12,6 +12,7 @@ from o2.models.state import State
 from o2.models.timetable import ResourceCalendar, TimePeriod, TimetableType
 from o2.store import Store
 from o2.util.indented_printer import print_l2
+from optimos_v2.o2.constants import OPTIMIZE_CALENDAR_FIRST
 
 
 class ModifyCalendarBaseActionParamsType(BaseActionParamsType):
@@ -96,3 +97,5 @@ class ModifyCalendarBaseAction(BaseAction, ABC):
         elif "remove_period" in self.params:
             return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['day']}) -- Remove)"  # noqa: E501
         return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['day']}) -- Unknown)"  # noqa: E501
+
+    DEFAULT_RATING = RATING.HIGH if OPTIMIZE_CALENDAR_FIRST else RATING.LOW

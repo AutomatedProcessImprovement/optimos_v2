@@ -71,6 +71,23 @@ def test_is_in_front(simple_state: State):
     assert front.is_in_front(evaluation3) == FRONT_STATUS.DOMINATES
 
 
+def test_one_dimension_equal(simple_state: State):
+    front = ParetoFront()
+
+    # Create some evaluations for testing
+    base_evaluation = __create_evaluation(5, 5)
+
+    evaluation1 = __create_evaluation(5, 5)
+    evaluation2 = __create_evaluation(5, 6)
+    evaluation3 = __create_evaluation(6, 5)
+
+    front.add(base_evaluation, simple_state)
+
+    assert front.is_in_front(evaluation1) == FRONT_STATUS.IN_FRONT
+    assert front.is_in_front(evaluation2) == FRONT_STATUS.IN_FRONT
+    assert front.is_in_front(evaluation3) == FRONT_STATUS.IN_FRONT
+
+
 def __create_evaluation(total_cycle_time, total_cost, total_waiting_time=0):
     kpis = KPIMap()
     kpis.cycle_time = KPIInfo()

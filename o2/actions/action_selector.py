@@ -26,7 +26,7 @@ from o2.actions.remove_rule_action import (
     RemoveRuleAction,
     RemoveRuleActionParamsType,
 )
-from o2.constants import OPTIMOS_LEGACY_MODE
+from o2.constants import ONLY_ALLOW_LOW_LAST, OPTIMOS_LEGACY_MODE
 from o2.models.constraints import RULE_TYPE
 from o2.models.evaluation import Evaluation
 from o2.models.rule_selector import RuleSelector
@@ -55,15 +55,18 @@ if OPTIMOS_LEGACY_MODE:
         RemoveResourceByUtilizationAction,
     ]
 
-# TODO: Try out multiple Actions at once
+NUMBER_OF_ACTIONS_TO_SELECT = os.cpu_count() or 1
 
 
 class ActionSelector:
     """Selects the best action to take next, based on the current state of the store."""
 
     @staticmethod
-    def select_action(store: Store) -> Optional[BaseAction]:
-        """Select the best action to take next."""
+    def select_actions(store: Store) -> Optional[list[BaseAction]]:
+        """Select the best actions to take next.
+
+        It will pick at most cpu_count actions, so parallel evaluation is possible.
+        """
         evaluations = ActionSelector.evaluate_rules(store)
 
         rating_input = SelfRatingInput.from_rule_evaluations(store, evaluations)
@@ -90,12 +93,25 @@ class ActionSelector:
             print_l1("No actions remaining, after removing Tabu & N/A actions...")
             return None
 
-        rating, best_action = max(possible_actions, key=lambda x: x[0])
-        if rating == 0:
-            return None
-        print_l1(f"Chose with Rating: {rating}:")
-        print_l2(str(best_action))
-        return best_action
+        sorted_actions = sorted(possible_actions, key=lambda x: x[0], reverse=True)
+
+        # If we have non-low rated actions, we should try them first!
+        if ONLY_ALLOW_LOW_LAST and any(
+            rating > RATING.LOW for rating, _ in sorted_actions
+        ):
+            sorted_actions = [
+                action for action in sorted_actions if action[0] > RATING.LOW
+            ]
+        selected_actions = sorted_actions[:NUMBER_OF_ACTIONS_TO_SELECT]
+        avg_rating = sum(rating for rating, _ in selected_actions) / len(
+            selected_actions
+        )
+
+        print_l1(
+            f"Chose {len(selected_actions)} actions with average rating {avg_rating} to evaluate."  # noqa: E501
+        )
+
+        return [action for _, action in selected_actions]
 
     # Removes every firing rule individually and evaluates the new state
     @staticmethod

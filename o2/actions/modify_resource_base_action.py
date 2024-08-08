@@ -12,6 +12,7 @@ from o2.models.state import State
 from o2.models.timetable import ResourceCalendar, TimePeriod, TimetableType
 from o2.store import Store
 from o2.util.indented_printer import print_l2
+from optimos_v2.o2.constants import OPTIMIZE_CALENDAR_FIRST
 
 
 class ModifyResourceBaseActionParamsType(BaseActionParamsType):
@@ -80,3 +81,5 @@ class ModifyResourceBaseAction(BaseAction, ABC):
         elif "clone_resource" in self.params and self.params["clone_resource"]:
             return f"{self.__class__.__name__}(Resource '{self.params['resource_id']}' -- Clone)"  # noqa: E501
         return f"{self.__class__.__name__}(Resource '{self.params['resource_id']}' -- Unknown)"
+
+    DEFAULT_RATING = RATING.LOW if OPTIMIZE_CALENDAR_FIRST else RATING.HIGH

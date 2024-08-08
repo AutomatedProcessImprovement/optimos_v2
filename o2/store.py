@@ -1,5 +1,5 @@
 from dataclasses import replace
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypeAlias
 
 from o2.models.constraints import ConstraintsType
 from o2.models.evaluation import Evaluation
@@ -8,6 +8,8 @@ from o2.pareto_front import FRONT_STATUS, ParetoFront
 
 if TYPE_CHECKING:
     from o2.actions.base_action import BaseAction
+
+ActionTry: TypeAlias = tuple[FRONT_STATUS, Evaluation, State, "BaseAction"]
 
 
 class Store:
@@ -59,7 +61,37 @@ class Store:
         self.state = self.previous_states.pop()
         self.tabu_list.append(self.previous_actions.pop())
 
-    def evaluate(self):
+    def proccess_many_action_tries(
+        self, evaluations: list[ActionTry]
+    ) -> tuple[list[ActionTry], list[ActionTry]]:
+        """Process a list of action evaluations.
+
+        Ignores the evaluations that are dominated by the current Pareto Front.
+        Returns two lists, one with the chosen actions and one with the not chosen actions.
+
+        This is useful if multiple actions are evaluated at once.
+        """
+        chosen_tries = []
+        not_chosen_tries = []
+        for action_try in evaluations:
+            status, evaluation, new_state, action = action_try
+            status = self.current_pareto_front.is_in_front(evaluation)
+            if status == FRONT_STATUS.IN_FRONT:
+                chosen_tries.append(action_try)
+                self.previous_actions.append(action)
+                self.current_pareto_front.add(evaluation, new_state)
+            elif status == FRONT_STATUS.IS_DOMINATED:
+                chosen_tries.append(action_try)
+                self.previous_actions.append(action)
+                self.pareto_fronts.append(ParetoFront())
+                self.current_pareto_front.add(evaluation, new_state)
+                self.reset_tabu_list()
+            else:
+                not_chosen_tries.append(action_try)
+        return chosen_tries, not_chosen_tries
+
+    def evaluate(self) -> tuple[Evaluation, FRONT_STATUS]:
+        """Evaluate the current state and add it to the Pareto Front."""
         evaluation = self.state.evaluate()
         status = self.current_pareto_front.is_in_front(evaluation)
         if status == FRONT_STATUS.IN_FRONT:
@@ -75,7 +107,7 @@ class Store:
 
     # Tries an action and returns the status of the new evaluation
     # Does NOT modify the store
-    def tryAction(self, action: "BaseAction"):
+    def tryAction(self, action: "BaseAction") -> ActionTry:
         new_state = action.apply(self.state, enable_prints=False)
         evaluation = new_state.evaluate()
         status = self.current_pareto_front.is_in_front(evaluation)

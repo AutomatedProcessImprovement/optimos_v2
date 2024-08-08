@@ -216,7 +216,7 @@ class Evaluation:
 
     # Is this evaluation dominated by another evaluation?
     # (Taking only the total cost & total cycle time into account)
-    def is_dominated_by(self, other):
+    def is_dominated_by(self, other: "Evaluation") -> bool:
         """Check if this evaluation is dominated by another evaluation."""
         return (
             other.total_cost < self.total_cost

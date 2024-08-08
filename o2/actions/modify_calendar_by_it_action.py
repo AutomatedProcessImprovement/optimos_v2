@@ -64,13 +64,16 @@ class ModifyCalendarByITAction(ModifyCalendarBaseAction):
                         new_calendar = calendar.replace_time_period(index, new_period)
                         valid = ModifyCalendarByITAction._verify(store, new_calendar)
                         if valid:
-                            return RATING.EXTREME, ModifyCalendarByITAction(
-                                ModifyCalendarByITActionParamsType(
-                                    calendar_id=calendar.id,
-                                    period_index=index,
-                                    day=day,
-                                    add_hours_after=1,
-                                )
+                            return (
+                                ModifyCalendarByITAction.DEFAULT_RATING,
+                                ModifyCalendarByITAction(
+                                    ModifyCalendarByITActionParamsType(
+                                        calendar_id=calendar.id,
+                                        period_index=index,
+                                        day=day,
+                                        add_hours_after=1,
+                                    )
+                                ),
                             )
 
                         # Try to shift the shift to begin later
@@ -80,13 +83,16 @@ class ModifyCalendarByITAction(ModifyCalendarBaseAction):
                         new_calendar = calendar.replace_time_period(index, new_period)
                         valid = ModifyCalendarByITAction._verify(store, new_calendar)
                         if valid:
-                            return RATING.EXTREME, ModifyCalendarByITAction(
-                                ModifyCalendarByITActionParamsType(
-                                    calendar_id=calendar.id,
-                                    period_index=index,
-                                    day=day,
-                                    shift_hours=-1,
-                                )
+                            return (
+                                ModifyCalendarByITAction.DEFAULT_RATING,
+                                ModifyCalendarByITAction(
+                                    ModifyCalendarByITActionParamsType(
+                                        calendar_id=calendar.id,
+                                        period_index=index,
+                                        day=day,
+                                        shift_hours=-1,
+                                    )
+                                ),
                             )
 
                         # Try to add hours to the start & end of the shift
@@ -100,14 +106,17 @@ class ModifyCalendarByITAction(ModifyCalendarBaseAction):
                         new_calendar = calendar.replace_time_period(index, new_period)
                         valid = ModifyCalendarByITAction._verify(store, new_calendar)
                         if valid:
-                            return RATING.EXTREME, ModifyCalendarByITAction(
-                                ModifyCalendarByITActionParamsType(
-                                    calendar_id=calendar.id,
-                                    period_index=index,
-                                    day=day,
-                                    add_hours_before=1,
-                                    add_hours_after=1,
-                                )
+                            return (
+                                ModifyCalendarByITAction.DEFAULT_RATING,
+                                ModifyCalendarByITAction(
+                                    ModifyCalendarByITActionParamsType(
+                                        calendar_id=calendar.id,
+                                        period_index=index,
+                                        day=day,
+                                        add_hours_before=1,
+                                        add_hours_after=1,
+                                    )
+                                ),
                             )
 
         return RATING.NOT_APPLICABLE, None
