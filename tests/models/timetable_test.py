@@ -1,7 +1,8 @@
-from o2.models.days import DAY
-from o2.models.timetable import ResourceCalendar, TimePeriod
-from o2.models.state import State
 from optimos_v2.tests.fixtures.timetable_generator import TimetableGenerator
+
+from o2.models.days import DAY
+from o2.models.state import State
+from o2.models.timetable import Resource, ResourceCalendar, TimePeriod
 
 
 def test_time_period_bitmask():
@@ -217,6 +218,22 @@ def test_resource_calendar_verify_end_before_begin():
     assert not resource_calendar.is_valid()
 
 
+def test_clone_resource_basic(two_tasks_state: State):
+    state = two_tasks_state
+
+    timetable = state.timetable.clone_resource(
+        TimetableGenerator.RESOURCE_ID, [TimetableGenerator.FIRST_ACTIVITY]
+    )
+    original = timetable.resource_profiles[1].resource_list[0]
+    clone = timetable.resource_profiles[1].resource_list[1]
+
+    assert clone.is_clone_of(original)
+    assert Resource.name_is_clone_of(
+        clone.name,
+        original.name,
+    )
+
+
 def test_clone_resource_timetable(two_tasks_state: State):
     state = two_tasks_state
 
@@ -287,3 +304,45 @@ def test_clone_distribution(two_tasks_state: State):
     ) == state.timetable.get_task_resource_distribution(
         TimetableGenerator.SECOND_ACTIVITY
     )
+
+
+def test_remove_resource_calendar(two_tasks_state: State):
+    timetable = two_tasks_state.timetable.clone_resource(
+        TimetableGenerator.RESOURCE_ID, [TimetableGenerator.FIRST_ACTIVITY]
+    )
+
+    timetable = timetable.remove_resource(TimetableGenerator.RESOURCE_ID)
+
+    assert len(timetable.resource_calendars) == 1
+    assert timetable.resource_calendars[0].id != TimetableGenerator.RESOURCE_ID
+    assert timetable.get_calendar_for_resource(TimetableGenerator.RESOURCE_ID) is None
+
+
+def test_remove_resource_profiles(two_tasks_state: State):
+    timetable = two_tasks_state.timetable.clone_resource(
+        TimetableGenerator.RESOURCE_ID, [TimetableGenerator.FIRST_ACTIVITY]
+    )
+
+    timetable = timetable.remove_resource(TimetableGenerator.RESOURCE_ID)
+
+    resource_profile = timetable.get_resource_profile(TimetableGenerator.FIRST_ACTIVITY)
+    assert resource_profile is not None
+
+    assert len(resource_profile.resource_list) == 1
+    assert resource_profile.resource_list[0].id != TimetableGenerator.RESOURCE_ID
+    assert timetable.get_resource(TimetableGenerator.RESOURCE_ID) is None
+
+
+def test_remove_task_distribution(two_tasks_state: State):
+    timetable = two_tasks_state.timetable.clone_resource(
+        TimetableGenerator.RESOURCE_ID, [TimetableGenerator.FIRST_ACTIVITY]
+    )
+
+    timetable = timetable.remove_resource(TimetableGenerator.RESOURCE_ID)
+
+    distribution = timetable.get_task_resource_distribution(
+        TimetableGenerator.FIRST_ACTIVITY
+    )
+    assert distribution is not None
+    assert len(distribution.resources) == 1
+    assert distribution.resources[0].resource_id != TimetableGenerator.RESOURCE_ID

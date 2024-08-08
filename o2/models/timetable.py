@@ -771,6 +771,10 @@ class TimetableType(JSONWizard):
 
     def remove_resource(self, resource_id: str) -> "TimetableType":
         """Get a new timetable with a resource removed."""
+        resource = self.get_resource(resource_id)
+        if resource is None:
+            return self
+
         new_resource_profiles = [
             resource_profile.remove_resource(resource_id)
             for resource_profile in self.resource_profiles
@@ -781,10 +785,17 @@ class TimetableType(JSONWizard):
             for task_resource_distribution in self.task_resource_distribution
         ]
 
+        new_resource_calendars = [
+            resource_calendar
+            for resource_calendar in self.resource_calendars
+            if resource_calendar.id != resource.calendar
+        ]
+
         return replace(
             self,
             resource_profiles=new_resource_profiles,
             task_resource_distribution=new_task_resource_distribution,
+            resource_calendars=new_resource_calendars,
         )
 
     def clone_resource(
