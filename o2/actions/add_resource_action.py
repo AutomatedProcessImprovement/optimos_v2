@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Literal
+from typing import Literal, Optional
 
 from o2.actions.modify_resource_base_action import (
     ModifyResourceBaseAction,
@@ -45,6 +45,98 @@ class AddResourceAction(ModifyResourceBaseAction):
     ):
         """Generate a best set of parameters & self-evaluates this action."""
         base_evaluation = input.base_evaluation
-        tasks = base_evaluation.get_task_names_sorted_by_waiting_time_desc()
+        timetable = store.state.timetable
+        tasks = base_evaluation.get_tasks_sorted_by_occurrences_of_wt_and_it()
+        for task in tasks:
+            resource_profile = timetable.get_resource_profile(task)
+            if resource_profile is None:
+                continue
+            if len(resource_profile.resource_list) == 1:
+                resource = resource_profile.resource_list[0]
+                if len(resource.assigned_tasks) == 1:
+                    return RATING.HIGH, AddResourceAction(
+                        AddResourceActionParamsType(
+                            resource_id=resource.id,
+                            task_id=task,
+                            clone_resource=True,
+                        )
+                    )
+                else:
+                    least_done_task = AddResourceAction._find_least_done_task_to_remove(
+                        store, input, resource.id, task
+                    )
+                    if least_done_task is not None:
+                        return RATING.HIGH, AddResourceAction(
+                            AddResourceActionParamsType(
+                                resource_id=resource.id,
+                                task_id=least_done_task,
+                                remove_task_from_resource=True,
+                            )
+                        )
+            else:
+                sorted_resources = (
+                    base_evaluation.get_resources_sorted_by_task_execution_count(task)
+                )
+                for resource_id in sorted_resources:
+                    resource = timetable.get_resource(resource_id)
+                    if resource is None:
+                        continue
+                    if len(resource.assigned_tasks) == 1:
+                        return RATING.HIGH, AddResourceAction(
+                            AddResourceActionParamsType(
+                                resource_id=resource.id,
+                                task_id=task,
+                                clone_resource=True,
+                            )
+                        )
+                    else:
+                        least_done_task = (
+                            AddResourceAction._find_least_done_task_to_remove(
+                                store, input, resource.id, task
+                            )
+                        )
+                        if least_done_task is not None:
+                            return RATING.HIGH, AddResourceAction(
+                                AddResourceActionParamsType(
+                                    resource_id=resource.id,
+                                    task_id=least_done_task,
+                                    remove_task_from_resource=True,
+                                )
+                            )
 
         return RATING.NOT_APPLICABLE, None
+
+    @staticmethod
+    def _find_least_done_task_to_remove(
+        store: Store,
+        input: SelfRatingInput,
+        resource_id: str,
+        protected_task: str,
+    ) -> Optional[str]:
+        """Find the least done task to remove from the resource.
+
+        Only tasks, that are executed more than once by the resource and
+        are also done by other resources, are considered.
+        Of course the task must differ from the protected task.
+        """
+        timetable = store.state.timetable
+        evaluation = input.base_evaluation
+        resource = timetable.get_resource(resource_id)
+
+        if resource is None:
+            return None
+
+        task_executions = evaluation.get_task_execution_count_by_resource(resource_id)
+
+        task_candidates = [
+            (timetable.get_resource_profile(task), task_executions[task])
+            for task in resource.assigned_tasks
+            if task != protected_task and task_executions[task] > 1
+        ]
+
+        if not task_candidates:
+            return None
+        least_done_task, _ = min(task_candidates, key=lambda x: x[1])
+        if least_done_task is None:
+            return None
+        return least_done_task.id

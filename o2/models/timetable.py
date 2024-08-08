@@ -834,6 +834,44 @@ class TimetableType(JSONWizard):
             resource_calendars=cloned_resource_calendars,
         )
 
+    def remove_task_from_resource(
+        self, resource_id: str, task_id: str
+    ) -> "TimetableType":
+        """Get a new timetable with a task removed from a resource.
+
+        The task will be removed from the resource's assigned tasks.
+        The resource will be removed from the task's resource distribution.
+        """
+        resource = self.get_resource(resource_id)
+        if resource is None:
+            return self
+
+        new_assigned_tasks = [t for t in resource.assigned_tasks if t != task_id]
+        new_resource = replace(resource, assigned_tasks=new_assigned_tasks)
+        new_resource_profiles = [
+            replace(
+                resource_profile,
+                resource_list=[
+                    resource if resource.id != resource_id else new_resource
+                    for resource in resource_profile.resource_list
+                ],
+            )
+            for resource_profile in self.resource_profiles
+        ]
+
+        new_task_resource_distribution = [
+            task_resource_distribution.remove_resource(resource_id)
+            if task_resource_distribution.task_id == task_id
+            else task_resource_distribution
+            for task_resource_distribution in self.task_resource_distribution
+        ]
+
+        return replace(
+            self,
+            resource_profiles=new_resource_profiles,
+            task_resource_distribution=new_task_resource_distribution,
+        )
+
     @property
     def max_total_hours_per_resource(self) -> int:
         """Get the maximum total hours per resource."""

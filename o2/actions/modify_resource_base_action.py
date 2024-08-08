@@ -21,6 +21,7 @@ class ModifyResourceBaseActionParamsType(BaseActionParamsType):
     task_id: NotRequired[str]
     clone_resource: NotRequired[bool]
     remove_resource: NotRequired[bool]
+    remove_task_from_resource: NotRequired[bool]
 
 
 @dataclass(frozen=True)
@@ -45,6 +46,16 @@ class ModifyResourceBaseAction(BaseAction, ABC):
             new_timetable = state.timetable.clone_resource(
                 self.params["resource_id"],
                 [self.params["task_id"]],
+            )
+            return replace(state, timetable=new_timetable)
+        elif (
+            "remove_task_from_resource" in self.params
+            and self.params["remove_task_from_resource"]
+            and "task_id" in self.params
+        ):
+            new_timetable = state.timetable.remove_task_from_resource(
+                self.params["resource_id"],
+                self.params["task_id"],
             )
             return replace(state, timetable=new_timetable)
 

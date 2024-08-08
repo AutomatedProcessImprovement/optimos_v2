@@ -91,6 +91,14 @@ class Evaluation:
         """Get all task events for a specific task."""
         return [event for event in self._get_all_events() if event.task_id == task_id]
 
+    def _get_events_for_resource(self, resource_id: str):
+        """Get all task events for a specific resource."""
+        return [
+            event
+            for event in self._get_all_events()
+            if event.resource_id == resource_id
+        ]
+
     def get_most_frequent_enablement_weekdays(self, task_name: str) -> list[DAY]:
         """Get a list of weekdays, on which the task was enabled.
 
@@ -131,8 +139,8 @@ class Evaluation:
     def get_tasks_sorted_by_occurrences_of_wt_and_it(self) -> list[str]:
         """Get a list of task names sorted by wt & it instances.
 
-        In clear words: Orders the tasks by the number of times they were executed
-        (number of events), which had either a waiting or idle time.
+        In clear words: Orders descending the tasks by the number of times
+        they were executed(number of events) and had either a waiting or idle time.
         """
         occurrences: dict[str, int] = {}
         for case in self.cases:
@@ -146,6 +154,24 @@ class Evaluation:
             for task_name, _ in sorted(
                 occurrences.items(), key=lambda x: x[1], reverse=True
             )
+        ]
+
+    def get_task_execution_count_by_resource(self, resource_id: str) -> dict[str, int]:
+        """Get the number of times each task was executed by a given resource."""
+        events = self._get_events_for_resource(resource_id)
+        counter = Counter(map(lambda event: event.task_id, events))
+        return dict(counter)
+
+    def get_resources_sorted_by_task_execution_count(self, task_id: str) -> list[str]:
+        """Get list of resources sorted by the number of times they executed a task.
+
+        The list is sorted by the most common resource first.
+        """
+        events = self._get_events_for_task(task_id)
+        counter = Counter(map(lambda event: event.resource_id, events))
+        return [
+            resource
+            for resource, _ in sorted(counter.items(), key=lambda x: x[1], reverse=True)
         ]
 
     def __lt__(self, other):
