@@ -1,12 +1,13 @@
-import csv
-import io
-import time
+from datetime import datetime
 from typing import TYPE_CHECKING, Collection, TypeAlias
 
 import pandas as pd
 from bpdfr_simulation_engine.simulation_engine import run_simpy_simulation
-from dynamik.input import EventMapping
-from dynamik.input.csv import read_and_merge_csv_logs
+from bpdfr_simulation_engine.simulation_stats_calculator import (
+    KPIMap,
+    LogInfo,
+    ResourceKPI,
+)
 from dynamik.model import Event
 from wta import (
     WAITING_TIME_BATCHING_KEY,
@@ -16,7 +17,11 @@ from wta import (
     convert_timestamp_columns_to_datetime,
 )
 
-from o2.constants import WRITE_EVENT_LOGS
+TaskKPIs: TypeAlias = dict[str, KPIMap]
+RessourceKPIs: TypeAlias = dict[str, ResourceKPI]
+SimulationKPIs: TypeAlias = tuple[KPIMap, TaskKPIs, RessourceKPIs, datetime, datetime]
+
+RunSimulationResult: TypeAlias = tuple[KPIMap, TaskKPIs, RessourceKPIs, LogInfo]
 
 Log: TypeAlias = Collection[Event]
 
@@ -68,46 +73,16 @@ class SimulationRunner:
         return log
 
     @staticmethod
-    def run_simulation(state: "State") -> tuple[Log, str]:
-        statsStringIO = io.StringIO()
-        statsWriter = csv.writer(
-            statsStringIO,
-            delimiter=",",
-            quotechar='"',
-            quoting=csv.QUOTE_MINIMAL,
-        )
-
-        logStringIO = io.StringIO()
-
-        logWriter = csv.writer(
-            logStringIO,
-            delimiter=",",
-            quotechar='"',
-            quoting=csv.QUOTE_MINIMAL,
-        )
-
+    def run_simulation(
+        state: "State",
+    ) -> RunSimulationResult:
+        """Run simulation and return the results."""
         setup = state.to_sim_diff_setup()
-        run_simpy_simulation(setup, statsWriter, logWriter)
-        logStringIO.seek(0)
+        result = run_simpy_simulation(setup, None, None)
+        assert result is not None
 
-        if WRITE_EVENT_LOGS:
-            with open(f"logs/log-{time.time()}.csv", "w") as f:
-                logStringIO.seek(0)
-                f.write(logStringIO.getvalue())
+        simulation_kpis: SimulationKPIs = result[0]  # type: ignore
+        log_info = result[1]
+        global_kpis, task_kpis, resource_kpis, start_time, end_time = simulation_kpis
 
-        statsStringIO.seek(0)
-        log = list(
-            read_and_merge_csv_logs(
-                [logStringIO],  # type: ignore
-                attribute_mapping=EventMapping(
-                    start="start_time",
-                    end="end_time",
-                    enablement="enable_time",
-                    case="case_id",
-                    activity="activity",
-                    resource="resource",
-                ),
-            )
-        )
-
-        return log, statsStringIO.read()
+        return global_kpis, task_kpis, resource_kpis, log_info

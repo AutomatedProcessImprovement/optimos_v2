@@ -6,6 +6,9 @@ from o2.simulation_runner import SimulationRunner
 
 
 def test_simulation_runner(simple_state: State):
-    log, stats = SimulationRunner.run_simulation(simple_state)
-    # We check that the log size is "plausible"
-    assert len(log) > 50
+    global_kpis, task_kpis, resource_kpis, log_info = SimulationRunner.run_simulation(
+        simple_state
+    )
+
+    # Sanity check
+    assert global_kpis.cycle_time.total > 0

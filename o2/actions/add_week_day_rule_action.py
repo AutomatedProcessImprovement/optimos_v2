@@ -78,7 +78,7 @@ class AddWeekDayRuleAction(BatchingRuleAction):
             firing_rules=new_or_rules,
         )
 
-        return state.replaceTimetable(
+        return state.replace_timetable(
             batch_processing=timetable.batch_processing[:index]
             + [new_batching_rule]
             + timetable.batch_processing[index + 1 :],

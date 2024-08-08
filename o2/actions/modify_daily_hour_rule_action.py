@@ -66,7 +66,7 @@ class ModifyDailyHourRuleAction(BatchingRuleAction):
             rule_selector, replace(firing_rule, value=new_hour)
         )
 
-        return state.replaceTimetable(
+        return state.replace_timetable(
             batch_processing=timetable.batch_processing[:index]
             + [new_batching_rule]
             + timetable.batch_processing[index + 1 :],

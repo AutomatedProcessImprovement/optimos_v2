@@ -59,7 +59,7 @@ class ModifyReadyWtRuleAction(BatchingRuleAction):
 
         new_batching_rule = rule.replace_firing_rule(rule_selector, new_firing_rule)
 
-        return state.replaceTimetable(
+        return state.replace_timetable(
             batch_processing=timetable.batch_processing[:index]
             + [new_batching_rule]
             + timetable.batch_processing[index + 1 :],

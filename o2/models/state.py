@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 import pytz
 from bpdfr_simulation_engine.simulation_setup import SimDiffSetup
 
-from o2.evaluator import Evaluator
+from o2.models.evaluation import Evaluation
 from o2.SimDiffSetupFileless import SimDiffSetupFileless
 from o2.simulation_runner import SimulationRunner
 
@@ -22,14 +22,17 @@ class State:
     timetable: "TimetableType"
     for_testing: bool = False
 
-    def replaceTimetable(self, /, **changes):
+    def replace_timetable(self, /, **changes) -> "State":
+        """Replace the timetable with the given changes."""
         return replace(self, timetable=replace(self.timetable, **changes))
 
-    def evaluate(self):
-        (log, stats) = SimulationRunner.run_simulation(self)
-        return Evaluator.evaluate_log(log, stats)
+    def evaluate(self) -> Evaluation:
+        """Evaluate the current state."""
+        result = SimulationRunner.run_simulation(self)
+        return Evaluation.from_run_simulation_result(result)
 
     def to_sim_diff_setup(self) -> SimDiffSetup:
+        """Convert the state to a SimDiffSetup."""
         setup = SimDiffSetupFileless(
             "test",
             self.bpmn_definition,
@@ -48,6 +51,7 @@ class State:
         return setup
 
     def get_name_of_task(self, task_id: str) -> str:
+        """Get the name of a task."""
         node = self.bpmn_tree.find(f".//*[@id='{task_id}']")
         assert node is not None
         return node.attrib["name"]

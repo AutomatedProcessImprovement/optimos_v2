@@ -100,7 +100,7 @@ class ModifySizeRuleAction(BatchingRuleAction):
                 f"\t\t>> Modifying rule {old_rule.id()} to new size = {old_size} -> {new_size} & duration_modifier = {fn(new_size)}"  # noqa: E501
             )
 
-        return state.replaceTimetable(
+        return state.replace_timetable(
             batch_processing=timetable.batch_processing[:rule_index]
             + [new_rule]
             + timetable.batch_processing[rule_index + 1 :],

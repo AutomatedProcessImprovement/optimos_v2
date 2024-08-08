@@ -37,12 +37,12 @@ class RemoveRuleAction(BatchingRuleAction):
 
         new_batching_rule = rule.remove_firing_rule(rule_selector)
         if new_batching_rule is None:
-            return state.replaceTimetable(
+            return state.replace_timetable(
                 batch_processing=timetable.batch_processing[:index]
                 + timetable.batch_processing[index + 1 :],
             )
 
-        return state.replaceTimetable(
+        return state.replace_timetable(
             batch_processing=timetable.batch_processing[:index]
             + [new_batching_rule]
             + timetable.batch_processing[index + 1 :],

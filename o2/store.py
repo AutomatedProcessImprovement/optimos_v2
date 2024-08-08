@@ -90,7 +90,7 @@ class Store:
         return self.state
 
     def replaceTimetable(self, /, **changes):
-        self.state = self.state.replaceTimetable(**changes)
+        self.state = self.state.replace_timetable(**changes)
         return self.state.timetable
 
     def is_tabu(self, action: "BaseAction"):
