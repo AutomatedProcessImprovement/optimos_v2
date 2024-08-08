@@ -1,5 +1,7 @@
 from o2.models.days import DAY
 from o2.models.timetable import ResourceCalendar, TimePeriod
+from o2.models.state import State
+from optimos_v2.tests.fixtures.timetable_generator import TimetableGenerator
 
 
 def test_time_period_bitmask():
@@ -213,3 +215,75 @@ def test_resource_calendar_verify_end_before_begin():
     )
 
     assert not resource_calendar.is_valid()
+
+
+def test_clone_resource_timetable(two_tasks_state: State):
+    state = two_tasks_state
+
+    timetable = state.timetable.clone_resource(
+        TimetableGenerator.RESOURCE_ID, [TimetableGenerator.FIRST_ACTIVITY]
+    )
+    clone = timetable.resource_profiles[1].resource_list[1]
+
+    assert len(timetable.resource_calendars) == 2
+
+    cloned_calendar = timetable.get_calendar_for_resource(clone.id)
+    assert cloned_calendar is not None
+    assert cloned_calendar.id == f"{clone.id}timetable"
+
+    original_calendar = timetable.get_calendar_for_resource(
+        TimetableGenerator.RESOURCE_ID
+    )
+    assert original_calendar is not None
+
+    assert cloned_calendar.time_periods == original_calendar.time_periods
+    assert cloned_calendar.id != original_calendar.id
+
+
+def test_clone_resource_profiles(two_tasks_state: State):
+    state = two_tasks_state
+
+    timetable = state.timetable.clone_resource(
+        TimetableGenerator.RESOURCE_ID, [TimetableGenerator.FIRST_ACTIVITY]
+    )
+    resource_profile = timetable.get_resource_profile(TimetableGenerator.FIRST_ACTIVITY)
+    assert resource_profile is not None
+    original = resource_profile.resource_list[0]
+    clone = resource_profile.resource_list[1]
+    assert "_clone_" in clone.id
+    assert clone.assigned_tasks == [TimetableGenerator.FIRST_ACTIVITY]
+
+    assert original.cost_per_hour == clone.cost_per_hour
+    assert original.amount == clone.amount
+
+
+def test_clone_distribution(two_tasks_state: State):
+    state = two_tasks_state
+
+    timetable = state.timetable.clone_resource(
+        TimetableGenerator.RESOURCE_ID, [TimetableGenerator.FIRST_ACTIVITY]
+    )
+    original = timetable.resource_profiles[1].resource_list[0]
+    clone = timetable.resource_profiles[1].resource_list[1]
+
+    distribution = timetable.get_task_resource_distribution(
+        TimetableGenerator.FIRST_ACTIVITY
+    )
+    assert distribution is not None
+    assert len(distribution.resources) == 2
+    assert distribution.resources[0].resource_id == original.id
+    assert distribution.resources[1].resource_id == clone.id
+
+    unaffected_distribution = timetable.get_task_resource_distribution(
+        TimetableGenerator.SECOND_ACTIVITY
+    )
+
+    assert unaffected_distribution is not None
+    assert len(unaffected_distribution.resources) == 1
+    assert unaffected_distribution.resources[0].resource_id == original.id
+
+    assert timetable.get_task_resource_distribution(
+        TimetableGenerator.SECOND_ACTIVITY
+    ) == state.timetable.get_task_resource_distribution(
+        TimetableGenerator.SECOND_ACTIVITY
+    )

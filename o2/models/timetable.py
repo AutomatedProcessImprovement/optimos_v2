@@ -1,7 +1,7 @@
 import hashlib
-from dataclasses import Field, asdict, dataclass, field, replace
+import re
+from dataclasses import asdict, dataclass, field, replace
 from enum import Enum
-from functools import reduce
 from itertools import groupby
 from json import dumps
 from typing import (
@@ -20,6 +20,7 @@ from typing import (
 from dataclass_wizard import JSONWizard
 
 from o2.util.bit_mask_helper import any_has_overlap, get_ranges_from_bitmask
+from o2.util.helper import random_string
 
 if TYPE_CHECKING:
     from o2.models.rule_selector import RuleSelector
@@ -27,7 +28,7 @@ if TYPE_CHECKING:
 import operator
 
 from o2.models.constraints import BATCH_TYPE, RULE_TYPE, SizeRuleConstraints
-from o2.models.days import DAY, DAYS, day_range, is_day_in_range
+from o2.models.days import DAY, day_range, is_day_in_range
 
 
 class COMPARATOR(str, Enum):
@@ -59,6 +60,9 @@ class DISTRIBUTION_TYPE(str, Enum):
     LOG_NORMAL = "lognorm"
 
 
+CLONE_REGEX = re.compile(r"^(.*)_clone_[a-z0-9]{8}$")
+
+
 @dataclass(frozen=True)
 class Resource(JSONWizard):
     id: str
@@ -75,12 +79,45 @@ class Resource(JSONWizard):
             return 0
         return self.cost_per_hour * calendar.total_hours
 
+    def clone(self, assigned_tasks: List[str]) -> "Resource":
+        """Clone the resource with new assigned tasks."""
+        new_name_id = f"{self.name}_clone_{random_string(8)}"
+        return replace(
+            self,
+            id=new_name_id,
+            name=new_name_id,
+            calendar=f"{new_name_id}timetable",
+            assigned_tasks=assigned_tasks,
+        )
+
+    def is_clone_of(self, resource: "Resource") -> bool:
+        """Check if the resource is a clone of another resource."""
+        match = CLONE_REGEX.match(self.name)
+        return match is not None and match.group(1) == resource.name
+
+    @staticmethod
+    def name_is_clone_of(potential_clone_name: str, resource_id: str) -> bool:
+        """Check if the name is a clone of a resource id."""
+        match = CLONE_REGEX.match(potential_clone_name)
+        return match is not None and match.group(1) == resource_id
+
 
 @dataclass(frozen=True)
 class ResourcePool(JSONWizard):
     id: str
     name: str
     resource_list: List[Resource]
+
+    def remove_resource(self, resource_id: str) -> "ResourcePool":
+        """Remove a resource from the pool."""
+        return replace(
+            self,
+            resource_list=[
+                resource
+                for resource in self.resource_list
+                if resource.id != resource_id
+            ],
+        )
 
 
 @dataclass(frozen=True)
@@ -281,6 +318,47 @@ class TaskResourceDistribution(JSONWizard):
 class TaskResourceDistributions(JSONWizard):
     task_id: str
     resources: List[TaskResourceDistribution]
+
+    def remove_resource(self, resource_id: str) -> "TaskResourceDistributions":
+        """Remove a resource from the distribution."""
+        return replace(
+            self,
+            resources=[
+                resource
+                for resource in self.resources
+                if resource.resource_id != resource_id
+            ],
+        )
+
+    def add_resource(
+        self, distribution: TaskResourceDistribution
+    ) -> "TaskResourceDistributions":
+        """Add a resource to the distribution."""
+        return replace(
+            self,
+            resources=self.resources + [distribution],
+        )
+
+    def add_resource_based_on_original(
+        self, original_resource_id: str, new_resource_id: str
+    ) -> "TaskResourceDistributions":
+        """Add a resource based on an original resource.
+
+        If the original resource is not found, the distribution is not changed.
+        """
+        original_distribution = next(
+            (
+                resource
+                for resource in self.resources
+                if resource.resource_id == original_resource_id
+            ),
+            None,
+        )
+        if original_distribution is None:
+            return self
+
+        new_resource = replace(original_distribution, resource_id=new_resource_id)
+        return self.add_resource(new_resource)
 
 
 @dataclass(frozen=True)
@@ -589,6 +667,42 @@ class TimetableType(JSONWizard):
                     return resource
         return None
 
+    def get_task_resource_distribution(
+        self, task_id: str
+    ) -> Optional[TaskResourceDistributions]:
+        """Get task resource distribution by task id."""
+        for task_resource_distribution in self.task_resource_distribution:
+            if task_resource_distribution.task_id == task_id:
+                return task_resource_distribution
+        return None
+
+    def get_resource_profiles_containing_resource(
+        self, resource_id: str
+    ) -> list[ResourcePool]:
+        """Get the resource profiles containing a resource."""
+        return [
+            resource_profile
+            for resource_profile in self.resource_profiles
+            if any(
+                resource.id == resource_id
+                for resource in resource_profile.resource_list
+            )
+        ]
+
+    def get_resource_profile(self, profile_id: str) -> Optional[ResourcePool]:
+        """Get a resource profile by profile id.
+
+        Legacy Optimos considers the profile id to be a task id.
+        """
+        return next(
+            (
+                resource_profile
+                for resource_profile in self.resource_profiles
+                if resource_profile.id == profile_id
+            ),
+            None,
+        )
+
     def get_resource_calendar_id(self, resource_id: str) -> Optional[str]:
         """Get the resource calendar id for a resource."""
         resource = self.get_resource(resource_id)
@@ -604,6 +718,16 @@ class TimetableType(JSONWizard):
         if calendar_id is None:
             return None
         return self.get_calendar(calendar_id)
+
+    def get_calendars_for_resource_clones(
+        self, resource_name: str
+    ) -> List[ResourceCalendar]:
+        """Get all resource calendars of clones of a resource."""
+        return [
+            resource_calendar
+            for resource_calendar in self.resource_calendars
+            if Resource.name_is_clone_of(resource_calendar.name, resource_name)
+        ]
 
     def get_calendar(self, calendar_id: str) -> Optional[ResourceCalendar]:
         """Get a resource calendar by calendar id."""
@@ -645,6 +769,60 @@ class TimetableType(JSONWizard):
         ]
         return replace(self, resource_calendars=resource_calendars)
 
+    def remove_resource(self, resource_id: str) -> "TimetableType":
+        """Get a new timetable with a resource removed."""
+        new_resource_profiles = [
+            resource_profile.remove_resource(resource_id)
+            for resource_profile in self.resource_profiles
+        ]
+
+        new_task_resource_distribution = [
+            task_resource_distribution.remove_resource(resource_id)
+            for task_resource_distribution in self.task_resource_distribution
+        ]
+
+        return replace(
+            self,
+            resource_profiles=new_resource_profiles,
+            task_resource_distribution=new_task_resource_distribution,
+        )
+
+    def clone_resource(
+        self, resource_id: str, assigned_tasks: list[str]
+    ) -> "TimetableType":
+        """Get a new timetable with a resource duplicated.
+
+        The new resource will only have the assigned tasks given,
+        but copy all other properties from the original resource.
+
+        The Clone will be added in three places:
+        1. in the resource calendars
+        2. in the resource pools of the assigned_tasks
+        3. in the task_resource_distribution of the assigned_tasks
+        """
+        original_resource = self.get_resource(resource_id)
+        if original_resource is None:
+            return self
+        resource_clone = original_resource.clone(assigned_tasks)
+
+        cloned_resource_calendars = self._clone_resource_calendars(
+            original_resource, resource_clone, assigned_tasks
+        )
+
+        cloned_resource_profiles = self._clone_resource_profiles(
+            original_resource, resource_clone, assigned_tasks
+        )
+
+        cloned_resource_distribution = self._clone_task_distributions(
+            original_resource, resource_clone, assigned_tasks
+        )
+        return replace(
+            self,
+            resource_profiles=cloned_resource_profiles,
+            task_resource_distribution=cloned_resource_distribution,
+            resource_calendars=cloned_resource_calendars,
+        )
+
     @property
     def max_total_hours_per_resource(self) -> int:
         """Get the maximum total hours per resource."""
@@ -668,3 +846,65 @@ class TimetableType(JSONWizard):
             resource_calendar.max_periods_per_day
             for resource_calendar in self.resource_calendars
         )
+
+    def _clone_resource_calendars(
+        self, original: Resource, clone: Resource, _: list[str]
+    ):
+        """Get a Clone of the Resource Calendars, with the new resource added."""
+        original_resource_calendar = self.get_calendar(original.calendar)
+        if original_resource_calendar is None:
+            return self.resource_calendars
+
+        return self.resource_calendars + [
+            replace(
+                original_resource_calendar,
+                id=clone.calendar,
+                name=clone.calendar,
+            )
+        ]
+
+    def _clone_task_distributions(
+        self,
+        original: Resource,
+        clone: Resource,
+        assigned_tasks: list[str],
+    ):
+        """Get a Clone of the Task Distributions, with the new resource added."""
+        original_task_distributions = [
+            self.get_task_resource_distribution(task_id) for task_id in assigned_tasks
+        ]
+
+        new_task_distributions = [
+            task_distribution.add_resource_based_on_original(original.id, clone.id)
+            for task_distribution in self.task_resource_distribution
+            if task_distribution in original_task_distributions
+        ]
+
+        return [
+            task_distribution
+            for task_distribution in self.task_resource_distribution
+            if task_distribution not in original_task_distributions
+        ] + new_task_distributions
+
+    def _clone_resource_profiles(
+        self, _: Resource, clone: Resource, assigned_tasks: list[str]
+    ):
+        """Get a Clone of the Resource Profiles, with the new resource added."""
+        original_resource_profiles = [
+            self.get_resource_profile(task) for task in assigned_tasks
+        ]
+
+        new_resource_profiles = [
+            replace(
+                resource_profile,
+                resource_list=resource_profile.resource_list + [clone],
+            )
+            for resource_profile in original_resource_profiles
+            if resource_profile is not None
+        ]
+
+        return [
+            resource_profile
+            for resource_profile in self.resource_profiles
+            if resource_profile not in original_resource_profiles
+        ] + new_resource_profiles

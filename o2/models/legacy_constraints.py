@@ -95,9 +95,13 @@ class ConstraintsResourcesItem(JSONWizard):
 
     def verify_timetable(self, timetable: "TimetableType") -> bool:
         """Check if the timetable is valid against the constraints."""
-        calendar = timetable.get_calendar_for_resource(self.id)
-        if calendar is None:
-            return True
+        original_calendar = timetable.get_calendar_for_resource(self.id)
+        calendars = timetable.get_calendars_for_resource_clones(self.id)
+        if original_calendar is not None:
+            calendars.append(original_calendar)
+        return all(self._verify_calendar(calendar) for calendar in calendars)
+
+    def _verify_calendar(self, calendar: "ResourceCalendar") -> bool:
         return (
             self.constraints.global_constraints.verify_timetable(calendar)
             and not self.constraints.never_work_masks.has_intersection(calendar)

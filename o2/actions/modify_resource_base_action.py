@@ -14,59 +14,28 @@ from o2.store import Store
 from o2.util.indented_printer import print_l2
 
 
-class ModifyCalendarBaseActionParamsType(BaseActionParamsType):
-    """Parameter for `ModifyCalendarBaseAction`."""
+class ModifyResourceBaseActionParamsType(BaseActionParamsType):
+    """Parameter for `ModifyResourceBaseAction`."""
 
-    calendar_id: str
-    period_index: int
-    day: DAY
-    shift_hours: NotRequired[int]
-    add_hours_before: NotRequired[int]
-    add_hours_after: NotRequired[int]
-    remove_period: NotRequired[bool]
+    resource_id: str
+    clone_resource: NotRequired[bool]
+    remove_resource: NotRequired[bool]
 
 
 @dataclass(frozen=True)
-class ModifyCalendarBaseAction(BaseAction, ABC):
-    """`ModifyCalendarBaseAction` will modify the resource calendars.
+class ModifyResourceBaseAction(BaseAction, ABC):
+    """`ModifyResourceBaseAction` will modify a resource or it's tasks.
 
     It's rating function will be implemented by it's subclasses.
     """
 
-    params: ModifyCalendarBaseActionParamsType
+    params: ModifyResourceBaseActionParamsType
 
     def apply(self, state: State, enable_prints: bool = True) -> State:
         """Apply the action to the state."""
-        calendar_id = self.params["calendar_id"]
-        period_index = self.params["period_index"]
-        day = self.params["day"]
-
-        calendar = state.timetable.get_calendar(calendar_id)
-        assert calendar is not None
-
-        period = calendar.time_periods[period_index]
-        fixed_day_period = replace(period, from_=period.from_, to=day)
-
-        new_period = fixed_day_period
-        if "shift_hours" in self.params:
-            new_period = new_period.shift_hours(self.params["shift_hours"])
-        if "add_hours_before" in self.params and new_period is not None:
-            new_period = new_period.add_hours_before(self.params["add_hours_before"])
-        if "add_hours_after" in self.params and new_period is not None:
-            new_period = new_period.add_hours_after(self.params["add_hours_after"])
-        if "remove_period" in self.params and self.params["remove_period"]:
-            new_period = TimePeriod.empty()
-
-        if new_period is None:
-            return state
-
-        if enable_prints:
-            print_l2(f"Modification Made:{period} to {new_period}")
-
-        new_calendar = calendar.replace_time_period(period_index, new_period)
-        new_timetable = state.timetable.replace_resource_calendar(new_calendar)
-
-        return replace(state, timetable=new_timetable)
+        if "remove_resource" in self.params and self.params["remove_resource"]:
+            new_timetable = state.timetable.remove_resource(self.params["resource_id"])
+            return replace(state, timetable=new_timetable)
 
     @staticmethod
     @abstractmethod
@@ -74,8 +43,12 @@ class ModifyCalendarBaseAction(BaseAction, ABC):
         store: Store, input: SelfRatingInput
     ) -> (
         tuple[Literal[RATING.NOT_APPLICABLE], None]
-        | tuple[RATING, "ModifyCalendarBaseAction"]
+        | tuple[RATING, "ModifyResourceBaseAction"]
     ):
+        """Rate the action based on the input.
+
+        To be implemented by subclasses.
+        """
         pass
 
     @staticmethod

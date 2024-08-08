@@ -26,7 +26,6 @@ from o2.models.timetable import (
 
 
 class TimetableGenerator:
-    RESOURCE_POOL_ID = "BASE_RESOURCE_POOL"
     RESOURCE_ID = "BASE_RESOURCE"
     CALENDAR_ID = "BASE_CALENDAR"
     GATEWAY_ID = "OR_GATEWAY"
@@ -67,9 +66,11 @@ class TimetableGenerator:
         )
 
     def create_simple_resource_profile(self):
-        self.timetable.resource_profiles.append(
+        """Create a simple resource profile with one resource.
+        To be compatible with legacy Optimos, we we'll create one pool per task"""
+        self.timetable.resource_profiles.extend(
             ResourcePool(
-                id=self.RESOURCE_POOL_ID,
+                id=tasks.attrib["id"],
                 name="Base Resource Pool",
                 resource_list=[
                     Resource(
@@ -82,6 +83,7 @@ class TimetableGenerator:
                     )
                 ],
             )
+            for tasks in self.tasks
         )
         return self
 
