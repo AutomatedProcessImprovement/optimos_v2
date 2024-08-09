@@ -1,4 +1,5 @@
 from datetime import datetime
+import traceback
 from typing import TYPE_CHECKING, Collection, TypeAlias
 
 import pandas as pd
@@ -77,12 +78,19 @@ class SimulationRunner:
         state: "State",
     ) -> RunSimulationResult:
         """Run simulation and return the results."""
-        setup = state.to_sim_diff_setup()
-        result = run_simpy_simulation(setup, None, None)
-        assert result is not None
+        try:
+            setup = state.to_sim_diff_setup()
+            result = run_simpy_simulation(setup, None, None)
+            assert result is not None
 
-        simulation_kpis: SimulationKPIs = result[0]  # type: ignore
-        log_info = result[1]
-        global_kpis, task_kpis, resource_kpis, start_time, end_time = simulation_kpis
+            simulation_kpis: SimulationKPIs = result[0]  # type: ignore
+            log_info = result[1]
+            global_kpis, task_kpis, resource_kpis, start_time, end_time = (
+                simulation_kpis
+            )
 
-        return global_kpis, task_kpis, resource_kpis, log_info
+            return global_kpis, task_kpis, resource_kpis, log_info
+        except Exception as e:
+            print(f"Error in simulation: {e}")
+            print(traceback.format_exc())
+            raise e

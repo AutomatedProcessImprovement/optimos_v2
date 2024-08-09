@@ -29,8 +29,12 @@ class RemoveResourceByUtilizationAction(ModifyResourceBaseAction):
     @staticmethod
     def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
         """Generate a best set of parameters & self-evaluates this action."""
+        timetable = store.state.timetable
         resources = input.base_evaluation.get_least_utilized_resources()
         for resource_id in resources:
+            resource = timetable.get_resource(resource_id)
+            if resource is None or not resource.can_safely_be_removed(timetable):
+                continue
             yield (
                 RemoveResourceByUtilizationAction.DEFAULT_RATING,
                 RemoveResourceByUtilizationAction(
@@ -41,4 +45,4 @@ class RemoveResourceByUtilizationAction(ModifyResourceBaseAction):
                 ),
             )
 
-        yield RATING.NOT_APPLICABLE, None
+        return RATING.NOT_APPLICABLE, None

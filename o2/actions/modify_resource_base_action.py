@@ -67,10 +67,12 @@ class ModifyResourceBaseAction(BaseAction, ABC):
 
     def __str__(self) -> str:
         """Return a string representation of the action."""
-        if "remove_resource" in self.params and self.params["remove_resource"]:
+        if "remove_resource" in self.params:
             return f"{self.__class__.__name__}(Resource '{self.params['resource_id']}' -- Remove)"  # noqa: E501
-        elif "clone_resource" in self.params and self.params["clone_resource"]:
+        elif "clone_resource" in self.params:
             return f"{self.__class__.__name__}(Resource '{self.params['resource_id']}' -- Clone)"  # noqa: E501
+        elif "remove_task_from_resource" in self.params and "task_id" in self.params:
+            return f"{self.__class__.__name__}(Resource '{self.params['resource_id']}' -- Remove Task '{self.params['task_id']}')"  # noqa: E501
         return f"{self.__class__.__name__}(Resource '{self.params['resource_id']}' -- Unknown)"
 
     DEFAULT_RATING = RATING.LOW if OPTIMIZE_CALENDAR_FIRST else RATING.HIGH

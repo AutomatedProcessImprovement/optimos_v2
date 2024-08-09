@@ -31,6 +31,8 @@ class RemoveResourceByCostAction(ModifyResourceBaseAction):
         """Generate a best set of parameters & self-evaluates this action."""
         resources = store.state.timetable.get_resources_with_cost()
         for resource, _cost in resources:
+            if not resource.can_safely_be_removed(store.state.timetable):
+                continue
             yield (
                 RemoveResourceByCostAction.DEFAULT_RATING,
                 RemoveResourceByCostAction(
@@ -41,4 +43,4 @@ class RemoveResourceByCostAction(ModifyResourceBaseAction):
                 ),
             )
 
-        yield RATING.NOT_APPLICABLE, None
+        return RATING.NOT_APPLICABLE, None

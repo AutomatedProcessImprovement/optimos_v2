@@ -79,6 +79,20 @@ class Resource(JSONWizard):
             return 0
         return self.cost_per_hour * calendar.total_hours
 
+    def can_safely_be_removed(self, timetable: "TimetableType") -> bool:
+        """Check if the resource can be removed safely.
+
+        A resource can be removed safely if it's assigned tasks all have
+        other resources that can do the task.
+        """
+        for task_id in self.assigned_tasks:
+            profile = timetable.get_resource_profile(task_id)
+            if profile is None:
+                continue
+            if len(profile.resource_list) <= 1:
+                return False
+        return True
+
     def clone(self, assigned_tasks: List[str]) -> "Resource":
         """Clone the resource with new assigned tasks."""
         new_name_id = f"{self.name}_clone_{random_string(8)}"

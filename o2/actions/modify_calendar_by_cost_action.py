@@ -127,4 +127,4 @@ class ModifyCalendarByCostAction(ModifyCalendarBaseAction):
                                 ),
                             )
 
-        yield RATING.NOT_APPLICABLE, None
+        return RATING.NOT_APPLICABLE, None

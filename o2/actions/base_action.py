@@ -5,6 +5,7 @@ from typing import (
     Generator,
     Optional,
     Tuple,
+    TypeAlias,
     TypedDict,
 )
 
@@ -13,7 +14,8 @@ if TYPE_CHECKING:
 from o2.models.self_rating import RATING, SelfRatingInput
 
 
-RateSelfReturnType = Generator[Tuple[RATING, Optional["BaseAction"]], None, None]
+ActionRatingTuple: TypeAlias = Tuple[RATING, Optional["BaseAction"]]
+RateSelfReturnType = Generator[ActionRatingTuple, None, Optional[ActionRatingTuple]]
 
 
 class BaseActionParamsType(TypedDict):

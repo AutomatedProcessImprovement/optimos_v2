@@ -117,7 +117,7 @@ class AddResourceAction(ModifyResourceBaseAction):
                                 ),
                             )
 
-        yield RATING.NOT_APPLICABLE, None
+        return RATING.NOT_APPLICABLE, None
 
     @staticmethod
     def _find_least_done_task_to_remove(

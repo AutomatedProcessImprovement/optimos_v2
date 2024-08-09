@@ -23,11 +23,13 @@ class SelfRatingInput:
     # the key rule active
     base_evaluation: Evaluation
     rule_evaluations: dict[RuleSelector, Evaluation]
-    most_impactful_rule: RuleSelector
+    most_impactful_rule: Optional[RuleSelector]
 
     @property
-    def most_impactful_rule_evaluation(self) -> Evaluation:
+    def most_impactful_rule_evaluation(self) -> Optional[Evaluation]:
         """Return the evaluation of the most impactful rule."""
+        if self.most_impactful_rule is None:
+            return None
         return self.rule_evaluations[self.most_impactful_rule]
 
     @property
@@ -118,7 +120,7 @@ class SelfRatingInput:
         return SelfRatingInput(
             base_evaluation=base_evaluation,
             rule_evaluations={},
-            most_impactful_rule=RuleSelector("NO_ID", None),
+            most_impactful_rule=None,
         )
 
     def __repr__(self) -> str:

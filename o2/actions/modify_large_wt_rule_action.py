@@ -67,18 +67,20 @@ class ModifyLargeWtRuleAction(BatchingRuleAction):
         """Generate a best set of parameters & self-evaluates this action."""
         rule_selector = input.most_impactful_rule
         base_evaluation = store.current_fastest_evaluation
+        if rule_selector is None:
+            return RATING.NOT_APPLICABLE, None
 
         firing_rule = rule_selector.get_firing_rule_from_state(store.state)
 
         if not rule_is_large_wt(firing_rule):
-            yield RATING.NOT_APPLICABLE, None
+            return RATING.NOT_APPLICABLE, None
 
         # TODO: We might want change the less than as well
         if firing_rule.comparison not in [
             COMPARATOR.GREATER_THEN,
             COMPARATOR.GREATER_THEN_OR_EQUAL,
         ]:
-            yield RATING.NOT_APPLICABLE, None
+            return RATING.NOT_APPLICABLE, None
 
         base_max_waiting_time = base_evaluation.get_max_waiting_time_of_task_id(
             rule_selector.batching_rule_task_id, store
@@ -88,7 +90,7 @@ class ModifyLargeWtRuleAction(BatchingRuleAction):
         # that the rule is actually "doing" something, meaning we might want to consider
         # decreasing it
         if base_max_waiting_time < (firing_rule.value * (1 - CLOSENESS_TO_MAX_WT)):
-            yield RATING.NOT_APPLICABLE, None
+            return RATING.NOT_APPLICABLE, None
 
         constraints = store.constraints.get_batching_large_wt_rule_constraints(
             rule_selector.batching_rule_task_id
@@ -100,7 +102,7 @@ class ModifyLargeWtRuleAction(BatchingRuleAction):
 
         # Decrementing the size would break the constraints
         if (firing_rule.value - SIZE_OF_CHANGE) < max_allowed_min_size:
-            yield RATING.NOT_APPLICABLE, None
+            return RATING.NOT_APPLICABLE, None
 
         yield (
             RATING.MEDIUM,

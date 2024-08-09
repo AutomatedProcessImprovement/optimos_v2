@@ -1,10 +1,10 @@
 import concurrent.futures
 import os
-from typing import Optional, Type
+from typing import Optional, Type, Union
 
 from o2.actions.add_resource_action import AddResourceAction
 from o2.actions.add_week_day_rule_action import AddWeekDayRuleAction
-from o2.actions.base_action import BaseAction, RateSelfReturnType
+from o2.actions.base_action import ActionRatingTuple, BaseAction, RateSelfReturnType
 from o2.actions.modify_calendar_by_cost_action import (
     ModifyCalendarByCostAction,
 )
@@ -26,7 +26,7 @@ from o2.actions.remove_rule_action import (
     RemoveRuleAction,
     RemoveRuleActionParamsType,
 )
-from o2.constants import ONLY_ALLOW_LOW_LAST, OPTIMOS_LEGACY_MODE
+from o2.constants import ONLY_ALLOW_LOW_LAST, OPTIMOS_LEGACY_MODE, PRINT_CHOSEN_ACTIONS
 from o2.models.constraints import RULE_TYPE
 from o2.models.evaluation import Evaluation
 from o2.models.rule_selector import RuleSelector
@@ -37,11 +37,17 @@ from o2.store import Store
 from o2.util.indented_printer import print_l1, print_l2
 
 ACTION_CATALOG: list[Type[BaseAction]] = [
+    AddResourceAction,
     AddWeekDayRuleAction,
+    ModifyCalendarByCostAction,
+    ModifyCalendarByITAction,
+    ModifyCalendarByWTAction,
     ModifyDailyHourRuleAction,
     ModifyLargeWtRuleAction,
     ModifyReadyWtRuleAction,
     ModifySizeRuleAction,
+    RemoveResourceByCostAction,
+    RemoveResourceByUtilizationAction,
     RemoveRuleAction,
 ]
 
@@ -55,14 +61,14 @@ if OPTIMOS_LEGACY_MODE:
         RemoveResourceByUtilizationAction,
     ]
 
-NUMBER_OF_ACTIONS_TO_SELECT = os.cpu_count() or 1
-
 
 class ActionSelector:
     """Selects the best action to take next, based on the current state of the store."""
 
     @staticmethod
-    def select_actions(store: Store) -> Optional[list[BaseAction]]:
+    def select_actions(
+        store: Store, number_of_actions_to_select: int = os.cpu_count() or 1
+    ) -> Optional[list[BaseAction]]:
         """Select the best actions to take next.
 
         It will pick at most cpu_count actions, so parallel evaluation is possible.
@@ -81,11 +87,9 @@ class ActionSelector:
             Action.rate_self(store, rating_input) for Action in ACTION_CATALOG
         ]
 
-        # Try to get one valid action from each generator
-        possible_actions = [
-            ActionSelector._get_first_valid_action(store, action_generator)
-            for action_generator in action_generators
-        ]
+        # Get valid actions from the generators, even multiple per generator,
+        # if we don't have enough valid actions yet
+        possible_actions = ActionSelector._get_valid_actions(store, action_generators)
         # Remove None values
         possible_actions = [action for action in possible_actions if action is not None]
 
@@ -102,7 +106,7 @@ class ActionSelector:
             sorted_actions = [
                 action for action in sorted_actions if action[0] > RATING.LOW
             ]
-        selected_actions = sorted_actions[:NUMBER_OF_ACTIONS_TO_SELECT]
+        selected_actions = sorted_actions[:number_of_actions_to_select]
         avg_rating = sum(rating for rating, _ in selected_actions) / len(
             selected_actions
         )
@@ -110,6 +114,10 @@ class ActionSelector:
         print_l1(
             f"Chose {len(selected_actions)} actions with average rating {avg_rating} to evaluate."  # noqa: E501
         )
+
+        if PRINT_CHOSEN_ACTIONS:
+            for rating, action in selected_actions:
+                print_l2(f"{action} with rating {rating}")
 
         return [action for _, action in selected_actions]
 
@@ -196,16 +204,33 @@ class ActionSelector:
         return evaluations
 
     @staticmethod
-    def _get_first_valid_action(
-        store: "Store", action_generator: RateSelfReturnType
-    ) -> Optional[tuple[RATING, BaseAction]]:
-        """Get the first valid action from a action generator."""
-        return next(
-            (
-                (rating, action)
-                for rating, action in action_generator
-                if rating != RATING.NOT_APPLICABLE
-                and action is not None
-                and not store.is_tabu(action)
-            ),
-        )
+    def _get_valid_actions(
+        store: "Store",
+        action_generators: list[RateSelfReturnType],
+        number_of_actions_to_select: int = os.cpu_count() or 1,
+    ) -> list[tuple[RATING, BaseAction]]:
+        """Get NUMBER_OF_ACTIONS_TO_SELECT valid actions from the generators.
+
+        If the action is tabu, it will skip it and try the next one.
+        If the action is not applicable, it will not try more
+        """
+        actions = []
+        generators_queue = action_generators.copy()
+
+        while len(generators_queue) > 0:
+            action_generator = generators_queue.pop(0)
+            if isinstance(action_generator, tuple):
+                continue
+
+            for rating, action in action_generator:
+                if rating == RATING.NOT_APPLICABLE or action is None:
+                    break
+                if store.is_tabu(action):
+                    continue
+                actions.append((rating, action))
+                if len(actions) >= number_of_actions_to_select:
+                    return actions
+                else:
+                    generators_queue.append(action_generator)
+                    break
+        return actions
