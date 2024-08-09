@@ -88,7 +88,7 @@
           "cost_per_hour": 1,
           "amount": 1,
           "calendar": "Credit_Officer_1timetable",
-          "assigned_tasks": ["sid-02577CBF-ABA3-4EFD-9480-E1DFCF238B1C"]
+          "assigned_tasks": ["TASK_ASSESS_APPLICATION"]
         }
       ]
     },
