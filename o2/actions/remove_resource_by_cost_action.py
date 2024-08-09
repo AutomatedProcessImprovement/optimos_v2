@@ -23,7 +23,8 @@ class RemoveResourceByCostAction(ModifyResourceBaseAction):
     see `resolve_remove_resources_in_process` in that project.
 
     It first gets all resources sorted by their cost (cost/hour * available_time),
-    then it removes the resource with the highest cost.
+    then it removes the resource with the highest cost, if that resource's tasks
+    can be done by other resources.
     """
 
     @staticmethod

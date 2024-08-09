@@ -23,7 +23,8 @@ class RemoveResourceByUtilizationAction(ModifyResourceBaseAction):
     see `resolve_remove_resources_in_process` in that project.
 
     It first gets all resources sorted by their utilization (ascending)
-    then it removes the resource with the lowest utilization.
+    then it removes the resource with the lowest utilization, if that resource's tasks
+    can be done by other resources.
     """
 
     @staticmethod

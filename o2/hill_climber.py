@@ -26,9 +26,9 @@ class HillClimber:
         )
 
     def solve(self):
-        print_l0("Base Evaluation")
+        print_l0("Running Base Evaluation...")
         self.store.evaluate()
-        print_l0(
+        print_l1(
             f"Initial evaluation: {self.store.current_pareto_front.evaluations[-1]}"
         )
         for it in range(self.max_iter):
