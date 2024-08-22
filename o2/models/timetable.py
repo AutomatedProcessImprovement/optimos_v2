@@ -440,7 +440,9 @@ class ResourceCalendar(JSONWizard):
     def to_work_masks(self) -> WorkMasks:
         """Convert the calendar to work masks."""
         days = {
-            day: reduce(operator.or_, [tp.to_bitmask() for tp in time_periods])
+            f"{day.name.lower()}": reduce(
+                operator.or_, [tp.to_bitmask() for tp in time_periods]
+            )
             for day, time_periods in self.split_group_by_day()
         }
         return WorkMasks(**days)

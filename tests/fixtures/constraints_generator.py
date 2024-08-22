@@ -141,10 +141,11 @@ class ConstraintsGenerator:
         never_work_masks: Optional[WorkMasks] = None,
         always_work_masks: Optional[WorkMasks] = None,
         global_constraints: Optional[GlobalConstraints] = None,
+        resource_id=TimetableGenerator.RESOURCE_ID,
     ):
         return [
             ConstraintsResourcesItem(
-                id=TimetableGenerator.RESOURCE_ID,
+                id=resource_id,
                 constraints=ResourceConstraints(
                     never_work_masks=never_work_masks
                     or ConstraintsGenerator.work_mask(),

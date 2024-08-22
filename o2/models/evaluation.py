@@ -41,7 +41,12 @@ class Evaluation:
     @property
     def avg_cost(self) -> float:
         """Get the average cost of the simulation."""
-        return self.global_kpis.cost.avg
+        return sum(
+            map(
+                lambda task_kpi: task_kpi.cost.avg,
+                self.task_kpis.values(),
+            )
+        )
 
     @property
     def avg_cycle_time(self) -> float:
@@ -80,7 +85,7 @@ class Evaluation:
     def resource_worked_times(self) -> dict[str, float]:
         """Get the works time of all resources."""
         return {
-            resource_id: resource_kpi.worked_time.total
+            resource_id: resource_kpi.worked_time
             for resource_id, resource_kpi in self.resource_kpis.items()
         }
 

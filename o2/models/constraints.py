@@ -170,7 +170,7 @@ class ConstraintsType(JSONWizard):
                 for constraint in self.resources
                 if (
                     constraint.id == resource_id
-                    or (constraint.id + "timetable") == resource_id
+                    or constraint.id == (resource_id + "timetable")
                 )
             ),
             None,
