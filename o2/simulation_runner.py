@@ -1,5 +1,5 @@
-from datetime import datetime
 import traceback
+from datetime import datetime
 from typing import TYPE_CHECKING, Collection, TypeAlias
 
 import pandas as pd
@@ -17,6 +17,8 @@ from wta import (
     add_enabled_timestamp,
     convert_timestamp_columns_to_datetime,
 )
+
+from o2.constants import SHOW_SIMULATION_ERRORS
 
 TaskKPIs: TypeAlias = dict[str, KPIMap]
 RessourceKPIs: TypeAlias = dict[str, ResourceKPI]
@@ -92,5 +94,6 @@ class SimulationRunner:
             return global_kpis, task_kpis, resource_kpis, log_info
         except Exception as e:
             print(f"Error in simulation: {e}")
-            print(traceback.format_exc())
+            if SHOW_SIMULATION_ERRORS:
+                print(traceback.format_exc())
             raise e

@@ -154,8 +154,7 @@ class ActionSelector:
             for rule in batching_rules
             for or_index, or_rule in enumerate(rule.firing_rules)
             for and_index, _ in enumerate(or_rule)
-            if not skip_size_rules
-            or rule.firing_rules[or_index][and_index].attribute != RULE_TYPE.SIZE
+            if rule.can_remove_firing_rule(or_index, and_index)
         ]
 
         if len(batching_rules) == 0:

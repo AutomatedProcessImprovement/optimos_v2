@@ -2,8 +2,6 @@ import io
 import xml.etree.ElementTree as ElementTree
 from typing import Optional
 
-from o2.models.timetable import TimePeriod
-
 from o2.models.constraints import (
     BATCH_TYPE,
     RULE_TYPE,
@@ -20,6 +18,7 @@ from o2.models.legacy_constraints import (
     ResourceConstraints,
     WorkMasks,
 )
+from o2.models.timetable import TimePeriod
 from tests.fixtures.timetable_generator import TimetableGenerator
 
 
@@ -44,7 +43,7 @@ class ConstraintsGenerator:
     ):
         self.constraints.batching_constraints.append(
             SizeRuleConstraints(
-                id=self.SIMPLE_CONSTRAINT_ID,
+                id=self.SIMPLE_CONSTRAINT_ID + "_size",
                 tasks=[task.attrib["id"] for task in self.tasks],
                 batch_type=BATCH_TYPE.PARALLEL,
                 rule_type=RULE_TYPE.SIZE,
@@ -58,7 +57,7 @@ class ConstraintsGenerator:
     def add_ready_wt_constraint(self):
         self.constraints.batching_constraints.append(
             ReadyWtRuleConstraints(
-                id=self.SIMPLE_CONSTRAINT_ID,
+                id=self.SIMPLE_CONSTRAINT_ID + "_ready",
                 tasks=[task.attrib["id"] for task in self.tasks],
                 batch_type=BATCH_TYPE.PARALLEL,
                 rule_type=RULE_TYPE.READY_WT,
@@ -71,7 +70,7 @@ class ConstraintsGenerator:
     def add_large_wt_constraint(self):
         self.constraints.batching_constraints.append(
             ReadyWtRuleConstraints(
-                id=self.SIMPLE_CONSTRAINT_ID,
+                id=self.SIMPLE_CONSTRAINT_ID + "_large",
                 tasks=[task.attrib["id"] for task in self.tasks],
                 batch_type=BATCH_TYPE.PARALLEL,
                 rule_type=RULE_TYPE.LARGE_WT,
@@ -84,7 +83,7 @@ class ConstraintsGenerator:
     def add_week_day_constraint(self):
         self.constraints.batching_constraints.append(
             WeekDayRuleConstraints(
-                id=self.SIMPLE_CONSTRAINT_ID,
+                id=self.SIMPLE_CONSTRAINT_ID + "_week_day",
                 tasks=[task.attrib["id"] for task in self.tasks],
                 batch_type=BATCH_TYPE.PARALLEL,
                 rule_type=RULE_TYPE.WEEK_DAY,
@@ -96,7 +95,7 @@ class ConstraintsGenerator:
     def add_daily_hour_constraint(self):
         self.constraints.batching_constraints.append(
             DailyHourRuleConstraints(
-                id=self.SIMPLE_CONSTRAINT_ID,
+                id=self.SIMPLE_CONSTRAINT_ID + "_daily_hour",
                 tasks=[task.attrib["id"] for task in self.tasks],
                 batch_type=BATCH_TYPE.PARALLEL,
                 rule_type=RULE_TYPE.DAILY_HOUR,

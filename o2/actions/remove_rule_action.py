@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Literal
 
-from o2.actions.base_action import BaseAction, BaseActionParamsType
+from o2.actions.base_action import BaseAction, BaseActionParamsType, RateSelfReturnType
 from o2.actions.batching_rule_action import (
     BatchingRuleAction,
     BatchingRuleActionParamsType,
@@ -49,11 +49,7 @@ class RemoveRuleAction(BatchingRuleAction):
         )
 
     @staticmethod
-    def rate_self(
-        store: Store, input: SelfRatingInput
-    ) -> (
-        tuple[Literal[RATING.NOT_APPLICABLE], None] | tuple[RATING, "RemoveRuleAction"]
-    ):
+    def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
         """Create a set of parameters & rate this action."""
         rule_selector = input.most_wt_increase
         if rule_selector is None:
@@ -77,7 +73,7 @@ class RemoveRuleAction(BatchingRuleAction):
             print(
                 f"\t\t>> Most impactful rule dominates current. Rule: {rule_selector}"
             )
-            return (
+            yield (
                 RATING.LOW,
                 RemoveRuleAction(RemoveRuleActionParamsType(rule=rule_selector)),
             )

@@ -630,6 +630,19 @@ class BatchingRule(JSONWizard):
         and_index = rule_selector.firing_rule_index[1]
         return self.firing_rules[or_index][and_index]
 
+    def can_remove_firing_rule(self, or_index: int, and_index: int) -> bool:
+        """Check if a firing rule can be removed.
+
+        Checks:
+        - We cannot remove a size rule from a DAILY_HOUR rule set.
+        """
+        if self.firing_rules[or_index][and_index].attribute == RULE_TYPE.SIZE:
+            return all(
+                rule.attribute != RULE_TYPE.DAILY_HOUR
+                for rule in self.firing_rules[or_index]
+            )
+        return True
+
     def remove_firing_rule(
         self, rule_selector: "RuleSelector"
     ) -> "Optional[BatchingRule]":

@@ -14,3 +14,10 @@ or vice versa?
 """
 
 PRINT_CHOSEN_ACTIONS = False
+
+SHOW_SIMULATION_ERRORS = False
+"""Should the simulation errors be shown?
+
+Most of the time this is not needed, as the errors might just indicate an invalid state,
+which will just result in the action not being chosen.
+"""
