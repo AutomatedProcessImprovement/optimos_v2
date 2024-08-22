@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 
-@dataclass(frozen=True)
+@dataclass()
 class Settings:
     """Settings for the Optimos v2 application.
 
