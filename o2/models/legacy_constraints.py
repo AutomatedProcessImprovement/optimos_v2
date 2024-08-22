@@ -15,13 +15,13 @@ if TYPE_CHECKING:
 class WorkMasks(JSONWizard):
     """Bitmask per day."""
 
-    monday: Optional[int]
-    tuesday: Optional[int]
-    wednesday: Optional[int]
-    thursday: Optional[int]
-    friday: Optional[int]
-    saturday: Optional[int]
-    sunday: Optional[int]
+    monday: Optional[int] = 0
+    tuesday: Optional[int] = 0
+    wednesday: Optional[int] = 0
+    thursday: Optional[int] = 0
+    friday: Optional[int] = 0
+    saturday: Optional[int] = 0
+    sunday: Optional[int] = 0
 
     def get(self, day: DAY) -> int:
         """Get the mask for a specific day."""
