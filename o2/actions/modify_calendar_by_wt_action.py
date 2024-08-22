@@ -92,4 +92,4 @@ class ModifyCalendarByWTAction(ModifyCalendarBaseAction):
                                 ),
                             )
 
-        return RATING.NOT_APPLICABLE, None
+        return

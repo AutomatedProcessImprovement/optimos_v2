@@ -89,12 +89,12 @@ class AddWeekDayRuleAction(BatchingRuleAction):
         """Generate a best set of parameters & self-evaluates this action."""
         rule_selector = input.most_impactful_rule
         if rule_selector is None:
-            return RATING.NOT_APPLICABLE, None
+            return
 
         firing_rule = rule_selector.get_firing_rule_from_state(store.state)
 
         if not rule_is_week_day(firing_rule):
-            return RATING.NOT_APPLICABLE, None
+            return
 
         # TODO: Think of some smart heuristic to rate the action
 
@@ -103,7 +103,7 @@ class AddWeekDayRuleAction(BatchingRuleAction):
         )
 
         if not constraints:
-            return RATING.NOT_APPLICABLE, None
+            return
 
         allowed_days = set(
             day
@@ -113,7 +113,7 @@ class AddWeekDayRuleAction(BatchingRuleAction):
         )
 
         if len(allowed_days) == 0:
-            return RATING.NOT_APPLICABLE, None
+            return
 
         random_day = np.random.choice(list(allowed_days))
 

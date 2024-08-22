@@ -119,12 +119,12 @@ class ModifySizeRuleAction(BatchingRuleAction):
         rule_selector = input.most_impactful_rule
         evaluation = input.most_impactful_rule_evaluation
         if rule_selector is None or evaluation is None:
-            return RATING.NOT_APPLICABLE, None
+            return
 
         firing_rule = rule_selector.get_firing_rule_from_state(store.state)
 
         if not rule_is_size(firing_rule):
-            return RATING.NOT_APPLICABLE, None
+            return
 
         # TODO Get current fastest evaluation by task
         base_evaluation = store.current_fastest_evaluation
@@ -141,18 +141,18 @@ class ModifySizeRuleAction(BatchingRuleAction):
             size_increment = SIZE_OF_CHANGE
             # If the change is only very small, we don't want to apply it
             if 1 - (base_avg_waiting_time / new_avg_waiting_time) < MARGIN_OF_ERROR:
-                return RATING.NOT_APPLICABLE, None
+                return
         else:
             size_increment = -1 * SIZE_OF_CHANGE
             # If the change is only very small, we don't want to apply it
             if 1 - (new_avg_waiting_time / base_avg_waiting_time) < MARGIN_OF_ERROR:
-                return RATING.NOT_APPLICABLE, None
+                return
 
         new_size = firing_rule.value + size_increment
 
         if new_size < 1:
             # We don't want to go below 1, here the remove rule action should be used
-            return RATING.NOT_APPLICABLE, None
+            return
 
         constraints = store.constraints.get_batching_size_rule_constraints(
             rule_selector.batching_rule_task_id
@@ -167,7 +167,7 @@ class ModifySizeRuleAction(BatchingRuleAction):
 
         # Decrementing the size would break the constraints
         if new_size < max_allowed_min_size or new_size > min_allowed_max_size:
-            return RATING.NOT_APPLICABLE, None
+            return
 
         yield (
             RATING.MEDIUM,

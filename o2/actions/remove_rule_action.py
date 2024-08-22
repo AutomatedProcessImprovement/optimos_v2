@@ -53,7 +53,7 @@ class RemoveRuleAction(BatchingRuleAction):
         """Create a set of parameters & rate this action."""
         rule_selector = input.most_wt_increase
         if rule_selector is None:
-            return RATING.NOT_APPLICABLE, None
+            return
 
         evaluation = input.most_wt_increase_evaluation
 
@@ -65,7 +65,7 @@ class RemoveRuleAction(BatchingRuleAction):
             [constraint.min_size for constraint in constraints], default=1
         )
         if max_allowed_min_size > 0:
-            return RATING.NOT_APPLICABLE, None
+            return
 
         # TODO: Check constraints
         # Check if this evaluation beats the current pareto front
@@ -77,4 +77,4 @@ class RemoveRuleAction(BatchingRuleAction):
                 RATING.LOW,
                 RemoveRuleAction(RemoveRuleActionParamsType(rule=rule_selector)),
             )
-        return RATING.NOT_APPLICABLE, None
+        return

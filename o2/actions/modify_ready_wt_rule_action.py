@@ -71,12 +71,12 @@ class ModifyReadyWtRuleAction(BatchingRuleAction):
         rule_selector = input.most_impactful_rule
         base_evaluation = store.current_fastest_evaluation
         if rule_selector is None:
-            return RATING.NOT_APPLICABLE, None
+            return
 
         firing_rule = rule_selector.get_firing_rule_from_state(store.state)
 
         if not rule_is_ready_wt(firing_rule):
-            return RATING.NOT_APPLICABLE, None
+            return
 
         base_max_waiting_time = base_evaluation.get_max_waiting_time_of_task_id(
             rule_selector.batching_rule_task_id, store
@@ -84,7 +84,7 @@ class ModifyReadyWtRuleAction(BatchingRuleAction):
 
         # Waiting time was always smaller than the rule
         if base_max_waiting_time < firing_rule.value:
-            return RATING.NOT_APPLICABLE, None
+            return
 
         constraints = store.constraints.get_batching_ready_wt_rule_constraints(
             rule_selector.batching_rule_task_id
@@ -96,7 +96,7 @@ class ModifyReadyWtRuleAction(BatchingRuleAction):
 
         # Decrementing the size would break the constraints
         if (firing_rule.value - SIZE_OF_CHANGE) < max_allowed_min_size:
-            return RATING.NOT_APPLICABLE, None
+            return
 
         yield (
             RATING.MEDIUM,

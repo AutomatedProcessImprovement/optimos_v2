@@ -28,6 +28,7 @@ def test_only_one_rule(store: Store):
     rating_input = SelfRatingInput.from_rule_evaluations(store, evaluations)
     assert rating_input is not None
     best_action = rating_input.most_impactful_rule
+    assert best_action is not None
     assert best_action.batching_rule_task_id == TimetableGenerator.FIRST_ACTIVITY
     assert best_action.firing_rule_index == (0, 0)
 
@@ -55,6 +56,7 @@ def test_two_rules_one_bigger(two_tasks_store: Store):
     rating_input = SelfRatingInput.from_rule_evaluations(store, evaluations)
     assert rating_input is not None
     best_action = rating_input.most_impactful_rule
+    assert best_action is not None
     assert best_action.batching_rule_task_id == TimetableGenerator.FIRST_ACTIVITY
     assert best_action.firing_rule_index == (0, 0)
 
@@ -64,7 +66,7 @@ def test_two_rules_one_bigger(two_tasks_store: Store):
     rating_input = SelfRatingInput.from_rule_evaluations(store, evaluations)
     assert rating_input is not None
     best_action_reversed = rating_input.most_impactful_rule
-
+    assert best_action_reversed is not None
     assert (
         best_action_reversed.batching_rule_task_id == TimetableGenerator.FIRST_ACTIVITY
     )

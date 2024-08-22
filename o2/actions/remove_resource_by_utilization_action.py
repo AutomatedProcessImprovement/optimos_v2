@@ -46,4 +46,4 @@ class RemoveResourceByUtilizationAction(ModifyResourceBaseAction):
                 ),
             )
 
-        return RATING.NOT_APPLICABLE, None
+        return

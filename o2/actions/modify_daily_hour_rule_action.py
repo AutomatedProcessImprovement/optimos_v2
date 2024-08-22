@@ -146,4 +146,4 @@ class ModifyDailyHourRuleAction(BatchingRuleAction):
                 ),
             )
 
-        return RATING.NOT_APPLICABLE, None
+        return
