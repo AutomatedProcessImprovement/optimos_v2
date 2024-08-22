@@ -4,7 +4,8 @@ version = "0.0.1"
 description = "optimos_v2"
 authors = ["Jannis Rosenbaum <jannis@ut.ee>"]
 readme = "README.md"
-package-mode = false
+package-mode = true
+packages = [{ include = "o2" }]
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.11"
