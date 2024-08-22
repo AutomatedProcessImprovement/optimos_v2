@@ -117,11 +117,18 @@ class Store:
 
     # Tries an action and returns the status of the new evaluation
     # Does NOT modify the store
-    def tryAction(self, action: "BaseAction") -> ActionTry:
-        new_state = action.apply(self.state, enable_prints=False)
-        evaluation = new_state.evaluate()
-        status = self.current_pareto_front.is_in_front(evaluation)
-        return (status, evaluation, new_state, action)
+    def try_action(self, action: "BaseAction") -> ActionTry:
+        """Try an action and return the status of the new evaluation.
+
+        If the evaluation throws an exception, it returns IS_DOMINATED.
+        """
+        try:
+            new_state = action.apply(self.state, enable_prints=False)
+            evaluation = new_state.evaluate()
+            status = self.current_pareto_front.is_in_front(evaluation)
+            return (status, evaluation, new_state, action)
+        except Exception:
+            return (FRONT_STATUS.IS_DOMINATED, Evaluation.empty(), self.state, action)
 
     def replaceConstraints(self, /, **changes):
         self.constraints = replace(self.constraints, **changes)

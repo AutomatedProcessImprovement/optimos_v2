@@ -188,7 +188,7 @@ class ActionSelector:
                 for rule_selector in chunk:
                     futures.append(
                         executor.submit(
-                            store.tryAction,
+                            store.try_action,
                             RemoveRuleAction(
                                 RemoveRuleActionParamsType(rule=rule_selector)
                             ),

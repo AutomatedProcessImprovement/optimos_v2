@@ -124,7 +124,7 @@ class HillClimber:
         for action in actions_to_perform:
             futures.append(
                 self.executor.submit(
-                    store.tryAction,
+                    store.try_action,
                     action,
                 )
             )
@@ -134,8 +134,8 @@ class HillClimber:
                 action_try = future.result()
                 action_tries.append(action_try)
             except Exception as e:
-                print_l1(f"Error in future: {e}")
-                continue
+                print_l1(f"Error evaluating actions : {e}")
+
         # Sort tries with dominating ones first
         action_tries.sort(
             key=lambda x: -1
