@@ -12,7 +12,6 @@ numpy = "^1.26.4"
 wta = { git = "https://github.com/AutomatedProcessImprovement/waiting-time-analysis.git" }
 click = "^8.1.7"
 pandas = "<=2.1.4"
-dynamik = { path = "../dynamik" }
 dataclass-wizard = "^0.22.3"
 sympy = "^1.12.1"
 
