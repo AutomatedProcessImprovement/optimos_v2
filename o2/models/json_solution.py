@@ -64,7 +64,7 @@ class _Solution(JSONWizard):
             constraints = store.constraints.get_legacy_constraints_for_resource(
                 resource.id
             )
-            assert constraints is not None
+            assert constraints is not None, f"Resource {resource.id} has no constraints"
             calendar = state.timetable.get_calendar_for_resource(resource.id)
             assert calendar is not None
             pools[f"{resource.id}"] = _ResourceInfo(
