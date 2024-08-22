@@ -1,6 +1,7 @@
 import concurrent.futures
 import os
 import traceback
+from typing import Generator
 
 from o2.actions.action_selector import ActionSelector
 from o2.actions.base_action import BaseAction
@@ -22,12 +23,28 @@ class HillClimber:
             max_workers=self.max_parallel
         )
 
-    def solve(self):
+    def solve(self) -> None:
+        """Run the hill climber and print the result."""
         print_l0("Running Base Evaluation...")
         self.store.evaluate()
         print_l1(
             f"Initial evaluation: {self.store.current_pareto_front.evaluations[-1]}"
         )
+        generator = self.get_iteration_generator()
+        for _ in generator:
+            # Just iterate through the generator to run it
+            pass
+
+        self.executor.shutdown()
+        self._print_result()
+
+    def get_iteration_generator(self) -> Generator[Evaluation, None, None]:
+        """Run the hill climber and yield optimal evaluations.
+
+        NOTE: You usually want to use the `solve` method instead of this
+        method, but if you want to process the evaluations as they come,
+        you can use this method.
+        """
         for it in range(self.max_iter):
             try:
                 if self.max_non_improving_iter <= 0:
@@ -46,7 +63,7 @@ class HillClimber:
                 action_tries = self._execute_actions_parallel(
                     self.store, actions_to_perform
                 )
-                chosen_tries, not_chosen_tries = self.store.proccess_many_action_tries(
+                chosen_tries, not_chosen_tries = self.store.process_many_action_tries(
                     action_tries
                 )
 
@@ -67,19 +84,19 @@ class HillClimber:
                         if status == FRONT_STATUS.IN_FRONT:
                             print_l3("Result Pareto front CONTAINS new evaluation.")
                             print_l3(f"Evaluation: {evaluation}")
+                            yield evaluation
                         elif status == FRONT_STATUS.IS_DOMINATED:
                             print_l3("Pareto front IS DOMINATED by new evaluation.")
                             print_l3(f"New best Evaluation: {evaluation}")
                             self.max_non_improving_iter = (
                                 self.store.settings.max_non_improving_actions
                             )
+                            yield evaluation
 
             except Exception as e:
                 print_l1(f"Error in iteration: {e}")
                 print_l1(traceback.format_exc())
                 continue
-        self.executor.shutdown()
-        self._print_result()
 
     def _print_result(self):
         print_l0("Final result:")
