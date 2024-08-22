@@ -2,6 +2,10 @@
 
 The next generation of [Optimos](https://github.com/AutomatedProcessImprovement/roptimus-prime). A Resource, Roster and Batching optimizer using Prosimos simulator.
 
+## Docs
+
+While the code should be documented in most places, you can find additional information on e.g. the architecture in the [docs folder](./docs/)
+
 ## Improvements over Legacy Optimos
 
 - **Support to optimize Batching**

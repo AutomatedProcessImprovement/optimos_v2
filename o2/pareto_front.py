@@ -19,6 +19,21 @@ class ParetoFront:
         self.removed_solutions: list[Evaluation] = []
         self.removed_states: list[State] = []
 
+    @property
+    def size(self) -> int:
+        """Return the number of solutions in the front."""
+        return len(self.states)
+
+    @property
+    def avg_cycle_time(self) -> float:
+        """Return the average cycle time of the front."""
+        return sum(e.avg_cycle_time for e in self.evaluations) / self.size
+
+    @property
+    def avg_cost(self) -> float:
+        """Return the average cost of the front."""
+        return sum(e.avg_cost for e in self.evaluations) / self.size
+
     def add(self, evaluation: Evaluation, state: State) -> None:
         """Add a new solution to the front.
 

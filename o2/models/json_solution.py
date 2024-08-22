@@ -1,17 +1,48 @@
 from dataclasses import dataclass
+from typing import Optional
 
 from dataclass_wizard import JSONWizard
 
 from o2.models.constraints import ConstraintsType
-from o2.models.legacy_constraints import GlobalConstraints, WorkMasks
-from o2.models.timetable import Resource, TimetableType
 from o2.models.evaluation import Evaluation
-from o2.store import Store
+from o2.models.legacy_constraints import GlobalConstraints, WorkMasks
 from o2.models.state import State
+from o2.models.timetable import Resource, TimetableType
+from o2.store import Store
 
 
 @dataclass(frozen=True)
-class JSONSolution(JSONWizard):
+class JSONSolutions(JSONWizard):
+    """Class to represent a set of solutions in JSON format."""
+
+    name: str
+    initial_solution: "_Solution"
+    final_solutions: Optional[list["_Solution"]]
+    current_solution: "_Solution"
+    final_solution_metrics: "_FinalSolutionMetric"
+
+    @staticmethod
+    def from_store(store: Store) -> "JSONSolutions":
+        """Create a JSONSolutions object from a Store object."""
+        return JSONSolutions(
+            name="Optimos Run",
+            initial_solution=_Solution.from_evaluation(
+                store, store.state, store.base_evaluation
+            ),
+            final_solutions=[
+                _Solution.from_evaluation(store, store.state, evaluation)
+                for front in store.pareto_fronts
+                for evaluation in front.evaluations
+            ],
+            current_solution=_Solution.from_evaluation(
+                store, store.state, store.current_fastest_evaluation
+            ),
+            final_solution_metrics=_FinalSolutionMetric.from_store(store),
+        )
+
+
+@dataclass(frozen=True)
+class _Solution(JSONWizard):
     """Class to represent a solution in JSON format.
 
     Similar to the format of legacy optimos, it's used to make o2 compatible with
@@ -27,7 +58,7 @@ class JSONSolution(JSONWizard):
     @staticmethod
     def from_evaluation(
         store: Store, state: State, evaluation: Evaluation
-    ) -> "JSONSolution":
+    ) -> "_Solution":
         pools: dict[str, _ResourceInfo] = {}
         for resource in state.timetable.get_all_resources():
             constraints = store.constraints.get_legacy_constraints_for_resource(
@@ -54,7 +85,7 @@ class JSONSolution(JSONWizard):
                 assigned_tasks=resource.assigned_tasks,
                 calendar=resource.calendar,
             )
-        return JSONSolution(
+        return _Solution(
             sim_params=state.timetable,
             cons_params=store.constraints,
             name="Optimos Run",
@@ -123,3 +154,26 @@ class _DeviationInfo(JSONWizard):
     cycle_time_deviation: float
     execution_duration_deviation: float
     dev_type: float
+
+
+@dataclass(frozen=True)
+class _FinalSolutionMetric:
+    ave_time: float
+    ave_cost: float
+    time_metric: float
+    cost_metric: float
+
+    @staticmethod
+    def from_store(
+        store: Store,
+        pareto_front_index: int = -1,
+    ) -> "_FinalSolutionMetric":
+        pareto_front = store.pareto_fronts[pareto_front_index]
+        initial_front = store.base_evaluation
+
+        return _FinalSolutionMetric(
+            ave_time=pareto_front.avg_cycle_time,
+            ave_cost=pareto_front.avg_cost,
+            time_metric=initial_front.avg_cycle_time / pareto_front.avg_cycle_time,
+            cost_metric=initial_front.avg_cost / pareto_front.avg_cost,
+        )

@@ -39,6 +39,11 @@ class Evaluation:
         )
 
     @property
+    def avg_cost(self) -> float:
+        """Get the average cost of the simulation."""
+        return self.global_kpis.cost.avg
+
+    @property
     def avg_cycle_time(self) -> float:
         """Get the mean cycle time of the simulation."""
         return self.global_kpis.cycle_time.avg
