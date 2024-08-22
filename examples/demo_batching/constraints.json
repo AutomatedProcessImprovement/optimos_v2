@@ -1,0 +1,296 @@
+{
+  "time_var": 60,
+  "max_cap": 9999999999,
+  "max_shift_size": 24,
+  "max_shift_blocks": 24,
+  "hours_in_day": 24,
+  "resources": [
+    {
+      "id": "Clerk_1timetable",
+      "constraints": {
+        "global_constraints": {
+          "max_weekly_cap": 32,
+          "max_daily_cap": 8,
+          "max_consecutive_cap": 8,
+          "max_shifts_day": 24,
+          "max_shifts_week": 32,
+          "is_human": true
+        },
+        "daily_start_times": {
+          "monday": "09:00:00",
+          "tuesday": "09:00:00",
+          "wednesday": "09:00:00",
+          "thursday": "09:00:00",
+          "friday": null,
+          "saturday": null,
+          "sunday": null
+        },
+        "never_work_masks": {
+          "monday": 0,
+          "tuesday": 0,
+          "wednesday": 0,
+          "thursday": 0,
+          "friday": 0,
+          "saturday": 0,
+          "sunday": 0
+        },
+        "always_work_masks": {
+          "monday": 0,
+          "tuesday": 0,
+          "wednesday": 0,
+          "thursday": 0,
+          "friday": 0,
+          "saturday": 0,
+          "sunday": 0
+        }
+      }
+    },
+    {
+      "id": "Clerk_2timetable",
+      "constraints": {
+        "global_constraints": {
+          "max_weekly_cap": 32,
+          "max_daily_cap": 8,
+          "max_consecutive_cap": 8,
+          "max_shifts_day": 24,
+          "max_shifts_week": 32,
+          "is_human": true
+        },
+        "daily_start_times": {
+          "monday": "09:00:00",
+          "tuesday": "09:00:00",
+          "wednesday": "09:00:00",
+          "thursday": "09:00:00",
+          "friday": null,
+          "saturday": null,
+          "sunday": null
+        },
+        "never_work_masks": {
+          "monday": 0,
+          "tuesday": 0,
+          "wednesday": 0,
+          "thursday": 0,
+          "friday": 0,
+          "saturday": 0,
+          "sunday": 0
+        },
+        "always_work_masks": {
+          "monday": 0,
+          "tuesday": 0,
+          "wednesday": 0,
+          "thursday": 0,
+          "friday": 0,
+          "saturday": 0,
+          "sunday": 0
+        }
+      }
+    },
+    {
+      "id": "Clerk_3timetable",
+      "constraints": {
+        "global_constraints": {
+          "max_weekly_cap": 32,
+          "max_daily_cap": 8,
+          "max_consecutive_cap": 8,
+          "max_shifts_day": 24,
+          "max_shifts_week": 32,
+          "is_human": true
+        },
+        "daily_start_times": {
+          "monday": "09:00:00",
+          "tuesday": "09:00:00",
+          "wednesday": "09:00:00",
+          "thursday": "09:00:00",
+          "friday": null,
+          "saturday": null,
+          "sunday": null
+        },
+        "never_work_masks": {
+          "monday": 0,
+          "tuesday": 0,
+          "wednesday": 0,
+          "thursday": 0,
+          "friday": 0,
+          "saturday": 0,
+          "sunday": 0
+        },
+        "always_work_masks": {
+          "monday": 0,
+          "tuesday": 0,
+          "wednesday": 0,
+          "thursday": 0,
+          "friday": 0,
+          "saturday": 0,
+          "sunday": 0
+        }
+      }
+    },
+    {
+      "id": "Clerk_4timetable",
+      "constraints": {
+        "global_constraints": {
+          "max_weekly_cap": 40,
+          "max_daily_cap": 8,
+          "max_consecutive_cap": 8,
+          "max_shifts_day": 24,
+          "max_shifts_week": 32,
+          "is_human": true
+        },
+        "daily_start_times": {
+          "monday": "09:00:00",
+          "tuesday": "09:00:00",
+          "wednesday": "09:00:00",
+          "thursday": "09:00:00",
+          "friday": null,
+          "saturday": null,
+          "sunday": null
+        },
+        "never_work_masks": {
+          "monday": 0,
+          "tuesday": 0,
+          "wednesday": 0,
+          "thursday": 0,
+          "friday": 0,
+          "saturday": 0,
+          "sunday": 0
+        },
+        "always_work_masks": {
+          "monday": 0,
+          "tuesday": 0,
+          "wednesday": 0,
+          "thursday": 0,
+          "friday": 0,
+          "saturday": 0,
+          "sunday": 0
+        }
+      }
+    },
+    {
+      "id": "Credit_Officer_1timetable",
+      "constraints": {
+        "global_constraints": {
+          "max_weekly_cap": 40,
+          "max_daily_cap": 8,
+          "max_consecutive_cap": 8,
+          "max_shifts_day": 24,
+          "max_shifts_week": 40,
+          "is_human": true
+        },
+        "daily_start_times": {
+          "monday": "09:00:00",
+          "tuesday": "09:00:00",
+          "wednesday": "09:00:00",
+          "thursday": "09:00:00",
+          "friday": "09:00:00",
+          "saturday": null,
+          "sunday": null
+        },
+        "never_work_masks": {
+          "monday": 16711807,
+          "tuesday": 16711807,
+          "wednesday": 16711807,
+          "thursday": 16711807,
+          "friday": 16711807,
+          "saturday": 16777215,
+          "sunday": 16777215
+        },
+        "always_work_masks": {
+          "monday": 0,
+          "tuesday": 0,
+          "wednesday": 0,
+          "thursday": 0,
+          "friday": 0,
+          "saturday": 0,
+          "sunday": 0
+        }
+      }
+    }
+  ],
+  "batching_constraints": [
+    {
+      "id": "simple_constraint_ready",
+      "tasks": [
+        "TASK_CHECK_CREDIT_HISTORY",
+        "TASK_CHECK_INCOME_SOURCES",
+        "TASK_RECIEVE_CUSTOMER_FEEDBACK",
+        "TASK_NOTIFY_REJECTION",
+        "TASK_ASSESS_APPLICATION",
+        "TASK_MAKE_CREDIT_OFFER"
+      ],
+      "batch_type": "Parallel",
+      "rule_type": "ready_wt",
+      "min_wt": 0,
+      "max_wt": 1440
+    },
+    {
+      "id": "simple_constraint_large",
+      "tasks": [
+        "TASK_CHECK_CREDIT_HISTORY",
+        "TASK_CHECK_INCOME_SOURCES",
+        "TASK_RECIEVE_CUSTOMER_FEEDBACK",
+        "TASK_NOTIFY_REJECTION",
+        "TASK_ASSESS_APPLICATION",
+        "TASK_MAKE_CREDIT_OFFER"
+      ],
+      "batch_type": "Parallel",
+      "rule_type": "ready_wt",
+      "min_wt": 0,
+      "max_wt": 1440
+    },
+    {
+      "id": "simple_constraint_week_day",
+      "tasks": [
+        "TASK_CHECK_CREDIT_HISTORY",
+        "TASK_CHECK_INCOME_SOURCES",
+        "TASK_RECIEVE_CUSTOMER_FEEDBACK",
+        "TASK_NOTIFY_REJECTION",
+        "TASK_ASSESS_APPLICATION",
+        "TASK_MAKE_CREDIT_OFFER"
+      ],
+      "batch_type": "Parallel",
+      "rule_type": "large_wt",
+      "allowed_days": [
+        "MONDAY",
+        "TUESDAY",
+        "WEDNESDAY",
+        "THURSDAY",
+        "FRIDAY",
+        "SATURDAY",
+        "SUNDAY"
+      ]
+    },
+    {
+      "id": "simple_constraint_daily_hour",
+      "tasks": [
+        "TASK_CHECK_CREDIT_HISTORY",
+        "TASK_CHECK_INCOME_SOURCES",
+        "TASK_RECIEVE_CUSTOMER_FEEDBACK",
+        "TASK_NOTIFY_REJECTION",
+        "TASK_ASSESS_APPLICATION",
+        "TASK_MAKE_CREDIT_OFFER"
+      ],
+      "batch_type": "Parallel",
+      "rule_type": "daily_hour",
+      "allowed_hours": [
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+        20, 21, 22, 23
+      ]
+    },
+    {
+      "id": "simple_constraint_size",
+      "tasks": [
+        "TASK_CHECK_CREDIT_HISTORY",
+        "TASK_CHECK_INCOME_SOURCES",
+        "TASK_RECIEVE_CUSTOMER_FEEDBACK",
+        "TASK_NOTIFY_REJECTION",
+        "TASK_ASSESS_APPLICATION",
+        "TASK_MAKE_CREDIT_OFFER"
+      ],
+      "batch_type": "Parallel",
+      "rule_type": "size",
+      "duration_fn": "0.2*(size - 5)**2 + 0.75",
+      "min_size": 0,
+      "max_size": 10
+    }
+  ]
+}
