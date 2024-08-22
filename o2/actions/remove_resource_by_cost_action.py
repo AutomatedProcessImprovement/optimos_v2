@@ -7,7 +7,6 @@ from o2.actions.modify_resource_base_action import (
 )
 from o2.models.self_rating import RATING, SelfRatingInput
 from o2.store import Store
-from o2.constants import OPTIMIZE_CALENDAR_FIRST
 from o2.actions.base_action import RateSelfReturnType
 
 
@@ -35,7 +34,7 @@ class RemoveResourceByCostAction(ModifyResourceBaseAction):
             if not resource.can_safely_be_removed(store.state.timetable):
                 continue
             yield (
-                RemoveResourceByCostAction.DEFAULT_RATING,
+                RemoveResourceByCostAction.get_default_rating(store),
                 RemoveResourceByCostAction(
                     RemoveResourceByCostActionParamsType(
                         resource_id=resource.id,

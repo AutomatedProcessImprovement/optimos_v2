@@ -37,7 +37,7 @@ class RemoveResourceByUtilizationAction(ModifyResourceBaseAction):
             if resource is None or not resource.can_safely_be_removed(timetable):
                 continue
             yield (
-                RemoveResourceByUtilizationAction.DEFAULT_RATING,
+                RemoveResourceByUtilizationAction.get_default_rating(store),
                 RemoveResourceByUtilizationAction(
                     RemoveResourceByUtilizationActionParamsType(
                         resource_id=resource_id,

@@ -18,8 +18,6 @@ from wta import (
     convert_timestamp_columns_to_datetime,
 )
 
-from o2.constants import SHOW_SIMULATION_ERRORS
-
 TaskKPIs: TypeAlias = dict[str, KPIMap]
 RessourceKPIs: TypeAlias = dict[str, ResourceKPI]
 SimulationKPIs: TypeAlias = tuple[KPIMap, TaskKPIs, RessourceKPIs, datetime, datetime]
@@ -78,6 +76,7 @@ class SimulationRunner:
     @staticmethod
     def run_simulation(
         state: "State",
+        show_simulation_errors: bool = False,
     ) -> RunSimulationResult:
         """Run simulation and return the results."""
         try:
@@ -94,6 +93,6 @@ class SimulationRunner:
             return global_kpis, task_kpis, resource_kpis, log_info
         except Exception as e:
             print(f"Error in simulation: {e}")
-            if SHOW_SIMULATION_ERRORS:
+            if show_simulation_errors:
                 print(traceback.format_exc())
             raise e

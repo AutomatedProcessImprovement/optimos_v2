@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, TypeAlias
 
 from o2.models.constraints import ConstraintsType
 from o2.models.evaluation import Evaluation
+from o2.models.settings import Settings
 from o2.models.state import State
 from o2.pareto_front import FRONT_STATUS, ParetoFront
 
@@ -13,15 +14,23 @@ ActionTry: TypeAlias = tuple[FRONT_STATUS, Evaluation, State, "BaseAction"]
 
 
 class Store:
+    """The Store class is the main class that holds the state of the application.
+
+    It holds the current state, the constraints, the previous actions and states,
+    the Pareto Fronts, the Tabu List and the Settings.
+    """
+
     def __init__(self, state: State, constraints: ConstraintsType) -> None:
         self.state = state
         self.constraints = constraints
 
-        self.previous_actions: list["BaseAction"] = []
+        self.previous_actions: list[BaseAction] = []
         self.previous_states: list[State] = []
         self.pareto_fronts: list[ParetoFront] = []
 
-        self.tabu_list: list["BaseAction"] = []
+        self.tabu_list: list[BaseAction] = []
+
+        self.settings: Settings = Settings()
 
     @property
     def current_pareto_front(self) -> ParetoFront:
@@ -93,7 +102,7 @@ class Store:
 
     def evaluate(self) -> tuple[Evaluation, FRONT_STATUS]:
         """Evaluate the current state and add it to the Pareto Front."""
-        evaluation = self.state.evaluate()
+        evaluation = self.state.evaluate(self.settings.show_simulation_errors)
         status = self.current_pareto_front.is_in_front(evaluation)
         if status == FRONT_STATUS.IN_FRONT:
             self.current_pareto_front.add(evaluation, self.state)

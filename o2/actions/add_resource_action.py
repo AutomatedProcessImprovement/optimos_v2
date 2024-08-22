@@ -54,7 +54,7 @@ class AddResourceAction(ModifyResourceBaseAction):
                     continue
                 if len(resource.assigned_tasks) == 1:
                     yield (
-                        AddResourceAction.DEFAULT_RATING,
+                        AddResourceAction.get_default_rating(store),
                         AddResourceAction(
                             AddResourceActionParamsType(
                                 resource_id=resource.id,
@@ -69,7 +69,7 @@ class AddResourceAction(ModifyResourceBaseAction):
                     )
                     if least_done_task is not None:
                         yield (
-                            AddResourceAction.DEFAULT_RATING,
+                            AddResourceAction.get_default_rating(store),
                             AddResourceAction(
                                 AddResourceActionParamsType(
                                     resource_id=resource.id,
@@ -90,7 +90,7 @@ class AddResourceAction(ModifyResourceBaseAction):
                         continue
                     if len(resource.assigned_tasks) == 1:
                         yield (
-                            AddResourceAction.DEFAULT_RATING,
+                            AddResourceAction.get_default_rating(store),
                             AddResourceAction(
                                 AddResourceActionParamsType(
                                     resource_id=resource.id,
@@ -107,7 +107,7 @@ class AddResourceAction(ModifyResourceBaseAction):
                         )
                         if least_done_task is not None:
                             yield (
-                                AddResourceAction.DEFAULT_RATING,
+                                AddResourceAction.get_default_rating(store),
                                 AddResourceAction(
                                     AddResourceActionParamsType(
                                         resource_id=resource.id,

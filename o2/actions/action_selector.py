@@ -26,7 +26,6 @@ from o2.actions.remove_rule_action import (
     RemoveRuleAction,
     RemoveRuleActionParamsType,
 )
-from o2.constants import ONLY_ALLOW_LOW_LAST, OPTIMOS_LEGACY_MODE, PRINT_CHOSEN_ACTIONS
 from o2.models.constraints import RULE_TYPE
 from o2.models.evaluation import Evaluation
 from o2.models.rule_selector import RuleSelector
@@ -51,15 +50,15 @@ ACTION_CATALOG: list[Type[BaseAction]] = [
     RemoveRuleAction,
 ]
 
-if OPTIMOS_LEGACY_MODE:
-    ACTION_CATALOG = [
-        AddResourceAction,
-        ModifyCalendarByCostAction,
-        ModifyCalendarByITAction,
-        ModifyCalendarByWTAction,
-        RemoveResourceByCostAction,
-        RemoveResourceByUtilizationAction,
-    ]
+
+ACTION_CATALOG_LEGACY = [
+    AddResourceAction,
+    ModifyCalendarByCostAction,
+    ModifyCalendarByITAction,
+    ModifyCalendarByWTAction,
+    RemoveResourceByCostAction,
+    RemoveResourceByUtilizationAction,
+]
 
 
 class ActionSelector:
@@ -82,9 +81,14 @@ class ActionSelector:
             )
 
         print_l1("Choosing best action...")
+        catalog = (
+            ACTION_CATALOG_LEGACY
+            if store.settings.optimos_legacy_mode
+            else ACTION_CATALOG
+        )
         # Get a list rating generators for all actions
         action_generators = [
-            Action.rate_self(store, rating_input) for Action in ACTION_CATALOG
+            Action.rate_self(store, rating_input) for Action in catalog
         ]
 
         # Get valid actions from the generators, even multiple per generator,
@@ -100,7 +104,7 @@ class ActionSelector:
         sorted_actions = sorted(possible_actions, key=lambda x: x[0], reverse=True)
 
         # If we have non-low rated actions, we should try them first!
-        if ONLY_ALLOW_LOW_LAST and any(
+        if store.settings.only_allow_low_last and any(
             rating > RATING.LOW for rating, _ in sorted_actions
         ):
             sorted_actions = [
@@ -115,7 +119,7 @@ class ActionSelector:
             f"Chose {len(selected_actions)} actions with average rating {avg_rating} to evaluate."  # noqa: E501
         )
 
-        if PRINT_CHOSEN_ACTIONS:
+        if store.settings.print_chosen_actions:
             for rating, action in selected_actions:
                 print_l2(f"{action} with rating {rating}")
 
@@ -145,7 +149,7 @@ class ActionSelector:
         #     if rule.can_be_modified(store, -1) and rule.id() not in tabu_indices
         # ]
 
-        if OPTIMOS_LEGACY_MODE:
+        if store.settings.optimos_legacy_mode:
             # Disable rule evaluation in legacy mode
             return {}
 

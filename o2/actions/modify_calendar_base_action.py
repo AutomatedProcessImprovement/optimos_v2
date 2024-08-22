@@ -1,16 +1,13 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, replace
-from typing import Literal, Optional
 
 from typing_extensions import NotRequired
 
 from o2.actions.base_action import BaseAction, BaseActionParamsType, RateSelfReturnType
-from o2.constants import OPTIMIZE_CALENDAR_FIRST
-from o2.models.constraints import ConstraintsType
 from o2.models.days import DAY
 from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.state import State
-from o2.models.timetable import ResourceCalendar, TimePeriod, TimetableType
+from o2.models.timetable import ResourceCalendar, TimePeriod
 from o2.store import Store
 from o2.util.indented_printer import print_l2
 
@@ -93,4 +90,7 @@ class ModifyCalendarBaseAction(BaseAction, ABC):
             return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['day']}-{self.params['period_index']}) -- Remove)"  # noqa: E501
         return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['day']}-{self.params['period_index']}) -- Unknown)"  # noqa: E501
 
-    DEFAULT_RATING = RATING.HIGH if OPTIMIZE_CALENDAR_FIRST else RATING.LOW
+    @staticmethod
+    def get_default_rating(store: "Store") -> RATING:
+        """Return the default rating for this action."""
+        return RATING.HIGH if store.settings.optimize_calendar_first else RATING.LOW

@@ -61,7 +61,7 @@ class ModifyCalendarByITAction(ModifyCalendarBaseAction):
                         valid = ModifyCalendarByITAction._verify(store, new_calendar)
                         if valid:
                             yield (
-                                ModifyCalendarByITAction.DEFAULT_RATING,
+                                ModifyCalendarByITAction.get_default_rating(store),
                                 ModifyCalendarByITAction(
                                     ModifyCalendarByITActionParamsType(
                                         calendar_id=calendar.id,
@@ -80,7 +80,7 @@ class ModifyCalendarByITAction(ModifyCalendarBaseAction):
                         valid = ModifyCalendarByITAction._verify(store, new_calendar)
                         if valid:
                             yield (
-                                ModifyCalendarByITAction.DEFAULT_RATING,
+                                ModifyCalendarByITAction.get_default_rating(store),
                                 ModifyCalendarByITAction(
                                     ModifyCalendarByITActionParamsType(
                                         calendar_id=calendar.id,
@@ -103,7 +103,7 @@ class ModifyCalendarByITAction(ModifyCalendarBaseAction):
                         valid = ModifyCalendarByITAction._verify(store, new_calendar)
                         if valid:
                             yield (
-                                ModifyCalendarByITAction.DEFAULT_RATING,
+                                ModifyCalendarByITAction.get_default_rating(store),
                                 ModifyCalendarByITAction(
                                     ModifyCalendarByITActionParamsType(
                                         calendar_id=calendar.id,

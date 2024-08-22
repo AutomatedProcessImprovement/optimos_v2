@@ -4,7 +4,6 @@ import traceback
 
 from o2.actions.action_selector import ActionSelector
 from o2.actions.base_action import BaseAction
-from o2.constants import MAX_ITERATIONS, MAX_NON_IMPROVING_ACTIONS
 from o2.models.evaluation import Evaluation
 from o2.pareto_front import FRONT_STATUS
 from o2.store import ActionTry, Store
@@ -14,12 +13,10 @@ MAX_PARALLEL = os.cpu_count() or 1
 
 
 class HillClimber:
-    def __init__(
-        self, store: Store, max_iter=MAX_ITERATIONS, max_parallel=MAX_PARALLEL
-    ):
+    def __init__(self, store: Store, max_iter=None, max_parallel=MAX_PARALLEL):
         self.store = store
-        self.max_iter = max_iter
-        self.max_non_improving_iter = MAX_NON_IMPROVING_ACTIONS
+        self.max_iter = max_iter or store.settings.max_iterations
+        self.max_non_improving_iter = store.settings.max_iterations
         self.max_parallel = max_parallel
         self.executor = concurrent.futures.ProcessPoolExecutor(
             max_workers=self.max_parallel
@@ -73,7 +70,9 @@ class HillClimber:
                         elif status == FRONT_STATUS.IS_DOMINATED:
                             print_l3("Pareto front IS DOMINATED by new evaluation.")
                             print_l3(f"New best Evaluation: {evaluation}")
-                            self.max_non_improving_iter = MAX_NON_IMPROVING_ACTIONS
+                            self.max_non_improving_iter = (
+                                self.store.settings.max_non_improving_actions
+                            )
 
             except Exception as e:
                 print_l1(f"Error in iteration: {e}")

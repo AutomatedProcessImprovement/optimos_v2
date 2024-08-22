@@ -26,9 +26,9 @@ class State:
         """Replace the timetable with the given changes."""
         return replace(self, timetable=replace(self.timetable, **changes))
 
-    def evaluate(self) -> Evaluation:
+    def evaluate(self, show_simulation_errors: bool = False) -> Evaluation:
         """Evaluate the current state."""
-        result = SimulationRunner.run_simulation(self)
+        result = SimulationRunner.run_simulation(self, show_simulation_errors)
         return Evaluation.from_run_simulation_result(result)
 
     def to_sim_diff_setup(self) -> SimDiffSetup:

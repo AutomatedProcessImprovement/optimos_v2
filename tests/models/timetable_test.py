@@ -1,8 +1,7 @@
-from optimos_v2.tests.fixtures.timetable_generator import TimetableGenerator
-
 from o2.models.days import DAY
 from o2.models.state import State
 from o2.models.timetable import Resource, ResourceCalendar, TimePeriod
+from tests.fixtures.timetable_generator import TimetableGenerator
 
 
 def test_time_period_bitmask():

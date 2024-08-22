@@ -58,7 +58,7 @@ class ModifyCalendarByCostAction(ModifyCalendarBaseAction):
                         valid = ModifyCalendarByCostAction._verify(store, new_calendar)
                         if valid:
                             yield (
-                                ModifyCalendarByCostAction.DEFAULT_RATING,
+                                ModifyCalendarByCostAction.get_default_rating(store),
                                 ModifyCalendarByCostAction(
                                     params=ModifyCalendarByCostActionParamsType(
                                         calendar_id=calendar.id,
@@ -81,7 +81,9 @@ class ModifyCalendarByCostAction(ModifyCalendarBaseAction):
                             )
                             if valid:
                                 yield (
-                                    ModifyCalendarByCostAction.DEFAULT_RATING,
+                                    ModifyCalendarByCostAction.get_default_rating(
+                                        store
+                                    ),
                                     ModifyCalendarByCostAction(
                                         params=ModifyCalendarByCostActionParamsType(
                                             calendar_id=calendar.id,
@@ -99,7 +101,7 @@ class ModifyCalendarByCostAction(ModifyCalendarBaseAction):
                         valid = ModifyCalendarByCostAction._verify(store, new_calendar)
                         if valid:
                             yield (
-                                ModifyCalendarByCostAction.DEFAULT_RATING,
+                                ModifyCalendarByCostAction.get_default_rating(store),
                                 ModifyCalendarByCostAction(
                                     params=ModifyCalendarByCostActionParamsType(
                                         calendar_id=calendar.id,
@@ -116,7 +118,7 @@ class ModifyCalendarByCostAction(ModifyCalendarBaseAction):
                         valid = ModifyCalendarByCostAction._verify(store, new_calendar)
                         if valid:
                             yield (
-                                ModifyCalendarByCostAction.DEFAULT_RATING,
+                                ModifyCalendarByCostAction.get_default_rating(store),
                                 ModifyCalendarByCostAction(
                                     params=ModifyCalendarByCostActionParamsType(
                                         calendar_id=calendar.id,

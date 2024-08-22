@@ -5,7 +5,6 @@ from typing import Literal
 from typing_extensions import NotRequired
 
 from o2.actions.base_action import BaseAction, BaseActionParamsType, RateSelfReturnType
-from o2.constants import OPTIMIZE_CALENDAR_FIRST
 from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.state import State
 from o2.store import Store
@@ -55,6 +54,7 @@ class ModifyResourceBaseAction(BaseAction, ABC):
                 self.params["task_id"],
             )
             return replace(state, timetable=new_timetable)
+        return state
 
     @staticmethod
     @abstractmethod
@@ -75,4 +75,7 @@ class ModifyResourceBaseAction(BaseAction, ABC):
             return f"{self.__class__.__name__}(Resource '{self.params['resource_id']}' -- Remove Task '{self.params['task_id']}')"  # noqa: E501
         return f"{self.__class__.__name__}(Resource '{self.params['resource_id']}' -- Unknown)"
 
-    DEFAULT_RATING = RATING.LOW if OPTIMIZE_CALENDAR_FIRST else RATING.HIGH
+    @staticmethod
+    def get_default_rating(store: "Store") -> RATING:
+        """Get the default rating for this action."""
+        return RATING.LOW if store.settings.optimize_calendar_first else RATING.HIGH
