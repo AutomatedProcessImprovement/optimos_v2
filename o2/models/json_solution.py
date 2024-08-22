@@ -66,7 +66,7 @@ class _Solution(JSONWizard):
             )
             assert constraints is not None, f"Resource {resource.id} has no constraints"
             calendar = state.timetable.get_calendar_for_resource(resource.id)
-            assert calendar is not None
+            assert calendar is not None, f"Resource {resource.id} has no calendar"
             pools[f"{resource.id}"] = _ResourceInfo(
                 total_amount=resource.get_total_cost(state.timetable),
                 never_work_masks=constraints.never_work_masks,

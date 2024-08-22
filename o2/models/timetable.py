@@ -740,7 +740,11 @@ class TimetableType(JSONWizard):
         """
         for resource_profile in self.resource_profiles:
             for resource in resource_profile.resource_list:
-                if resource.name == resource_name:
+                # For compatibility with legacy Optimos, we also check for the
+                # resource name with "timetable" appended.
+                if resource.name == resource_name or resource.id == (
+                    resource_name + "timetable"
+                ):
                     return resource
         return None
 
