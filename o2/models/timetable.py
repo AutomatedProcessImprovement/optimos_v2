@@ -1,3 +1,4 @@
+from functools import reduce
 import hashlib
 import re
 from dataclasses import asdict, dataclass, field, replace
@@ -21,6 +22,7 @@ from dataclass_wizard import JSONWizard
 
 from o2.util.bit_mask_helper import any_has_overlap, get_ranges_from_bitmask
 from o2.util.helper import random_string
+from o2.models.legacy_constraints import WorkMasks
 
 if TYPE_CHECKING:
     from o2.models.rule_selector import RuleSelector
@@ -434,6 +436,14 @@ class ResourceCalendar(JSONWizard):
     def get_periods_containing_day(self, day: DAY) -> List[TimePeriod]:
         """Get the time periods that contain a specific day."""
         return [tp for tp in self.time_periods if is_day_in_range(day, tp.from_, tp.to)]
+
+    def to_work_masks(self) -> WorkMasks:
+        """Convert the calendar to work masks."""
+        days = {
+            day: reduce(operator.or_, [tp.to_bitmask() for tp in time_periods])
+            for day, time_periods in self.split_group_by_day()
+        }
+        return WorkMasks(**days)
 
     @property
     def total_hours(self) -> int:

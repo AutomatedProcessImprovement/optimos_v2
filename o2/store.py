@@ -70,7 +70,7 @@ class Store:
         self.state = self.previous_states.pop()
         self.tabu_list.append(self.previous_actions.pop())
 
-    def proccess_many_action_tries(
+    def process_many_action_tries(
         self, evaluations: list[ActionTry]
     ) -> tuple[list[ActionTry], list[ActionTry]]:
         """Process a list of action evaluations.

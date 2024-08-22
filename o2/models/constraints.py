@@ -1,11 +1,11 @@
 from dataclasses import dataclass, field, replace
 from enum import Enum
-from typing import TYPE_CHECKING, List, TypeGuard, Union
+from typing import TYPE_CHECKING, List, Optional, TypeGuard, Union
 
 from dataclass_wizard import JSONWizard
 
 from o2.models.days import DAY
-from o2.models.legacy_constraints import ConstraintsResourcesItem
+from o2.models.legacy_constraints import ConstraintsResourcesItem, ResourceConstraints
 
 if TYPE_CHECKING:
     from o2.models.timetable import TimetableType
@@ -158,6 +158,19 @@ class ConstraintsType(JSONWizard):
                 resource_constraints.verify_timetable(timetable)
                 for resource_constraints in self.resources
             )
+        )
+
+    def get_legacy_constraints_for_resource(
+        self, resource_id: str
+    ) -> Optional[ResourceConstraints]:
+        """Get the legacy constraints for a specific resource."""
+        return next(
+            (
+                constraint.constraints
+                for constraint in self.resources
+                if constraint.id == resource_id
+            ),
+            None,
         )
 
     def get_batching_constraints_for_task(self, task: str) -> list[BatchingConstraints]:

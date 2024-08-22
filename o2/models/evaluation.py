@@ -39,6 +39,11 @@ class Evaluation:
         )
 
     @property
+    def avg_cycle_time(self) -> float:
+        """Get the mean cycle time of the simulation."""
+        return self.global_kpis.cycle_time.avg
+
+    @property
     def total_cycle_time(self) -> float:
         """Get the total cycle time of the simulation."""
         return self.global_kpis.cycle_time.total
@@ -57,6 +62,30 @@ class Evaluation:
     def cases(self) -> list[Trace]:
         """Get the cases of the simulation."""
         return self.log_info.trace_list
+
+    @property
+    def resource_utilizations(self) -> dict[str, float]:
+        """Get the utilization of all resources."""
+        return {
+            resource_id: resource_kpi.utilization
+            for resource_id, resource_kpi in self.resource_kpis.items()
+        }
+
+    @property
+    def resource_worked_times(self) -> dict[str, float]:
+        """Get the works time of all resources."""
+        return {
+            resource_id: resource_kpi.worked_time.total
+            for resource_id, resource_kpi in self.resource_kpis.items()
+        }
+
+    @property
+    def resource_available_times(self) -> dict[str, float]:
+        """Get the availability of all resources."""
+        return {
+            resource_id: resource_kpi.available_time
+            for resource_id, resource_kpi in self.resource_kpis.items()
+        }
 
     # TODO: Think about using avg's instead of totals?
 
@@ -134,14 +163,10 @@ class Evaluation:
 
     def get_least_utilized_resources(self) -> list[str]:
         """Get a list of resources that have the least utilization."""
-        resource_utilization = [
-            (resource_name, resource_kpi.utilization)
-            for resource_name, resource_kpi in self.resource_kpis.items()
-        ]
         return [
             resource_name
             for resource_name, _ in sorted(
-                resource_utilization, key=lambda x: x[1], reverse=False
+                self.resource_utilizations.items(), key=lambda x: x[1], reverse=False
             )
         ]
 
