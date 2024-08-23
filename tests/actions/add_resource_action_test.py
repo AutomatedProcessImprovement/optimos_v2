@@ -11,6 +11,7 @@ from o2.models.days import DAY
 from o2.models.self_rating import SelfRatingInput
 from o2.models.timetable import Resource, TimePeriod
 from o2.store import Store
+from o2.util.helper import name_is_clone_of
 from tests.fixtures.constraints_generator import ConstraintsGenerator
 from tests.fixtures.timetable_generator import TimetableGenerator
 
@@ -85,7 +86,7 @@ def test_action_creation_two_resources_two_tasks(two_tasks_store: Store):
 
     assert action is not None
     assert "resource_id" in action.params
-    assert Resource.name_is_clone_of(
+    assert name_is_clone_of(
         action.params["resource_id"], TimetableGenerator.RESOURCE_ID
     )
     assert "task_id" in action.params

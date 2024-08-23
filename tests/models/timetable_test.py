@@ -1,6 +1,7 @@
 from o2.models.days import DAY
 from o2.models.state import State
 from o2.models.timetable import Resource, ResourceCalendar, TimePeriod
+from o2.util.helper import name_is_clone_of
 from tests.fixtures.timetable_generator import TimetableGenerator
 
 
@@ -226,10 +227,40 @@ def test_clone_resource_basic(two_tasks_state: State):
     original, clone = timetable.resource_profiles[1].resource_list
 
     assert clone.is_clone_of(original)
-    assert Resource.name_is_clone_of(
+    assert name_is_clone_of(
         clone.name,
         original.name,
     )
+
+
+def test_clone_name_with_timetable_suffix(two_tasks_state: State):
+    state = two_tasks_state
+
+    timetable = state.timetable.clone_resource(
+        TimetableGenerator.RESOURCE_ID, [TimetableGenerator.FIRST_ACTIVITY]
+    )
+    original, clone = timetable.resource_profiles[1].resource_list
+
+    assert clone.is_clone_of(original)
+    assert name_is_clone_of(clone.name, f"{TimetableGenerator.RESOURCE_ID}timetable")
+
+
+def test_clone_of_clone(two_tasks_state: State):
+    state = two_tasks_state
+
+    timetable = state.timetable.clone_resource(
+        TimetableGenerator.RESOURCE_ID, [TimetableGenerator.FIRST_ACTIVITY]
+    )
+    original, clone = timetable.resource_profiles[1].resource_list
+
+    timetable = timetable.clone_resource(clone.id, [TimetableGenerator.FIRST_ACTIVITY])
+
+    clone2 = timetable.resource_profiles[1].resource_list[-1]
+
+    assert clone2 is not None
+    assert clone2.id.count("clone") == 1
+    assert clone2.is_clone_of(original)
+    assert name_is_clone_of(clone2.name, original.id)
 
 
 def test_clone_resource_timetable(two_tasks_state: State):

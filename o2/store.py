@@ -48,6 +48,11 @@ class Store:
         return self.pareto_fronts[0].evaluations[0]
 
     @property
+    def base_state(self) -> State:
+        """Returns the base state, e.g. the state before any changes."""
+        return self.pareto_fronts[0].states[0]
+
+    @property
     def current_fastest_evaluation(self):
         if (len(self.current_pareto_front.evaluations)) == 0:
             raise ValueError("No Base Evaluation found in Pareto Front")
@@ -89,12 +94,16 @@ class Store:
                 chosen_tries.append(action_try)
                 self.previous_actions.append(action)
                 self.current_pareto_front.add(evaluation, new_state)
+                self.previous_states.append(self.state)
+                self.state = new_state
             elif status == FRONT_STATUS.IS_DOMINATED:
                 chosen_tries.append(action_try)
                 self.previous_actions.append(action)
                 self.pareto_fronts.append(ParetoFront())
                 self.current_pareto_front.add(evaluation, new_state)
                 self.reset_tabu_list()
+                self.previous_states.append(self.state)
+                self.state = new_state
             else:
                 self.tabu_list.append(action)
                 not_chosen_tries.append(action_try)
@@ -127,8 +136,9 @@ class Store:
             evaluation = new_state.evaluate()
             status = self.current_pareto_front.is_in_front(evaluation)
             return (status, evaluation, new_state, action)
-        except Exception:
-            return (FRONT_STATUS.IS_DOMINATED, Evaluation.empty(), self.state, action)
+        except Exception as e:
+            print(f"Error in try_action: {e}")
+            return (FRONT_STATUS.DOMINATES, Evaluation.empty(), self.state, action)
 
     def replaceConstraints(self, /, **changes):
         self.constraints = replace(self.constraints, **changes)
@@ -144,3 +154,14 @@ class Store:
 
     def is_tabu(self, action: "BaseAction"):
         return action in self.tabu_list
+
+    def get_state_index(self, state: State):
+        """Get the index of a state.
+
+        This can be used to get a "iteration" count
+        """
+        return (
+            len(self.previous_states)
+            if self.state == state
+            else next((i for i, s in enumerate(self.previous_states) if state == s), -1)
+        )

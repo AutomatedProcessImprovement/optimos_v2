@@ -18,6 +18,10 @@ class Settings:
     """Should this application behave like an approximation of the original OPTIMOS?"""
 
     only_allow_low_last = True
+    """Should `low` rated Actions be tried last?
+ 
+    E.g. ONLY if no other/higher Action is available.
+    """
     optimize_calendar_first = True
     """This is a setting similar to optimos CA/AR | AR/CA Setting
 

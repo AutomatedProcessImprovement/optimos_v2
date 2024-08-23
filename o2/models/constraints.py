@@ -6,6 +6,7 @@ from dataclass_wizard import JSONWizard
 
 from o2.models.days import DAY
 from o2.models.legacy_constraints import ConstraintsResourcesItem, ResourceConstraints
+from o2.util.helper import name_is_clone_of
 
 if TYPE_CHECKING:
     from o2.models.timetable import TimetableType
@@ -171,6 +172,7 @@ class ConstraintsType(JSONWizard):
                 if (
                     constraint.id == resource_id
                     or constraint.id == (resource_id + "timetable")
+                    or name_is_clone_of(resource_id, constraint.id)
                 )
             ),
             None,

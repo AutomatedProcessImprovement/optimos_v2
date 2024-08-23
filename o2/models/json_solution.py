@@ -21,18 +21,21 @@ class JSONSolutions(JSONWizard):
     current_solution: "_Solution"
     final_solution_metrics: "_FinalSolutionMetric"
 
+    class _(JSONWizard.Meta):
+        key_transform_with_dump = "SNAKE"
+
     @staticmethod
     def from_store(store: Store) -> "JSONSolutions":
         """Create a JSONSolutions object from a Store object."""
         return JSONSolutions(
             name="Optimos Run",
             initial_solution=_Solution.from_evaluation(
-                store, store.state, store.base_evaluation
+                store, store.base_state, store.base_evaluation
             ),
             final_solutions=[
-                _Solution.from_evaluation(store, store.state, evaluation)
+                _Solution.from_evaluation(store, front.states[index], evaluation)
                 for front in store.pareto_fronts
-                for evaluation in front.evaluations
+                for index, evaluation in enumerate(front.evaluations)
             ],
             current_solution=_Solution.from_evaluation(
                 store, store.state, store.current_fastest_evaluation
@@ -54,6 +57,9 @@ class _Solution(JSONWizard):
     cons_params: ConstraintsType
     name: str
     iteration: int
+
+    class _(JSONWizard.Meta):
+        key_transform_with_dump = "SNAKE"
 
     @staticmethod
     def from_evaluation(
@@ -85,11 +91,12 @@ class _Solution(JSONWizard):
                 assigned_tasks=resource.assigned_tasks,
                 calendar=resource.calendar,
             )
+        iteration = store.get_state_index(state)
         return _Solution(
             sim_params=state.timetable,
             cons_params=store.constraints,
             name="Optimos Run",
-            iteration=-1,
+            iteration=iteration,
             solution_info=_SolutionInfo(
                 mean_process_cycle_time=evaluation.avg_cycle_time,
                 deviation_info=_DeviationInfo(
@@ -130,11 +137,17 @@ class _SolutionInfo(JSONWizard):
     total_pool_time: float
     available_time: dict[str, float]
 
+    class _(JSONWizard.Meta):
+        key_transform_with_dump = "SNAKE"
+
 
 @dataclass(frozen=True)
 class _PoolsInfo(JSONWizard):
     pools: dict[str, "_ResourceInfo"]
     task_allocations: dict[str, list[str]]
+
+    class _(JSONWizard.Meta):
+        key_transform_with_dump = "SNAKE"
 
 
 @dataclass(frozen=True)
@@ -148,12 +161,18 @@ class _ResourceInfo(
     always_work_masks: WorkMasks
     shifts: list[WorkMasks]
 
+    class _(JSONWizard.Meta):
+        key_transform_with_dump = "SNAKE"
+
 
 @dataclass(frozen=True)
 class _DeviationInfo(JSONWizard):
     cycle_time_deviation: float
     execution_duration_deviation: float
     dev_type: float
+
+    class _(JSONWizard.Meta):
+        key_transform_with_dump = "SNAKE"
 
 
 @dataclass(frozen=True)
@@ -162,6 +181,9 @@ class _FinalSolutionMetric:
     ave_cost: float
     time_metric: float
     cost_metric: float
+
+    class _(JSONWizard.Meta):
+        key_transform_with_dump = "SNAKE"
 
     @staticmethod
     def from_store(

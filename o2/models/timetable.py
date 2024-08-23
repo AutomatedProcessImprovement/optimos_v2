@@ -1,8 +1,8 @@
-from functools import reduce
 import hashlib
 import re
 from dataclasses import asdict, dataclass, field, replace
 from enum import Enum
+from functools import reduce
 from itertools import groupby
 from json import dumps
 from typing import (
@@ -20,9 +20,9 @@ from typing import (
 
 from dataclass_wizard import JSONWizard
 
-from o2.util.bit_mask_helper import any_has_overlap, get_ranges_from_bitmask
-from o2.util.helper import random_string
 from o2.models.legacy_constraints import WorkMasks
+from o2.util.bit_mask_helper import any_has_overlap, get_ranges_from_bitmask
+from o2.util.helper import CLONE_REGEX, name_is_clone_of, random_string
 
 if TYPE_CHECKING:
     from o2.models.rule_selector import RuleSelector
@@ -62,9 +62,6 @@ class DISTRIBUTION_TYPE(str, Enum):
     LOG_NORMAL = "lognorm"
 
 
-CLONE_REGEX = re.compile(r"^(.*)_clone_[a-z0-9]{8}$")
-
-
 @dataclass(frozen=True)
 class Resource(JSONWizard):
     id: str
@@ -97,7 +94,12 @@ class Resource(JSONWizard):
 
     def clone(self, assigned_tasks: List[str]) -> "Resource":
         """Clone the resource with new assigned tasks."""
-        new_name_id = f"{self.name}_clone_{random_string(8)}"
+        base_name = self.name
+        match = CLONE_REGEX.match(self.name)
+        if match is not None:
+            base_name = match.group(1)
+
+        new_name_id = f"{base_name}_clone_{random_string(8)}"
         return replace(
             self,
             id=new_name_id,
@@ -117,12 +119,6 @@ class Resource(JSONWizard):
         """Check if the resource is a clone of another resource."""
         match = CLONE_REGEX.match(self.name)
         return match is not None and match.group(1) == resource.name
-
-    @staticmethod
-    def name_is_clone_of(potential_clone_name: str, resource_id: str) -> bool:
-        """Check if the name is a clone of a resource id."""
-        match = CLONE_REGEX.match(potential_clone_name)
-        return match is not None and match.group(1) == resource_id
 
 
 @dataclass(frozen=True)
@@ -744,8 +740,10 @@ class TimetableType(JSONWizard):
             for resource in resource_profile.resource_list:
                 # For compatibility with legacy Optimos, we also check for the
                 # resource name with "timetable" appended.
-                if resource.name == resource_name or resource.id == (
-                    resource_name + "timetable"
+                if (
+                    resource.name == resource_name
+                    or resource.id == (resource_name + "timetable")
+                    or (resource.id + "timetable") == resource_name
                 ):
                     return resource
         return None
@@ -809,7 +807,7 @@ class TimetableType(JSONWizard):
         return [
             resource_calendar
             for resource_calendar in self.resource_calendars
-            if Resource.name_is_clone_of(resource_calendar.name, resource_name)
+            if name_is_clone_of(resource_calendar.name, resource_name)
         ]
 
     def get_calendar(self, calendar_id: str) -> Optional[ResourceCalendar]:
@@ -893,6 +891,12 @@ class TimetableType(JSONWizard):
         1. in the resource calendars
         2. in the resource pools of the assigned_tasks
         3. in the task_resource_distribution of the assigned_tasks
+
+        The Resource Constraints will not be cloned, because the original
+        constraints will automatically be "assigned" based on the name.
+
+        The Naming of the resource will also reflect clones of clones,
+        meaning a clone of a clone will have the same name to a first level clone
         """
         original_resource = self.get_resource(resource_id)
         if original_resource is None:
