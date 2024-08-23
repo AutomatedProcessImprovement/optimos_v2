@@ -40,6 +40,10 @@ def main():
         state=initial_state,
         constraints=constraints,
     )
+
+    # Change settings here:
+    # store.settings.[...] = ...
+
     hill_climber = o2.hill_climber.HillClimber(store)
     hill_climber.solve()
     # SimulationRunner.run_simulation(store.state)
