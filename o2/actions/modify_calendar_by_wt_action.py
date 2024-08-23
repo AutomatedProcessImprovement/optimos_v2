@@ -2,7 +2,6 @@ from dataclasses import dataclass, replace
 from typing import Literal
 
 from o2.actions.base_action import RateSelfReturnType
-
 from o2.actions.modify_calendar_base_action import (
     ModifyCalendarBaseAction,
     ModifyCalendarBaseActionParamsType,
@@ -87,7 +86,7 @@ class ModifyCalendarByWTAction(ModifyCalendarBaseAction):
                                         period_index=index,
                                         day=day,
                                         add_hours_before=0,
-                                        shift_hours=1,
+                                        shift_hours=-1,
                                     )
                                 ),
                             )

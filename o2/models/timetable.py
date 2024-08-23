@@ -244,6 +244,7 @@ class TimePeriod(JSONWizard):
         """Get new TimePeriod with hours shifted.
 
         If hours is positive, the period is shifted forward.
+        (Begins later and ends later)
         """
         return self._modify(add_start=-hours, add_end=hours)
 

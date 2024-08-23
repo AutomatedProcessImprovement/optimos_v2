@@ -20,12 +20,13 @@ class JSONSolutions(JSONWizard):
     final_solutions: Optional[list["_Solution"]]
     current_solution: "_Solution"
     final_solution_metrics: "_FinalSolutionMetric"
+    cons_params: ConstraintsType
 
     class _(JSONWizard.Meta):
         key_transform_with_dump = "SNAKE"
 
     @staticmethod
-    def from_store(store: Store) -> "JSONSolutions":
+    def from_store(store: Store, last_iteration: bool = False) -> "JSONSolutions":
         """Create a JSONSolutions object from a Store object."""
         return JSONSolutions(
             name="Optimos Run",
@@ -39,8 +40,13 @@ class JSONSolutions(JSONWizard):
             ],
             current_solution=_Solution.from_evaluation(
                 store, store.state, store.current_fastest_evaluation
-            ),
-            final_solution_metrics=_FinalSolutionMetric.from_store(store),
+            )
+            if not last_iteration
+            else None,
+            final_solution_metrics=_FinalSolutionMetric.from_store(store)
+            if last_iteration
+            else None,
+            cons_params=store.constraints,
         )
 
 
@@ -54,7 +60,6 @@ class _Solution(JSONWizard):
 
     solution_info: "_SolutionInfo"
     sim_params: TimetableType
-    cons_params: ConstraintsType
     name: str
     iteration: int
 
@@ -94,7 +99,6 @@ class _Solution(JSONWizard):
         iteration = store.get_state_index(state)
         return _Solution(
             sim_params=state.timetable,
-            cons_params=store.constraints,
             name="Optimos Run",
             iteration=iteration,
             solution_info=_SolutionInfo(
@@ -196,6 +200,10 @@ class _FinalSolutionMetric:
         return _FinalSolutionMetric(
             ave_time=pareto_front.avg_cycle_time,
             ave_cost=pareto_front.avg_cost,
-            time_metric=initial_front.avg_cycle_time / pareto_front.avg_cycle_time,
-            cost_metric=initial_front.avg_cost / pareto_front.avg_cost,
+            time_metric=(initial_front.avg_cycle_time / pareto_front.avg_cycle_time)
+            if pareto_front.avg_cycle_time > 0
+            else 0,
+            cost_metric=(initial_front.avg_cost / pareto_front.avg_cost)
+            if pareto_front.avg_cost > 0
+            else 0,
         )

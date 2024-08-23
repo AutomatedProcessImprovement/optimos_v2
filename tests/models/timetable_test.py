@@ -1,4 +1,5 @@
 from o2.models.days import DAY
+from o2.models.legacy_constraints import WorkMasks
 from o2.models.state import State
 from o2.models.timetable import Resource, ResourceCalendar, TimePeriod
 from o2.util.helper import name_is_clone_of
@@ -398,3 +399,22 @@ def test_remove_task_from_resource(two_tasks_state: State):
 
     assert resource.id == TimetableGenerator.RESOURCE_ID
     assert resource.assigned_tasks == [TimetableGenerator.FIRST_ACTIVITY]
+
+
+def test_bit_mask_off_by_one():
+    expected_time_periods = [
+        TimePeriod.from_json(
+            '{"from": "MONDAY","to": "MONDAY","beginTime": "12:00:00","endTime": "18:00:00"}'
+        )
+    ]
+
+    calendar = ResourceCalendar(
+        id="1",
+        name="Resource Calendar",
+        time_periods=expected_time_periods,  # type: ignore
+    )
+    work_mask = WorkMasks.from_json(
+        '{"monday": 16711807,"tuesday": 16711807,"wednesday": 16711807,"thursday": 16711807,"friday": 16711807,"saturday": 16777215,"sunday": 16777215}'
+    )
+
+    assert work_mask.has_intersection(calendar)  # type: ignore

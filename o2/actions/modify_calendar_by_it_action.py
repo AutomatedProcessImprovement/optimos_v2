@@ -73,7 +73,7 @@ class ModifyCalendarByITAction(ModifyCalendarBaseAction):
                             )
 
                         # Try to shift the shift to begin later
-                        new_period = fixed_day_period.shift_hours(-1)
+                        new_period = fixed_day_period.shift_hours(1)
                         if new_period is None:
                             continue
                         new_calendar = calendar.replace_time_period(index, new_period)
@@ -86,7 +86,7 @@ class ModifyCalendarByITAction(ModifyCalendarBaseAction):
                                         calendar_id=calendar.id,
                                         period_index=index,
                                         day=day,
-                                        shift_hours=-1,
+                                        shift_hours=1,
                                     )
                                 ),
                             )
