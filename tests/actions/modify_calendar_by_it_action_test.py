@@ -46,6 +46,6 @@ def test_action_creation_simple_shift(one_task_store: Store):
 
     assert action is not None
     assert "shift_hours" in action.params
-    assert action.params["shift_hours"] == -1
+    assert action.params["shift_hours"] == 1
     assert action.params["calendar_id"] == TimetableGenerator.CALENDAR_ID
     assert action.params["period_index"] == 0
