@@ -44,6 +44,9 @@ def main():
     # Change settings here:
     # store.settings.[...] = ...
 
+    # Enable legacy mode
+    store.settings.optimos_legacy_mode = True
+
     hill_climber = o2.hill_climber.HillClimber(store)
     hill_climber.solve()
     # SimulationRunner.run_simulation(store.state)

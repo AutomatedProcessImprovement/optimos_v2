@@ -20,6 +20,7 @@ _For now there is no CLI interface for the optimizer, so you have to modify the 
    - _If you need a basic set of constraints for your model, you can use the `create_constraints.py` script_
 1. Run `python main.py` to start the optimizer, you will see the output and process in the console
 1. _If you want to change settings like the number of iterations you can do so in the `main.py` script as well_
+1. **LEGACY OPTIMOS SUPPORT**: If you want optimos_v2 to behave like the old optimos, you can set the `optimos_legacy_mode` setting to True. This will disable all batching optimizations.
 
 ### Usage within PIX (docker)
 
