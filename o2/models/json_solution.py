@@ -17,10 +17,10 @@ class JSONSolutions(JSONWizard):
 
     name: str
     initial_solution: "_Solution"
-    final_solutions: Optional[list["_Solution"]]
-    current_solution: "_Solution"
-    final_solution_metrics: "_FinalSolutionMetric"
     cons_params: ConstraintsType
+    final_solutions: Optional[list["_Solution"]] = None
+    current_solution: Optional["_Solution"] = None
+    final_solution_metrics: Optional["_FinalSolutionMetric"] = None
 
     class _(JSONWizard.Meta):
         key_transform_with_dump = "SNAKE"
@@ -33,6 +33,7 @@ class JSONSolutions(JSONWizard):
             initial_solution=_Solution.from_evaluation(
                 store, store.base_state, store.base_evaluation
             ),
+            cons_params=store.constraints,
             final_solutions=[
                 _Solution.from_evaluation(store, front.states[index], evaluation)
                 for front in store.pareto_fronts
@@ -46,7 +47,6 @@ class JSONSolutions(JSONWizard):
             final_solution_metrics=_FinalSolutionMetric.from_store(store)
             if last_iteration
             else None,
-            cons_params=store.constraints,
         )
 
 
