@@ -1,8 +1,10 @@
 from o2.actions.action_selector import ActionSelector
 from o2.actions.modify_calendar_base_action import ModifyCalendarBaseAction
 from o2.actions.modify_resource_base_action import ModifyResourceBaseAction
+from o2.models.evaluation import Evaluation
 from o2.models.settings import LegacyCombinedModeStatus
-from o2.store import Store
+from o2.pareto_front import FRONT_STATUS
+from o2.store import ActionTry, Store
 
 
 def test_combined_mode(one_task_store: Store):
@@ -44,4 +46,25 @@ def test_combined_mode(one_task_store: Store):
 
 
 def test_multiple_actions_of_same_type(one_task_store: Store):
-    pass
+    store = one_task_store
+    store.evaluate()
+    store.settings.legacy_combined_mode_status = (
+        LegacyCombinedModeStatus.ACTIVE_CALENDAR_NEXT
+    )
+
+    # In the first step ModifyResource Actions are not allowed
+    actions = ActionSelector.select_actions(store, number_of_actions_to_select=99)
+    assert actions is not None
+    assert all(not isinstance(action, ModifyResourceBaseAction) for action in actions)
+
+    # Apply a ModifyCalendar Action
+    action_tries: list[ActionTry] = [
+        store.try_action(action)
+        for action in actions
+        if isinstance(action, ModifyCalendarBaseAction)
+    ]
+
+    chosen, not_chosen = store.process_many_action_tries(action_tries)
+    assert len(chosen) == 1
+    assert len(not_chosen) > 1
+    assert store.settings.legacy_combined_mode_status.resource_is_next
