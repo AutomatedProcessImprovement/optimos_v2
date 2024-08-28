@@ -80,7 +80,7 @@ class Store:
         self.previous_states.append(state)
         # If we are in legacy optimos combined mode, we need to switch the mode
         if (
-            self.settings.legacy_combined_mode_status.enabled
+            self.settings.legacy_approach.combined_enabled
             and isinstance(action, ModifyCalendarBaseAction)
             or isinstance(action, ModifyResourceBaseAction)
         ):
@@ -109,8 +109,8 @@ class Store:
             status = (
                 self.current_pareto_front.is_in_front(evaluation)
                 # We need to skip actions not valid by legacy_combined_mode_status
-                if not self.settings.legacy_combined_mode_status.enabled
-                or self.settings.legacy_combined_mode_status.action_matches(action)
+                if not self.settings.legacy_approach.combined_enabled
+                or self.settings.legacy_approach.action_matches(action)
                 else None
             )
             if status == FRONT_STATUS.IN_FRONT:

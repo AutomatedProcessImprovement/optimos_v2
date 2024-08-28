@@ -9,46 +9,87 @@ if TYPE_CHECKING:
     from o2.actions.base_action import BaseAction
 
 
-class LegacyCombinedModeStatus(str, Enum):
+class LegacyApproach(str, Enum):
     """The status of the legacy combined mode.
 
     See Settings.legacy_combined_mode_status for more information.
     """
 
-    ACTIVE_CALENDAR_NEXT = "ACTIVE_CALENDAR_NEXT"
-    ACTIVE_RESOURCES_NEXT = "ACTIVE_RESOURCES_NEXT"
-    DISABLED = "DISABLED"
+    COMBINED_CALENDAR_NEXT = "COMBINED_CALENDAR_NEXT"
+    COMBINED_RESOURCES_NEXT = "COMBINED_RESOURCES_NEXT"
 
-    def next(self) -> "LegacyCombinedModeStatus":
+    CALENDAR_ONLY = "CALENDAR_ONLY"
+    RESOURCES_ONLY = "RESOURCES_ONLY"
+
+    CALENDAR_FIRST = "CALENDAR_FIRST"
+    RESOURCES_FIRST = "RESOURCES_FIRST"
+
+    def next(self) -> "LegacyApproach":
         """Get the next status in the cycle."""
-        if self == LegacyCombinedModeStatus.ACTIVE_CALENDAR_NEXT:
-            return LegacyCombinedModeStatus.ACTIVE_RESOURCES_NEXT
-        if self == LegacyCombinedModeStatus.ACTIVE_RESOURCES_NEXT:
-            return LegacyCombinedModeStatus.ACTIVE_CALENDAR_NEXT
-        return LegacyCombinedModeStatus.DISABLED
+        if self == LegacyApproach.COMBINED_CALENDAR_NEXT:
+            return LegacyApproach.COMBINED_RESOURCES_NEXT
+        if self == LegacyApproach.COMBINED_RESOURCES_NEXT:
+            return LegacyApproach.COMBINED_CALENDAR_NEXT
+        return self
 
     @property
-    def enabled(self) -> bool:
+    def combined_enabled(self) -> bool:
         """Return whether the combined mode is enabled."""
-        return self != LegacyCombinedModeStatus.DISABLED
+        return (
+            self == LegacyApproach.COMBINED_CALENDAR_NEXT
+            or self == LegacyApproach.COMBINED_RESOURCES_NEXT
+        )
 
     @property
     def calendar_is_next(self) -> bool:
         """Return whether the calendar is next in the combined mode."""
-        return self == LegacyCombinedModeStatus.ACTIVE_CALENDAR_NEXT
+        return (
+            self == LegacyApproach.COMBINED_CALENDAR_NEXT
+            or self == LegacyApproach.CALENDAR_FIRST
+            or self == LegacyApproach.CALENDAR_ONLY
+        )
+
+    @property
+    def calendar_is_disabled(self) -> bool:
+        """Return whether the calendar is disabled in the combined mode."""
+        return self == LegacyApproach.RESOURCES_ONLY
 
     @property
     def resource_is_next(self) -> bool:
         """Return whether the resources are next in the combined mode."""
-        return self == LegacyCombinedModeStatus.ACTIVE_RESOURCES_NEXT
+        return (
+            self == LegacyApproach.COMBINED_RESOURCES_NEXT
+            or self == LegacyApproach.RESOURCES_FIRST
+            or self == LegacyApproach.RESOURCES_ONLY
+        )
+
+    @property
+    def resource_is_disabled(self) -> bool:
+        """Return whether the resources are disabled in the combined mode."""
+        return self == LegacyApproach.CALENDAR_ONLY
 
     def action_matches(self, action: "BaseAction") -> bool:
         """Return whether the action matches the current combined mode status."""
-        if self == LegacyCombinedModeStatus.ACTIVE_CALENDAR_NEXT:
+        if self == LegacyApproach.COMBINED_CALENDAR_NEXT:
             return isinstance(action, ModifyCalendarBaseAction)
-        if self == LegacyCombinedModeStatus.ACTIVE_RESOURCES_NEXT:
+        if self == LegacyApproach.COMBINED_RESOURCES_NEXT:
             return isinstance(action, ModifyResourceBaseAction)
         return False
+
+    @staticmethod
+    def from_abbreviation(abbreviation: str) -> "LegacyApproach":
+        """Get the LegacyApproach from its abbreviation."""
+        if abbreviation == "CAAR":
+            return LegacyApproach.CALENDAR_FIRST
+        if abbreviation == "ARCA":
+            return LegacyApproach.RESOURCES_FIRST
+        if abbreviation == "CO":
+            return LegacyApproach.COMBINED_CALENDAR_NEXT
+        if abbreviation == "CA":
+            return LegacyApproach.CALENDAR_ONLY
+        if abbreviation == "AR":
+            return LegacyApproach.RESOURCES_ONLY
+        raise ValueError(f"Unknown abbreviation: {abbreviation}")
 
 
 @dataclass()
@@ -72,15 +113,6 @@ class Settings:
  
     E.g. ONLY if no other/higher Action is available.
     """
-    optimize_calendar_first = True
-    """This is a setting similar to optimos CA/AR | AR/CA Setting
-
-    Should the Calendar be modified first, and then resources added/removed
-    or vice versa?
-
-    Also take a look at `legacy_combined_mode_status`, because this setting overrides
-    the `optimize_calendar_first` setting.
-    """
 
     print_chosen_actions = False
     """Should the chosen actions be printed?
@@ -94,9 +126,9 @@ class Settings:
     state, which will just result in the action not being chosen.
     """
 
-    legacy_combined_mode_status = LegacyCombinedModeStatus.DISABLED
+    legacy_approach = LegacyApproach.CALENDAR_FIRST
     """
-    This Setting is used to simulate the combined mode of the legacy OPTIMOS.
+    This Setting is used to simulate different approaches used by legacy optimos.
 
     The combined mode is a mode where the calendar and resources are optimized at the same time.
     Legacy Optimos will first try calendar and then resources, if the calendar optimization
@@ -114,4 +146,4 @@ class Settings:
 
     def set_next_combined_mode_status(self) -> None:
         """Set the next combined mode status."""
-        self.legacy_combined_mode_status = self.legacy_combined_mode_status.next()
+        self.legacy_approach = self.legacy_approach.next()

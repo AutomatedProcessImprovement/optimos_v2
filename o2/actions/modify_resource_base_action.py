@@ -79,11 +79,9 @@ class ModifyResourceBaseAction(BaseAction, ABC):
 
     @staticmethod
     def get_default_rating(store: "Store") -> RATING:
-        """Get the default rating for this action."""
-        if store.settings.legacy_combined_mode_status.enabled:
-            return (
-                RATING.HIGH
-                if store.settings.legacy_combined_mode_status.resource_is_next
-                else RATING.LOW
-            )
-        return RATING.LOW if store.settings.optimize_calendar_first else RATING.HIGH
+        """Return the default rating for this action."""
+        if store.settings.legacy_approach.resource_is_next:
+            return RATING.HIGH
+        elif store.settings.legacy_approach.resource_is_disabled:
+            return RATING.NOT_APPLICABLE
+        return RATING.LOW
