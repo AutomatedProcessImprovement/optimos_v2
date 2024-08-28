@@ -1,13 +1,15 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, replace
-from typing import Literal
+from typing import TYPE_CHECKING
 
 from typing_extensions import NotRequired
 
 from o2.actions.base_action import BaseAction, BaseActionParamsType, RateSelfReturnType
 from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.state import State
-from o2.store import Store
+
+if TYPE_CHECKING:
+    from o2.store import Store
 
 
 class ModifyResourceBaseActionParamsType(BaseActionParamsType):
@@ -58,7 +60,7 @@ class ModifyResourceBaseAction(BaseAction, ABC):
 
     @staticmethod
     @abstractmethod
-    def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
+    def rate_self(store: "Store", input: SelfRatingInput) -> RateSelfReturnType:
         """Generate a best set of parameters & self-evaluates this action.
 
         To be implemented by subclasses.
@@ -78,4 +80,10 @@ class ModifyResourceBaseAction(BaseAction, ABC):
     @staticmethod
     def get_default_rating(store: "Store") -> RATING:
         """Get the default rating for this action."""
+        if store.settings.legacy_combined_mode_status.enabled:
+            return (
+                RATING.HIGH
+                if store.settings.legacy_combined_mode_status.resource_is_next
+                else RATING.LOW
+            )
         return RATING.LOW if store.settings.optimize_calendar_first else RATING.HIGH

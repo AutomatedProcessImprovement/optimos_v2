@@ -1,11 +1,12 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Optional, Union
-
-from o2.store import Store
+from typing import TYPE_CHECKING, Optional, Union
 
 from o2.models.evaluation import Evaluation
 from o2.models.rule_selector import RuleSelector
+
+if TYPE_CHECKING:
+    from o2.store import Store
 
 
 class RATING(float, Enum):
@@ -88,7 +89,7 @@ class SelfRatingInput:
 
     @staticmethod
     def from_rule_evaluations(
-        store: Store, evaluations: dict[RuleSelector, Evaluation]
+        store: "Store", evaluations: dict[RuleSelector, Evaluation]
     ) -> Union["SelfRatingInput", None]:
         """Create a SelfRatingInput object from a list of evaluations."""
         if len(evaluations) == 0:

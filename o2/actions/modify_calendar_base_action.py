@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, replace
+from typing import TYPE_CHECKING
 
 from typing_extensions import NotRequired
 
@@ -8,8 +9,10 @@ from o2.models.days import DAY
 from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.state import State
 from o2.models.timetable import ResourceCalendar, TimePeriod
-from o2.store import Store
 from o2.util.indented_printer import print_l2
+
+if TYPE_CHECKING:
+    from o2.store import Store
 
 
 class ModifyCalendarBaseActionParamsType(BaseActionParamsType):
@@ -68,11 +71,11 @@ class ModifyCalendarBaseAction(BaseAction, ABC):
 
     @staticmethod
     @abstractmethod
-    def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
+    def rate_self(store: "Store", input: SelfRatingInput) -> RateSelfReturnType:
         pass
 
     @staticmethod
-    def _verify(store: Store, new_calendar: ResourceCalendar) -> bool:
+    def _verify(store: "Store", new_calendar: ResourceCalendar) -> bool:
         if not new_calendar.is_valid():
             return False
         new_timetable = store.current_timetable.replace_resource_calendar(new_calendar)
@@ -93,4 +96,10 @@ class ModifyCalendarBaseAction(BaseAction, ABC):
     @staticmethod
     def get_default_rating(store: "Store") -> RATING:
         """Return the default rating for this action."""
+        if store.settings.legacy_combined_mode_status.enabled:
+            return (
+                RATING.HIGH
+                if store.settings.legacy_combined_mode_status.calendar_is_next
+                else RATING.LOW
+            )
         return RATING.HIGH if store.settings.optimize_calendar_first else RATING.LOW

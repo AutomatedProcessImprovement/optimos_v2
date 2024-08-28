@@ -1,14 +1,12 @@
 from dataclasses import dataclass, replace
-from typing import Literal
 
+from o2.actions.base_action import RateSelfReturnType
 from o2.actions.modify_calendar_base_action import (
     ModifyCalendarBaseAction,
     ModifyCalendarBaseActionParamsType,
 )
-from o2.models.self_rating import RATING, SelfRatingInput
-from o2.models.timetable import ResourceCalendar
+from o2.models.self_rating import SelfRatingInput
 from o2.store import Store
-from o2.actions.base_action import RateSelfReturnType
 
 
 class ModifyCalendarByITActionParamsType(ModifyCalendarBaseActionParamsType):

@@ -10,11 +10,11 @@ from typing import (
 )
 
 if TYPE_CHECKING:
+    from o2.models.self_rating import RATING, SelfRatingInput
     from o2.store import State, Store
-from o2.models.self_rating import RATING, SelfRatingInput
 
 
-ActionRatingTuple: TypeAlias = Tuple[RATING, Optional["BaseAction"]]
+ActionRatingTuple: TypeAlias = Tuple["RATING", Optional["BaseAction"]]
 RateSelfReturnType = Generator[ActionRatingTuple, None, Optional[ActionRatingTuple]]
 
 
@@ -35,7 +35,7 @@ class BaseAction(ABC):
 
     @staticmethod
     @abstractmethod
-    def rate_self(store: "Store", input: SelfRatingInput) -> RateSelfReturnType:
+    def rate_self(store: "Store", input: "SelfRatingInput") -> RateSelfReturnType:
         """Generate a best set of parameters & self-evaluates this action."""
         pass
 

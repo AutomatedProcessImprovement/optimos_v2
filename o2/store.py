@@ -1,6 +1,8 @@
 from dataclasses import replace
 from typing import TYPE_CHECKING, TypeAlias
 
+from o2.actions.modify_calendar_base_action import ModifyCalendarBaseAction
+from o2.actions.modify_resource_base_action import ModifyResourceBaseAction
 from o2.models.constraints import ConstraintsType
 from o2.models.evaluation import Evaluation
 from o2.models.settings import Settings
@@ -9,6 +11,7 @@ from o2.pareto_front import FRONT_STATUS, ParetoFront
 
 if TYPE_CHECKING:
     from o2.actions.base_action import BaseAction
+    from o2.models.timetable import TimetableType
 
 ActionTry: TypeAlias = tuple[FRONT_STATUS, Evaluation, State, "BaseAction"]
 
@@ -63,13 +66,26 @@ class Store:
         )
 
     @property
-    def current_timetable(self):
+    def current_timetable(self) -> "TimetableType":
         return self.state.timetable
 
-    def apply_action(self, action: "BaseAction"):
+    def apply_action(self, action: "BaseAction") -> None:
+        """Update the state by applying a given action."""
+        new_state = action.apply(self.state)
+        self._add_action_state(action, new_state)
+
+    def _add_action_state(self, action: "BaseAction", state: State):
+        """Add an action and state to the store."""
         self.previous_actions.append(action)
-        self.previous_states.append(self.state)
-        self.state = action.apply(self.state)
+        self.previous_states.append(state)
+        # If we are in legacy optimos combined mode, we need to switch the mode
+        if (
+            self.settings.legacy_combined_mode_status.enabled
+            and isinstance(action, ModifyCalendarBaseAction)
+            or isinstance(action, ModifyResourceBaseAction)
+        ):
+            self.settings.set_next_combined_mode_status()
+        self.state = state
 
     def undo_action(self):
         self.state = self.previous_states.pop()
@@ -89,21 +105,24 @@ class Store:
         not_chosen_tries = []
         for action_try in evaluations:
             status, evaluation, new_state, action = action_try
-            status = self.current_pareto_front.is_in_front(evaluation)
+
+            status = (
+                self.current_pareto_front.is_in_front(evaluation)
+                # We need to skip actions not valid by legacy_combined_mode_status
+                if not self.settings.legacy_combined_mode_status.enabled
+                or self.settings.legacy_combined_mode_status.action_matches(action)
+                else None
+            )
             if status == FRONT_STATUS.IN_FRONT:
                 chosen_tries.append(action_try)
-                self.previous_actions.append(action)
                 self.current_pareto_front.add(evaluation, new_state)
-                self.previous_states.append(self.state)
-                self.state = new_state
+                self._add_action_state(action, new_state)
             elif status == FRONT_STATUS.IS_DOMINATED:
                 chosen_tries.append(action_try)
-                self.previous_actions.append(action)
                 self.pareto_fronts.append(ParetoFront())
                 self.current_pareto_front.add(evaluation, new_state)
                 self.reset_tabu_list()
-                self.previous_states.append(self.state)
-                self.state = new_state
+                self._add_action_state(action, new_state)
             else:
                 self.tabu_list.append(action)
                 not_chosen_tries.append(action_try)

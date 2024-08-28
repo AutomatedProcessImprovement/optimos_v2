@@ -1,5 +1,5 @@
 import operator
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from functools import reduce
 from typing import TYPE_CHECKING, List, Optional, TypedDict, Union
 
@@ -53,6 +53,59 @@ class WorkMasks(JSONWizard):
             if ~day_mask & self.get(day):
                 return False
         return True
+
+    def set_hour_for_day(self, day: DAY, hour: int) -> "WorkMasks":
+        """Enable the hour for a specific day."""
+        return replace(self, **{day.name.lower(): self.get(day) | (1 << (23 - hour))})
+
+    def set_hour_for_every_day(self, hour: int) -> "WorkMasks":
+        """Enable the hour for every day."""
+        return replace(
+            self,
+            monday=self.monday | (1 << (23 - hour)),
+            tuesday=self.tuesday | (1 << (23 - hour)),
+            wednesday=self.wednesday | (1 << (23 - hour)),
+            thursday=self.thursday | (1 << (23 - hour)),
+            friday=self.friday | (1 << (23 - hour)),
+            saturday=self.saturday | (1 << (23 - hour)),
+            sunday=self.sunday | (1 << (23 - hour)),
+        )
+
+    def set_hour_range_for_day(self, day: DAY, start: int, end: int) -> "WorkMasks":
+        """Enable the hour range for a specific day."""
+        return replace(
+            self,
+            **{
+                day.name.lower(): self.get(day)
+                | ((1 << (24 - start)) - (1 << (25 - end)))
+            },
+        )
+
+    def set_hour_range_for_every_day(self, start: int, end: int) -> "WorkMasks":
+        """Enable the hour range for every day."""
+        return replace(
+            self,
+            monday=self.monday | ((1 << (24 - start)) - (1 << (25 - end))),
+            tuesday=self.tuesday | ((1 << (24 - start)) - (1 << (25 - end))),
+            wednesday=self.wednesday | ((1 << (24 - start)) - (1 << (25 - end))),
+            thursday=self.thursday | ((1 << (24 - start)) - (1 << (25 - end))),
+            friday=self.friday | ((1 << (24 - start)) - (1 << (25 - end))),
+            saturday=self.saturday | ((1 << (24 - start)) - (1 << (25 - end))),
+            sunday=self.sunday | ((1 << (24 - start)) - (1 << (25 - end))),
+        )
+
+    @staticmethod
+    def all_day() -> "WorkMasks":
+        """Enable all hours for every day."""
+        return WorkMasks(
+            monday=0b111111111111111111111111,
+            tuesday=0b111111111111111111111111,
+            wednesday=0b111111111111111111111111,
+            thursday=0b111111111111111111111111,
+            friday=0b111111111111111111111111,
+            saturday=0b111111111111111111111111,
+            sunday=0b111111111111111111111111,
+        )
 
 
 @dataclass(frozen=True)
