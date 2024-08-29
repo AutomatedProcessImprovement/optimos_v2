@@ -35,8 +35,8 @@ _For now there is no CLI interface for the optimizer, so you have to modify the 
    - `backend/services/api-server/.key.secret`
    - `backend/services/api-server/.system_password.secret`
    - _For local development/testing you can just fill them with example values, e.g. "secret" or "secret@secret.secret"._
-   - If you want to send out mails you also need to create secrets: `backend/workers/mail/.secret_gmail_username` & `backend/workers/mail/.secret_gmail_app_password`;
-     Those are the credentials for the mail account that sends out the mails. If you don't want to send out mails, you can ignore this step.
+   - Furthermore create the following files: `backend/workers/mail/.secret_gmail_username` & `backend/workers/mail/.secret_gmail_app_password`;
+     Those are the credentials for the gmail account that sends out mails. The Password is a [gmail app password](https://knowledge.workspace.google.com/kb/how-to-create-app-passwords-000009237), not the actual password. If you don't want to send out mails, you still need to create the files, but can enter any value.
 5. Create the following `.env` files:
    - `backend/workers/mail/.env`
    - `backend/workers/kronos/.env`
@@ -45,7 +45,7 @@ _For now there is no CLI interface for the optimizer, so you have to modify the 
    - `backend/workers/optimos/.env`
    - `backend/services/api-server/.env`
    - `backend/services/kronos/.env`
-   - _You will find a `.env.example` file in each of the folders, you can copy this file and rename it to `.env`_
+   - _You will find a `.env.example` file in each of the folders, you can copy those file and rename them to `.env`_
 6. Run `docker-compose up --build` in the root directory of the pix-portal repository
 7. _This will take some time_
 8. Open your browser and go to `localhost:9999`. You can use the credentials from the `.superuser_email.secret` and `.superuser_password.secret` files to login.
