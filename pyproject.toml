@@ -16,6 +16,7 @@ click = "^8.1.7"
 pandas = "<=2.1.4"
 dataclass-wizard = "^0.22.3"
 sympy = "^1.12.1"
+scipy = "^1.14.1"
 
 
 [tool.poetry.group.dev.dependencies]
