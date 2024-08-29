@@ -65,9 +65,7 @@ class ActionSelector:
     """Selects the best action to take next, based on the current state of the store."""
 
     @staticmethod
-    def select_actions(
-        store: Store, number_of_actions_to_select: int = os.cpu_count() or 1
-    ) -> Optional[list[BaseAction]]:
+    def select_actions(store: Store) -> Optional[list[BaseAction]]:
         """Select the best actions to take next.
 
         It will pick at most cpu_count actions, so parallel evaluation is possible.
@@ -110,6 +108,7 @@ class ActionSelector:
             sorted_actions = [
                 action for action in sorted_actions if action[0] > RATING.LOW
             ]
+        number_of_actions_to_select = store.settings.max_number_of_actions_to_select
         selected_actions = sorted_actions[:number_of_actions_to_select]
         avg_rating = sum(rating for rating, _ in selected_actions) / len(
             selected_actions
@@ -167,7 +166,7 @@ class ActionSelector:
         evaluations: dict[RuleSelector, Evaluation] = {}
 
         # Determine the number of threads to use
-        num_threads = os.cpu_count() or 1
+        num_threads = store.settings.max_threads
         chunk_size = max(1, len(firing_rule_selectors) // num_threads)
 
         # Split the indices of the rules into chunks
@@ -210,9 +209,8 @@ class ActionSelector:
     def _get_valid_actions(
         store: "Store",
         action_generators: list[RateSelfReturnType],
-        number_of_actions_to_select: int = os.cpu_count() or 1,
     ) -> list[tuple[RATING, BaseAction]]:
-        """Get NUMBER_OF_ACTIONS_TO_SELECT valid actions from the generators.
+        """Get settings.number_of_actions_to_select valid actions from the generators.
 
         If the action is tabu, it will skip it and try the next one.
         If the action is not applicable, it will not try more
@@ -231,7 +229,7 @@ class ActionSelector:
                 if store.is_tabu(action):
                     continue
                 actions.append((rating, action))
-                if len(actions) >= number_of_actions_to_select:
+                if len(actions) >= store.settings.max_number_of_actions_to_select:
                     return actions
                 else:
                     generators_queue.append(action_generator)

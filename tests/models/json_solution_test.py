@@ -6,10 +6,13 @@ from tests.fixtures.timetable_generator import TimetableGenerator
 
 
 def test_creating_json_solution(store: Store):
+    store.settings.max_iterations = 5
+    store.settings.max_threads = 1
+
     store.replaceConstraints(resources=ConstraintsGenerator.resource_constraints())
     # Base Evaluation
     store.evaluate()
-    hill_climber = HillClimber(store, max_parallel=1, max_iter=5)
+    hill_climber = HillClimber(store)
     generator = hill_climber.get_iteration_generator()
     next(generator)
 
@@ -18,6 +21,9 @@ def test_creating_json_solution(store: Store):
 
 
 def test_creating_json_solution_with_timetable_id(store: Store):
+    store.settings.max_iterations = 5
+    store.settings.max_threads = 1
+
     store.replaceConstraints(
         resources=ConstraintsGenerator.resource_constraints(
             resource_id=TimetableGenerator.RESOURCE_ID + "timetable"
@@ -25,7 +31,7 @@ def test_creating_json_solution_with_timetable_id(store: Store):
     )
     # Base Evaluation
     store.evaluate()
-    hill_climber = HillClimber(store, max_parallel=1, max_iter=5)
+    hill_climber = HillClimber(store)
     generator = hill_climber.get_iteration_generator()
     next(generator)
 

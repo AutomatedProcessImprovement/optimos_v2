@@ -22,7 +22,10 @@ def test_hill_climber_simple(one_task_store: Store):
         .constraints.batching_constraints
     )
 
-    hill_climber = HillClimber(store, max_iter=3, max_parallel=1)
+    store.settings.max_iterations = 3
+    store.settings.max_threads = 1
+
+    hill_climber = HillClimber(store)
     hill_climber.solve()
 
     # 3x Decrease Batching Size (10 -> 9 -> 8 -> 7)

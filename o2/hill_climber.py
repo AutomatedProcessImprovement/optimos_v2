@@ -10,17 +10,15 @@ from o2.pareto_front import FRONT_STATUS
 from o2.store import ActionTry, Store
 from o2.util.indented_printer import print_l0, print_l1, print_l2, print_l3
 
-MAX_PARALLEL = os.cpu_count() or 1
-
 
 class HillClimber:
-    def __init__(self, store: Store, max_iter=None, max_parallel=MAX_PARALLEL):
+    def __init__(self, store: Store):
         self.store = store
-        self.max_iter = max_iter or store.settings.max_iterations
+        self.max_iter = store.settings.max_iterations
         self.max_non_improving_iter = store.settings.max_iterations
-        self.max_parallel = max_parallel
+        self.max_parallel = store.settings.max_threads
         self.executor = concurrent.futures.ProcessPoolExecutor(
-            max_workers=self.max_parallel
+            max_workers=self.store.settings.max_threads
         )
 
     def solve(self) -> None:
@@ -52,9 +50,7 @@ class HillClimber:
                     break
                 print_l0(f"Iteration {it}")
 
-                actions_to_perform = ActionSelector.select_actions(
-                    self.store, number_of_actions_to_select=self.max_parallel
-                )
+                actions_to_perform = ActionSelector.select_actions(self.store)
                 if actions_to_perform is None or len(actions_to_perform) == 0:
                     print_l1("No actions left")
                     break

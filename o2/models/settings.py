@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import os
 
 from o2.models.legacy_approach import LegacyApproach
 
@@ -55,6 +56,12 @@ class Settings:
       we switch this setting to resources first, so that the resources
       are optimized first, and the calendar is optimized afterwards.
     """
+
+    max_threads = os.cpu_count() or 1
+    """The maximum number of threads to use for parallel evaluation."""
+
+    max_number_of_actions_to_select = os.cpu_count() or 1
+    """The maximum number of actions to select for for (parallel) evaluation."""
 
     def set_next_combined_mode_status(self) -> None:
         """Set the next combined mode status."""

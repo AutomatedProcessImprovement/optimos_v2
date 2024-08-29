@@ -1,18 +1,7 @@
-from dataclasses import replace
-
 from o2.actions.add_resource_action import AddResourceAction
-from o2.actions.modify_calendar_by_cost_action import (
-    ModifyCalendarByCostAction,
-)
-from o2.actions.modify_calendar_by_it_action import (
-    ModifyCalendarByITAction,
-)
-from o2.models.days import DAY
 from o2.models.self_rating import SelfRatingInput
-from o2.models.timetable import Resource, TimePeriod
 from o2.store import Store
 from o2.util.helper import name_is_clone_of
-from tests.fixtures.constraints_generator import ConstraintsGenerator
 from tests.fixtures.timetable_generator import TimetableGenerator
 
 
