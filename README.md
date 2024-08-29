@@ -46,7 +46,7 @@ _For now there is no CLI interface for the optimizer, so you have to modify the 
    - `backend/services/api-server/.env`
    - `backend/services/kronos/.env`
    - _You will find a `.env.example` file in each of the folders, you can copy those file and rename them to `.env`_
-6. Run `docker-compose up --build` in the root directory of the pix-portal repository
+6. Run `docker compose up --build` in the root directory of the pix-portal repository. You may add the `-d` flag to run it in detached mode, so you can close the terminal afterwards.
 7. _This will take some time_
 8. Open your browser and go to `localhost:9999`. You can use the credentials from the `.superuser_email.secret` and `.superuser_password.secret` files to login.
 
