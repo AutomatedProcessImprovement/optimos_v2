@@ -11,6 +11,7 @@ packages = [{ include = "o2" }]
 python = ">=3.10,<3.11"
 numpy = "^1.26.4"
 # wta = { git = "https://github.com/AutomatedProcessImprovement/waiting-time-analysis.git" }
+diffresbp-simulator = {url = "https://github.com/AutomatedProcessImprovement/Prosimos/archive/ab4394c066353ecca57dc5005e0f29ef34458c57.zip"}
 click = "^8.1.7"
 pandas = "<=2.1.4"
 dataclass-wizard = "^0.22.3"
