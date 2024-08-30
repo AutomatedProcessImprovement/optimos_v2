@@ -85,6 +85,8 @@ class ModifyCalendarBaseAction(BaseAction, ABC):
         """Return a string representation of the action."""
         if "shift_hours" in self.params:
             return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['day']}-{self.params['period_index']}) -- Shift {self.params['shift_hours']} hours)"  # noqa: E501
+        elif "add_hours_after" in self.params and "add_hours_before" in self.params:
+            return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['day']}-{self.params['period_index']}) -- Add {self.params['add_hours_before']} hours before, {self.params['add_hours_after']} hours after)"  # noqa: E501
         elif "add_hours_after" in self.params:
             return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['day']}-{self.params['period_index']}) -- Add {self.params['add_hours_after']} hours after)"  # noqa: E501
         elif "add_hours_before" in self.params:
