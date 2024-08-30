@@ -71,7 +71,14 @@ class Evaluation:
     @property
     def cases(self) -> list[Trace]:
         """Get the cases of the simulation."""
-        return self.log_info.trace_list
+        if self.log_info is None:
+            return []
+        return self.log_info.trace_list or []
+
+    @property
+    def is_empty(self) -> bool:
+        """Check if the evaluation is empty."""
+        return not self.cases
 
     @property
     def resource_utilizations(self) -> dict[str, float]:

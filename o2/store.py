@@ -113,6 +113,9 @@ class Store:
                 or self.settings.legacy_approach.action_matches(action)
                 else None
             )
+            if evaluation.is_empty:
+                status = FRONT_STATUS.INVALID
+
             if status == FRONT_STATUS.IN_FRONT:
                 chosen_tries.append(action_try)
                 self.current_pareto_front.add(evaluation, new_state)
@@ -153,11 +156,13 @@ class Store:
         try:
             new_state = action.apply(self.state, enable_prints=False)
             evaluation = new_state.evaluate()
+            if evaluation.is_empty:
+                raise Exception("Evaluation empty. Please check the timetable & model.")
             status = self.current_pareto_front.is_in_front(evaluation)
             return (status, evaluation, new_state, action)
         except Exception as e:
             print(f"Error in try_action: {e}")
-            return (FRONT_STATUS.DOMINATES, Evaluation.empty(), self.state, action)
+            return (FRONT_STATUS.INVALID, Evaluation.empty(), self.state, action)
 
     def replaceConstraints(self, /, **changes):
         self.constraints = replace(self.constraints, **changes)

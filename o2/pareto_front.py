@@ -5,9 +5,16 @@ from o2.models.state import State
 
 
 class FRONT_STATUS(Enum):
+    """The status of a solution compared to a Pareto Front."""
+
     IS_DOMINATED = 1
+    """If the front is dominated by the evaluation"""
     DOMINATES = 2
+    """If the front dominates the evaluation"""
     IN_FRONT = 3
+    """If the evaluation is in the front"""
+    INVALID = 4
+    """If the evaluation is invalid"""
 
 
 class ParetoFront:
