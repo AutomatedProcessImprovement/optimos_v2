@@ -15,7 +15,7 @@ class HillClimber:
     def __init__(self, store: Store):
         self.store = store
         self.max_iter = store.settings.max_iterations
-        self.max_non_improving_iter = store.settings.max_iterations
+        self.max_non_improving_iter = store.settings.max_non_improving_actions
         self.max_parallel = store.settings.max_threads
         self.executor = concurrent.futures.ProcessPoolExecutor(
             max_workers=self.store.settings.max_threads
