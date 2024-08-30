@@ -63,6 +63,11 @@ _For now there is no CLI interface for the optimizer, so you have to modify the 
 9. **Alteratively**: Start the optimos worker with the vs code debugger by running the `Launch Optimos Worker` configuration (most likely you'll need to adjust the python binary used there, you can do that in the `.vscode/launch.json` file)
 
 ## Development
+### Updating the Optimos Version used by PIX
+_If you have pushed commits to the master, this change needs to be picked up by PIX, to do that do the following:_
+1. Navigate to the folder `backend/workers/optimos` in the pix project
+1. Update the `poetry.lock` file: `poetry lock`
+1. Rebuild & restart the optimos container: `docker compose up -d --build optimos`
 
 ### Running Tests
 
