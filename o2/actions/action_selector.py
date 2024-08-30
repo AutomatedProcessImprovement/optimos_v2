@@ -101,13 +101,6 @@ class ActionSelector:
 
         sorted_actions = sorted(possible_actions, key=lambda x: x[0], reverse=True)
 
-        # If we have non-low rated actions, we should try them first!
-        if store.settings.only_allow_low_last and any(
-            rating > RATING.LOW for rating, _ in sorted_actions
-        ):
-            sorted_actions = [
-                action for action in sorted_actions if action[0] > RATING.LOW
-            ]
         number_of_actions_to_select = store.settings.max_number_of_actions_to_select
         selected_actions = sorted_actions[:number_of_actions_to_select]
         avg_rating = sum(rating for rating, _ in selected_actions) / len(
@@ -214,8 +207,12 @@ class ActionSelector:
 
         If the action is tabu, it will skip it and try the next one.
         If the action is not applicable, it will not try more
+
+        It will take into account the `settings.only_allow_low_last` setting,
+        to first select non RATING.LOW actions first.
         """
         actions = []
+        low_actions = []
         generators_queue = action_generators.copy()
 
         while len(generators_queue) > 0:
@@ -228,10 +225,15 @@ class ActionSelector:
                     break
                 if store.is_tabu(action):
                     continue
-                actions.append((rating, action))
+                if store.settings.only_allow_low_last and rating == RATING.LOW:
+                    low_actions.append((rating, action))
+                else:
+                    actions.append((rating, action))
                 if len(actions) >= store.settings.max_number_of_actions_to_select:
                     return actions
                 else:
                     generators_queue.append(action_generator)
                     break
+        if len(actions) == 0:
+            return low_actions
         return actions
