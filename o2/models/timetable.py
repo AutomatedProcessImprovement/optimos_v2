@@ -26,7 +26,9 @@ from o2.util.helper import CLONE_REGEX, name_is_clone_of, random_string
 
 if TYPE_CHECKING:
     from o2.models.rule_selector import RuleSelector
+    from o2.models.state import State
     from o2.store import Store
+
 import operator
 
 from o2.models.constraints import BATCH_TYPE, RULE_TYPE, SizeRuleConstraints
@@ -801,6 +803,24 @@ class TimetableType(JSONWizard):
             return None
         return self.get_calendar(calendar_id)
 
+    def get_calendar_for_base_resource(
+        self, resource_name: str
+    ) -> Optional[ResourceCalendar]:
+        """Get a resource calendar by resource clone/original name.
+
+        If the resource is a clone, get the calendar of the base resource.
+        """
+        return next(
+            (
+                self.get_calendar(resource.calendar)
+                for resource in self.resource_profiles
+                for resource in resource.resource_list
+                if resource.name == resource_name
+                or name_is_clone_of(resource_name, resource.name)
+            ),
+            None,
+        )
+
     def get_calendars_for_resource_clones(
         self, resource_name: str
     ) -> List[ResourceCalendar]:
@@ -826,6 +846,15 @@ class TimetableType(JSONWizard):
             for resource in resource_profile.resource_list
         }
         return list(resources.values())
+
+    def get_deleted_resources(self, base_state: "State") -> List[Resource]:
+        """Get all resources that have been deleted."""
+        return [
+            resource
+            for resource_profile in base_state.timetable.resource_profiles
+            for resource in resource_profile.resource_list
+            if self.get_resource(resource.id) is None
+        ]
 
     def get_resources_with_cost(self) -> List[tuple[Resource, int]]:
         """Get all resources with cost. Sorted desc."""

@@ -13,11 +13,14 @@ from o2.models.state import State
 from o2.models.timetable import Resource, TimetableType
 from o2.pareto_front import ParetoFront
 from o2.store import Store
+from o2.util.helper import CLONE_REGEX
 
 
 @dataclass(frozen=True)
 class JSONReport(JSONWizard):
     """Class to represent report in JSON format."""
+
+    name: str
 
     constraints: ConstraintsType
     bpmn_definition: str
@@ -25,9 +28,14 @@ class JSONReport(JSONWizard):
     base_solution: "_JSONSolution"
     pareto_fronts: list["_JSONParetoFront"]
 
+    is_final: bool
+
+    approach: Optional[str] = None
+
     @staticmethod
-    def from_store(store: Store) -> "JSONReport":
+    def from_store(store: Store, is_final: bool = False) -> "JSONReport":
         return JSONReport(
+            name=store.name,
             constraints=store.constraints,
             bpmn_definition=store.state.bpmn_definition,
             base_solution=_JSONSolution.from_state_evaluation(
@@ -37,6 +45,8 @@ class JSONReport(JSONWizard):
                 _JSONParetoFront.from_pareto_front(pareto_front, store)
                 for pareto_front in store.pareto_fronts
             ],
+            is_final=is_final,
+            approach=str(store.settings.legacy_approach),
         )
 
 
@@ -68,6 +78,9 @@ class _JSONResourceModifiers(JSONWizard):
 
 @dataclass(frozen=True)
 class _JSONResourceInfo(JSONWizard):
+    id: str
+    name: str
+
     worked_time: float
     available_time: float
     utilization: float
@@ -77,6 +90,7 @@ class _JSONResourceInfo(JSONWizard):
     is_human: bool
     max_weekly_capacity: float
     max_daily_capacity: float
+    max_consecutive_capacity: float
     # Timetable
     timetable_bitmask: WorkMasks
     original_timetable_bitmask: WorkMasks
@@ -95,13 +109,18 @@ class _JSONResourceInfo(JSONWizard):
         evaluation: Evaluation,
         store: Store,
     ) -> "_JSONResourceInfo":
-        timetable = state.timetable.get_calendar_for_resource(resource.id)
+        timetable = state.timetable.get_calendar_for_resource(
+            resource.id
+        ) or store.base_state.timetable.get_calendar_for_base_resource(resource.id)
         resource_constraints = store.constraints.get_legacy_constraints_for_resource(
             resource.id
         )
-        original_time_table = store.base_state.timetable.get_calendar_for_resource(
-            resource.id
-        )
+        if state.is_base_state:
+            original_time_table = timetable
+        else:
+            original_time_table = (
+                store.base_state.timetable.get_calendar_for_base_resource(resource.id)
+            )
         assert timetable is not None
         assert resource_constraints is not None
         assert original_time_table is not None
@@ -125,16 +144,10 @@ class _JSONResourceInfo(JSONWizard):
             for action in relevant_actions
         )
 
-        added = any(
-            isinstance(action, ModifyResourceBaseAction)
-            and action.params.get("clone_resource")
-            for action in relevant_actions
-        )
+        added = CLONE_REGEX.match(resource.id) is not None
 
         shifts_modified = any(
-            isinstance(action, ModifyCalendarBaseAction)
-            and action.params.get("shifts_modified")
-            for action in relevant_actions
+            isinstance(action, ModifyCalendarBaseAction) for action in relevant_actions
         )
 
         tasks_modified = any(
@@ -144,17 +157,20 @@ class _JSONResourceInfo(JSONWizard):
         )
 
         return _JSONResourceInfo(
-            worked_time=evaluation.resource_worked_times[resource.id],
+            id=resource.id,
+            name=resource.name,
+            worked_time=evaluation.resource_worked_times.get(resource.id, 0),
             work_hours_per_week=timetable.total_hours,
-            available_time=evaluation.resource_available_times[resource.id],
-            utilization=evaluation.resource_utilizations[resource.id],
+            available_time=evaluation.resource_available_times.get(resource.id, 0),
+            utilization=evaluation.resource_utilizations.get(resource.id, 0),
             cost_per_week=timetable.total_hours * resource.cost_per_hour,
-            total_cost=(evaluation.resource_worked_times[resource.id] / 60)
+            total_cost=(evaluation.resource_worked_times.get(resource.id, 0) / 60)
             * resource.cost_per_hour,
             hourly_rate=resource.cost_per_hour,
             is_human=resource_constraints.global_constraints.is_human,
             max_weekly_capacity=resource_constraints.global_constraints.max_weekly_cap,
             max_daily_capacity=resource_constraints.global_constraints.max_daily_cap,
+            max_consecutive_capacity=resource_constraints.global_constraints.max_consecutive_cap,
             original_timetable_bitmask=original_time_table.to_work_masks(),
             timetable_bitmask=timetable.to_work_masks(),
             never_work_bitmask=resource_constraints.never_work_masks,
@@ -174,6 +190,7 @@ class _JSONGlobalInfo(JSONWizard):
     average_cost: float
     average_time: float
     average_resource_utilization: float
+    total_cost: float
 
 
 @dataclass(frozen=True)
@@ -182,6 +199,7 @@ class _JSONSolution(JSONWizard):
     solution_no: int
     global_info: "_JSONGlobalInfo"
     resource_info: dict[str, "_JSONResourceInfo"]
+    deleted_resources_info: dict[str, "_JSONResourceInfo"]
     timetable: TimetableType
 
     actions: list[BaseAction]
@@ -198,12 +216,19 @@ class _JSONSolution(JSONWizard):
                 average_cost=evaluation.avg_cost,
                 average_time=evaluation.avg_cycle_time,
                 average_resource_utilization=evaluation.avg_resource_utilization,
+                total_cost=evaluation.total_cost,
             ),
             resource_info={
                 resource.id: _JSONResourceInfo.from_resource(
                     resource, state, evaluation, store
                 )
                 for resource in state.timetable.get_all_resources()
+            },
+            deleted_resources_info={
+                resource.id: _JSONResourceInfo.from_resource(
+                    resource, state, evaluation, store
+                )
+                for resource in state.timetable.get_deleted_resources(store.base_state)
             },
             actions=state.actions,
         )

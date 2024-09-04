@@ -23,7 +23,11 @@ class Store:
     the Pareto Fronts, the Tabu List and the Settings.
     """
 
-    def __init__(self, state: State, constraints: ConstraintsType) -> None:
+    def __init__(
+        self, state: State, constraints: ConstraintsType, name: str = "An Optimos Run"
+    ) -> None:
+        self.name = name
+
         self.state = state
         self.constraints = constraints
 
