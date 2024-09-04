@@ -3,207 +3,207 @@ from typing import Optional
 
 from dataclass_wizard import JSONWizard
 
+from o2.actions.base_action import BaseAction
+from o2.actions.modify_calendar_base_action import ModifyCalendarBaseAction
+from o2.actions.modify_resource_base_action import ModifyResourceBaseAction
 from o2.models.constraints import ConstraintsType
 from o2.models.evaluation import Evaluation
 from o2.models.legacy_constraints import GlobalConstraints, WorkMasks
 from o2.models.state import State
 from o2.models.timetable import Resource, TimetableType
+from o2.pareto_front import ParetoFront
 from o2.store import Store
 
 
 @dataclass(frozen=True)
-class JSONSolutions(JSONWizard):
-    """Class to represent a set of solutions in JSON format."""
+class JSONReport(JSONWizard):
+    """Class to represent report in JSON format."""
 
-    name: str
-    initial_solution: "_Solution"
-    cons_params: ConstraintsType
-    final_solutions: Optional[list["_Solution"]] = None
-    current_solution: Optional["_Solution"] = None
-    final_solution_metrics: Optional["_FinalSolutionMetric"] = None
+    constraints: ConstraintsType
+    bpmn_definition: str
 
-    class _(JSONWizard.Meta):
-        key_transform_with_dump = "SNAKE"
+    base_solution: "_JSONSolution"
+    pareto_fronts: list["_JSONParetoFront"]
 
     @staticmethod
-    def from_store(store: Store, last_iteration: bool = False) -> "JSONSolutions":
-        """Create a JSONSolutions object from a Store object."""
-        return JSONSolutions(
-            name="Optimos Run",
-            initial_solution=_Solution.from_evaluation(
-                store, store.base_state, store.base_evaluation
+    def from_store(store: Store) -> "JSONReport":
+        return JSONReport(
+            constraints=store.constraints,
+            bpmn_definition=store.state.bpmn_definition,
+            base_solution=_JSONSolution.from_state_evaluation(
+                store.base_state, store.base_evaluation, store
             ),
-            cons_params=store.constraints,
-            final_solutions=[
-                _Solution.from_evaluation(store, front.states[index], evaluation)
-                for front in store.pareto_fronts
-                for index, evaluation in enumerate(front.evaluations)
+            pareto_fronts=[
+                _JSONParetoFront.from_pareto_front(pareto_front, store)
+                for pareto_front in store.pareto_fronts
             ],
-            current_solution=_Solution.from_evaluation(
-                store, store.state, store.current_fastest_evaluation
-            )
-            if not last_iteration
-            else None,
-            final_solution_metrics=_FinalSolutionMetric.from_store(store)
-            if last_iteration
-            else None,
         )
 
 
 @dataclass(frozen=True)
-class _Solution(JSONWizard):
-    """Class to represent a solution in JSON format.
-
-    Similar to the format of legacy optimos, it's used to make o2 compatible with
-    the legacy UI.
-    """
-
-    solution_info: "_SolutionInfo"
-    sim_params: TimetableType
-    name: str
-    iteration: int
-
-    class _(JSONWizard.Meta):
-        key_transform_with_dump = "SNAKE"
+class _JSONParetoFront(JSONWizard):
+    solutions: list["_JSONSolution"]
 
     @staticmethod
-    def from_evaluation(
-        store: Store, state: State, evaluation: Evaluation
-    ) -> "_Solution":
-        pools: dict[str, _ResourceInfo] = {}
-        for resource in state.timetable.get_all_resources():
-            constraints = store.constraints.get_legacy_constraints_for_resource(
-                resource.id
+    def from_pareto_front(
+        pareto_front: "ParetoFront", store: Store
+    ) -> "_JSONParetoFront":
+        return _JSONParetoFront(
+            solutions=[
+                _JSONSolution.from_state_evaluation(state, evaluation, store)
+                for state, evaluation in zip(
+                    pareto_front.states, pareto_front.evaluations
+                )
+            ]
+        )
+
+
+@dataclass
+class _JSONResourceModifiers(JSONWizard):
+    deleted: Optional[bool]
+    added: Optional[bool]
+    shifts_modified: Optional[bool]
+    tasks_modified: Optional[bool]
+
+
+@dataclass(frozen=True)
+class _JSONResourceInfo(JSONWizard):
+    worked_time: float
+    available_time: float
+    utilization: float
+    cost_per_week: float
+    total_cost: float
+    hourly_rate: float
+    is_human: bool
+    max_weekly_capacity: float
+    max_daily_capacity: float
+    # Timetable
+    timetable_bitmask: WorkMasks
+    original_timetable_bitmask: WorkMasks
+    work_hours_per_week: int
+    never_work_bitmask: WorkMasks
+    always_work_bitmask: WorkMasks
+    # Tasks
+    assigned_tasks: list[str]
+
+    modifiers: "_JSONResourceModifiers"
+
+    @staticmethod
+    def from_resource(
+        resource: Resource,
+        state: State,
+        evaluation: Evaluation,
+        store: Store,
+    ) -> "_JSONResourceInfo":
+        timetable = state.timetable.get_calendar_for_resource(resource.id)
+        resource_constraints = store.constraints.get_legacy_constraints_for_resource(
+            resource.id
+        )
+        original_time_table = store.base_state.timetable.get_calendar_for_resource(
+            resource.id
+        )
+        assert timetable is not None
+        assert resource_constraints is not None
+        assert original_time_table is not None
+
+        relevant_actions = [
+            action
+            for action in state.actions
+            if (
+                isinstance(action, ModifyResourceBaseAction)
+                and action.params["resource_id"] == resource.id
             )
-            assert constraints is not None, f"Resource {resource.id} has no constraints"
-            calendar = state.timetable.get_calendar_for_resource(resource.id)
-            assert calendar is not None, f"Resource {resource.id} has no calendar"
-            pools[f"{resource.id}"] = _ResourceInfo(
-                total_amount=resource.get_total_cost(state.timetable),
-                never_work_masks=constraints.never_work_masks,
-                always_work_masks=constraints.always_work_masks,
-                shifts=[calendar.to_work_masks()],
-                id=resource.id,
-                max_weekly_cap=constraints.global_constraints.max_weekly_cap,
-                max_daily_cap=constraints.global_constraints.max_daily_cap,
-                max_consecutive_cap=constraints.global_constraints.max_consecutive_cap,
-                max_shifts_day=constraints.global_constraints.max_shifts_day,
-                max_shifts_week=constraints.global_constraints.max_shifts_week,
-                is_human=constraints.global_constraints.is_human,
-                name=resource.name,
-                cost_per_hour=resource.cost_per_hour,
-                amount=resource.amount,
-                assigned_tasks=resource.assigned_tasks,
-                calendar=resource.calendar,
+            or (
+                isinstance(action, ModifyCalendarBaseAction)
+                and action.params["calendar_id"] == timetable.id
             )
-        iteration = store.get_state_index(state)
-        return _Solution(
-            sim_params=state.timetable,
-            name="Optimos Run",
-            iteration=iteration,
-            solution_info=_SolutionInfo(
-                mean_process_cycle_time=evaluation.avg_cycle_time,
-                deviation_info=_DeviationInfo(
-                    # TODO
-                    cycle_time_deviation=0,
-                    execution_duration_deviation=0,
-                    dev_type=0,
-                ),
-                pool_utilization=evaluation.resource_utilizations,
-                pool_time=evaluation.resource_worked_times,
-                pool_cost={
-                    f"{resource.id}": float(cost)
-                    for resource, cost in state.timetable.get_resources_with_cost()
-                },
-                total_pool_cost=evaluation.total_cost,
-                total_pool_time=evaluation.total_cycle_time,
-                available_time=evaluation.resource_available_times,
-                pools_info=_PoolsInfo(
-                    task_allocations={
-                        f"{resource.id}": resource.assigned_tasks
-                        for resource in state.timetable.get_all_resources()
-                    },
-                    pools=pools,
-                ),
+        ]
+
+        deleted = any(
+            isinstance(action, ModifyResourceBaseAction)
+            and action.params.get("remove_resource")
+            for action in relevant_actions
+        )
+
+        added = any(
+            isinstance(action, ModifyResourceBaseAction)
+            and action.params.get("clone_resource")
+            for action in relevant_actions
+        )
+
+        shifts_modified = any(
+            isinstance(action, ModifyCalendarBaseAction)
+            and action.params.get("shifts_modified")
+            for action in relevant_actions
+        )
+
+        tasks_modified = any(
+            isinstance(action, ModifyResourceBaseAction)
+            and action.params.get("remove_task_from_resource")
+            for action in relevant_actions
+        )
+
+        return _JSONResourceInfo(
+            worked_time=evaluation.resource_worked_times[resource.id],
+            work_hours_per_week=timetable.total_hours,
+            available_time=evaluation.resource_available_times[resource.id],
+            utilization=evaluation.resource_utilizations[resource.id],
+            cost_per_week=timetable.total_hours * resource.cost_per_hour,
+            total_cost=(evaluation.resource_worked_times[resource.id] / 60)
+            * resource.cost_per_hour,
+            hourly_rate=resource.cost_per_hour,
+            is_human=resource_constraints.global_constraints.is_human,
+            max_weekly_capacity=resource_constraints.global_constraints.max_weekly_cap,
+            max_daily_capacity=resource_constraints.global_constraints.max_daily_cap,
+            original_timetable_bitmask=original_time_table.to_work_masks(),
+            timetable_bitmask=timetable.to_work_masks(),
+            never_work_bitmask=resource_constraints.never_work_masks,
+            always_work_bitmask=resource_constraints.always_work_masks,
+            assigned_tasks=resource.assigned_tasks,
+            modifiers=_JSONResourceModifiers(
+                deleted=deleted,
+                added=added,
+                shifts_modified=shifts_modified,
+                tasks_modified=tasks_modified,
             ),
         )
 
 
 @dataclass(frozen=True)
-class _SolutionInfo(JSONWizard):
-    pools_info: "_PoolsInfo"
-    mean_process_cycle_time: float
-    deviation_info: "_DeviationInfo"
-    pool_utilization: dict[str, float]
-    pool_time: dict[str, float]
-    pool_cost: dict[str, float]
-    total_pool_cost: float
-    total_pool_time: float
-    available_time: dict[str, float]
-
-    class _(JSONWizard.Meta):
-        key_transform_with_dump = "SNAKE"
+class _JSONGlobalInfo(JSONWizard):
+    average_cost: float
+    average_time: float
+    average_resource_utilization: float
 
 
 @dataclass(frozen=True)
-class _PoolsInfo(JSONWizard):
-    pools: dict[str, "_ResourceInfo"]
-    task_allocations: dict[str, list[str]]
+class _JSONSolution(JSONWizard):
+    is_base_solution: bool
+    solution_no: int
+    global_info: "_JSONGlobalInfo"
+    resource_info: dict[str, "_JSONResourceInfo"]
+    timetable: TimetableType
 
-    class _(JSONWizard.Meta):
-        key_transform_with_dump = "SNAKE"
-
-
-@dataclass(frozen=True)
-class _ResourceInfo(
-    GlobalConstraints,
-    Resource,
-    JSONWizard,
-):
-    total_amount: int
-    never_work_masks: WorkMasks
-    always_work_masks: WorkMasks
-    shifts: list[WorkMasks]
-
-    class _(JSONWizard.Meta):
-        key_transform_with_dump = "SNAKE"
-
-
-@dataclass(frozen=True)
-class _DeviationInfo(JSONWizard):
-    cycle_time_deviation: float
-    execution_duration_deviation: float
-    dev_type: float
-
-    class _(JSONWizard.Meta):
-        key_transform_with_dump = "SNAKE"
-
-
-@dataclass(frozen=True)
-class _FinalSolutionMetric:
-    ave_time: float
-    ave_cost: float
-    time_metric: float
-    cost_metric: float
-
-    class _(JSONWizard.Meta):
-        key_transform_with_dump = "SNAKE"
+    actions: list[BaseAction]
 
     @staticmethod
-    def from_store(
-        store: Store,
-        pareto_front_index: int = -1,
-    ) -> "_FinalSolutionMetric":
-        pareto_front = store.pareto_fronts[pareto_front_index]
-        initial_front = store.base_evaluation
-
-        return _FinalSolutionMetric(
-            ave_time=pareto_front.avg_cycle_time,
-            ave_cost=pareto_front.avg_cost,
-            time_metric=(initial_front.avg_cycle_time / pareto_front.avg_cycle_time)
-            if pareto_front.avg_cycle_time > 0
-            else 0,
-            cost_metric=(initial_front.avg_cost / pareto_front.avg_cost)
-            if pareto_front.avg_cost > 0
-            else 0,
+    def from_state_evaluation(
+        state: State, evaluation: Evaluation, store: Store
+    ) -> "_JSONSolution":
+        return _JSONSolution(
+            timetable=state.timetable,
+            is_base_solution=state.is_base_state,
+            solution_no=1,  # TODO
+            global_info=_JSONGlobalInfo(
+                average_cost=evaluation.avg_cost,
+                average_time=evaluation.avg_cycle_time,
+                average_resource_utilization=evaluation.avg_resource_utilization,
+            ),
+            resource_info={
+                resource.id: _JSONResourceInfo.from_resource(
+                    resource, state, evaluation, store
+                )
+                for resource in state.timetable.get_all_resources()
+            },
+            actions=state.actions,
         )

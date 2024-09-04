@@ -101,7 +101,7 @@ class HillClimber:
         )
         print_l1(f"Base evaluation: \t{self.store.base_evaluation}")
         print_l1("Modifications:")
-        for action in self.store.previous_actions:
+        for action in self.store.state.actions:
             print_l2(str(action))
 
     def _execute_actions_parallel(

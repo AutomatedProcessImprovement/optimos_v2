@@ -19,6 +19,12 @@ if TYPE_CHECKING:
 
 @dataclass(frozen=True)
 class Evaluation:
+    """An evaluation of a simulation run.
+
+    It's a wrapper for the result classes of a PROSIMOS simulation run,
+    with a lot of useful getters and methods to analyze the results.
+    """
+
     global_kpis: KPIMap
     task_kpis: dict[str, KPIMap]
     resource_kpis: dict[str, ResourceKPI]
@@ -52,6 +58,13 @@ class Evaluation:
     def avg_cycle_time(self) -> float:
         """Get the mean cycle time of the simulation."""
         return self.global_kpis.cycle_time.avg
+
+    @property
+    def avg_resource_utilization(self) -> float:
+        """Get the average resource utilization of the simulation."""
+        return reduce(lambda x, y: x + y, self.resource_utilizations.values()) / len(
+            self.resource_utilizations
+        )
 
     @property
     def total_cycle_time(self) -> float:

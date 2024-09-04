@@ -1,11 +1,12 @@
 import datetime
 import xml.etree.ElementTree as ET
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 from typing import TYPE_CHECKING
 
 import pytz
 from bpdfr_simulation_engine.simulation_setup import SimDiffSetup
 
+from o2.actions.base_action import BaseAction
 from o2.models.evaluation import Evaluation
 from o2.simulation_runner import SimulationRunner
 from o2.util.sim_diff_setup_fileless import SimDiffSetupFileless
@@ -16,11 +17,25 @@ if TYPE_CHECKING:
 
 @dataclass(frozen=True)
 class State:
+    """A state in the optimization process.
+
+    It's mainly a container class for the timetable
+    """
+
     bpmn_definition: str
     bpmn_tree: ET.ElementTree
 
     timetable: "TimetableType"
+    # TODO: Move to setting class
     for_testing: bool = False
+
+    actions: list["BaseAction"] = field(default_factory=list)
+    """Actions taken since the base state. Will only be filled if the state is added to a pareto front"""
+
+    @property
+    def is_base_state(self) -> bool:
+        """Check if this state is the base state."""
+        return not self.actions
 
     def replace_timetable(self, /, **changes) -> "State":
         """Replace the timetable with the given changes."""

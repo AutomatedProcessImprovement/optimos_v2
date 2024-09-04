@@ -1,5 +1,5 @@
-from dataclasses import dataclass
 import os
+from dataclasses import dataclass
 
 from o2.models.legacy_approach import LegacyApproach
 
@@ -22,7 +22,7 @@ class Settings:
 
     only_allow_low_last = True
     """Should `low` rated Actions be tried last?
- 
+
     E.g. ONLY if no other/higher Action is available.
     """
 

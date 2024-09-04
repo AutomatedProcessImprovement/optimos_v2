@@ -27,7 +27,6 @@ class Store:
         self.state = state
         self.constraints = constraints
 
-        self.previous_actions: list[BaseAction] = []
         self.previous_states: list[State] = []
         self.pareto_fronts: list[ParetoFront] = []
 
@@ -72,11 +71,13 @@ class Store:
     def apply_action(self, action: "BaseAction") -> None:
         """Update the state by applying a given action."""
         new_state = action.apply(self.state)
-        self._add_action_state(action, new_state)
+        new_state_with_action = replace(
+            new_state, actions=self.state.actions + [action]
+        )
+        self._add_action_state(action, new_state_with_action)
 
     def _add_action_state(self, action: "BaseAction", state: State):
         """Add an action and state to the store."""
-        self.previous_actions.append(action)
         self.previous_states.append(state)
         # If we are in legacy optimos combined mode, we need to switch the mode
         if (
@@ -86,10 +87,6 @@ class Store:
         ):
             self.settings.set_next_combined_mode_status()
         self.state = state
-
-    def undo_action(self):
-        self.state = self.previous_states.pop()
-        self.tabu_list.append(self.previous_actions.pop())
 
     def process_many_action_tries(
         self, evaluations: list[ActionTry]
@@ -155,11 +152,14 @@ class Store:
         """
         try:
             new_state = action.apply(self.state, enable_prints=False)
-            evaluation = new_state.evaluate()
+            new_state_with_action = replace(
+                new_state, actions=self.state.actions + [action]
+            )
+            evaluation = new_state_with_action.evaluate()
             if evaluation.is_empty:
                 raise Exception("Evaluation empty. Please check the timetable & model.")
             status = self.current_pareto_front.is_in_front(evaluation)
-            return (status, evaluation, new_state, action)
+            return (status, evaluation, new_state_with_action, action)
         except Exception as e:
             print(f"Error in try_action: {e}")
             return (FRONT_STATUS.INVALID, Evaluation.empty(), self.state, action)

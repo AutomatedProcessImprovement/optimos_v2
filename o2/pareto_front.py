@@ -22,9 +22,13 @@ class ParetoFront:
 
     def __init__(self) -> None:
         self.evaluations: list[Evaluation] = []
+        """A list of evaluations in the front. They follow the same order as the states."""
         self.states: list[State] = []
+        """A list of solutions in the front. They follow the same order as the evaluations."""
         self.removed_solutions: list[Evaluation] = []
+        """A list of solutions that have been removed from the front, because they were dominated."""
         self.removed_states: list[State] = []
+        """A list of states that have been removed from the front, because they were dominated."""
 
     @property
     def size(self) -> int:

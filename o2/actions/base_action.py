@@ -48,3 +48,10 @@ class BaseAction(ABC):
         if not isinstance(other, BaseAction):
             return NotImplemented
         return self.__class__ == other.__class__ and self.params == other.params
+
+    def to_json(self) -> dict:
+        """Convert the action to a JSON serializable format."""
+        return {
+            "type": self.__class__.__name__,
+            "params": self.params,
+        }
