@@ -99,6 +99,8 @@ class _JSONResourceInfo(JSONWizard):
     always_work_bitmask: WorkMasks
     # Tasks
     assigned_tasks: list[str]
+    added_tasks: list[str]
+    removed_tasks: list[str]
 
     modifiers: "_JSONResourceModifiers"
 
@@ -121,6 +123,7 @@ class _JSONResourceInfo(JSONWizard):
             original_time_table = (
                 store.base_state.timetable.get_calendar_for_base_resource(resource.id)
             )
+
         assert timetable is not None
         assert resource_constraints is not None
         assert original_time_table is not None
@@ -156,6 +159,18 @@ class _JSONResourceInfo(JSONWizard):
             for action in relevant_actions
         )
 
+        original_tasks = store.base_state.timetable.get_tasks(resource.id)
+        removed_tasks = [
+            task_id
+            for task_id in original_tasks
+            if task_id not in resource.assigned_tasks
+        ]
+        added_tasks = [
+            task_id
+            for task_id in resource.assigned_tasks
+            if task_id not in original_tasks
+        ]
+
         return _JSONResourceInfo(
             id=resource.id,
             name=resource.name,
@@ -182,6 +197,8 @@ class _JSONResourceInfo(JSONWizard):
                 shifts_modified=shifts_modified,
                 tasks_modified=tasks_modified,
             ),
+            added_tasks=added_tasks,
+            removed_tasks=removed_tasks,
         )
 
 

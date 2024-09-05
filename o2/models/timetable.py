@@ -751,6 +751,13 @@ class TimetableType(JSONWizard):
                     return resource
         return None
 
+    def get_tasks(self, resource_id: str) -> List[str]:
+        """Get all tasks assigned to a resource."""
+        resource = self.get_resource(resource_id)
+        if resource is None:
+            return []
+        return resource.assigned_tasks
+
     def get_task_resource_distribution(
         self, task_id: str
     ) -> Optional[TaskResourceDistributions]:
