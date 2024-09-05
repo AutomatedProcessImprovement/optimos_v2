@@ -1,5 +1,6 @@
 import concurrent.futures
 import os
+import time
 import traceback
 from typing import Generator
 
@@ -55,10 +56,13 @@ class HillClimber:
                     print_l1("No actions left")
                     break
                 print_l1(f"Running {len(actions_to_perform)} actions...")
+                start_time = time.time()
 
                 action_tries = self._execute_actions_parallel(
                     self.store, actions_to_perform
                 )
+                print_l1(f"Simulation took {time.time() - start_time:.2f}s")
+
                 chosen_tries, not_chosen_tries = self.store.process_many_action_tries(
                     action_tries
                 )
