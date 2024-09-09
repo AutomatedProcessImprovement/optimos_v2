@@ -1,6 +1,7 @@
 import random
 import re
 import string
+from typing import Optional, TypeVar
 
 CLONE_REGEX = re.compile(r"^(.*)_clone_[a-z0-9]{8}(?:timetable)?$")
 
@@ -18,3 +19,14 @@ def name_is_clone_of(potential_clone_name: str, resource_id: str) -> bool:
         or match.group(1) + "timetable" == resource_id
         or match.group(1) == resource_id + "timetable"
     )
+
+
+T = TypeVar("T")
+
+
+def safe_list_index(l: list[T], item: T) -> Optional[int]:
+    """Return the index of the item in the list, or None if it is not present."""
+    try:
+        return l.index(item)
+    except ValueError:
+        return None

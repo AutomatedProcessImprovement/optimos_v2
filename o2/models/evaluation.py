@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from functools import reduce
+from functools import cached_property, reduce
 from typing import TYPE_CHECKING, Counter, cast
 
 import pandas as pd
@@ -12,6 +12,7 @@ from bpdfr_simulation_engine.simulation_stats_calculator import (
 
 from o2.models.days import DAY
 from o2.simulation_runner import RunSimulationResult
+from o2.util.waiting_time_helper import add_waiting_times_to_event_log
 
 if TYPE_CHECKING:
     from o2.store import Store
@@ -29,6 +30,11 @@ class Evaluation:
     task_kpis: dict[str, KPIMap]
     resource_kpis: dict[str, ResourceKPI]
     log_info: LogInfo
+
+    @cached_property
+    def waiting_time_canvas(self) -> pd.DataFrame:
+        """Get the waiting time canvas of the simulation."""
+        return add_waiting_times_to_event_log(self.log_info)
 
     @property
     def total_cost(self) -> float:
@@ -64,6 +70,38 @@ class Evaluation:
         """Get the average resource utilization of the simulation."""
         return reduce(lambda x, y: x + y, self.resource_utilizations.values()) / len(
             self.resource_utilizations
+        )
+
+    @property
+    def avg_waiting_time(self) -> float:
+        """Get the average waiting time of the simulation."""
+        return self.global_kpis.waiting_time.avg
+
+    @property
+    def avg_batching_waiting_time(self) -> float:
+        """Get the average batching waiting time per case."""
+        return (
+            self.waiting_time_canvas.groupby("case")["waiting_time_batching_seconds"]
+            .sum()
+            .mean()
+            or 0
+        )
+
+    def avg_batching_waiting_time_by_task_id(self, task_id: str) -> float:
+        """Get the average batching waiting time of a task."""
+        return self.waiting_time_canvas[
+            self.waiting_time_canvas["activity"] == task_id
+        ]["waiting_time_batching_seconds"].mean()
+
+    def total_batching_waiting_time_by_resource_id(self, resource_id: str) -> float:
+        """Get the total batching waiting time of a resource (averaged by cases)."""
+        return (
+            self.waiting_time_canvas[
+                self.waiting_time_canvas["resource"] == resource_id
+            ]
+            .groupby("case")["waiting_time_batching_seconds"]
+            .sum()
+            .mean()
         )
 
     @property
