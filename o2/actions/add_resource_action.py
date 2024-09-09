@@ -142,9 +142,9 @@ class AddResourceAction(ModifyResourceBaseAction):
         task_executions = evaluation.get_task_execution_count_by_resource(resource_id)
 
         task_candidates = [
-            (timetable.get_resource_profile(task), task_executions[task])
+            (timetable.get_resource_profile(task), task_executions.get(task, 0))
             for task in resource.assigned_tasks
-            if task != protected_task and task_executions[task] > 1
+            if task != protected_task and task_executions.get(task, 0) > 1
         ]
 
         if not task_candidates:
