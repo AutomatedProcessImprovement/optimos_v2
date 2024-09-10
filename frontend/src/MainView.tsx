@@ -1,92 +1,93 @@
-import React, { useState } from "react";
-import {
-  Box,
-  Card,
-  CardContent,
-  IconButton,
-  Typography,
-  Divider,
-} from "@mui/material";
-import { ChevronLeft, ChevronRight } from "@mui/icons-material";
+import React from "react";
+import { AppShell, Card, Text, Box, Burger } from "@mantine/core";
 import { ParameterEditor } from "./parameterEditor/ParameterEditor";
+import { Button } from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
+
 export const MainView = () => {
-  const [leftOpen, setLeftOpen] = useState(true);
-  const [rightOpen, setRightOpen] = useState(true);
+  const [leftOpened, { toggle: toggleLeft }] = useDisclosure(true);
+  const [rightOpened, { toggle: toggleRight }] = useDisclosure(true);
 
-  const toggleLeft = () => setLeftOpen(!leftOpen);
-  const toggleRight = () => setRightOpen(!rightOpen);
   return (
-    <Box display="flex" height="100vh">
-      {/* Left Sidebar */}
-      <Box
-        sx={{
-          width: leftOpen ? 300 : 50,
-          bgcolor: "grey.200",
-          p: 1,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: leftOpen ? "flex-start" : "center",
-          overflow: "auto",
-          transition: "width 0.3s",
-        }}
-      >
-        <IconButton onClick={toggleLeft}>
-          {leftOpen ? <ChevronLeft /> : <ChevronRight />}
-        </IconButton>
-        {leftOpen && (
-          <Box>
-            <Typography variant="h6" gutterBottom>
-              Assets
-            </Typography>
-            {/* Asset Cards */}
-            {[1, 2, 3].map((item) => (
-              <Card key={item} sx={{ mb: 1 }}>
-                <CardContent>
-                  <Typography>Asset {item}</Typography>
-                </CardContent>
-              </Card>
-            ))}
-          </Box>
-        )}
-      </Box>
+    <AppShell
+      padding="md"
+      header={{ height: 60 }}
+      navbar={{
+        width: leftOpened ? 300 : 60,
+        breakpoint: "sm",
+        collapsed: { mobile: !leftOpened },
+      }}
+      aside={{
+        width: rightOpened ? 300 : 60,
+        breakpoint: "sm",
+        collapsed: { mobile: !rightOpened },
+      }}
+    >
+      {/* Header */}
+      <AppShell.Header p="md" h={60} display="flex" ta="center">
+        <Text size="xl" fw={500}>
+          Optimos V2
+        </Text>
+      </AppShell.Header>
 
-      {/* Editor */}
-      <Box flexGrow={1} bgcolor="grey.100" p={2}>
-        <ParameterEditor />
-      </Box>
+      {/* Left Sidebar - Navbar */}
+      <AppShell.Navbar p="md">
+        <Burger opened={leftOpened} onClick={toggleLeft} size="sm" />
+        <Box>
+          {leftOpened && (
+            <Box>
+              <Text size="lg" fw={500}>
+                Assets
+              </Text>
+              {[1, 2, 3].map((item) => (
+                <Card
+                  key={item}
+                  shadow="sm"
+                  p="lg"
+                  radius="md"
+                  withBorder
+                  mb="sm"
+                >
+                  <Text>Asset {item}</Text>
+                </Card>
+              ))}
+            </Box>
+          )}
+        </Box>
+      </AppShell.Navbar>
 
-      {/* Right Sidebar */}
-      <Box
-        sx={{
-          width: rightOpen ? 300 : 50,
-          bgcolor: "grey.200",
-          p: 1,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: rightOpen ? "flex-start" : "center",
-          overflow: "auto",
-          transition: "width 0.3s",
-        }}
-      >
-        <IconButton onClick={toggleRight}>
-          {rightOpen ? <ChevronRight /> : <ChevronLeft />}
-        </IconButton>
-        {rightOpen && (
-          <Box>
-            <Typography variant="h6" gutterBottom>
-              Outputs
-            </Typography>
-            {/* Output Cards */}
-            {[1, 2, 3].map((item) => (
-              <Card key={item} sx={{ mb: 1 }}>
-                <CardContent>
-                  <Typography>Output {item}</Typography>
-                </CardContent>
-              </Card>
-            ))}
-          </Box>
-        )}
-      </Box>
-    </Box>
+      {/* Main Editor Section */}
+      <AppShell.Main>
+        <Box p="md" style={{ textAlign: "center", height: "100%" }}>
+          <ParameterEditor />
+        </Box>
+      </AppShell.Main>
+
+      {/* Right Sidebar - Aside */}
+      <AppShell.Aside p="md">
+        <Burger opened={rightOpened} onClick={toggleRight} size="sm" />
+        <Box>
+          {rightOpened && (
+            <Box>
+              <Text size="lg" fw={500}>
+                Outputs
+              </Text>
+              {[1, 2, 3].map((item) => (
+                <Card
+                  key={item}
+                  shadow="sm"
+                  p="lg"
+                  radius="md"
+                  withBorder
+                  mb="sm"
+                >
+                  <Text>Output {item}</Text>
+                </Card>
+              ))}
+            </Box>
+          )}
+        </Box>
+      </AppShell.Aside>
+    </AppShell>
   );
 };

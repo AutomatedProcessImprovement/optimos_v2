@@ -46,6 +46,7 @@ export const ResourceSelection: FC<ResourceSelectionProps> = ({
   const form = useMasterFormContext();
   const resources = form.values?.constraints?.resources ?? [];
   useEffect(() => {}, [form.values?.constraints?.resources]);
+
   const [searchTerm, setSearchTerm] = React.useState("");
   const [searchResults, setSearchResults] = React.useState(resources);
   const [modalOpen, setModalOpen] = React.useState(false);
