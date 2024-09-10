@@ -39,7 +39,7 @@ const tooltip_desc: Record<string, string> = {
     "Define the top-level restrictions like the time granularity and the maximum work units",
   RESOURCE_CONSTRAINTS:
     "Define resource specific constraints, their maximum capacity and working masks",
-  SIMULATION_RESULTS: "",
+  VALIDATION_RESULTS: "View the validation results of the constraints",
 };
 
 export const ParameterEditor = () => {
@@ -185,34 +185,32 @@ export const ParameterEditor = () => {
                     >
                       <Tabs.List>
                         {Object.entries(TabNames).map(([key, label], index) => (
-                          <Tabs.Tab key={label} value={key}>
-                            {label}
-                          </Tabs.Tab>
-                        ))}
-                      </Tabs.List>
-                      {Object.entries(TabNames).map(([key, label], index) => (
-                        <Tabs.Panel key={label} value={key}>
                           <Tooltip
                             label={tooltip_desc[key]}
                             position="top"
                             withArrow
                           >
-                            {getStepContent(
-                              getIndexOfTab(key as unknown as TABS)
-                            )}
+                            <Tabs.Tab key={label} value={key}>
+                              {label}
+                            </Tabs.Tab>
                           </Tooltip>
+                        ))}
+                      </Tabs.List>
+                      {Object.entries(TabNames).map(([key, label], index) => (
+                        <Tabs.Panel key={label} value={key}>
+                          {getStepContent(
+                            getIndexOfTab(key as unknown as TABS)
+                          )}
                         </Tabs.Panel>
                       ))}
                     </Tabs>
                   </Grid>
 
                   <Group justify="center" mt="lg">
-                    <Stack>
-                      <Button onClick={handleConfigSave} variant="outline">
-                        Save Config
-                      </Button>
-                      <Button type="submit">Start Optimization</Button>
-                    </Stack>
+                    <Button onClick={handleConfigSave} variant="outline">
+                      Save Config
+                    </Button>
+                    <Button type="submit">Start Optimization</Button>
                   </Group>
                 </Grid.Col>
               </Grid>

@@ -21,7 +21,7 @@ interface GlobalConstraintsProps {}
 const GlobalConstraints = (props: GlobalConstraintsProps) => {
   const form = useMasterFormContext();
   return (
-    <Card padding="lg" mb="md">
+    <Card shadow="sm" padding="lg" style={{ width: "100%" }}>
       <Grid justify="flex-start">
         <Grid.Col span={12}>
           <Text fw={500} size="lg" ta="left">

@@ -8,18 +8,18 @@ import {
 } from "@mui/icons-material";
 
 import {
-  Button,
-  ButtonGroup,
   Card,
-  Divider,
   Grid,
+  Text,
+  TextInput,
   List,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  TextField,
-  Typography,
-} from "@mui/material";
+  Button,
+  Divider,
+  Group,
+  Checkbox,
+  Select,
+  ButtonGroup,
+} from "@mantine/core";
 
 import type { FC } from "react";
 import React, { useEffect } from "react";
@@ -60,190 +60,141 @@ export const ResourceSelection: FC<ResourceSelectionProps> = ({
 
   return (
     <>
-      <Card
-        elevation={5}
-        sx={{
-          p: 2,
-        }}
-      >
-        <Grid item xs={12}>
-          <Typography variant="h6">Resources</Typography>
-        </Grid>
-        <Grid
-          container
-          direction={"row"}
-          justifyContent={"space-around"}
-          alignItems={"stretch"}
-        >
-          <Grid
-            item
-            xs={5}
-            sx={{
-              p: 2,
-            }}
-          >
-            <TextField
-              sx={{
-                width: "100%",
-                mb: 1,
-              }}
+      <Card shadow="sm" padding="lg">
+        <Grid>
+          <Grid.Col span={12}>
+            <Text size="lg" fw={500} ta={"left"}>
+              Resources
+            </Text>
+          </Grid.Col>
+
+          <Grid.Col span={5}>
+            <TextInput
               label="Search"
-              type="search"
+              placeholder="Search resources"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => setSearchTerm(e.currentTarget.value)}
+              mb="sm"
+              width={"100%"}
             />
             <List
-              sx={{
-                overflowY: "scroll",
-                height: "300px",
+              style={{
+                overflowY: "auto",
+                maxHeight: 300,
               }}
             >
-              {searchResults.map((item) => {
-                const isSelected = currResourceId === item.id;
-                return (
-                  <ListItemButton
-                    selected={isSelected}
-                    key={item.id}
-                    onClick={() => updateCurrCalendar(item.id)}
-                  >
-                    <ListItemIcon>
-                      {item.constraints.global_constraints?.is_human ? (
-                        <PersonIcon />
-                      ) : (
-                        <PrecisionManufacturingIcon />
-                      )}
-                    </ListItemIcon>
-                    <ListItemText>{item.id}</ListItemText>
-                  </ListItemButton>
-                );
-              })}
+              {searchResults.map((item) => (
+                <List.Item
+                  key={item.id}
+                  onClick={() => updateCurrCalendar(item.id)}
+                  style={{
+                    cursor: "pointer",
+                    backgroundColor:
+                      currResourceId === item.id ? "#f0f0f0" : "transparent",
+                  }}
+                >
+                  {item.constraints.global_constraints?.is_human ? (
+                    <Checkbox
+                      checked={true}
+                      label={item.id}
+                      icon={PersonIcon}
+                    />
+                  ) : (
+                    <Checkbox
+                      checked={true}
+                      label={item.id}
+                      icon={PrecisionManufacturingIcon}
+                    />
+                  )}
+                </List.Item>
+              ))}
             </List>
-          </Grid>
+          </Grid.Col>
 
-          <Divider orientation="vertical" flexItem variant="middle" />
+          <Divider orientation="vertical" mx="xl" />
 
-          <Grid
-            item
-            container
-            xs={5}
-            justifyContent={"center"}
-            alignItems={"center"}
-          >
-            <Grid
-              container
-              width={"100%"}
-              height={"80%"}
-              justifyContent={"center"}
-              alignItems={"center"}
+          <Grid.Col span={5}>
+            <Group
+              direction="column"
+              spacing="md"
+              align="center"
+              style={{ height: "100%" }}
             >
-              <Grid item width={"100%"}>
-                <Typography variant="caption">COPY ALL CONSTRAINTS</Typography>
-                <ButtonGroup fullWidth>
-                  <Button
-                    variant="outlined"
-                    disabled={!currResourceId}
-                    onClick={() => {
-                      const newResources = applyConstraintsToAllResources(
-                        resources,
-                        currResourceId!
-                      );
-                      form.setValue("constraints.resources", newResources, {
-                        shouldDirty: true,
-                        shouldValidate: false,
-                      });
-                      form.trigger();
-                    }}
-                    startIcon={<ContentPasteIcon />}
-                  >
-                    Apply to All
-                  </Button>
-                  <Button
-                    disabled={!currResourceId}
-                    variant="outlined"
-                    onClick={() => setModalOpen(true)}
-                    startIcon={<ContentPasteGoIcon />}
-                  >
-                    Copy to...
-                  </Button>
-                </ButtonGroup>
-              </Grid>
-              <Grid item width={"100%"}>
-                <Typography variant="caption">
-                  COPY ONLY TIME CONSTRAINTS
-                </Typography>
-                <ButtonGroup fullWidth>
-                  <Button
-                    variant="outlined"
-                    disabled={!currResourceId}
-                    onClick={() => {
-                      const newResources = applyTimetableToAllResources(
-                        resources,
-                        currResourceId!
-                      );
+              <Text size="sm">COPY ALL CONSTRAINTS</Text>
+              <ButtonGroup>
+                <Button
+                  variant="outline"
+                  disabled={!currResourceId}
+                  onClick={() => {
+                    const newResources = applyConstraintsToAllResources(
+                      resources,
+                      currResourceId!
+                    );
+                    form.setFieldValue("constraints.resources", newResources);
+                  }}
+                >
+                  Apply to All
+                </Button>
+                <Button
+                  variant="outline"
+                  disabled={!currResourceId}
+                  onClick={() => setModalOpen(true)}
+                >
+                  Copy to...
+                </Button>
+              </ButtonGroup>
 
-                      form.setValue("constraints.resources", newResources, {
-                        shouldDirty: true,
-                        shouldValidate: false,
-                      });
-                      form.trigger();
-                    }}
-                    startIcon={<ContentPasteIcon />}
-                  >
-                    Apply time constraints to All
-                  </Button>
-                </ButtonGroup>
-              </Grid>
-              {/* <Grid item alignSelf={"center"} width={"80%"}>
-                <Divider variant="middle" orientation="horizontal" />
-              </Grid> */}
-              <Grid item width={"100%"}>
-                <Typography variant="caption">RESET CONSTRAINTS</Typography>
-                <ButtonGroup orientation="vertical" fullWidth>
-                  <Button
-                    disabled={!currResourceId}
-                    variant="outlined"
-                    startIcon={<RestartAltIcon />}
-                    onClick={() => {
-                      const newResources = resetResourceConstraintsToBlank(
-                        resources,
-                        currResourceId!
-                      );
-                      form.setValue("constraints.resources", newResources, {
-                        shouldDirty: true,
-                        shouldTouch: true,
-                        shouldValidate: false,
-                      });
-                      form.trigger();
-                    }}
-                  >
-                    Reset to blank constraints
-                  </Button>
-                  <Button
-                    disabled={!currResourceId}
-                    variant="outlined"
-                    startIcon={<EventIcon />}
-                    onClick={() => {
-                      const newResources = resetResourceConstraintsToNineToFive(
-                        resources,
-                        currResourceId!
-                      );
+              <Text size="sm">COPY ONLY TIME CONSTRAINTS</Text>
+              <ButtonGroup>
+                <Button
+                  variant="outline"
+                  disabled={!currResourceId}
+                  onClick={() => {
+                    const newResources = applyTimetableToAllResources(
+                      resources,
+                      currResourceId!
+                    );
+                    form.setFieldValue("constraints.resources", newResources);
+                  }}
+                >
+                  Apply time constraints to All
+                </Button>
+              </ButtonGroup>
 
-                      form.setValue("constraints.resources", newResources, {
-                        shouldDirty: true,
-                        shouldTouch: true,
-                        shouldValidate: false,
-                      });
-                      form.trigger();
-                    }}
-                  >
-                    Reset to 9-5 working times
-                  </Button>
-                </ButtonGroup>
-              </Grid>
-            </Grid>
-          </Grid>
+              <Text size="sm">RESET CONSTRAINTS</Text>
+              <ButtonGroup orientation="vertical">
+                <Button
+                  variant="outline"
+                  disabled={!currResourceId}
+                  onClick={() => {
+                    const newResources = resetResourceConstraintsToBlank(
+                      resources,
+                      currResourceId!
+                    );
+                    form.setFieldValue("constraints.resources", newResources);
+                  }}
+                >
+                  Reset to blank constraints
+                </Button>
+                <Button
+                  variant="outline"
+                  disabled={!currResourceId}
+                  onClick={() => {
+                    const newResources = resetResourceConstraintsToNineToFive(
+                      resources,
+                      currResourceId!
+                    );
+                    form.setFieldValue("constraints.resources", newResources);
+                  }}
+                >
+                  Reset to 9-5 working times
+                </Button>
+              </ButtonGroup>
+            </Group>
+          </Grid.Col>
         </Grid>
       </Card>
+
       <ResourceCopyDialog
         open={modalOpen}
         onClose={(selectedIds) => {
@@ -253,10 +204,7 @@ export const ResourceSelection: FC<ResourceSelectionProps> = ({
             currResourceId!,
             selectedIds
           );
-          form.setValue("constraints.resources", newResources, {
-            shouldDirty: true,
-            shouldValidate: true,
-          });
+          form.setFieldValue("constraints.resources", newResources);
         }}
         selectedValue={currResourceId ?? ""}
         resources={resources}
