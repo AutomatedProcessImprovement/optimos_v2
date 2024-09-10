@@ -1,22 +1,31 @@
 from dataclasses import replace
+from datetime import datetime
 
-from o2.actions.base_action import RateSelfReturnType
+from bpdfr_simulation_engine.execution_info import TaskEvent, Trace
+
+from o2.actions.base_action import BaseAction, BaseActionParamsType, RateSelfReturnType
 from o2.actions.batching_rule_action import (
     BatchingRuleAction,
     BatchingRuleActionParamsType,
 )
+from o2.models.constraints import RULE_TYPE
 from o2.models.days import DAY
 from o2.models.legacy_constraints import WorkMasks
-from o2.models.self_rating import SelfRatingInput
+from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.state import State
-from o2.models.timetable import COMPARATOR, rule_is_daily_hour, rule_is_week_day
+from o2.models.timetable import (
+    COMPARATOR,
+    FiringRule,
+    rule_is_daily_hour,
+    rule_is_week_day,
+)
 from o2.store import Store
 
 SIZE_OF_CHANGE = 1
 CLOSENESS_TO_MAX_WT = 0.01
 
 
-class ModifyDateTimeRulesByEnablementActionParamsType(BatchingRuleActionParamsType):
+class ModifyDateTimeRulesByEnablementActionParamsType(BaseActionParamsType):
     """Parameter for ModifyDateTimeRulesByEnablementAction.
 
     hour_increment may also be negative to remove hours.
@@ -24,9 +33,10 @@ class ModifyDateTimeRulesByEnablementActionParamsType(BatchingRuleActionParamsTy
 
     new_hour: int
     new_day: DAY
+    task_id: str
 
 
-class ModifyDateTimeRulesByEnablementAction(BatchingRuleAction):
+class ModifyDateTimeRulesByEnablementAction(BaseAction):
     """ModifyDateTimeRulesByEnablementAction will modify DAILY_HOUR & WEEK_DAY rules.
 
     It's main metric is enablement. It looks at the enablement times of all rules, finds
@@ -40,48 +50,57 @@ class ModifyDateTimeRulesByEnablementAction(BatchingRuleAction):
     def apply(self, state: State, enable_prints: bool = True) -> State:
         """Apply the action to the state."""
         timetable = state.timetable
-        rule_selector = self.params["rule"]
-        hour_increment = self.params["hour_increment"]
+        task_id = self.params["task_id"]
+        new_hour = self.params["new_hour"]
+        next_hour = new_hour + 1 if new_hour < 24 else 0
+        new_day = self.params["new_day"]
 
-        index, rule = timetable.get_batching_rule(rule_selector)
-        if rule is None or index is None:
-            print(f"BatchingRule not found for {rule_selector}")
+        existing_task_rules = timetable.get_batching_rules_for_task(task_id)
+
+        if not existing_task_rules:
+            # TODO Also allow adding new rules
             return state
 
-        firing_rule = rule.get_firing_rule(rule_selector)
-        if not rule_is_daily_hour(firing_rule):
-            print(f"Firing rule not found for {rule_selector}")
-            return state
+        # Find the rule to modify
+        rule = existing_task_rules[0]
+        index = timetable.batch_processing.index(rule)
 
-        if hour_increment == 0:
-            print("No change in hours")
-            return state
-
-        new_hour = firing_rule.value + hour_increment
-        if (new_hour < 0) or (new_hour > 24):
-            print("Hour out of bounds")
-            return state
-
-        assert rule_selector.firing_rule_index is not None
-
-        new_batching_rule = rule.replace_firing_rule(
-            rule_selector, replace(firing_rule, value=new_hour)
+        new_or_rule = [
+            FiringRule(
+                attribute=RULE_TYPE.WEEK_DAY,
+                comparison=COMPARATOR.EQUAL,
+                value=new_day,
+            ),
+            FiringRule(
+                attribute=RULE_TYPE.DAILY_HOUR,
+                comparison=COMPARATOR.GREATER_THEN_OR_EQUAL,
+                value=new_hour,
+            ),
+            FiringRule(
+                attribute=RULE_TYPE.DAILY_HOUR,
+                comparison=COMPARATOR.LESS_THEN,
+                value=next_hour,
+            ),
+        ]
+        updated_rule = replace(
+            rule,
+            firing_rules=rule.firing_rules + [new_or_rule],
         )
 
         return state.replace_timetable(
             batch_processing=timetable.batch_processing[:index]
-            + [new_batching_rule]
+            + [updated_rule]
             + timetable.batch_processing[index + 1 :],
         )
 
     @staticmethod
     def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
         """Generate a best set of parameters & self-evaluates this action."""
-
         # We first create a dict of all tasks and their respective enablement times (if any)
         # This is modeled as a WorkMasks (aka bitmask for each day)
         # This dict basically marks the times not interesting for us, because they are
         # already enabled.
+
         task_batch_enablement: dict[str, WorkMasks] = {}
         for rule in store.current_timetable.batch_processing:
             for and_rules in rule.firing_rules:
@@ -100,18 +119,20 @@ class ModifyDateTimeRulesByEnablementAction(BatchingRuleAction):
                         has_day = day_rule is not None
                         if firing_rule.comparison == COMPARATOR.EQUAL:
                             if has_day:
-                                task_batch_enablement[
-                                    rule.task_id
-                                ] = task_batch_enablement[
-                                    rule.task_id
-                                ].set_hour_for_day(day_rule.value, firing_rule.value)
+                                task_batch_enablement[rule.task_id] = (
+                                    task_batch_enablement[
+                                        rule.task_id
+                                    ].set_hour_for_day(
+                                        day_rule.value, firing_rule.value
+                                    )
+                                )
 
                             else:
-                                task_batch_enablement[
-                                    rule.task_id
-                                ] = task_batch_enablement[
-                                    rule.task_id
-                                ].set_hour_for_every_day(firing_rule.value)
+                                task_batch_enablement[rule.task_id] = (
+                                    task_batch_enablement[
+                                        rule.task_id
+                                    ].set_hour_for_every_day(firing_rule.value)
+                                )
 
                         elif firing_rule.comparison == COMPARATOR.GREATER_THEN:
                             less_than_rule = next(
@@ -126,28 +147,27 @@ class ModifyDateTimeRulesByEnablementAction(BatchingRuleAction):
                             )
                             assert less_than_rule is not None
                             if has_day:
-                                task_batch_enablement[
-                                    rule.task_id
-                                ] = task_batch_enablement[
-                                    rule.task_id
-                                ].set_hour_range_for_day(
-                                    day_rule.value,
-                                    less_than_rule.value,
-                                    firing_rule.value,
+                                task_batch_enablement[rule.task_id] = (
+                                    task_batch_enablement[
+                                        rule.task_id
+                                    ].set_hour_range_for_day(
+                                        day_rule.value,
+                                        less_than_rule.value,
+                                        firing_rule.value,
+                                    )
                                 )
                             else:
-                                task_batch_enablement[
-                                    rule.task_id
-                                ] = task_batch_enablement[
-                                    rule.task_id
-                                ].set_hour_range_for_every_day(
-                                    less_than_rule.value,
-                                    firing_rule.value,
+                                task_batch_enablement[rule.task_id] = (
+                                    task_batch_enablement[
+                                        rule.task_id
+                                    ].set_hour_range_for_every_day(
+                                        less_than_rule.value,
+                                        firing_rule.value,
+                                    )
                                 )
 
         # To the dict we also add all the times in the constraints
-        for distribution in store.current_timetable.task_resource_distribution:
-            task_id = distribution.task_id
+        for task_id in store.current_timetable.get_task_ids():
             constraints = store.constraints.get_daily_hour_rule_constraints(task_id)
             if task_id not in task_batch_enablement:
                 task_batch_enablement[task_id] = WorkMasks()
@@ -168,6 +188,42 @@ class ModifyDateTimeRulesByEnablementAction(BatchingRuleAction):
                             task_batch_enablement[task_id] = task_batch_enablement[
                                 task_id
                             ].set_hour_for_day(day, allowed_hour)
+
+        # Now we iterate of over all enablement times in the event log, and add it to
+        # a second dict (if it's not already in the first)
+        enablement_counter: dict[tuple[str, DAY, int], int] = {}
+        for trace in input.base_evaluation.cases:
+            events: list[TaskEvent] = trace.event_list
+            for event in events:
+                enablement = event.enabled_datetime
+                if not isinstance(enablement, datetime):
+                    continue
+                day: DAY = DAY[enablement.strftime("%A").upper()]
+                hour = enablement.hour
+                if task_batch_enablement[event.task_id].has_hour_for_day(day, hour):
+                    continue
+
+                if (event.task_id, day, hour) not in enablement_counter:
+                    enablement_counter[(event.task_id, day, hour)] = 0
+                enablement_counter[(event.task_id, day, hour)] += 1
+
+        # Get task, day, hour with the most enablements
+        most_enablement = max(
+            enablement_counter.items(), key=lambda x: x[1], default=(None, None)
+        )
+        if most_enablement[0] is None:
+            return
+
+        task_id, day, hour = most_enablement[0]
+
+        yield (
+            RATING.HIGH,
+            ModifyDateTimeRulesByEnablementAction(
+                ModifyDateTimeRulesByEnablementActionParamsType(
+                    task_id=task_id, new_day=day, new_hour=hour
+                )
+            ),
+        )
 
         # for rule_selector in possible_candidates:
         #     if rule_selector is None:

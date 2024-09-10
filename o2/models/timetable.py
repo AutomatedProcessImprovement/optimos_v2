@@ -733,6 +733,10 @@ class TimetableType(JSONWizard):
             ),
         )
 
+    def get_batching_rules_for_task(self, task_id: str) -> List[BatchingRule]:
+        """Get all batching rules for a task."""
+        return [rule for rule in self.batch_processing if rule.task_id == task_id]
+
     def get_resource(self, resource_name: str) -> Optional[Resource]:
         """Get resource (from resource_profiles) with the given name.
 
@@ -991,6 +995,10 @@ class TimetableType(JSONWizard):
             resource_profiles=new_resource_profiles,
             task_resource_distribution=new_task_resource_distribution,
         )
+
+    def get_task_ids(self) -> List[str]:
+        """Get all task ids."""
+        return [task.task_id for task in self.task_resource_distribution]
 
     @property
     def max_total_hours_per_resource(self) -> int:

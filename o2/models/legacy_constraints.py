@@ -23,6 +23,10 @@ class WorkMasks(JSONWizard):
     saturday: Optional[int] = 0
     sunday: Optional[int] = 0
 
+    def has_hour_for_day(self, day: DAY, hour: int) -> bool:
+        """Check if the hour is enabled for a specific day."""
+        return bool(self.get(day) & (1 << (23 - hour)))
+
     def get(self, day: DAY) -> int:
         """Get the mask for a specific day."""
         return getattr(self, day.name.lower()) or 0
