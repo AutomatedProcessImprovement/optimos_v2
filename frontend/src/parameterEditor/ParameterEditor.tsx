@@ -43,9 +43,8 @@ const tooltip_desc: Record<string, string> = {
   SIMULATION_RESULTS: "",
 };
 
-export const ParamterEditor = () => {
+export const ParameterEditor = () => {
   const dispatch = useDispatch();
-  const selectedAssets = useSelector(selectSelectedAssets);
 
   const activeTab = useSelector(selectCurrentTab);
 
