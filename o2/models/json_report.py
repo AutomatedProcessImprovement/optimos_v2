@@ -214,6 +214,7 @@ class _JSONGlobalInfo(JSONWizard):
     average_time: float
     average_resource_utilization: float
     total_cost: float
+    total_time: float
     average_batching_waiting_time: float
     average_waiting_time: float
 
@@ -250,6 +251,7 @@ class _JSONSolution(JSONWizard):
                 average_time=evaluation.avg_cycle_time,
                 average_resource_utilization=evaluation.avg_resource_utilization,
                 total_cost=evaluation.total_cost,
+                total_time=evaluation.total_cycle_time,
                 average_batching_waiting_time=evaluation.avg_batching_waiting_time,
                 average_waiting_time=evaluation.avg_waiting_time,
             ),

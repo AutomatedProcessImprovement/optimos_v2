@@ -89,9 +89,12 @@ class Evaluation:
 
     def avg_batching_waiting_time_by_task_id(self, task_id: str) -> float:
         """Get the average batching waiting time of a task."""
-        return self.waiting_time_canvas[
-            self.waiting_time_canvas["activity"] == task_id
-        ]["waiting_time_batching_seconds"].mean()
+        return (
+            self.waiting_time_canvas[self.waiting_time_canvas["activity"] == task_id][
+                "waiting_time_batching_seconds"
+            ].mean()
+            or 0
+        )
 
     def total_batching_waiting_time_by_resource_id(self, resource_id: str) -> float:
         """Get the total batching waiting time of a resource (averaged by cases)."""
@@ -102,6 +105,7 @@ class Evaluation:
             .groupby("case")["waiting_time_batching_seconds"]
             .sum()
             .mean()
+            or 0
         )
 
     @property

@@ -16,7 +16,6 @@ from o2.util.indented_printer import print_l2
 
 def add_waiting_times_to_event_log(log: LogInfo) -> pd.DataFrame:
     """Convert the log to a DataFrame and add waiting times."""
-    print_l2("Start analyzing waiting times")
     start = time.time()
     events: Log = tuple(
         event_to_dynamik_event(event)
