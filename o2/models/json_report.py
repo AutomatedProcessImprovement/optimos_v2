@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional
+from typing import Any, Optional, TypedDict
 
 from dataclass_wizard import JSONWizard
 
@@ -13,7 +13,7 @@ from o2.models.state import State
 from o2.models.timetable import Resource, TimetableType
 from o2.pareto_front import ParetoFront
 from o2.store import Store
-from o2.util.helper import CLONE_REGEX
+from o2.util.helper import CLONE_REGEX, safe_list_index
 
 
 @dataclass(frozen=True)
@@ -101,6 +101,9 @@ class _JSONResourceInfo(JSONWizard):
     assigned_tasks: list[str]
     added_tasks: list[str]
     removed_tasks: list[str]
+
+    # Batching
+    total_batching_waiting_time: float
 
     modifiers: "_JSONResourceModifiers"
 
@@ -199,6 +202,9 @@ class _JSONResourceInfo(JSONWizard):
             ),
             added_tasks=added_tasks,
             removed_tasks=removed_tasks,
+            total_batching_waiting_time=evaluation.total_batching_waiting_time_by_resource_id(
+                resource.id
+            ),
         )
 
 
@@ -208,6 +214,15 @@ class _JSONGlobalInfo(JSONWizard):
     average_time: float
     average_resource_utilization: float
     total_cost: float
+    average_batching_waiting_time: float
+    average_waiting_time: float
+
+
+class _JSONAction(TypedDict):
+    """Class to represent action in JSON format."""
+
+    type: str
+    params: dict[str, Any]
 
 
 @dataclass(frozen=True)
@@ -219,7 +234,7 @@ class _JSONSolution(JSONWizard):
     deleted_resources_info: dict[str, "_JSONResourceInfo"]
     timetable: TimetableType
 
-    actions: list[BaseAction]
+    actions: list[_JSONAction]
 
     @staticmethod
     def from_state_evaluation(
@@ -228,12 +243,15 @@ class _JSONSolution(JSONWizard):
         return _JSONSolution(
             timetable=state.timetable,
             is_base_solution=state.is_base_state,
-            solution_no=1,  # TODO
+            solution_no=(safe_list_index(store.previous_states, state) or 0)
+            + 1,  # TODO make this more efficient
             global_info=_JSONGlobalInfo(
                 average_cost=evaluation.avg_cost,
                 average_time=evaluation.avg_cycle_time,
                 average_resource_utilization=evaluation.avg_resource_utilization,
                 total_cost=evaluation.total_cost,
+                average_batching_waiting_time=evaluation.avg_batching_waiting_time,
+                average_waiting_time=evaluation.avg_waiting_time,
             ),
             resource_info={
                 resource.id: _JSONResourceInfo.from_resource(
@@ -247,5 +265,5 @@ class _JSONSolution(JSONWizard):
                 )
                 for resource in state.timetable.get_deleted_resources(store.base_state)
             },
-            actions=state.actions,
+            actions=[action.to_json() for action in state.actions],  # type: ignore
         )
