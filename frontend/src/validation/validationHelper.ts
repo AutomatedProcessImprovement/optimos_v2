@@ -19,12 +19,18 @@ import {
   selectionIndexesToBitmask,
   timePeriodsToBinary,
 } from "../helpers";
-import type { ConstraintWorkMask, ResourceCalendar, TimePeriod } from "~/shared/optimos_json_type";
+import type {
+  ConstraintWorkMask,
+  ResourceCalendar,
+  TimePeriod,
+} from "~/shared/optimos_json_type";
 import { getOverlappingHours } from "./validationFunctions";
 
 // e.g {a: {b: {c: {message: 'error'}}}} => {'a.b.c': {message: 'error'}}
 export const flattenErrors = (errors: FieldErrors<MasterFormData>) => {
-  const result: Partial<Record<FieldPath<MasterFormData>, GlobalError & { fix?: number }>> = {};
+  const result: Partial<
+    Record<FieldPath<MasterFormData>, GlobalError & { fix?: number }>
+  > = {};
 
   const recurse = (obj: any, path: string) => {
     for (const key in obj) {
@@ -44,7 +50,10 @@ export const flattenErrors = (errors: FieldErrors<MasterFormData>) => {
 
 export type AutoFix = {
   title: string;
-  action: (getValues: UseFormGetValues<MasterFormData>, setValue: UseFormSetValue<MasterFormData>) => void;
+  action: (
+    getValues: UseFormGetValues<MasterFormData>,
+    setValue: UseFormSetValue<MasterFormData>
+  ) => void;
 };
 
 export type ParsedError = {
@@ -56,7 +65,10 @@ export type ParsedError = {
   autoFixes: AutoFix[];
 };
 
-export const convertError = (error: FieldErrors<MasterFormData>, formData: MasterFormData, projectId: string) => {
+export const convertError = (
+  error: FieldErrors<MasterFormData>,
+  formData: MasterFormData
+) => {
   const flattedError = flattenErrors(error);
 
   return Object.entries(flattedError)
@@ -71,7 +83,7 @@ export const convertError = (error: FieldErrors<MasterFormData>, formData: Maste
             humanReadablePath: "Max Capacity",
             message: error.message,
             path,
-            link: `/projects/${projectId}/optimization?tabIndex=1`,
+            link: `?tabIndex=1`,
             humanReadableFieldName: "Max Capacity",
             autoFixes: createScenarioConstraintsQuickFixes(path, error),
           };
@@ -80,7 +92,7 @@ export const convertError = (error: FieldErrors<MasterFormData>, formData: Maste
             humanReadablePath: "Max Shift Size",
             message: error.message,
             path,
-            link: `/projects/${projectId}/optimization?tabIndex=1`,
+            link: `?tabIndex=1`,
             humanReadableFieldName: "Max Shift Size",
             autoFixes: createScenarioConstraintsQuickFixes(path, error),
           };
@@ -89,13 +101,14 @@ export const convertError = (error: FieldErrors<MasterFormData>, formData: Maste
             humanReadablePath: "Max Shift Blocks",
             message: error.message,
             path,
-            link: `/projects/${projectId}/optimization?tabIndex=1`,
+            link: `?tabIndex=1`,
             humanReadableFieldName: "Max Shift Blocks",
             autoFixes: createScenarioConstraintsQuickFixes(path, error),
           };
         case "constraints.resources":
           const resourceIndex = pathArray[2];
-          const resource = formData.constraints?.resources[parseInt(resourceIndex)].id;
+          const resource =
+            formData.constraints?.resources[parseInt(resourceIndex)].id;
 
           const field = pathArray.slice(3, 5).join(".");
           console.log("field", field);
@@ -105,14 +118,20 @@ export const convertError = (error: FieldErrors<MasterFormData>, formData: Maste
             case "constraints.always_work_masks":
               const day = pathArray[5];
               const humanReadableFieldName =
-                field === "constraints.never_work_masks" ? "Never Work Times" : "Always Work Times";
+                field === "constraints.never_work_masks"
+                  ? "Never Work Times"
+                  : "Always Work Times";
               return {
                 humanReadablePath: `Resource Constraints > ${resource} > ${humanReadableFieldName} > ${day}`,
                 message: error.message,
                 path,
-                link: `/projects/${projectId}/optimization?tabIndex=2`,
+                link: `?tabIndex=2`,
                 humanReadableFieldName,
-                autoFixes: createResourceConstraintQuickFixes(path, formData, error),
+                autoFixes: createResourceConstraintQuickFixes(
+                  path,
+                  formData,
+                  error
+                ),
               };
             case "constraints.global_constraints":
               const globalConstraint = pathArray[5];
@@ -123,9 +142,13 @@ export const convertError = (error: FieldErrors<MasterFormData>, formData: Maste
                 )}`,
                 message: error.message,
                 path,
-                link: `/projects/${projectId}/optimization?tabIndex=2`,
+                link: `?tabIndex=2`,
                 humanReadableFieldName: globalConstraint.replace(/_/g, " "),
-                autoFixes: createResourceConstraintQuickFixes(path, formData, error),
+                autoFixes: createResourceConstraintQuickFixes(
+                  path,
+                  formData,
+                  error
+                ),
               };
 
             default:
@@ -160,12 +183,26 @@ const createResourceConstraintQuickFixes = (
           action: (get, set) => {
             const day = pathArray[5] as (typeof DAYS)[number];
             const calendars = get("simulationParameters.resource_calendars");
-            const simParamsCalendarIndex = calendars.findIndex((calendar) => calendar.id === resourceId);
-            const timePeriods = calendars[simParamsCalendarIndex]?.time_periods ?? [];
+            const simParamsCalendarIndex = calendars.findIndex(
+              (calendar) => calendar.id === resourceId
+            );
+            const timePeriods =
+              calendars[simParamsCalendarIndex]?.time_periods ?? [];
             const neverWorkMasks = get(path as any);
-            const overlappingHours = getOverlappingHours(day, neverWorkMasks, timePeriods);
-            const newTimePeriods = removeManyFromTimetable(day, overlappingHours, timePeriods);
-            set(`simulationParameters.resource_calendars.${simParamsCalendarIndex}.time_periods`, newTimePeriods);
+            const overlappingHours = getOverlappingHours(
+              day,
+              neverWorkMasks,
+              timePeriods
+            );
+            const newTimePeriods = removeManyFromTimetable(
+              day,
+              overlappingHours,
+              timePeriods
+            );
+            set(
+              `simulationParameters.resource_calendars.${simParamsCalendarIndex}.time_periods`,
+              newTimePeriods
+            );
           },
         },
         {
@@ -173,11 +210,19 @@ const createResourceConstraintQuickFixes = (
           action: (get, set) => {
             const day = pathArray[5] as (typeof DAYS)[number];
             const calendars = get("simulationParameters.resource_calendars");
-            const simParamsCalendarIndex = calendars.findIndex((calendar) => calendar.id === resourceId);
-            const timePeriods = calendars[simParamsCalendarIndex]?.time_periods ?? [];
+            const simParamsCalendarIndex = calendars.findIndex(
+              (calendar) => calendar.id === resourceId
+            );
+            const timePeriods =
+              calendars[simParamsCalendarIndex]?.time_periods ?? [];
             const neverWorkMasks = get(path as any);
-            const overlappingHours = getOverlappingHours(day, neverWorkMasks, timePeriods);
-            const overlappingHoursMask = selectionIndexesToBitmask(overlappingHours);
+            const overlappingHours = getOverlappingHours(
+              day,
+              neverWorkMasks,
+              timePeriods
+            );
+            const overlappingHoursMask =
+              selectionIndexesToBitmask(overlappingHours);
             const newNeverWorkMasks = neverWorkMasks & ~overlappingHoursMask;
 
             set(path as any, newNeverWorkMasks);
@@ -192,12 +237,22 @@ const createResourceConstraintQuickFixes = (
             action: (get, set) => {
               const day = pathArray[5] as (typeof DAYS)[number];
               const calendars = get("simulationParameters.resource_calendars");
-              const simParamsCalendarIndex = calendars.findIndex((calendar) => calendar.id === resourceId);
-              const timePeriods = calendars[simParamsCalendarIndex]?.time_periods ?? [];
+              const simParamsCalendarIndex = calendars.findIndex(
+                (calendar) => calendar.id === resourceId
+              );
+              const timePeriods =
+                calendars[simParamsCalendarIndex]?.time_periods ?? [];
               const alwaysWorkMasks = get(path as any) as number;
 
-              const newTimePeriods = addManyToTimeTable(day, alwaysWorkMasks, timePeriods);
-              set(`simulationParameters.resource_calendars.${simParamsCalendarIndex}.time_periods`, newTimePeriods);
+              const newTimePeriods = addManyToTimeTable(
+                day,
+                alwaysWorkMasks,
+                timePeriods
+              );
+              set(
+                `simulationParameters.resource_calendars.${simParamsCalendarIndex}.time_periods`,
+                newTimePeriods
+              );
             },
           },
           {
@@ -206,11 +261,20 @@ const createResourceConstraintQuickFixes = (
               const day = pathArray[5] as (typeof DAYS)[number];
               const alwaysWorkMasks = get(path as any);
               const calendars = get("simulationParameters.resource_calendars");
-              const simParamsCalendarIndex = calendars.findIndex((calendar) => calendar.id === resourceId);
-              const timePeriods = calendars[simParamsCalendarIndex]?.time_periods ?? [];
-              const overlappingHours = getOverlappingHours(day, alwaysWorkMasks, timePeriods);
-              const overlappingHoursMask = selectionIndexesToBitmask(overlappingHours);
-              const newAlwaysWorkMasks = alwaysWorkMasks & ~overlappingHoursMask;
+              const simParamsCalendarIndex = calendars.findIndex(
+                (calendar) => calendar.id === resourceId
+              );
+              const timePeriods =
+                calendars[simParamsCalendarIndex]?.time_periods ?? [];
+              const overlappingHours = getOverlappingHours(
+                day,
+                alwaysWorkMasks,
+                timePeriods
+              );
+              const overlappingHoursMask =
+                selectionIndexesToBitmask(overlappingHours);
+              const newAlwaysWorkMasks =
+                alwaysWorkMasks & ~overlappingHoursMask;
 
               set(path as any, newAlwaysWorkMasks);
             },
@@ -222,11 +286,16 @@ const createResourceConstraintQuickFixes = (
           title: "Remove from Never-Work",
           action: (get, set) => {
             const day = pathArray[5] as (typeof DAYS)[number];
-            const neverWorkMasks = get(`constraints.resources.${resourceIndex}.constraints.never_work_masks.${day}`);
+            const neverWorkMasks = get(
+              `constraints.resources.${resourceIndex}.constraints.never_work_masks.${day}`
+            );
             const alwaysWorkMasks = get(path as any);
             const newNeverWorkMask = neverWorkMasks & ~alwaysWorkMasks;
 
-            set(`constraints.resources.${resourceIndex}.constraints.never_work_masks.${day}`, newNeverWorkMask);
+            set(
+              `constraints.resources.${resourceIndex}.constraints.never_work_masks.${day}`,
+              newNeverWorkMask
+            );
           },
         },
         {
@@ -234,7 +303,9 @@ const createResourceConstraintQuickFixes = (
           action: (get, set) => {
             const day = pathArray[5] as (typeof DAYS)[number];
             const alwaysWorkMasks = get(path as any);
-            const neverWorkMasks = get(`constraints.resources.${resourceIndex}.constraints.never_work_masks.${day}`);
+            const neverWorkMasks = get(
+              `constraints.resources.${resourceIndex}.constraints.never_work_masks.${day}`
+            );
             const newAlwaysWorkMasks = alwaysWorkMasks & ~neverWorkMasks;
 
             set(path as any, newAlwaysWorkMasks);
@@ -257,7 +328,10 @@ const createResourceConstraintQuickFixes = (
   }
 };
 
-export const createScenarioConstraintsQuickFixes = (path: string, error: GlobalError & { fix?: number }): AutoFix[] => {
+export const createScenarioConstraintsQuickFixes = (
+  path: string,
+  error: GlobalError & { fix?: number }
+): AutoFix[] => {
   const fix = error.fix;
   if (!fix) return [];
 
@@ -294,7 +368,11 @@ export const createScenarioConstraintsQuickFixes = (path: string, error: GlobalE
   }
 };
 
-export const addManyToTimeTable = (day: (typeof DAYS)[number], always_work_mask: number, timePeriods: TimePeriod[]) => {
+export const addManyToTimeTable = (
+  day: (typeof DAYS)[number],
+  always_work_mask: number,
+  timePeriods: TimePeriod[]
+) => {
   const bitmask = timePeriodsToBinary(timePeriods, day);
   const new_time_period_bitmask = always_work_mask | bitmask;
 
@@ -303,7 +381,9 @@ export const addManyToTimeTable = (day: (typeof DAYS)[number], always_work_mask:
     return timePeriods;
   }
 
-  const new_time_periods = timePeriods.filter((timePeriod) => !isTimePeriodInDay(timePeriod, day));
+  const new_time_periods = timePeriods.filter(
+    (timePeriod) => !isTimePeriodInDay(timePeriod, day)
+  );
   // Go through the indices, and add the time periods to the timetable.
   // We are smart about it, e.g. grouping continuous hours together in one time period
   let beginTime: number | null = null;
@@ -339,7 +419,11 @@ export const addManyToTimeTable = (day: (typeof DAYS)[number], always_work_mask:
   return new_time_periods;
 };
 
-export const removeManyFromTimetable = (day: string, hours: number[], timePeriods: TimePeriod[]) => {
+export const removeManyFromTimetable = (
+  day: string,
+  hours: number[],
+  timePeriods: TimePeriod[]
+) => {
   let updatedTimePeriods = timePeriods;
 
   for (const hour of hours) {
@@ -354,7 +438,11 @@ export const removeManyFromTimetable = (day: string, hours: number[], timePeriod
 // if we remove 10:00 from 10:00-11:00, we need to remove the whole time period
 // if we remove 10:00 from 08:00-10:00;10:00-12:00, we need to shorten the first to 08:00-09:00,
 // and the second to 11:00-12:00)
-export const removeTimeFromTimetable = (day: string, hour: number, timePeriods: TimePeriod[]) => {
+export const removeTimeFromTimetable = (
+  day: string,
+  hour: number,
+  timePeriods: TimePeriod[]
+) => {
   const updatedTimePeriods: TimePeriod[] = [];
 
   for (const period of timePeriods) {
@@ -363,9 +451,15 @@ export const removeTimeFromTimetable = (day: string, hour: number, timePeriods: 
       continue;
     }
 
-    const c = (beginTime: string, endTime: string) => ({ ...period, beginTime, endTime });
+    const c = (beginTime: string, endTime: string) => ({
+      ...period,
+      beginTime,
+      endTime,
+    });
     let { beginTime, endTime } = period;
-    const [startHour, endHour] = [beginTime, endTime].map((time) => parseInt(time.split(":")[0]));
+    const [startHour, endHour] = [beginTime, endTime].map((time) =>
+      parseInt(time.split(":")[0])
+    );
     const nextHour = hour + 1;
     const p = (t: number) => t.toString().padStart(2, "0");
 
@@ -388,7 +482,8 @@ export const removeTimeFromTimetable = (day: string, hour: number, timePeriods: 
 
 export const getMaxShiftSizeFromTimePeriods = (timePeriods: TimePeriod[]) => {
   return timePeriods.reduce((max, { beginTime, endTime }) => {
-    const shiftSize = parseInt(endTime.split(":")[0]) - parseInt(beginTime.split(":")[0]);
+    const shiftSize =
+      parseInt(endTime.split(":")[0]) - parseInt(beginTime.split(":")[0]);
     return shiftSize > max ? shiftSize : max;
   }, 0);
 };

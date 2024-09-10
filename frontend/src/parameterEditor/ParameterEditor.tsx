@@ -21,10 +21,7 @@ import { ValidationTab } from "../validation/ValidationTab";
 import { MasterFormData, useMasterFormData } from "../hooks/useMasterFormData";
 import { CustomStepIcon } from "./CustomStepIcon";
 import { constraintResolver } from "../validation/validationFunctions";
-import {
-  useOptimosConfigSave,
-  useSimulationParametersSave,
-} from "../hooks/useConfigSave";
+
 import { validateBPMN } from "../validation/validateBPMN";
 import React from "react";
 import { generateConstraints } from "../generateContraints";
@@ -34,7 +31,7 @@ import {
   selectSelectedBPMNAsset,
 } from "../redux/selectors/assetSelectors";
 import { selectCurrentTab } from "../redux/selectors/uiStateSelectors";
-import { addAsset } from "../redux/slices/assetsSlice";
+import { addAsset, updateByMasterForm } from "../redux/slices/assetsSlice";
 import { setCurrentTab } from "../redux/slices/uiStateSlice";
 
 const tooltip_desc: Record<string, string> = {
@@ -87,14 +84,9 @@ export const ParamterEditor = () => {
     }
   };
 
-  const optimosConfigSave = useOptimosConfigSave(masterForm);
-  const simulationParametersSave = useSimulationParametersSave(masterForm);
-
   const handleConfigSave = async () => {
-    await optimosConfigSave();
-    if (masterForm.formState.dirtyFields.simulationParameters !== undefined) {
-      await simulationParametersSave();
-    }
+    dispatch(updateByMasterForm(getValues()));
+
     masterForm.reset({}, { keepValues: true });
   };
   const createConstraintsFromSimParams = async () => {

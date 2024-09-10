@@ -75,6 +75,7 @@ export const assetSlice = createSlice({
       }
     },
   },
+
   extraReducers: (builder) => {
     builder.addCase(PURGE, (state) => {
       state = [];
@@ -82,6 +83,7 @@ export const assetSlice = createSlice({
   },
 });
 
-export const { addAsset, removeAsset, updateAsset } = assetSlice.actions;
+export const { addAsset, removeAsset, updateAsset, updateByMasterForm } =
+  assetSlice.actions;
 
 export const assetReducer = assetSlice.reducer;
