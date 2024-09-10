@@ -1,9 +1,4 @@
 /* eslint-disable @typescript-eslint/strict-boolean-expressions */
-import {
-  Controller,
-  useFormContext,
-  type UseFormReturn,
-} from "react-hook-form";
 
 import {
   Card,
@@ -21,13 +16,13 @@ import {
 import { useState } from "react";
 import type { MasterFormData } from "../hooks/useMasterFormData";
 import React from "react";
+import { useMasterFormContext } from "../hooks/useFormContext";
 
 interface ScenarioConstraintsProps {}
 
 const ScenarioConstraints = (props: ScenarioConstraintsProps) => {
-  const { control } = useFormContext<MasterFormData>();
   const [timevar, setTimevar] = useState<number>(60);
-
+  const form = useMasterFormContext();
   return (
     <>
       <Card elevation={5} sx={{ p: 2, width: "100%" }}>
@@ -38,151 +33,82 @@ const ScenarioConstraints = (props: ScenarioConstraintsProps) => {
             </Typography>
           </Grid>
           <Grid item xs={12} md={6}>
-            <Controller
-              name="constraints.max_cap"
-              control={control}
-              render={({
-                field: { onChange, value },
-                fieldState: { error },
-              }) => (
-                <TextField
-                  type="number"
-                  value={value}
-                  label="Maximum capacity"
-                  onChange={(e) => {
-                    onChange(Number(e.target.value));
-                  }}
-                  inputProps={{
-                    step: "1",
-                    min: "1",
-                  }}
-                  error={error !== undefined}
-                  helperText={error?.message ?? ""}
-                  variant="standard"
-                  style={{ width: "50%" }}
-                />
-              )}
+            <TextField
+              type="number"
+              label="Maximum capacity"
+              slotProps={{
+                htmlInput: {
+                  step: "1",
+                  min: "1",
+                },
+              }}
+              variant="standard"
+              style={{ width: "50%" }}
+              {...form.getInputProps("constraints.max_cap")}
             />
           </Grid>
           <Grid item xs={12} md={6}>
-            <Controller
-              name="constraints.max_shift_size"
-              control={control}
-              render={({
-                field: { onChange, value },
-                fieldState: { error },
-              }) => (
-                <TextField
-                  type="number"
-                  value={value}
-                  label="Max shift size"
-                  onChange={(e) => {
-                    onChange(Number(e.target.value));
-                  }}
-                  inputProps={{
-                    step: "1",
-                    min: "1",
-                    max: 1440 / timevar,
-                  }}
-                  error={error !== undefined}
-                  helperText={error?.message ?? ""}
-                  variant="standard"
-                  style={{ width: "50%" }}
-                />
-              )}
+            <TextField
+              type="number"
+              label="Max shift size"
+              inputProps={{
+                step: "1",
+                min: "1",
+                max: 1440 / timevar,
+              }}
+              variant="standard"
+              style={{ width: "50%" }}
+              {...form.getInputProps("constraints.max_shift_size")}
             />
           </Grid>
           <Grid item xs={12} md={6}>
-            <Controller
-              name="constraints.max_shift_blocks"
-              control={control}
-              render={({
-                field: { onChange, value },
-                fieldState: { error },
-              }) => (
-                <TextField
-                  type="number"
-                  value={value}
-                  label="Max shifts / day"
-                  onChange={(e) => {
-                    onChange(Number(e.target.value));
-                  }}
-                  inputProps={{
-                    step: "1",
-                    min: "1",
-                    max: 1440 / timevar,
-                  }}
-                  error={error !== undefined}
-                  helperText={error?.message ?? ""}
-                  variant="standard"
-                  style={{ width: "50%" }}
-                />
-              )}
+            <TextField
+              type="number"
+              label="Max shifts / day"
+              inputProps={{
+                step: "1",
+                min: "1",
+                max: 1440 / timevar,
+              }}
+              variant="standard"
+              style={{ width: "50%" }}
+              {...form.getInputProps("constraints.max_shift_blocks")}
             />
           </Grid>
           <Grid item xs={12} md={6}>
-            <Controller
-              name="constraints.hours_in_day"
-              control={control}
-              render={({
-                field: { onChange, value },
-                fieldState: { error },
-              }) => (
-                <TextField
-                  style={{ display: "none" }}
-                  type="hidden"
-                  value={value}
-                  onChange={(e) => {
-                    onChange(Number(e.target.value));
-                  }}
-                  inputProps={{
-                    step: "1",
-                    min: "1",
-                  }}
-                  error={error !== undefined}
-                  variant="standard"
-                />
-              )}
+            <TextField
+              style={{ display: "none" }}
+              type="hidden"
+              inputProps={{
+                step: "1",
+                min: "1",
+              }}
+              variant="standard"
+              {...form.getInputProps("constraints.hours_in_day")}
             />
           </Grid>
           <Grid item xs={12} md={6}>
-            <Controller
-              name="constraints.time_var"
-              control={control}
-              render={({
-                field: { onChange, value },
-                fieldState: { error },
-              }) => (
-                <>
-                  <InputLabel id={"time-granularity-select-label"}>
-                    Time Granularity
-                  </InputLabel>
-                  <Select
-                    required={true}
-                    name="constraints.time-granularity"
-                    sx={{ minWidth: 250 }}
-                    labelId="time-granularity-select-label"
-                    value={value}
-                    label="Algorithm"
-                    onChange={(e) => {
-                      onChange(String(e.target.value));
-                      setTimevar(Number(e.target.value));
-                    }}
-                    style={{ width: "50%" }}
-                    error={error !== undefined}
-                    variant="standard"
-                  >
-                    <MenuItem disabled value={"15"}>
-                      15min
-                    </MenuItem>
-                    <MenuItem disabled value={"30"}>
-                      30min
-                    </MenuItem>
-                    <MenuItem value={"60"}>60min</MenuItem>
-                  </Select>
-                </>
-              )}
-            />
+            <InputLabel id={"time-granularity-select-label"}>
+              Time Granularity
+            </InputLabel>
+            <Select
+              required={true}
+              name="constraints.time-granularity"
+              sx={{ minWidth: 250 }}
+              labelId="time-granularity-select-label"
+              label="Algorithm"
+              style={{ width: "50%" }}
+              variant="standard"
+              {...form.getInputProps("constraints.time_var")}
+            >
+              <MenuItem disabled value={"15"}>
+                15min
+              </MenuItem>
+              <MenuItem disabled value={"30"}>
+                30min
+              </MenuItem>
+              <MenuItem value={"60"}>60min</MenuItem>
+            </Select>
           </Grid>
         </Grid>
       </Card>

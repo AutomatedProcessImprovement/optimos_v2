@@ -1,5 +1,4 @@
 import { useCallback, useMemo, type FC } from "react";
-import { useFormContext, useFormState } from "react-hook-form";
 import { MasterFormData } from "../hooks/useMasterFormData";
 import {
   Button,
@@ -19,24 +18,28 @@ import {
 } from "@mui/icons-material";
 import { convertError } from "./validationHelper";
 import React from "react";
+import { useMasterFormContext } from "../hooks/useFormContext";
+import jsonpath from "jsonpath";
 
 type ValidationTabProps = {};
 export const ValidationTab: FC<ValidationTabProps> = (props) => {
-  const { control, getValues, setValue, trigger } =
-    useFormContext<MasterFormData>();
+  const { errors, getValues, setFieldValue, validate } = useMasterFormContext();
   const setValueVerify = useCallback(
     (
-      key: Parameters<typeof setValue>[0],
-      value: Parameters<typeof setValue>[1]
+      key: Parameters<typeof setFieldValue>[0],
+      value: Parameters<typeof setFieldValue>[1]
     ) => {
-      setValue(key, value, { shouldDirty: true, shouldValidate: true });
-      trigger();
+      setFieldValue(key, value);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 
-  const { errors } = useFormState({ control });
+  const getSingleValue = useCallback(
+    (key: string) => jsonpath.value(getValues(), key),
+    [getValues]
+  );
+
   const convertedErrors = useMemo(
     () => convertError(errors, getValues()),
     [errors, getValues]

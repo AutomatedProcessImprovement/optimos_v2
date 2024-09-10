@@ -1,27 +1,21 @@
 import { ResourceSelection } from "./ResourceSelection";
 import { Grid, Typography } from "@mui/material";
 import { useState, useEffect, useCallback } from "react";
-import {
-  useFieldArray,
-  useFormContext,
-  useWatch,
-  type UseFormReturn,
-} from "react-hook-form";
 
 import { ResourceConstraintsList } from "./ResourceConstraintsList";
 import type { MasterFormData } from "../hooks/useMasterFormData";
 import React from "react";
+import { useMasterFormContext } from "../hooks/useFormContext";
 
 interface ResourceCalendarsProps {}
 
 const ResourceConstraints = (props: ResourceCalendarsProps) => {
-  const form = useFormContext<MasterFormData>();
   const [currResourceId, setCurrResourceId] = useState<string>();
 
-  const resources = useWatch({
-    control: form.control,
-    name: "constraints.resources",
-  });
+  const form = useMasterFormContext();
+
+  const resources = form.values?.constraints?.resources;
+  useEffect(() => {}, [form.values?.constraints?.resources]);
   const updateCurrCalendar = (id?: string) => {
     // update index
     setCurrResourceId(id);

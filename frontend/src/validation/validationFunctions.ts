@@ -1,5 +1,3 @@
-import type { FieldErrors, Resolver, Validate } from "react-hook-form";
-
 import type { DAYS_UPPERCASE } from "../helpers";
 import {
   DAYS,
@@ -14,6 +12,7 @@ import {
   getNumberOfShiftsFromBitmask,
 } from "./validationHelper";
 import { TimePeriod } from "../types/optimos_json_type";
+import { createFormContext, useForm } from "@mantine/form";
 
 export const getOverlappingHours = (
   day: (typeof DAYS)[number],
@@ -70,14 +69,18 @@ export const createValidateAlwaysWorkMask =
     return true;
   };
 
-export const constraintResolver: Resolver<MasterFormData, any> = (values) => {
+type ValidationFnType = Parameters<
+  typeof useForm<MasterFormData>
+>[0]["validate"];
+
+export const constraintResolver: ValidationFnType = (values) => {
   const constraints = values.constraints;
   const resources = constraints?.resources;
   const resource_calendars = values.simulationParameters?.resource_calendars;
 
   if (!resources || !resource_calendars) return { errors: {}, values };
 
-  const errors: FieldErrors<MasterFormData> = {};
+  const errors: any = {}; // TODO: Improve type
 
   let overallCapacityTimeTable = 0;
   let overallCapacityAlwaysWork = 0;
@@ -340,5 +343,5 @@ export const constraintResolver: Resolver<MasterFormData, any> = (values) => {
     };
   }
 
-  return { errors, values };
+  return errors;
 };

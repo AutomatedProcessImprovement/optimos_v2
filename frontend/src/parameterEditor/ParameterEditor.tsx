@@ -2,37 +2,36 @@ import {
   Button,
   Grid,
   Stack,
-  Step,
-  StepButton,
   Stepper,
   Tooltip,
-} from "@mui/material";
+  Text,
+  Box,
+  Group,
+  Tabs,
+} from "@mantine/core";
 
+import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { useEffect, useCallback, useContext, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 import { TABS, TabNames, getIndexOfTab } from "../hooks/useTabVisibility";
 import GlobalConstraints from "../constraintEditors/GlobalConstraints";
-import { FormProvider, useForm } from "react-hook-form";
 import ResourceConstraints from "../resourceConstraints/ResourceConstraints";
 import ScenarioConstraints from "../constraintEditors/ScenarioConstraints";
-
 import { ValidationTab } from "../validation/ValidationTab";
 import { MasterFormData, useMasterFormData } from "../hooks/useMasterFormData";
-import { CustomStepIcon } from "./CustomStepIcon";
 import { constraintResolver } from "../validation/validationFunctions";
-
-import { validateBPMN } from "../validation/validateBPMN";
-import React from "react";
 import { generateConstraints } from "../generateContraints";
-import { useDispatch, useSelector } from "react-redux";
+import { addAsset, updateByMasterForm } from "../redux/slices/assetsSlice";
+import { setCurrentTab } from "../redux/slices/uiStateSlice";
 import {
   selectSelectedAssets,
   selectSelectedBPMNAsset,
 } from "../redux/selectors/assetSelectors";
+import React from "react";
 import { selectCurrentTab } from "../redux/selectors/uiStateSelectors";
-import { addAsset, updateByMasterForm } from "../redux/slices/assetsSlice";
-import { setCurrentTab } from "../redux/slices/uiStateSlice";
+import { createFormContext } from "@mantine/form";
+import { MasterFormProvider, useMasterForm } from "../hooks/useFormContext";
 
 const tooltip_desc: Record<string, string> = {
   GLOBAL_CONSTRAINTS: "Define the algorithm, approach and number of iterations",
@@ -45,9 +44,7 @@ const tooltip_desc: Record<string, string> = {
 
 export const ParameterEditor = () => {
   const dispatch = useDispatch();
-
   const activeTab = useSelector(selectCurrentTab);
-
   const [
     masterFormData,
     hasSimParamsFile,
@@ -59,16 +56,16 @@ export const ParameterEditor = () => {
     bpmnError,
   ] = useMasterFormData();
 
-  const masterForm = useForm<MasterFormData>({
-    values: masterFormData,
-    mode: "onChange",
-    resolver: constraintResolver,
+  const masterForm = useMasterForm({
+    initialValues: masterFormData,
+    validate: constraintResolver,
   });
-  const { getValues, trigger } = masterForm;
+
+  const { getValues, validate } = masterForm;
 
   useEffect(() => {
-    trigger();
-  }, [trigger, masterFormData]);
+    validate();
+  }, [validate, masterFormData]);
 
   const getStepContent = (index: TABS) => {
     switch (index) {
@@ -80,14 +77,18 @@ export const ParameterEditor = () => {
         return <ResourceConstraints />;
       case TABS.VALIDATION_RESULTS:
         return <ValidationTab />;
+      default:
+        return null;
     }
   };
 
   const handleConfigSave = async () => {
     dispatch(updateByMasterForm(getValues()));
 
-    masterForm.reset({}, { keepValues: true });
+    masterForm.resetTouched();
+    masterForm.resetDirty();
   };
+
   const createConstraintsFromSimParams = async () => {
     if (!hasSimParamsFile) return;
     const simParams = getValues().simulationParameters;
@@ -104,39 +105,39 @@ export const ParameterEditor = () => {
   };
 
   return (
-    <div>
+    <Box>
       {!(hasBPMNFile || hasSimParamsFile) &&
         !constraintsError &&
         !simParamsError && (
-          <p className="my-4 py-2 prose prose-md prose-slate max-w-lg text-center">
+          <Text ta="center" c="dimmed" size="sm">
             Select a Optimos Configuration and Simulation Model from the input
             assets on the left.
-          </p>
+          </Text>
         )}
 
       {hasSimParamsFile && simParamsError && (
-        <p className="my-4 py-2 prose prose-md prose-slate max-w-lg text-center">
-          The Simulation Parameters doesn't follow the required format. Please
-          upload a correct version, before proceeding. Technical details:
+        <Text ta="center" c="dimmed" size="sm">
+          The Simulation Parameters don't follow the required format. Please
+          upload a correct version before proceeding. Technical details:
           <pre>{simParamsError.message}</pre>
-        </p>
+        </Text>
       )}
 
       {!simParamsError && hasConsParamsFile && constraintsError && (
-        <p className="my-4 py-2 prose prose-md prose-slate max-w-lg text-center">
-          The Constraints doesn't follow the required format. Please upload a
-          correct version, before proceeding. Technical details:
+        <Text ta="center" c="dimmed" size="sm">
+          The Constraints don't follow the required format. Please upload a
+          correct version before proceeding. Technical details:
           <pre>{constraintsError.message}</pre>
-        </p>
+        </Text>
       )}
 
       {hasBPMNFile && bpmnError && !simParamsError && (
-        <p className="my-4 py-2 prose prose-md prose-slate max-w-lg text-center">
+        <Text ta="center" c="dimmed" size="sm">
           The BPMN file doesn't match the Simulation Model or the BPMN File is
-          invalid. Please make sure, the Simulation Model (Timetable) contains
+          invalid. Please make sure the Simulation Model (Timetable) contains
           the necessary tasks and gateways. Technical details:
           <pre>{bpmnError.message}</pre>
-        </p>
+        </Text>
       )}
 
       {hasBPMNFile &&
@@ -144,17 +145,13 @@ export const ParameterEditor = () => {
         !simParamsError &&
         !hasConsParamsFile &&
         !bpmnError && (
-          <p className="my-4 py-2 prose prose-md prose-slate max-w-lg text-center">
-            You have only selected a Simulation Model, please select a Optimos
+          <Text ta="center" c="dimmed" size="sm">
+            You have only selected a Simulation Model, please select an Optimos
             Configuration file or click "Generate Constraints" below.
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={createConstraintsFromSimParams}
-            >
+            <Button onClick={createConstraintsFromSimParams} mt="md">
               Generate Constraints
             </Button>
-          </p>
+          </Text>
         )}
 
       {hasBPMNFile &&
@@ -163,9 +160,9 @@ export const ParameterEditor = () => {
         !simParamsError &&
         !constraintsError &&
         !bpmnError && (
-          <FormProvider {...masterForm}>
+          <MasterFormProvider form={masterForm}>
             <form
-              onSubmit={masterForm.handleSubmit(
+              onSubmit={masterForm.onSubmit(
                 async (e, t) => {
                   await handleConfigSave();
                   // TODO: Do something with the form data
@@ -177,86 +174,51 @@ export const ParameterEditor = () => {
                 }
               )}
             >
-              <Grid container alignItems="center" justifyContent="center">
-                <Grid item xs={12} sx={{ paddingTop: "10px" }}>
-                  <Grid
-                    item
-                    container
-                    xs={12}
-                    alignItems="center"
-                    justifyContent="center"
-                    sx={{ paddingTop: "20px" }}
-                  >
-                    <Stepper
-                      nonLinear
-                      alternativeLabel
-                      activeStep={getIndexOfTab(activeTab)}
-                      connector={<></>}
+              <Grid justify="center">
+                <Grid.Col span={12}>
+                  <Grid justify="center">
+                    <Tabs
+                      value={activeTab}
+                      onChange={(tab) =>
+                        dispatch(setCurrentTab(tab as unknown as TABS))
+                      }
                     >
-                      {Object.entries(TabNames).map(([key, label]) => {
-                        const keyTab = key as keyof typeof TABS;
-                        const valueTab: TABS = TABS[keyTab];
-
-                        return (
-                          <Step key={label}>
-                            <Tooltip title={tooltip_desc[key]}>
-                              <StepButton
-                                color="inherit"
-                                onClick={() => {
-                                  dispatch(setCurrentTab(valueTab));
-                                }}
-                                icon={
-                                  <CustomStepIcon
-                                    activeStep={activeTab}
-                                    currentTab={valueTab}
-                                  />
-                                }
-                              >
-                                {label}
-                              </StepButton>
-                            </Tooltip>
-                          </Step>
-                        );
-                      })}
-                    </Stepper>
-                    <Grid container mt={3} style={{ marginBottom: "2%" }}>
-                      {getStepContent(activeTab)}
-                    </Grid>
+                      <Tabs.List>
+                        {Object.entries(TabNames).map(([key, label], index) => (
+                          <Tabs.Tab key={label} value={key}>
+                            {label}
+                          </Tabs.Tab>
+                        ))}
+                      </Tabs.List>
+                      {Object.entries(TabNames).map(([key, label], index) => (
+                        <Tabs.Panel key={label} value={key}>
+                          <Tooltip
+                            label={tooltip_desc[key]}
+                            position="top"
+                            withArrow
+                          >
+                            {getStepContent(
+                              getIndexOfTab(key as unknown as TABS)
+                            )}
+                          </Tooltip>
+                        </Tabs.Panel>
+                      ))}
+                    </Tabs>
                   </Grid>
-                </Grid>
-                <Grid
-                  container
-                  item
-                  xs={12}
-                  alignItems="center"
-                  justifyContent="center"
-                  textAlign={"center"}
-                >
-                  <Grid item container justifyContent="center">
-                    <Stack direction="row" spacing={2}>
-                      <Button
-                        onClick={handleConfigSave}
-                        variant="outlined"
-                        color="primary"
-                        sx={{ marginTop: "20px" }}
-                      >
+
+                  <Group justify="center" mt="lg">
+                    <Stack>
+                      <Button onClick={handleConfigSave} variant="outline">
                         Save Config
                       </Button>
-                      <Button
-                        type="submit"
-                        variant="contained"
-                        color="primary"
-                        sx={{ marginTop: "20px" }}
-                      >
-                        Start Optimization
-                      </Button>
+                      <Button type="submit">Start Optimization</Button>
                     </Stack>
-                  </Grid>
-                </Grid>
+                  </Group>
+                </Grid.Col>
               </Grid>
             </form>
-          </FormProvider>
+          </MasterFormProvider>
         )}
-    </div>
+    </Box>
   );
 };

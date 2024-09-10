@@ -23,7 +23,6 @@ import {
 
 import type { FC } from "react";
 import React, { useEffect } from "react";
-import { useFormContext, useWatch } from "react-hook-form";
 import { ResourceCopyDialog } from "./ResourceCopyDialog";
 import {
   applyConstraintsToAllResources,
@@ -33,25 +32,28 @@ import {
   resetResourceConstraintsToNineToFive,
 } from "../helpers";
 import type { MasterFormData } from "../hooks/useMasterFormData";
+import { useMasterFormContext } from "../hooks/useFormContext";
 
 export type ResourceSelectionProps = {
   currResourceId?: string;
   updateCurrCalendar: (id: string) => void;
 };
 
-export const ResourceSelection: FC<ResourceSelectionProps> = ({ currResourceId, updateCurrCalendar }) => {
-  const form = useFormContext<MasterFormData>();
-  const resources = useWatch({
-    control: form.control,
-    name: "constraints.resources",
-    defaultValue: [],
-  });
+export const ResourceSelection: FC<ResourceSelectionProps> = ({
+  currResourceId,
+  updateCurrCalendar,
+}) => {
+  const form = useMasterFormContext();
+  const resources = form.values?.constraints?.resources ?? [];
+  useEffect(() => {}, [form.values?.constraints?.resources]);
   const [searchTerm, setSearchTerm] = React.useState("");
   const [searchResults, setSearchResults] = React.useState(resources);
   const [modalOpen, setModalOpen] = React.useState(false);
 
   useEffect(() => {
-    const results = resources.filter((calendar) => calendar.id.toLowerCase().includes(searchTerm.toLowerCase()));
+    const results = resources.filter((calendar) =>
+      calendar.id.toLowerCase().includes(searchTerm.toLowerCase())
+    );
     setSearchResults(results);
   }, [resources, searchTerm]);
 
@@ -66,7 +68,12 @@ export const ResourceSelection: FC<ResourceSelectionProps> = ({ currResourceId, 
         <Grid item xs={12}>
           <Typography variant="h6">Resources</Typography>
         </Grid>
-        <Grid container direction={"row"} justifyContent={"space-around"} alignItems={"stretch"}>
+        <Grid
+          container
+          direction={"row"}
+          justifyContent={"space-around"}
+          alignItems={"stretch"}
+        >
           <Grid
             item
             xs={5}
@@ -93,9 +100,17 @@ export const ResourceSelection: FC<ResourceSelectionProps> = ({ currResourceId, 
               {searchResults.map((item) => {
                 const isSelected = currResourceId === item.id;
                 return (
-                  <ListItemButton selected={isSelected} key={item.id} onClick={() => updateCurrCalendar(item.id)}>
+                  <ListItemButton
+                    selected={isSelected}
+                    key={item.id}
+                    onClick={() => updateCurrCalendar(item.id)}
+                  >
                     <ListItemIcon>
-                      {item.constraints.global_constraints?.is_human ? <PersonIcon /> : <PrecisionManufacturingIcon />}
+                      {item.constraints.global_constraints?.is_human ? (
+                        <PersonIcon />
+                      ) : (
+                        <PrecisionManufacturingIcon />
+                      )}
                     </ListItemIcon>
                     <ListItemText>{item.id}</ListItemText>
                   </ListItemButton>
@@ -106,8 +121,20 @@ export const ResourceSelection: FC<ResourceSelectionProps> = ({ currResourceId, 
 
           <Divider orientation="vertical" flexItem variant="middle" />
 
-          <Grid item container xs={5} justifyContent={"center"} alignItems={"center"}>
-            <Grid container width={"100%"} height={"80%"} justifyContent={"center"} alignItems={"center"}>
+          <Grid
+            item
+            container
+            xs={5}
+            justifyContent={"center"}
+            alignItems={"center"}
+          >
+            <Grid
+              container
+              width={"100%"}
+              height={"80%"}
+              justifyContent={"center"}
+              alignItems={"center"}
+            >
               <Grid item width={"100%"}>
                 <Typography variant="caption">COPY ALL CONSTRAINTS</Typography>
                 <ButtonGroup fullWidth>
@@ -115,7 +142,10 @@ export const ResourceSelection: FC<ResourceSelectionProps> = ({ currResourceId, 
                     variant="outlined"
                     disabled={!currResourceId}
                     onClick={() => {
-                      const newResources = applyConstraintsToAllResources(resources, currResourceId!);
+                      const newResources = applyConstraintsToAllResources(
+                        resources,
+                        currResourceId!
+                      );
                       form.setValue("constraints.resources", newResources, {
                         shouldDirty: true,
                         shouldValidate: false,
@@ -137,13 +167,18 @@ export const ResourceSelection: FC<ResourceSelectionProps> = ({ currResourceId, 
                 </ButtonGroup>
               </Grid>
               <Grid item width={"100%"}>
-                <Typography variant="caption">COPY ONLY TIME CONSTRAINTS</Typography>
+                <Typography variant="caption">
+                  COPY ONLY TIME CONSTRAINTS
+                </Typography>
                 <ButtonGroup fullWidth>
                   <Button
                     variant="outlined"
                     disabled={!currResourceId}
                     onClick={() => {
-                      const newResources = applyTimetableToAllResources(resources, currResourceId!);
+                      const newResources = applyTimetableToAllResources(
+                        resources,
+                        currResourceId!
+                      );
 
                       form.setValue("constraints.resources", newResources, {
                         shouldDirty: true,
@@ -168,7 +203,10 @@ export const ResourceSelection: FC<ResourceSelectionProps> = ({ currResourceId, 
                     variant="outlined"
                     startIcon={<RestartAltIcon />}
                     onClick={() => {
-                      const newResources = resetResourceConstraintsToBlank(resources, currResourceId!);
+                      const newResources = resetResourceConstraintsToBlank(
+                        resources,
+                        currResourceId!
+                      );
                       form.setValue("constraints.resources", newResources, {
                         shouldDirty: true,
                         shouldTouch: true,
@@ -184,7 +222,10 @@ export const ResourceSelection: FC<ResourceSelectionProps> = ({ currResourceId, 
                     variant="outlined"
                     startIcon={<EventIcon />}
                     onClick={() => {
-                      const newResources = resetResourceConstraintsToNineToFive(resources, currResourceId!);
+                      const newResources = resetResourceConstraintsToNineToFive(
+                        resources,
+                        currResourceId!
+                      );
 
                       form.setValue("constraints.resources", newResources, {
                         shouldDirty: true,
@@ -206,7 +247,11 @@ export const ResourceSelection: FC<ResourceSelectionProps> = ({ currResourceId, 
         open={modalOpen}
         onClose={(selectedIds) => {
           setModalOpen(false);
-          const newResources = applyConstraintsToResources(resources, currResourceId!, selectedIds);
+          const newResources = applyConstraintsToResources(
+            resources,
+            currResourceId!,
+            selectedIds
+          );
           form.setValue("constraints.resources", newResources, {
             shouldDirty: true,
             shouldValidate: true,

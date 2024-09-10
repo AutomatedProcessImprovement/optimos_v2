@@ -19,11 +19,7 @@ import {
   selectionIndexesToBitmask,
   timePeriodsToBinary,
 } from "../helpers";
-import type {
-  ConstraintWorkMask,
-  ResourceCalendar,
-  TimePeriod,
-} from "~/shared/optimos_json_type";
+
 import { getOverlappingHours } from "./validationFunctions";
 
 // e.g {a: {b: {c: {message: 'error'}}}} => {'a.b.c': {message: 'error'}}
@@ -51,7 +47,7 @@ export const flattenErrors = (errors: FieldErrors<MasterFormData>) => {
 export type AutoFix = {
   title: string;
   action: (
-    getValues: UseFormGetValues<MasterFormData>,
+    getValues: () => MasterFormData,
     setValue: UseFormSetValue<MasterFormData>
   ) => void;
 };
