@@ -204,7 +204,8 @@ class _JSONResourceInfo(JSONWizard):
             removed_tasks=removed_tasks,
             total_batching_waiting_time=evaluation.total_batching_waiting_time_by_resource_id(
                 resource.id
-            ),
+            )
+            or 0,
         )
 
 

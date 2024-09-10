@@ -1,3 +1,4 @@
+import math
 from dataclasses import dataclass
 from functools import cached_property, reduce
 from typing import TYPE_CHECKING, Counter, cast
@@ -89,24 +90,29 @@ class Evaluation:
 
     def avg_batching_waiting_time_by_task_id(self, task_id: str) -> float:
         """Get the average batching waiting time of a task."""
-        return (
+        result = (
             self.waiting_time_canvas[self.waiting_time_canvas["activity"] == task_id][
                 "waiting_time_batching_seconds"
             ].mean()
             or 0
         )
+        if result is None or math.isnan(result):
+            return 0
+        return result
 
     def total_batching_waiting_time_by_resource_id(self, resource_id: str) -> float:
         """Get the total batching waiting time of a resource (averaged by cases)."""
-        return (
+        result = (
             self.waiting_time_canvas[
                 self.waiting_time_canvas["resource"] == resource_id
             ]
             .groupby("case")["waiting_time_batching_seconds"]
             .sum()
             .mean()
-            or 0
         )
+        if result is None or math.isnan(result):
+            return 0
+        return result
 
     @property
     def total_cycle_time(self) -> float:
