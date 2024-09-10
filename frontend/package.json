@@ -7,8 +7,20 @@
   "license": "None",
   "private": true,
   "dependencies": {
+    "@mui/icons-material": "^6.0.2",
+    "@mui/material": "^6.0.2",
+    "@reduxjs/toolkit": "^2.2.7",
+    "bpmn-moddle": "^9.0.1",
+    "moment": "^2.30.1",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.53.0",
+    "react-redux": "^9.1.2",
+    "redux": "^5.0.1",
+    "redux-persist": "^6.0.0",
+    "redux-persist-transform-compress": "^4.2.0",
+    "uuid": "^10.0.0",
+    "yup": "^1.4.0"
   },
   "devDependencies": {
     "@types/react": "^18.3.5",
