@@ -1,9 +1,13 @@
 import { useEffect, useMemo } from "react";
 import * as yup from "yup";
-import { MIN_LENGTH_REQUIRED_MSG, REQUIRED_ERROR_MSG, SHOULD_BE_NUMBER_MSG } from "../validationMessages";
-import { useForm } from "react-hook-form";
+import {
+  MIN_LENGTH_REQUIRED_MSG,
+  REQUIRED_ERROR_MSG,
+  SHOULD_BE_NUMBER_MSG,
+} from "../validationMessages";
 import { yupResolver } from "@hookform/resolvers/yup";
 import type { ConsParams } from "~/shared/optimos_json_type";
+import { useMasterForm } from "./useFormContext";
 
 const useFormState = (consJsonData?: ConsParams) => {
   const constraintsValidationSchema = useMemo(
@@ -21,12 +25,30 @@ const useFormState = (consJsonData?: ConsParams) => {
               id: yup.string().required(),
               constraints: yup.object({
                 global_constraints: yup.object({
-                  max_weekly_cap: yup.number().required(REQUIRED_ERROR_MSG).typeError(SHOULD_BE_NUMBER_MSG),
-                  max_daily_cap: yup.number().required(REQUIRED_ERROR_MSG).typeError(SHOULD_BE_NUMBER_MSG),
-                  max_consecutive_cap: yup.number().required(REQUIRED_ERROR_MSG).typeError(SHOULD_BE_NUMBER_MSG),
-                  max_shifts_day: yup.number().required(REQUIRED_ERROR_MSG).typeError(SHOULD_BE_NUMBER_MSG),
-                  max_shifts_week: yup.number().required(REQUIRED_ERROR_MSG).typeError(SHOULD_BE_NUMBER_MSG),
-                  is_human: yup.boolean().required(REQUIRED_ERROR_MSG).typeError(SHOULD_BE_NUMBER_MSG),
+                  max_weekly_cap: yup
+                    .number()
+                    .required(REQUIRED_ERROR_MSG)
+                    .typeError(SHOULD_BE_NUMBER_MSG),
+                  max_daily_cap: yup
+                    .number()
+                    .required(REQUIRED_ERROR_MSG)
+                    .typeError(SHOULD_BE_NUMBER_MSG),
+                  max_consecutive_cap: yup
+                    .number()
+                    .required(REQUIRED_ERROR_MSG)
+                    .typeError(SHOULD_BE_NUMBER_MSG),
+                  max_shifts_day: yup
+                    .number()
+                    .required(REQUIRED_ERROR_MSG)
+                    .typeError(SHOULD_BE_NUMBER_MSG),
+                  max_shifts_week: yup
+                    .number()
+                    .required(REQUIRED_ERROR_MSG)
+                    .typeError(SHOULD_BE_NUMBER_MSG),
+                  is_human: yup
+                    .boolean()
+                    .required(REQUIRED_ERROR_MSG)
+                    .typeError(SHOULD_BE_NUMBER_MSG),
                 }),
                 daily_start_times: yup.object({
                   monday: yup.number().nullable().default(null),
@@ -63,7 +85,7 @@ const useFormState = (consJsonData?: ConsParams) => {
     []
   );
 
-  const formState = useForm<ConsParams>({
+  const formState = useMasterForm<ConsParams>({
     resolver: yupResolver(constraintsValidationSchema) as any,
     mode: "onBlur",
   });

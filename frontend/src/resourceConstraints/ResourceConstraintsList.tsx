@@ -2,7 +2,7 @@ import { Card, Grid, NumberInput, Text, Checkbox, Group } from "@mantine/core";
 
 import type { FC } from "react";
 import { useState, useEffect, useMemo } from "react";
-import { Controller, useFormContext, useWatch } from "react-hook-form";
+
 import {
   REQUIRED_ERROR_MSG,
   SHOULD_BE_GREATER_0_MSG,
@@ -11,6 +11,7 @@ import { ConstraintMaskInput } from "./ConstraintMaskInput";
 
 import type { MasterFormData } from "../hooks/useMasterFormData";
 import React from "react";
+import { useMasterFormContext } from "../hooks/useFormContext";
 
 type ResourceConstraintsListProps = {
   currResourceId: string;
@@ -20,13 +21,7 @@ export const ResourceConstraintsList: FC<ResourceConstraintsListProps> = (
 ) => {
   const { currResourceId } = props;
   const form = useMasterFormContext();
-
-  const resources = useWatch({
-    control: form.control,
-    name: "constraints.resources",
-    defaultValue: [],
-  });
-
+  const resources = form.values?.constraints?.resources;
   const index = useMemo(
     () => resources.findIndex((resource) => resource.id === currResourceId),
     [resources, currResourceId]

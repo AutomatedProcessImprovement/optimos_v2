@@ -11,16 +11,14 @@ import {
   REHYDRATE,
 } from "redux-persist";
 import storage from "redux-persist/lib/storage";
-import createCompressor from "redux-persist-transform-compress";
 import { uiStateReducer } from "./slices/uiStateSlice";
-
-const compressor = createCompressor();
+import { compressTransform } from "./compressTransform";
 
 const persistConfig = {
   key: "root",
   version: 1,
   storage,
-  transform: [compressor],
+  transform: [compressTransform],
 };
 
 const rootReducer = combineReducers({
