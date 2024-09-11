@@ -9,44 +9,54 @@ import {
 import { PURGE } from "redux-persist";
 import { MasterFormData } from "../../hooks/useMasterFormData";
 
-export type AssetType = {
+export enum AssetType {
+  BPMN = "BPMN",
+  OPTIMOS_CONFIG = "OPTIMOS_CONFIG",
+  OPTIMOS_CONSTRAINTS = "OPTIMOS_CONSTRAINTS",
+  TIMETABLE = "TIMETABLE",
+}
+
+export type Asset = {
   id: string;
   name: string;
   parsing_error?: string;
 } & (
   | {
-      type: "BPMN";
+      type: AssetType.BPMN;
       value?: string;
     }
   | {
-      type: "OPTIMOS_CONFIG";
+      type: AssetType.OPTIMOS_CONFIG;
       value?: ScenarioProperties;
     }
   | {
-      type: "OPTIMOS_CONSTRAINTS";
+      type: AssetType.OPTIMOS_CONSTRAINTS;
       value?: ConsParams;
     }
   | {
-      type: "TIMETABLE";
+      type: AssetType.TIMETABLE;
       value?: SimParams;
     }
 );
 
-const initialState = [] as AssetType[];
+const initialState = [] as Asset[];
 
 export const assetSlice = createSlice({
   name: "assets",
   initialState,
   reducers: {
-    addAsset: (state, action: PayloadAction<AssetType>) => {
+    addAsset: (state, action: PayloadAction<Asset>) => {
       state.push(action.payload);
+    },
+    addAssets: (state, action: PayloadAction<Asset[]>) => {
+      state.push(...action.payload);
     },
     removeAsset: (state, action: PayloadAction<string>) => {
       state = state.filter((asset) => asset.id !== action.payload);
     },
     updateAsset: (
       state,
-      action: PayloadAction<{ id: string; value: AssetType }>
+      action: PayloadAction<{ id: string; value: Asset }>
     ) => {
       const { id, value } = action.payload;
       const index = state.findIndex((asset) => asset.id === id);
@@ -83,7 +93,12 @@ export const assetSlice = createSlice({
   },
 });
 
-export const { addAsset, removeAsset, updateAsset, updateByMasterForm } =
-  assetSlice.actions;
+export const {
+  addAsset,
+  removeAsset,
+  updateAsset,
+  updateByMasterForm,
+  addAssets,
+} = assetSlice.actions;
 
 export const assetReducer = assetSlice.reducer;

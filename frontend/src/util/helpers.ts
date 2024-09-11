@@ -1,3 +1,6 @@
+import { notifications } from "@mantine/notifications";
+import { ErrorIcon } from "./ErrorIcon";
+
 export function formatDate(date: Date) {
   const year = date.getFullYear();
   const month = date.getMonth() + 1;
@@ -17,3 +20,11 @@ export function formatDate(date: Date) {
 export function makeTitleCase(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }
+
+export const showError = (message: string) =>
+  notifications.show({
+    title: "An Error Occurred",
+    message,
+    color: "red",
+    icon: ErrorIcon({}),
+  });

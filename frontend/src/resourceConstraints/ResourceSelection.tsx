@@ -22,7 +22,7 @@ import {
 } from "@mantine/core";
 
 import type { FC } from "react";
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { ResourceCopyDialog } from "./ResourceCopyDialog";
 import {
   applyConstraintsToAllResources,
@@ -45,17 +45,14 @@ export const ResourceSelection: FC<ResourceSelectionProps> = ({
 }) => {
   const form = useMasterFormContext();
   const resources = form.values?.constraints?.resources ?? [];
-  useEffect(() => {}, [form.values?.constraints?.resources]);
 
-  const [searchTerm, setSearchTerm] = React.useState("");
-  const [searchResults, setSearchResults] = React.useState(resources);
-  const [modalOpen, setModalOpen] = React.useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
 
-  useEffect(() => {
-    const results = resources.filter((calendar) =>
-      calendar.id.toLowerCase().includes(searchTerm.toLowerCase())
+  const searchResults = useMemo(() => {
+    return resources.filter((resource) =>
+      resource.id.toLowerCase().includes(searchTerm.toLowerCase())
     );
-    setSearchResults(results);
   }, [resources, searchTerm]);
 
   return (

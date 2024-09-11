@@ -186,6 +186,7 @@ export const ParameterEditor = () => {
                       <Tabs.List>
                         {Object.entries(TabNames).map(([key, label], index) => (
                           <Tooltip
+                            key={label}
                             label={tooltip_desc[key]}
                             position="top"
                             withArrow

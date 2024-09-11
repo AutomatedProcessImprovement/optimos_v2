@@ -5,7 +5,7 @@ import {
 } from "../types/bpmn_types";
 
 import type { Gateway, Task } from "bpmn-moddle";
-import * as BpmnModdle from "bpmn-moddle";
+import BpmnModdle from "bpmn-moddle";
 
 export async function parseBpmn(xmlStr: string) {
   let tasks: ModelTask[];

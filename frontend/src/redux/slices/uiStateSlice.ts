@@ -13,7 +13,9 @@ const uiStateSlice = createSlice({
       state.currentTab = action.payload;
     },
     selectAsset: (state, action: PayloadAction<string>) => {
-      state.selectedAssets.push(action.payload);
+      state.selectedAssets = Array.from(
+        new Set([...state.selectedAssets, action.payload])
+      );
     },
     deselectAsset: (state, action: PayloadAction<string>) => {
       state.selectedAssets = state.selectedAssets.filter(
