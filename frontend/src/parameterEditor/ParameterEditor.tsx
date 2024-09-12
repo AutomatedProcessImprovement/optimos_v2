@@ -38,14 +38,16 @@ import { selectCurrentTab } from "../redux/selectors/uiStateSelectors";
 import { createFormContext } from "@mantine/form";
 import { MasterFormProvider, useMasterForm } from "../hooks/useFormContext";
 import { IconInfoCircle } from "@tabler/icons-react";
+import { CustomStepIcon } from "./CustomStepIcon";
 
-const tooltip_desc: Record<string, string> = {
-  GLOBAL_CONSTRAINTS: "Define the algorithm, approach and number of iterations",
-  SCENARIO_CONSTRAINTS:
+const tooltip_desc: Record<TABS, string> = {
+  [TABS.GLOBAL_CONSTRAINTS]:
+    "Define the algorithm, approach and number of iterations",
+  [TABS.SCENARIO_CONSTRAINTS]:
     "Define the top-level restrictions like the time granularity and the maximum work units",
-  RESOURCE_CONSTRAINTS:
+  [TABS.RESOURCE_CONSTRAINTS]:
     "Define resource specific constraints, their maximum capacity and working masks",
-  VALIDATION_RESULTS: "View the validation results of the constraints",
+  [TABS.VALIDATION_RESULTS]: "View the validation results of the constraints",
 };
 
 export const ParameterEditor = () => {
@@ -65,6 +67,13 @@ export const ParameterEditor = () => {
   const masterForm = useMasterForm({
     initialValues: masterFormData,
     validate: constraintResolver,
+    transformValues: (values) => ({
+      ...values,
+      constraints: {
+        ...values.constraints,
+        time_var: parseInt(values.constraints.time_var as any),
+      },
+    }),
   });
 
   const { getTransformedValues, validate } = masterForm;
@@ -227,15 +236,24 @@ export const ParameterEditor = () => {
                           position="top"
                           withArrow
                         >
-                          <Tabs.Tab key={label} value={key}>
+                          <Tabs.Tab
+                            key={label}
+                            value={key}
+                            leftSection={
+                              <CustomStepIcon
+                                currentTab={key as TABS}
+                                activeStep={activeTab}
+                              />
+                            }
+                          >
                             {label}
                           </Tabs.Tab>
                         </Tooltip>
                       ))}
                     </Tabs.List>
-                    {Object.entries(TabNames).map(([key, label], index) => (
-                      <Tabs.Panel key={label} value={key}>
-                        {getStepContent(getIndexOfTab(key as unknown as TABS))}
+                    {Object.values(TABS).map((tab) => (
+                      <Tabs.Panel key={tab} value={tab}>
+                        {getStepContent(tab)}
                       </Tabs.Panel>
                     ))}
                   </Tabs>

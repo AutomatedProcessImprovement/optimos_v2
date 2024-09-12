@@ -206,7 +206,8 @@ export const ConstraintDay: FC<ConstraintDayProps> = ({
               key={`event-${day}-${hourIndex}`}
               style={{
                 height: 30,
-                borderBottom: "1px solid grey.300",
+                borderBottomWidth: "1px",
+                borderBottomStyle: "solid",
                 ...boxStyle,
               }}
             />

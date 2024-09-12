@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { TABS } from "../hooks/useTabVisibility";
-import { Badge, useTheme } from "@mui/material";
+
 import {
   Groups as GroupsIcon,
   BarChart as BarChartIcon,
@@ -14,7 +14,9 @@ import {
 } from "@mui/icons-material";
 import { MasterFormData } from "../hooks/useMasterFormData";
 import React from "react";
-import { useFormContext, useFormState } from "react-hook-form";
+
+import { Badge, useMantineTheme } from "@mantine/core";
+import { useMasterFormContext } from "../hooks/useFormContext";
 
 type CustomStepIconProps = {
   activeStep: TABS;
@@ -25,15 +27,15 @@ export const CustomStepIcon: FC<CustomStepIconProps> = ({
   currentTab,
   activeStep,
 }) => {
-  const theme = useTheme();
-  const activeColor = theme.palette.info.dark;
-  const successColor = theme.palette.success.light;
-  const errorColor = theme.palette.error.light;
+  const theme = useMantineTheme();
+  const activeColor = theme.colors[theme.primaryColor][6];
+  const successColor = theme.colors.green[8];
+  const errorColor = theme.colors.red[6];
 
   const isActiveStep = activeStep === currentTab;
   const styles = isActiveStep ? { color: activeColor } : {};
-  const form = useFormContext<MasterFormData>();
-  const { isValid, isValidating } = useFormState({ control: form.control });
+  const form = useMasterFormContext();
+  const isValid = form.isValid();
 
   switch (currentTab) {
     case TABS.GLOBAL_CONSTRAINTS:
@@ -47,24 +49,15 @@ export const CustomStepIcon: FC<CustomStepIconProps> = ({
 
     case TABS.VALIDATION_RESULTS:
       let BadgeIcon: SvgIconComponent = CheckCircleIcon;
-      let color = successColor;
 
-      if (isValidating) {
-        BadgeIcon = AutorenewIcon;
-        color = activeColor;
-      } else if (!isValid) {
+      if (!isValid) {
         BadgeIcon = CancelIcon;
-        color = errorColor;
+        styles.color = errorColor;
+      } else {
+        styles.color = successColor;
       }
 
-      return (
-        <Badge
-          badgeContent={<BadgeIcon style={{ color }} />}
-          overlap="circular"
-        >
-          <WarningIcon style={styles} />
-        </Badge>
-      );
+      return <BadgeIcon style={styles} />;
 
     default:
       return <></>;
