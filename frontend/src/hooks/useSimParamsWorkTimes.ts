@@ -3,7 +3,8 @@ import { useMasterFormContext } from "./useFormContext";
 
 export const useSimParamsWorkTimes = (resourceId: string, day?: string) => {
   const form = useMasterFormContext<MasterFormData>();
-  const calendars = form.getValues().simulationParameters.resource_calendars;
+  const calendars =
+    form.getTransformedValues().simulationParameters.resource_calendars;
   const workTimes = calendars.find(
     (calendar) => calendar.id === resourceId
   )?.time_periods;
@@ -18,7 +19,8 @@ export const useSimParamsWorkTimes = (resourceId: string, day?: string) => {
 
 export const useSimParamsResourceIndex = (resourceId: string) => {
   const form = useMasterFormContext<MasterFormData>();
-  const calendars = form.getValues().simulationParameters.resource_calendars;
+  const calendars =
+    form.getTransformedValues().simulationParameters.resource_calendars;
   const index = calendars.findIndex((calendar) => calendar.id === resourceId);
   return index;
 };

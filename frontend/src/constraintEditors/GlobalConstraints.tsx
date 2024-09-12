@@ -22,35 +22,23 @@ const GlobalConstraints = (props: GlobalConstraintsProps) => {
   const form = useMasterFormContext();
   return (
     <Card shadow="sm" padding="lg" style={{ width: "100%" }}>
-      <Grid justify="flex-start">
+      <Grid justify="flex-start" ta="left">
         <Grid.Col span={12}>
-          <Text fw={500} size="lg" ta="left">
+          <Text fw={500} size="lg">
             Scenario specification
           </Text>
         </Grid.Col>
 
-        <Grid.Col span={6}>
+        <Grid.Col span={{ sm: 12, md: 6 }}>
           <TextInput
             label="Scenario name"
             withAsterisk
-            style={{ width: "75%" }}
+            w="75%"
             {...form.getInputProps("scenarioProperties.scenario_name")}
           />
-        </Grid.Col>
-
-        <Grid.Col span={6}>
-          <NumberInput
-            label="Total number of iterations"
-            min={1}
-            step={1}
-            withAsterisk
-            style={{ width: "75%" }}
-            {...form.getInputProps("scenarioProperties.num_instances")}
-          />
-        </Grid.Col>
-
-        <Grid.Col span={6}>
           <Select
+            my="sm"
+            w="75%"
             label="Approach"
             data={[
               { value: "CA", label: "CA | Calendar Only" },
@@ -62,6 +50,17 @@ const GlobalConstraints = (props: GlobalConstraintsProps) => {
             withAsterisk
             style={{ minWidth: 250 }}
             {...form.getInputProps("scenarioProperties.approach")}
+          />
+        </Grid.Col>
+
+        <Grid.Col span={{ sm: 12, md: 6 }}>
+          <NumberInput
+            label="Total number of iterations"
+            min={1}
+            step={1}
+            withAsterisk
+            w="75%"
+            {...form.getInputProps("scenarioProperties.num_instances")}
           />
         </Grid.Col>
       </Grid>

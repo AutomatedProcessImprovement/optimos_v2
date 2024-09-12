@@ -22,7 +22,8 @@ import jsonpath from "jsonpath";
 
 type ValidationTabProps = {};
 export const ValidationTab: FC<ValidationTabProps> = (props) => {
-  const { errors, getValues, setFieldValue, validate } = useMasterFormContext();
+  const { errors, getTransformedValues, setFieldValue, validate } =
+    useMasterFormContext();
   const setValueVerify = useCallback(
     (
       key: Parameters<typeof setFieldValue>[0],
@@ -35,13 +36,13 @@ export const ValidationTab: FC<ValidationTabProps> = (props) => {
   );
 
   const getSingleValue = useCallback(
-    (key: string) => jsonpath.value(getValues(), key),
-    [getValues]
+    (key: string) => jsonpath.value(getTransformedValues(), key),
+    [getTransformedValues]
   );
 
   const convertedErrors = useMemo(
-    () => convertError(errors, getValues()),
-    [errors, getValues]
+    () => convertError(errors, getTransformedValues()),
+    [errors, getTransformedValues]
   );
 
   return (
@@ -94,7 +95,9 @@ export const ValidationTab: FC<ValidationTabProps> = (props) => {
             <Group spacing="xs">
               {error.autoFixes.map((fix, index) => (
                 <Button
-                  onClick={() => fix.action(getValues, setValueVerify)}
+                  onClick={() =>
+                    fix.action(getTransformedValues, setValueVerify)
+                  }
                   variant={index === 0 ? "filled" : "outline"}
                   size="xs"
                   key={index}

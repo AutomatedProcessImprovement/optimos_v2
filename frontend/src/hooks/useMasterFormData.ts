@@ -47,10 +47,10 @@ export const useMasterFormData = () => {
     [constraintsAsset, simParamsAsset, configFileAsset]
   );
 
-  const hasSimParamsFile = simParamsAsset !== null;
-  const hasConsParamsFile = constraintsAsset !== null;
-  const hasConfigFile = configFileAsset !== null;
-  const hasBPMNFile = bpmnAsset !== null;
+  const hasSimParamsFile = !!simParamsAsset;
+  const hasConsParamsFile = !!constraintsAsset;
+  const hasConfigFile = !!configFileAsset;
+  const hasBPMNFile = !!bpmnAsset;
 
   const simParamsError = useMemo<Error | null>(() => {
     if (simParamsAsset?.parsing_error) {

@@ -2,14 +2,6 @@
 /* eslint-disable no-duplicate-case */
 // flat error object
 
-import type {
-  FieldError,
-  FieldErrors,
-  FieldPath,
-  GlobalError,
-  UseFormGetValues,
-  UseFormSetValue,
-} from "react-hook-form";
 import type { MasterFormData } from "../hooks/useMasterFormData";
 import type { DAYS } from "../helpers";
 import {
@@ -47,8 +39,8 @@ export const flattenErrors = (errors: FieldErrors<MasterFormData>) => {
 export type AutoFix = {
   title: string;
   action: (
-    getValues: () => MasterFormData,
-    setValue: UseFormSetValue<MasterFormData>
+    getValues: (_: any) => MasterFormData, // TODO improve type
+    setValue: (path: string, value: any) => void
   ) => void;
 };
 

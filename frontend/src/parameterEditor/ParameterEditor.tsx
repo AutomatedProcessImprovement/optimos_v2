@@ -8,6 +8,7 @@ import {
   Box,
   Group,
   Tabs,
+  Alert,
 } from "@mantine/core";
 
 import { useEffect, useState } from "react";
@@ -22,7 +23,11 @@ import { ValidationTab } from "../validation/ValidationTab";
 import { MasterFormData, useMasterFormData } from "../hooks/useMasterFormData";
 import { constraintResolver } from "../validation/validationFunctions";
 import { generateConstraints } from "../generateContraints";
-import { addAsset, updateByMasterForm } from "../redux/slices/assetsSlice";
+import {
+  addAsset,
+  AssetType,
+  updateByMasterForm,
+} from "../redux/slices/assetsSlice";
 import { setCurrentTab } from "../redux/slices/uiStateSlice";
 import {
   selectSelectedAssets,
@@ -32,6 +37,7 @@ import React from "react";
 import { selectCurrentTab } from "../redux/selectors/uiStateSelectors";
 import { createFormContext } from "@mantine/form";
 import { MasterFormProvider, useMasterForm } from "../hooks/useFormContext";
+import { IconInfoCircle } from "@tabler/icons-react";
 
 const tooltip_desc: Record<string, string> = {
   GLOBAL_CONSTRAINTS: "Define the algorithm, approach and number of iterations",
@@ -61,7 +67,7 @@ export const ParameterEditor = () => {
     validate: constraintResolver,
   });
 
-  const { getValues, validate } = masterForm;
+  const { getTransformedValues, validate } = masterForm;
 
   useEffect(() => {
     validate();
@@ -83,7 +89,7 @@ export const ParameterEditor = () => {
   };
 
   const handleConfigSave = async () => {
-    dispatch(updateByMasterForm(getValues()));
+    dispatch(updateByMasterForm(getTransformedValues()));
 
     masterForm.resetTouched();
     masterForm.resetDirty();
@@ -91,14 +97,14 @@ export const ParameterEditor = () => {
 
   const createConstraintsFromSimParams = async () => {
     if (!hasSimParamsFile) return;
-    const simParams = getValues().simulationParameters;
+    const simParams = getTransformedValues().simulationParameters;
     if (!simParams) return;
     const constraints = generateConstraints(simParams);
     dispatch(
       addAsset({
         id: uuidv4(),
         name: "generated_constraints.json",
-        type: "OPTIMOS_CONSTRAINTS",
+        type: AssetType.OPTIMOS_CONSTRAINTS,
         value: constraints,
       })
     );
@@ -106,38 +112,62 @@ export const ParameterEditor = () => {
 
   return (
     <Box>
-      {!(hasBPMNFile || hasSimParamsFile) &&
+      {(!hasBPMNFile || !hasSimParamsFile) &&
         !constraintsError &&
         !simParamsError && (
-          <Text ta="center" c="dimmed" size="sm">
+          <Alert
+            variant="light"
+            color="blue"
+            title="Info"
+            ta="left"
+            icon={<IconInfoCircle />}
+          >
             Select a Optimos Configuration and Simulation Model from the input
             assets on the left.
-          </Text>
+          </Alert>
         )}
 
       {hasSimParamsFile && simParamsError && (
-        <Text ta="center" c="dimmed" size="sm">
+        <Alert
+          variant="light"
+          color="blue"
+          title="Info"
+          ta="left"
+          icon={<IconInfoCircle />}
+        >
           The Simulation Parameters don't follow the required format. Please
           upload a correct version before proceeding. Technical details:
           <pre>{simParamsError.message}</pre>
-        </Text>
+        </Alert>
       )}
 
       {!simParamsError && hasConsParamsFile && constraintsError && (
-        <Text ta="center" c="dimmed" size="sm">
+        <Alert
+          variant="light"
+          color="blue"
+          title="Info"
+          ta="left"
+          icon={<IconInfoCircle />}
+        >
           The Constraints don't follow the required format. Please upload a
           correct version before proceeding. Technical details:
           <pre>{constraintsError.message}</pre>
-        </Text>
+        </Alert>
       )}
 
       {hasBPMNFile && bpmnError && !simParamsError && (
-        <Text ta="center" c="dimmed" size="sm">
+        <Alert
+          variant="light"
+          color="blue"
+          title="Info"
+          ta="left"
+          icon={<IconInfoCircle />}
+        >
           The BPMN file doesn't match the Simulation Model or the BPMN File is
           invalid. Please make sure the Simulation Model (Timetable) contains
           the necessary tasks and gateways. Technical details:
           <pre>{bpmnError.message}</pre>
-        </Text>
+        </Alert>
       )}
 
       {hasBPMNFile &&
@@ -145,13 +175,19 @@ export const ParameterEditor = () => {
         !simParamsError &&
         !hasConsParamsFile &&
         !bpmnError && (
-          <Text ta="center" c="dimmed" size="sm">
+          <Alert
+            variant="light"
+            color="blue"
+            title="Info"
+            ta="left"
+            icon={<IconInfoCircle />}
+          >
             You have only selected a Simulation Model, please select an Optimos
             Configuration file or click "Generate Constraints" below.
             <Button onClick={createConstraintsFromSimParams} mt="md">
               Generate Constraints
             </Button>
-          </Text>
+          </Alert>
         )}
 
       {hasBPMNFile &&
@@ -174,38 +210,35 @@ export const ParameterEditor = () => {
                 }
               )}
             >
-              <Grid justify="center">
-                <Grid.Col span={12}>
-                  <Grid justify="center">
-                    <Tabs
-                      value={activeTab}
-                      onChange={(tab) =>
-                        dispatch(setCurrentTab(tab as unknown as TABS))
-                      }
-                    >
-                      <Tabs.List>
-                        {Object.entries(TabNames).map(([key, label], index) => (
-                          <Tooltip
-                            key={label}
-                            label={tooltip_desc[key]}
-                            position="top"
-                            withArrow
-                          >
-                            <Tabs.Tab key={label} value={key}>
-                              {label}
-                            </Tabs.Tab>
-                          </Tooltip>
-                        ))}
-                      </Tabs.List>
+              <Grid justify="center" w="100%">
+                <Grid.Col span={{ sm: 12, md: 10, lg: 8 }}>
+                  <Tabs
+                    w="100%"
+                    value={activeTab}
+                    onChange={(tab) =>
+                      dispatch(setCurrentTab(tab as unknown as TABS))
+                    }
+                  >
+                    <Tabs.List>
                       {Object.entries(TabNames).map(([key, label], index) => (
-                        <Tabs.Panel key={label} value={key}>
-                          {getStepContent(
-                            getIndexOfTab(key as unknown as TABS)
-                          )}
-                        </Tabs.Panel>
+                        <Tooltip
+                          key={label}
+                          label={tooltip_desc[key]}
+                          position="top"
+                          withArrow
+                        >
+                          <Tabs.Tab key={label} value={key}>
+                            {label}
+                          </Tabs.Tab>
+                        </Tooltip>
                       ))}
-                    </Tabs>
-                  </Grid>
+                    </Tabs.List>
+                    {Object.entries(TabNames).map(([key, label], index) => (
+                      <Tabs.Panel key={label} value={key}>
+                        {getStepContent(getIndexOfTab(key as unknown as TABS))}
+                      </Tabs.Panel>
+                    ))}
+                  </Tabs>
 
                   <Group justify="center" mt="lg">
                     <Button onClick={handleConfigSave} variant="outline">
