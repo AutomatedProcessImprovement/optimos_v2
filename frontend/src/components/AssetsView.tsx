@@ -1,4 +1,14 @@
-import { Box, Card, Divider, Group, rem, Text } from "@mantine/core";
+import {
+  Box,
+  Card,
+  Divider,
+  Grid,
+  Group,
+  rem,
+  Space,
+  Stack,
+  Text,
+} from "@mantine/core";
 import { Dropzone, DropzoneProps, IMAGE_MIME_TYPE } from "@mantine/dropzone";
 import { Description } from "@mui/icons-material";
 import {
@@ -41,35 +51,35 @@ export const AssetsView = () => {
 
   return (
     <Box>
-      <Text size="lg" fw={500}>
-        Assets
-      </Text>
-
-      {assets.map((asset) => (
-        <AssetCard key={asset.id} asset={asset} />
-      ))}
-
-      <Divider my="md" />
-      <CustomDropzone
-        onDrop={addAssetFromFile(AssetType.OPTIMOS_CONSTRAINTS)}
-        label="Upload Asset"
-        mimeTypes={{
-          "application/json": [],
-          "application/xml": [".bpmn"],
-          "application/zip": [],
-        }}
-        description=".json, .bpmn, .zip"
-        icon={
-          <IconFileUpload
-            style={{
-              width: rem(52),
-              height: rem(52),
-              color: "var(--mantine-color-blue-6)",
-            }}
-            stroke={1.5}
-          />
-        }
-      />
+      <Stack gap="xs">
+        <Text size="lg" fw={500}>
+          Assets
+        </Text>
+        {assets.map((asset) => (
+          <AssetCard key={asset.id} asset={asset} />
+        ))}
+        <Divider my="md" />
+        <CustomDropzone
+          onDrop={addAssetFromFile(AssetType.OPTIMOS_CONSTRAINTS)}
+          label="Upload Asset"
+          mimeTypes={{
+            "application/json": [],
+            "application/xml": [".bpmn"],
+            "application/zip": [],
+          }}
+          description=".json, .bpmn, .zip"
+          icon={
+            <IconFileUpload
+              style={{
+                width: rem(52),
+                height: rem(52),
+                color: "var(--mantine-color-blue-6)",
+              }}
+              stroke={1.5}
+            />
+          }
+        />
+      </Stack>
     </Box>
   );
 };

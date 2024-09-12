@@ -19,6 +19,9 @@ import {
   Checkbox,
   Select,
   ButtonGroup,
+  Stack,
+  Avatar,
+  ScrollArea,
 } from "@mantine/core";
 
 import type { FC } from "react";
@@ -74,49 +77,42 @@ export const ResourceSelection: FC<ResourceSelectionProps> = ({
               mb="sm"
               width={"100%"}
             />
-            <List
-              style={{
-                overflowY: "auto",
-                maxHeight: 300,
-              }}
-            >
-              {searchResults.map((item) => (
-                <List.Item
-                  key={item.id}
-                  onClick={() => updateCurrCalendar(item.id)}
-                  style={{
-                    cursor: "pointer",
-                    backgroundColor:
-                      currResourceId === item.id ? "#f0f0f0" : "transparent",
-                  }}
-                >
-                  {item.constraints.global_constraints?.is_human ? (
-                    <Checkbox
-                      checked={true}
-                      label={item.id}
-                      icon={PersonIcon}
-                    />
-                  ) : (
-                    <Checkbox
-                      checked={true}
-                      label={item.id}
-                      icon={PrecisionManufacturingIcon}
-                    />
-                  )}
-                </List.Item>
-              ))}
-            </List>
+            <ScrollArea type="always" h={200} offsetScrollbars>
+              <Stack gap="sm">
+                {searchResults.map((item) => (
+                  <Card
+                    withBorder
+                    key={item.id}
+                    onClick={() => updateCurrCalendar(item.id)}
+                    style={{
+                      cursor: "pointer",
+                      backgroundColor:
+                        currResourceId === item.id ? "lightblue" : "white",
+                    }}
+                    p="sm"
+                  >
+                    <Group>
+                      {item.constraints.global_constraints?.is_human ? (
+                        <Avatar color="blue" radius="sm">
+                          <PersonIcon />
+                        </Avatar>
+                      ) : (
+                        <Avatar color="blue" radius="sm">
+                          <PrecisionManufacturingIcon />
+                        </Avatar>
+                      )}
+                      <Text>{item.id}</Text>
+                    </Group>
+                  </Card>
+                ))}
+              </Stack>
+            </ScrollArea>
           </Grid.Col>
 
           <Divider orientation="vertical" mx="xl" />
 
           <Grid.Col span={5}>
-            <Group
-              direction="column"
-              spacing="md"
-              align="center"
-              style={{ height: "100%" }}
-            >
+            <Stack gap="md" align="center" style={{ height: "100%" }}>
               <Text size="sm">COPY ALL CONSTRAINTS</Text>
               <ButtonGroup>
                 <Button
@@ -187,7 +183,7 @@ export const ResourceSelection: FC<ResourceSelectionProps> = ({
                   Reset to 9-5 working times
                 </Button>
               </ButtonGroup>
-            </Group>
+            </Stack>
           </Grid.Col>
         </Grid>
       </Card>

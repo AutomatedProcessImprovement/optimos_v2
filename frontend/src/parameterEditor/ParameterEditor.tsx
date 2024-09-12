@@ -228,7 +228,7 @@ export const ParameterEditor = () => {
                       dispatch(setCurrentTab(tab as unknown as TABS))
                     }
                   >
-                    <Tabs.List>
+                    <Tabs.List justify="center">
                       {Object.entries(TabNames).map(([key, label], index) => (
                         <Tooltip
                           key={label}

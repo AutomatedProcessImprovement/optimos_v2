@@ -1,4 +1,4 @@
-import { Grid, Box, Text, Divider } from "@mantine/core";
+import { Grid, Box, Text, Divider, useMantineTheme } from "@mantine/core";
 import type { FC } from "react";
 import { useRef, useEffect } from "react";
 import Selecto from "react-selecto";
@@ -18,6 +18,7 @@ import {
 import React from "react";
 import { ConstraintWorkMask } from "../types/optimos_json_type";
 import { useMasterFormContext } from "../hooks/useFormContext";
+import { useFormError } from "../hooks/useFormError";
 
 type ConstraintCalendarProps = {
   field: "never_work_masks" | "always_work_masks";
@@ -53,8 +54,10 @@ export const ConstraintCalendar: FC<ConstraintCalendarProps> = ({
     selectoRef.current?.setSelectedTargets(selectedTargets);
   }, [containerClassName, workMask]);
 
+  const theme = useMantineTheme();
+
   return (
-    <Grid className={containerClassName}>
+    <Box className={containerClassName}>
       <Selecto
         ref={selectoRef}
         dragContainer={`.${containerClassName}`}
@@ -66,22 +69,22 @@ export const ConstraintCalendar: FC<ConstraintCalendarProps> = ({
         onSelect={(e) => onSelectChange(e.selected)}
       />
       <Box>
-        <Grid>
-          <Grid.Col span={2} />
+        <Grid gutter={0}>
+          <Grid.Col span={1.5} />
 
           {/* Days headers */}
           {DAYS.map((day, index) => (
-            <Grid.Col span={1} key={index}>
-              <Text ta="center" fw={500}>
+            <Grid.Col span={1.5} key={index}>
+              <Text ta="center" fw={500} tt="capitalize">
                 {day}
               </Text>
             </Grid.Col>
           ))}
-        </Grid>
-        <Divider />
-        <Grid>
+          <Grid.Col span={7 * 1.5} offset={1.5}>
+            <Divider />
+          </Grid.Col>
           {/* Time column */}
-          <Grid.Col span={2}>
+          <Grid.Col span={1.5} ta="right">
             {HOURS.map((hour) => (
               <Grid
                 key={`hour-label-${hour}`}
@@ -90,6 +93,10 @@ export const ConstraintCalendar: FC<ConstraintCalendarProps> = ({
                   display: "flex",
                   justifyContent: "center",
                   alignItems: "center",
+                  borderColor: theme.colors["gray"][5],
+
+                  borderRightWidth: "1px",
+                  borderRightStyle: "solid",
                 }}
               >
                 <Text size="sm">{`${hour}:00`}</Text>
@@ -97,20 +104,18 @@ export const ConstraintCalendar: FC<ConstraintCalendarProps> = ({
             ))}
           </Grid.Col>
 
-          <Grid.Col span={10}>
-            <Grid>
-              {DAYS.map((day, dayIndex) => (
-                <ConstraintDay
-                  color={color}
-                  key={`constraint-day-${day}`}
-                  day={day}
-                  field={field}
-                  resourceId={resourceId}
-                  workMask={workMask[day]}
-                />
-              ))}
-            </Grid>
-          </Grid.Col>
+          {DAYS.map((day, dayIndex) => (
+            <Grid.Col span={1.5}>
+              <ConstraintDay
+                color={color}
+                key={`constraint-day-${day}`}
+                day={day}
+                field={field}
+                resourceId={resourceId}
+                workMask={workMask[day]}
+              />
+            </Grid.Col>
+          ))}
         </Grid>
       </Box>
       <Text
@@ -149,7 +154,7 @@ export const ConstraintCalendar: FC<ConstraintCalendarProps> = ({
         />
         Work time
       </Text>
-    </Grid>
+    </Box>
   );
 };
 
@@ -168,58 +173,62 @@ export const ConstraintDay: FC<ConstraintDayProps> = ({
   resourceId,
   workMask,
 }) => {
+  const theme = useMantineTheme();
   const form = useMasterFormContext();
   const resourceIndex = useSimParamsResourceIndex(resourceId);
   const workTimes = useSimParamsWorkTimes(resourceId, day) ?? [];
 
-  const error = form.getInputProps(
+  const error = useFormError(
     `constraints.resources.${resourceIndex}.constraints.${field}.${day}`
-  ).error;
+  );
 
   const selectedIndexes = bitmaskToSelectionIndexes(workMask ?? 0);
   const style = error ? { borderColor: "red", borderWidth: "1px" } : {};
 
   return (
-    <Grid.Col span={1} style={{ borderLeft: "1px solid grey", ...style }}>
-      <Grid>
-        {HOURS.map((hour, hourIndex) => {
-          const hasEvent = selectedIndexes.includes(hourIndex);
-          const hasWorkTime = workTimes.some(
-            (workTime) =>
-              isTimePeriodInDay(workTime, day) &&
-              isTimePeriodInHour(workTime, hour)
-          );
-          const boxStyle =
-            hasWorkTime && hasEvent
-              ? createCheckeredBackground(color)
-              : hasEvent
-              ? { backgroundColor: color }
-              : hasWorkTime
-              ? { backgroundColor: "lightgrey" }
-              : { borderColor: "grey.300" };
+    <>
+      {HOURS.map((hour, hourIndex) => {
+        const hasEvent = selectedIndexes.includes(hourIndex);
+        const hasWorkTime = workTimes.some(
+          (workTime) =>
+            isTimePeriodInDay(workTime, day) &&
+            isTimePeriodInHour(workTime, hour)
+        );
+        const boxStyle =
+          hasWorkTime && hasEvent
+            ? createCheckeredBackground(color)
+            : hasEvent
+            ? { backgroundColor: color }
+            : hasWorkTime
+            ? { backgroundColor: "lightgrey" }
+            : {};
 
-          return (
-            <Grid.Col
-              className="element"
-              data-index={hourIndex}
-              data-day={day}
-              key={`event-${day}-${hourIndex}`}
-              style={{
-                height: 30,
-                borderBottomWidth: "1px",
-                borderBottomStyle: "solid",
-                ...boxStyle,
-              }}
-            />
-          );
-        })}
-      </Grid>
+        return (
+          <Box
+            className="element"
+            data-index={hourIndex}
+            data-day={day}
+            key={`event-${day}-${hourIndex}`}
+            style={{
+              height: 30,
+              width: "100%",
+              borderColor: theme.colors["gray"][5],
+              borderBottomWidth: "1px",
+              borderBottomStyle: "solid",
+              borderRightWidth: "1px",
+              borderRightStyle: "solid",
+              ...boxStyle,
+            }}
+          />
+        );
+      })}
+
       {error && (
-        <Text ta="center" color="red">
+        <Text ta="center" c="red">
           {error.message}
         </Text>
       )}
-    </Grid.Col>
+    </>
   );
 };
 
