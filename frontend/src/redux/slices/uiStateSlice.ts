@@ -24,7 +24,7 @@ const uiStateSlice = createSlice({
       );
     },
     addRunningOptimization: (state, action: PayloadAction<string>) => {
-      state.runningOptimizations.push(action.payload);
+      state.runningOptimizations.splice(0, 0, action.payload);
     },
     removeRunningOptimization: (state, action: PayloadAction<string>) => {
       state.runningOptimizations = state.runningOptimizations.filter(

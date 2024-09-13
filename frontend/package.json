@@ -9,6 +9,7 @@
   "dependencies": {
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
+    "@hey-api/client-fetch": "^0.2.4",
     "@mantine/charts": "^7.12.2",
     "@mantine/core": "^7.12.2",
     "@mantine/dropzone": "^7.12.2",
@@ -23,6 +24,7 @@
     "@types/bpmn-moddle": "^5.1.11",
     "@types/jsonpath": "^0.2.4",
     "bpmn-moddle": "^9.0.1",
+    "dot-prop": "^9.0.0",
     "json-stringify-safe": "^5.0.1",
     "jsonpath": "^1.1.1",
     "jszip": "^3.10.1",
@@ -35,6 +37,7 @@
     "recharts": "2",
     "redux": "^5.0.1",
     "redux-persist": "^6.0.0",
+    "typescript": "^5.6.2",
     "uuid": "^10.0.0",
     "yup": "^1.4.0"
   },
@@ -51,5 +54,10 @@
   },
   "@parcel/resolver-default": {
     "packageExports": true
+  },
+  "scripts": {
+    "start": "parcel src/index.html",
+    "build": "parcel build src/index.html",
+    "generate-client": "npx @rtk-query/codegen-openapi openapi-config.json"
   }
 }

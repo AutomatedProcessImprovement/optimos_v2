@@ -5,6 +5,7 @@ import {
   ActionIcon,
   Badge,
   useMantineTheme,
+  Stack,
 } from "@mantine/core";
 import {
   IconTrash,
@@ -84,12 +85,12 @@ const AssetCard: React.FC<AssetCardProps> = ({ asset }) => {
       <Group justify="space-between" align="center">
         <Group>
           {getIcon(asset.type)}
-          <div>
+          <Stack gap={0}>
             <Text size="sm">{asset.name}</Text>
             <Badge color="gray" size="xs">
               {getName(asset.type)}
             </Badge>
-          </div>
+          </Stack>
         </Group>
         <ActionIcon
           color="red"

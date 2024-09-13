@@ -28,3 +28,10 @@ export const showError = (message: string) =>
     color: "red",
     icon: ErrorIcon({}),
   });
+
+export const showSuccess = (message: string) =>
+  notifications.show({
+    title: "Success",
+    message,
+    color: "green",
+  });

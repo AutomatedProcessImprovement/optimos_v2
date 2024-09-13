@@ -28,7 +28,10 @@ import {
   AssetType,
   updateByMasterForm,
 } from "../redux/slices/assetsSlice";
-import { setCurrentTab } from "../redux/slices/uiStateSlice";
+import {
+  addRunningOptimization,
+  setCurrentTab,
+} from "../redux/slices/uiStateSlice";
 import {
   selectSelectedAssets,
   selectSelectedBPMNAsset,
@@ -44,6 +47,8 @@ import {
   useStartOptimizationStartOptimizationPostMutation,
 } from "../redux/slices/optimosApi";
 import { store } from "../redux/store";
+import { showError, showSuccess } from "../util/helpers";
+import { showNotification } from "@mantine/notifications";
 
 const tooltip_desc: Record<TABS, string> = {
   [TABS.GLOBAL_CONSTRAINTS]:
@@ -134,7 +139,17 @@ export const ParameterEditor = () => {
       constraints: getTransformedValues().constraints,
     };
 
-    startOptimizationQuery({ processingRequest });
+    const { data, error } = await startOptimizationQuery({ processingRequest });
+    if (error) {
+      showError(
+        `Failed to start optimization: ${
+          "message" in error ? error?.message : error.toString()
+        }`
+      );
+    } else {
+      dispatch(addRunningOptimization(data?.id));
+      showSuccess("Optimization started successfully");
+    }
   };
 
   return (
@@ -238,7 +253,7 @@ export const ParameterEditor = () => {
               )}
             >
               <Grid justify="center" w="100%">
-                <Grid.Col span={{ sm: 12, md: 10, lg: 8 }}>
+                <Grid.Col span={{ sm: 12, md: 10 }}>
                   <Tabs
                     w="100%"
                     value={activeTab}
