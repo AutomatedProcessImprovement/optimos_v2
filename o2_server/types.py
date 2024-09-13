@@ -1,4 +1,6 @@
-from typing import TypedDict
+from typing import TYPE_CHECKING
+
+from typing_extensions import TypedDict
 
 from o2.models.constraints import ConstraintsType
 from o2.models.timetable import TimetableType

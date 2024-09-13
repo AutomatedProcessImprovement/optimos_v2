@@ -1,10 +1,12 @@
 import json
 import os
 from threading import Lock
-from typing import TypedDict
+from typing import TYPE_CHECKING
 
 from fastapi import FastAPI, HTTPException, Path
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
+from typing_extensions import TypedDict
 
 from o2_server.optimos_service import OptimosService
 from o2_server.types import ProcessingRequest
@@ -13,6 +15,21 @@ app = FastAPI(
     title="Process Optimization Tool API",
     version="1.0",
     description="A simple API for process optimization",
+)
+
+origins = [
+    "http://pix-w1.cloud.ut.ee",
+    "https://pix-w1.cloud.ut.ee",
+    "http://localhost",
+    "http://localhost:1234",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Directory for storing temporary JSON files
@@ -29,29 +46,41 @@ file_lock = Lock()
 class OptimizationResponse(TypedDict):
     message: str
     json_url: str
+    id: str
 
 
 class CancelResponse(TypedDict):
     message: str
 
 
+services: dict[str, OptimosService] = {}
+
+
 @app.post("/start_optimization", status_code=202)
-async def start_optimization(data: ProcessingRequest) -> OptimizationResponse:
+async def start_optimization(data: "ProcessingRequest") -> OptimizationResponse:
     """Start an optimization process.
 
     Return a JSON file containing the optimization results.
     """
-    optimos_service = OptimosService()
-    save_mapping(optimos_service.id, optimos_service.output_path)
+    try:
+        optimos_service = OptimosService()
+        save_mapping(optimos_service.id, optimos_service.output_path)
+        services[optimos_service.id] = optimos_service
 
-    await optimos_service.process(data)
+        await optimos_service.process(data)
 
-    json_url = f"/get_json/{optimos_service.id}"
-    return {"message": "Optimization started", "json_url": json_url}
+        json_url = f"/get_json/{optimos_service.id}"
+        return {
+            "message": "Optimization started",
+            "json_url": json_url,
+            "id": optimos_service.id,
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @app.get(
-    "/get_report/{hash}",
+    "/get_report/{id}",
     responses={
         200: {"description": "Report file retrieved"},
         404: {"description": "File not found"},
@@ -71,17 +100,37 @@ async def get_report_file(
     return FileResponse(path=zip, media_type="application/zip")
 
 
-@app.post("/cancel_optimization")
-async def cancel_optimization() -> CancelResponse:
+@app.post("/cancel_optimization/{id}", status_code=202)
+async def cancel_optimization(id: str) -> CancelResponse:
     """Cancel an ongoing optimization process."""
-    # Placeholder: Add logic to cancel the optimization
-    return {"message": "Optimization canceled"}
+    if id not in services:
+        raise HTTPException(status_code=404, detail="Optimization not found")
+
+    services[id].cancelled = True
+
+    return {"message": "Optimization cancelled"}
+
+
+@app.get("/status/{id}")
+async def get_status(id: str) -> str:
+    """Return the status of the optimization process."""
+    if id not in services:
+        raise HTTPException(status_code=404, detail="Optimization not found")
+
+    if services[id].running:
+        return "running"
+    elif services[id].cancelled:
+        return "cancelled"
+    return "completed"
 
 
 def save_mapping(id: str, path: str) -> None:
     """Save the mappings to a file with thread safety."""
     with file_lock, open(MAPPING_FILE, "w+") as f:
-        current = json.load(f)
+        content = f.read()
+
+        # Check if the content is empty or only contains whitespace
+        current = json.load(f) if content.strip() else {}
         current[id] = path
         f.seek(0)
         json.dump(current, f)

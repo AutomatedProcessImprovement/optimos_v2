@@ -49,7 +49,9 @@ class ModifyCalendarByITAction(ModifyCalendarBaseAction):
                         index = calendar.time_periods.index(period)
                         # We need to fix the day period to not change
                         # change the times of other days
-                        fixed_day_period = replace(period, from_=day, to=day)
+                        fixed_day_period = period.model_copy(
+                            update={"from_": day, "to": day}
+                        )
 
                         # Try to add hours to the end of the shift
                         new_period = fixed_day_period.add_hours_after(1)

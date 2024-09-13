@@ -6,8 +6,9 @@ from typing import (
     Optional,
     Tuple,
     TypeAlias,
-    TypedDict,
 )
+
+from typing_extensions import TypedDict
 
 if TYPE_CHECKING:
     from o2.models.self_rating import RATING, SelfRatingInput

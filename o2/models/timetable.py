@@ -8,6 +8,7 @@ from json import dumps
 from typing import (
     TYPE_CHECKING,
     Any,
+    ClassVar,
     Generic,
     Iterator,
     List,
@@ -18,10 +19,13 @@ from typing import (
     Union,
 )
 
-from dataclass_wizard import JSONWizard
+from dataclass_wizard import DumpMixin, JSONWizard
+from pydantic import BaseModel, Field
 
 from o2.models.legacy_constraints import WorkMasks
+from o2.models.time_period import TimePeriod
 from o2.util.bit_mask_helper import any_has_overlap, get_ranges_from_bitmask
+from o2.util.custom_dumper import CustomDumper, CustomLoader
 from o2.util.helper import CLONE_REGEX, name_is_clone_of, random_string
 
 if TYPE_CHECKING:
@@ -163,171 +167,6 @@ class ArrivalTimeDistribution(JSONWizard):
 
 
 @dataclass(frozen=True)
-class TimePeriod(JSONWizard):
-    """A Time Period in a resource calendar."""
-
-    from_: DAY
-    """The start of the time period (day, uppercase, e.g. MONDAY)"""
-
-    to: DAY
-    """The end of the time period (day, uppercase, e.g. FRIDAY)"""
-
-    begin_time: str
-    """The start time of the time period (24h format, e.g. 08:00)"""
-    end_time: str  # noqa: N815
-    """The end time of the time period (24h format, e.g. 17:00)"""
-
-    class _(JSONWizard.Meta):
-        json_key_to_field: Any = {
-            "from": "from_",
-            "to": "to",
-            "beginTime": "begin_time",
-            "endTime": "end_time",
-            "__all__": True,
-        }
-
-    ALL_DAY_BITMASK = 0b111111111111111111111111
-
-    @property
-    def begin_time_hour(self) -> int:
-        """Get the start time hour."""
-        return int(self.begin_time.split(":")[0])
-
-    @property
-    def end_time_hour(self) -> int:
-        """Get the end time hour."""
-        return int(self.end_time.split(":")[0])
-
-    @property
-    def begin_time_minute(self) -> int:
-        """Get the start time minute."""
-        return int(self.begin_time.split(":")[1])
-
-    @property
-    def begin_time_second(self) -> int:
-        """Get the start time second."""
-        spited = self.begin_time.split(":")
-        if len(spited) == 3:
-            return int(spited[2])
-        return 0
-
-    @property
-    def end_time_second(self) -> int:
-        """Get the end time second."""
-        spited = self.end_time.split(":")
-        if len(spited) == 3:
-            return int(spited[2])
-        return 0
-
-    @property
-    def end_time_minute(self) -> int:
-        """Get the end time minute."""
-        return int(self.end_time.split(":")[1])
-
-    @property
-    def duration(self) -> int:
-        """Get the duration of the time period in hours."""
-        return self.end_time_hour - self.begin_time_hour
-
-    @property
-    def is_empty(self) -> bool:
-        """Check if the time period is empty."""
-        return self.begin_time == self.end_time
-
-    def add_hours_before(self, hours: int) -> Optional["TimePeriod"]:
-        """Get new TimePeriod with hours added before."""
-        return self._modify(add_start=hours)
-
-    def add_hours_after(self, hours: int) -> Optional["TimePeriod"]:
-        """Get new TimePeriod with hours added after."""
-        return self._modify(add_end=hours)
-
-    def shift_hours(self, hours: int) -> Optional["TimePeriod"]:
-        """Get new TimePeriod with hours shifted.
-
-        If hours is positive, the period is shifted forward.
-        (Begins later and ends later)
-        """
-        return self._modify(add_start=-hours, add_end=hours)
-
-    def _modify(self, add_start: int = 0, add_end: int = 0):
-        new_begin = self.begin_time_hour - add_start
-        new_end = self.end_time_hour + add_end
-        if new_begin < 0 or new_begin >= 24 or new_end < 0 or new_end >= 24:
-            return None
-
-        return replace(
-            self,
-            begin_time=f"{new_begin:02}:{self.begin_time_minute:02}:{self.begin_time_second:02}",
-            end_time=f"{new_end:02}:{self.end_time_minute:02}:{self.end_time_second:02}",
-        )
-
-    def split_by_day(self) -> List["TimePeriod"]:
-        """Split the time period by day.
-
-        Return a list of time periods, one for each day in the range.
-        """
-        if self.is_empty:
-            return []
-        return [
-            replace(self, from_=day, to=day) for day in day_range(self.from_, self.to)
-        ]
-
-    def to_bitmask(self) -> int:
-        """Get a bitmask for the time period.
-
-        Each bit represents an hour in the day.
-        The left most bit represents the first hour of the day.
-        The right most bit represents the last hour of the day.
-        Of course this only includes one day.
-        """
-        bitarray = [0] * 24
-        end = self.end_time_hour
-        if self.end_time_minute > 0 or self.end_time_second > 0:
-            end += 1
-        for i in range(self.begin_time_hour, end):
-            bitarray[i] = 1
-        return int("".join(map(str, bitarray)), 2)
-
-    def __str__(self) -> str:
-        return (
-            f"TimePeriod({self.from_},{self.begin_time} -> {self.to},{self.end_time})"
-        )
-
-    @staticmethod
-    def from_bitmask(bitmask: int, day: DAY) -> List["TimePeriod"]:
-        """Create a time period from a bitmask."""
-        hour_ranges = get_ranges_from_bitmask(bitmask)
-        return [
-            TimePeriod(
-                from_=day,
-                to=day,
-                begin_time=f"{start:02}:00",
-                end_time=f"{end:02}:00",
-            )
-            for start, end in hour_ranges
-        ]
-
-    @staticmethod
-    def from_start_end(start: int, end: int, day: DAY = DAY.MONDAY) -> "TimePeriod":
-        return TimePeriod(
-            from_=day,
-            to=day,
-            begin_time=f"{start:02}:00:00",
-            end_time=f"{end:02}:00:00",
-        )
-
-    @staticmethod
-    def empty(day: DAY = DAY.MONDAY) -> "TimePeriod":
-        return TimePeriod(
-            from_=day,
-            to=day,
-            begin_time="00:00:00",
-            end_time="00:00:00",
-        )
-
-
-@dataclass(frozen=True)
 class Probability(JSONWizard):
     path_id: str
     value: float
@@ -394,10 +233,10 @@ class TaskResourceDistributions(JSONWizard):
 
 
 @dataclass(frozen=True)
-class ResourceCalendar(JSONWizard):
+class ResourceCalendar(JSONWizard, CustomLoader, CustomDumper):
     id: str
     name: str
-    time_periods: List[TimePeriod]
+    time_periods: List["TimePeriod"]
 
     def is_valid(self) -> bool:
         """Check if the calendar is valid.
@@ -417,22 +256,22 @@ class ResourceCalendar(JSONWizard):
                 return False
         return True
 
-    def split_group_by_day(self) -> Iterator[tuple[DAY, Iterator[TimePeriod]]]:
+    def split_group_by_day(self) -> Iterator[tuple[DAY, Iterator["TimePeriod"]]]:
         """Split the time periods by day."""
         return groupby(self.split_time_periods_by_day(), key=lambda tp: tp.from_)
 
-    def split_time_periods_by_day(self) -> List[TimePeriod]:
+    def split_time_periods_by_day(self) -> List["TimePeriod"]:
         """Split the time periods by day and sort them."""
         return sorted(
             (tp for tp in self.time_periods for tp in tp.split_by_day()),
             key=lambda tp: tp.from_,
         )
 
-    def get_periods_for_day(self, day: DAY) -> List[TimePeriod]:
+    def get_periods_for_day(self, day: DAY) -> List["TimePeriod"]:
         """Get the time periods for a specific day."""
         return [tp for tp in self.split_time_periods_by_day() if tp.from_ == day]
 
-    def get_periods_containing_day(self, day: DAY) -> List[TimePeriod]:
+    def get_periods_containing_day(self, day: DAY) -> List["TimePeriod"]:
         """Get the time periods that contain a specific day."""
         return [tp for tp in self.time_periods if is_day_in_range(day, tp.from_, tp.to)]
 
@@ -478,7 +317,7 @@ class ResourceCalendar(JSONWizard):
         return len(self.split_time_periods_by_day())
 
     def replace_time_period(
-        self, time_period_index: int, time_period: TimePeriod
+        self, time_period_index: int, time_period: "TimePeriod"
     ) -> "ResourceCalendar":
         """Replace a time period. Returns a new ResourceCalendar."""
         old_time_period = self.time_periods[time_period_index]
@@ -702,10 +541,10 @@ class BatchingRule(JSONWizard):
 
 
 @dataclass(frozen=True)
-class TimetableType(JSONWizard):
+class TimetableType(JSONWizard, CustomLoader, CustomDumper):
     resource_profiles: List[ResourcePool]
     arrival_time_distribution: ArrivalTimeDistribution
-    arrival_time_calendar: List[TimePeriod]
+    arrival_time_calendar: List["TimePeriod"]
     gateway_branching_probabilities: List[GatewayBranchingProbability]
     task_resource_distribution: List[TaskResourceDistributions]
     resource_calendars: List[ResourceCalendar]

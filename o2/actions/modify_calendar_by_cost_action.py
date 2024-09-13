@@ -10,7 +10,7 @@ from o2.actions.modify_calendar_base_action import (
 )
 from o2.models.days import DAYS
 from o2.models.self_rating import RATING, SelfRatingInput
-from o2.models.timetable import ResourceCalendar, TimePeriod
+from o2.models.time_period import TimePeriod
 from o2.store import Store
 
 
@@ -48,7 +48,9 @@ class ModifyCalendarByCostAction(ModifyCalendarBaseAction):
                     index = calendar.time_periods.index(period)
                     # We need to fix the day period to not change
                     # change the times of other days
-                    fixed_day_period = replace(period, from_=day, to=day)
+                    fixed_day_period = period.model_copy(
+                        update={"from_": day, "to": day}
+                    )
 
                     # Try to remove the period if it's only 1 hour long
                     if fixed_day_period.duration == 1:

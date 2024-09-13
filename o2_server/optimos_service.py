@@ -1,16 +1,14 @@
 import datetime
 import os
 import uuid
-from tempfile import TemporaryFile, mkstemp
-from xml.etree import ElementTree
+from tempfile import mkstemp
+from xml.etree import ElementTree as ET
 from zipfile import ZIP_DEFLATED, ZipFile
 
 from o2.hill_climber import HillClimber
-from o2.models.constraints import ConstraintsType
 from o2.models.json_report import JSONReport
 from o2.models.legacy_approach import LegacyApproach
 from o2.models.state import State
-from o2.models.timetable import TimetableType
 from o2.store import Store
 from o2_server.types import ProcessingRequest
 
@@ -18,12 +16,15 @@ from o2_server.types import ProcessingRequest
 class OptimosService:
     def __init__(self):
         self.cancelled = False
+        self.running = False
         self.id = str(uuid.uuid4())
         self.last_update = datetime.datetime.now()
         output_file, self.output_path = mkstemp(suffix=".zip", prefix="optimos_output_")
         os.fdopen(output_file).close()
 
     async def process(self, request: ProcessingRequest):
+        """Process the optimization request."""
+        self.running = True
         config = request["config"]
 
         num_instances = config["num_instances"]
@@ -38,7 +39,7 @@ class OptimosService:
         constraints = request["constraints"]
         bpmn_definition = request["bpmn_model"]
 
-        bpmn_tree = ElementTree.parse(bpmn_definition)
+        bpmn_tree = ET.ElementTree(ET.fromstring(bpmn_definition))
 
         initial_state = State(
             bpmn_definition=bpmn_definition,
@@ -83,11 +84,12 @@ class OptimosService:
             store,
             last_iteration=True,
         )
+        self.running = False
 
-    def iteration_callback(self, store, last_iteration=False):
+    def iteration_callback(self, store: Store, last_iteration=False):
         """Write Iteration to file."""
         json_solutions = JSONReport.from_store(store, is_final=last_iteration)
         json_content = json_solutions.to_json()
 
         with ZipFile(self.output_path, "w", compression=ZIP_DEFLATED) as zipf:
-            zipf.writestr(f"iteration_{store.current_iteration}.json", json_content)
+            zipf.writestr("result.json", json_content)

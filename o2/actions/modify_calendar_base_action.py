@@ -8,7 +8,8 @@ from o2.actions.base_action import BaseAction, BaseActionParamsType, RateSelfRet
 from o2.models.days import DAY
 from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.state import State
-from o2.models.timetable import ResourceCalendar, TimePeriod
+from o2.models.time_period import TimePeriod
+from o2.models.timetable import ResourceCalendar
 from o2.util.indented_printer import print_l2
 
 if TYPE_CHECKING:
@@ -46,7 +47,7 @@ class ModifyCalendarBaseAction(BaseAction, ABC):
         assert calendar is not None
 
         period = calendar.time_periods[period_index]
-        fixed_day_period = replace(period, from_=period.from_, to=day)
+        fixed_day_period = period.model_copy(update={"to": day})
 
         new_period = fixed_day_period
         if "shift_hours" in self.params:

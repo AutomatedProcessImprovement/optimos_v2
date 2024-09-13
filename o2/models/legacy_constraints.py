@@ -1,7 +1,7 @@
 import operator
 from dataclasses import dataclass, replace
 from functools import reduce
-from typing import TYPE_CHECKING, List, Optional, TypedDict, Union
+from typing import TYPE_CHECKING, Optional
 
 from dataclass_wizard import JSONWizard
 

@@ -26,8 +26,7 @@ from bpdfr_simulation_engine.simulation_setup import (
     parse_simulation_model,
 )
 
-if TYPE_CHECKING:
-    from o2.models.timetable import TimetableType
+from o2.models.timetable import TimetableType
 
 
 class SimDiffSetupFileless(SimDiffSetup):

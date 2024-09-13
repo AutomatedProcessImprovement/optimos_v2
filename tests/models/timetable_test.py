@@ -418,3 +418,19 @@ def test_bit_mask_off_by_one():
     )
 
     assert work_mask.has_intersection(calendar)  # type: ignore
+
+
+def test_time_period_json():
+    time_period = TimePeriod(
+        **{
+            "from": DAY.MONDAY,
+            "to": DAY.MONDAY,
+            "begin_time": "08:00",
+            "end_time": "16:00",
+        }
+    )
+
+    time_period_json = time_period.model_dump_json(by_alias=True)
+
+    assert "from_" not in time_period_json
+    assert time_period == TimePeriod.model_validate_json(time_period_json)
