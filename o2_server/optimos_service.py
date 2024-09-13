@@ -76,6 +76,7 @@ class OptimosService:
         print("Created Store")
         for _ in generator:
             if self.cancelled:
+                print("Optimization Cancelled!")
                 break
 
             print("Finished Iteration")

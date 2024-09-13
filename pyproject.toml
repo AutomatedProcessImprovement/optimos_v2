@@ -18,6 +18,8 @@ dataclass-wizard = "^0.22.3"
 sympy = "^1.12.1"
 scipy = "^1.13.0"
 intervaltree = { git = "https://github.com/chaimleib/intervaltree.git" }
+fastapi = "^0.114.0"
+uvicorn = "^0.30.6"
 
 
 [tool.poetry.group.dev.dependencies]

@@ -1,3 +1,5 @@
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
 import json
 import os
 from threading import Lock
@@ -55,6 +57,8 @@ class CancelResponse(TypedDict):
 
 services: dict[str, OptimosService] = {}
 
+executor = ThreadPoolExecutor(max_workers=5)
+
 
 @app.post("/start_optimization", status_code=202)
 async def start_optimization(data: "ProcessingRequest") -> OptimizationResponse:
@@ -67,7 +71,7 @@ async def start_optimization(data: "ProcessingRequest") -> OptimizationResponse:
         save_mapping(optimos_service.id, optimos_service.output_path)
         services[optimos_service.id] = optimos_service
 
-        await optimos_service.process(data)
+        executor.submit(asyncio.run, optimos_service.process(data))
 
         json_url = f"/get_json/{optimos_service.id}"
         return {

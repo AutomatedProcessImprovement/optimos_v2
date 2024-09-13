@@ -117,7 +117,7 @@ class TimePeriod(BaseModel):
         if self.is_empty:
             return []
         return [
-            self.model_copy(update={"from": day, "to": day})
+            self.model_copy(update={"from_": day, "to": day})
             for day in day_range(self.from_, self.to)
         ]
 

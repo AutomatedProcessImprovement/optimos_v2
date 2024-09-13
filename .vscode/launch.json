@@ -5,6 +5,15 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Python Debugger: Run Server",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "uvicorn",
+      "args": ["o2_server.server:app", "--reload"],
+      "jinja": true,
+      "justMyCode": false
+    },
+    {
       "name": "Python: Run main.py",
       "type": "debugpy",
       "request": "launch",
