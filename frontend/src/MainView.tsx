@@ -4,6 +4,7 @@ import { ParameterEditor } from "./parameterEditor/ParameterEditor";
 import { Button } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { AssetsView } from "./components/AssetsView";
+import { OutputView } from "./components/OutputView";
 
 export const MainView = () => {
   const [leftOpened, { toggle: toggleLeft }] = useDisclosure(true);
@@ -47,27 +48,7 @@ export const MainView = () => {
       {/* Right Sidebar - Aside */}
       <AppShell.Aside p="md">
         <Burger opened={rightOpened} onClick={toggleRight} size="sm" />
-        <Box>
-          {rightOpened && (
-            <Box>
-              <Text size="lg" fw={500}>
-                Outputs
-              </Text>
-              {[1, 2, 3].map((item) => (
-                <Card
-                  key={item}
-                  shadow="sm"
-                  p="lg"
-                  radius="md"
-                  withBorder
-                  mb="sm"
-                >
-                  <Text>Output {item}</Text>
-                </Card>
-              ))}
-            </Box>
-          )}
-        </Box>
+        {rightOpened && <OutputView />}
       </AppShell.Aside>
     </AppShell>
   );

@@ -7,6 +7,7 @@ const uiStateSlice = createSlice({
   initialState: {
     currentTab: TABS.SCENARIO_CONSTRAINTS,
     selectedAssets: [] as string[],
+    runningOptimizations: [] as string[],
   },
   reducers: {
     setCurrentTab: (state, action: PayloadAction<TABS>) => {
@@ -22,18 +23,32 @@ const uiStateSlice = createSlice({
         (asset) => asset !== action.payload
       );
     },
+    addRunningOptimization: (state, action: PayloadAction<string>) => {
+      state.runningOptimizations.push(action.payload);
+    },
+    removeRunningOptimization: (state, action: PayloadAction<string>) => {
+      state.runningOptimizations = state.runningOptimizations.filter(
+        (id) => id !== action.payload
+      );
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(PURGE, (state) => {
       state = {
         currentTab: TABS.SCENARIO_CONSTRAINTS,
         selectedAssets: [],
+        runningOptimizations: [],
       };
     });
   },
 });
 
-export const { setCurrentTab, selectAsset, deselectAsset } =
-  uiStateSlice.actions;
+export const {
+  setCurrentTab,
+  selectAsset,
+  deselectAsset,
+  addRunningOptimization,
+  removeRunningOptimization,
+} = uiStateSlice.actions;
 
 export const uiStateReducer = uiStateSlice.reducer;

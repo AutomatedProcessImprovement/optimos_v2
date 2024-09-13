@@ -39,6 +39,11 @@ import { createFormContext } from "@mantine/form";
 import { MasterFormProvider, useMasterForm } from "../hooks/useFormContext";
 import { IconInfoCircle } from "@tabler/icons-react";
 import { CustomStepIcon } from "./CustomStepIcon";
+import {
+  ProcessingRequest,
+  useStartOptimizationStartOptimizationPostMutation,
+} from "../redux/slices/optimosApi";
+import { store } from "../redux/store";
 
 const tooltip_desc: Record<TABS, string> = {
   [TABS.GLOBAL_CONSTRAINTS]:
@@ -71,7 +76,7 @@ export const ParameterEditor = () => {
       ...values,
       constraints: {
         ...values.constraints,
-        time_var: parseInt(values.constraints.time_var as any),
+        time_var: parseInt(values?.constraints?.time_var as any),
       },
     }),
   });
@@ -117,6 +122,19 @@ export const ParameterEditor = () => {
         value: constraints,
       })
     );
+  };
+
+  const [startOptimizationQuery, { isLoading }] =
+    useStartOptimizationStartOptimizationPostMutation();
+  const startOptimization = async () => {
+    const processingRequest: ProcessingRequest = {
+      config: getTransformedValues().scenarioProperties,
+      bpmn_model: selectSelectedBPMNAsset(store.getState()).value,
+      timetable: getTransformedValues().simulationParameters,
+      constraints: getTransformedValues().constraints,
+    };
+
+    startOptimizationQuery({ processingRequest });
   };
 
   return (
@@ -210,7 +228,7 @@ export const ParameterEditor = () => {
               onSubmit={masterForm.onSubmit(
                 async (e, t) => {
                   await handleConfigSave();
-                  // TODO: Do something with the form data
+                  await startOptimization();
                 },
                 () => {
                   alert(
@@ -259,7 +277,11 @@ export const ParameterEditor = () => {
                   </Tabs>
 
                   <Group justify="center" mt="lg">
-                    <Button onClick={handleConfigSave} variant="outline">
+                    <Button
+                      onClick={handleConfigSave}
+                      variant="outline"
+                      loading={isLoading}
+                    >
                       Save Config
                     </Button>
                     <Button type="submit">Start Optimization</Button>

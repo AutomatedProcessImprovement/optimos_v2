@@ -55,10 +55,6 @@ export const AssetsView = () => {
         <Text size="lg" fw={500}>
           Assets
         </Text>
-        {assets.map((asset) => (
-          <AssetCard key={asset.id} asset={asset} />
-        ))}
-        <Divider my="md" />
         <CustomDropzone
           onDrop={addAssetFromFile(AssetType.OPTIMOS_CONSTRAINTS)}
           label="Upload Asset"
@@ -79,6 +75,10 @@ export const AssetsView = () => {
             />
           }
         />
+        <Divider my="md" />
+        {assets.map((asset) => (
+          <AssetCard key={asset.id} asset={asset} />
+        ))}
       </Stack>
     </Box>
   );

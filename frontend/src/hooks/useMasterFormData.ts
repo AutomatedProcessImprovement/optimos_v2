@@ -14,18 +14,18 @@ import {
   selectSelectedTimetableAsset,
 } from "../redux/selectors/assetSelectors";
 import {
-  ConsParams,
-  SimParams,
-  ScenarioProperties,
-} from "../types/optimos_json_type";
+  ConfigType,
+  ConstraintsType,
+  TimetableType,
+} from "../redux/slices/optimosApi";
 
 export type MasterFormData = {
-  constraints?: ConsParams;
-  simulationParameters?: SimParams;
-  scenarioProperties: ScenarioProperties;
+  constraints?: ConstraintsType;
+  simulationParameters?: TimetableType;
+  scenarioProperties: ConfigType;
 };
 
-const DEFAULT_CONFIG: ScenarioProperties = {
+const DEFAULT_CONFIG: ConfigType = {
   scenario_name: "My first scenario",
   num_instances: 100,
   algorithm: "HC-FLEX",
