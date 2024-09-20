@@ -1,15 +1,15 @@
 from dataclasses import dataclass
 from typing import Any, Optional
-from typing_extensions import TypedDict
 
 from dataclass_wizard import JSONWizard
+from typing_extensions import TypedDict
 
 from o2.actions.base_action import BaseAction
 from o2.actions.modify_calendar_base_action import ModifyCalendarBaseAction
 from o2.actions.modify_resource_base_action import ModifyResourceBaseAction
 from o2.models.constraints import ConstraintsType
 from o2.models.evaluation import Evaluation
-from o2.models.legacy_constraints import GlobalConstraints, WorkMasks
+from o2.models.legacy_constraints import WorkMasks
 from o2.models.state import State
 from o2.models.timetable import Resource, TimetableType
 from o2.pareto_front import ParetoFront
@@ -107,6 +107,9 @@ class _JSONResourceInfo(JSONWizard):
     total_batching_waiting_time: float
 
     modifiers: "_JSONResourceModifiers"
+
+    class _(JSONWizard.Meta):  # noqa: N801
+        key_transform_with_dump = "CAMEL"
 
     @staticmethod
     def from_resource(

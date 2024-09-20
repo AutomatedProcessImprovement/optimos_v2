@@ -20,7 +20,6 @@ from typing import (
 )
 
 from dataclass_wizard import DumpMixin, JSONWizard
-from pydantic import BaseModel, Field
 
 from o2.models.legacy_constraints import WorkMasks
 from o2.models.time_period import TimePeriod
