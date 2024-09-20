@@ -12,7 +12,7 @@ interface NumberSelectProps
 const NumberSelect: FC<NumberSelectProps> = (props) => {
   const { value, onChange, ...otherProps } = props;
   const data = useMemo(() => {
-    return props.data.map((it) => ({ ...it, value: it.value.toString() }));
+    return props.data.map((it) => ({ ...it, value: it?.value?.toString() }));
   }, [props.data]);
   return (
     <Select

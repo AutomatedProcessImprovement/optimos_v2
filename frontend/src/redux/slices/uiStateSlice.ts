@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { PURGE } from "redux-persist";
 import { TABS } from "../../hooks/useTabVisibility";
+import { removeAsset } from "./assetsSlice";
 
 const uiStateSlice = createSlice({
   name: "uiState",
@@ -39,6 +40,11 @@ const uiStateSlice = createSlice({
         selectedAssets: [],
         runningOptimizations: [],
       };
+    });
+    builder.addCase(removeAsset, (state, action) => {
+      state.selectedAssets = state.selectedAssets.filter(
+        (asset) => asset !== action.payload
+      );
     });
   },
 });

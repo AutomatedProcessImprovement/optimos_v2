@@ -1,9 +1,8 @@
 import asyncio
-from concurrent.futures import ThreadPoolExecutor
 import json
 import os
+from concurrent.futures import ThreadPoolExecutor
 from threading import Lock
-from typing import TYPE_CHECKING
 
 from fastapi import FastAPI, HTTPException, Path
 from fastapi.middleware.cors import CORSMiddleware
@@ -145,6 +144,13 @@ def get_mapping(id: str) -> str:
     with file_lock, open(MAPPING_FILE) as f:
         current = json.load(f)
         return current.get(id, None)
+
+
+def start() -> None:
+    """Start the server in production mode."""
+    import uvicorn
+
+    uvicorn.run(app, host="0.0.0.0", port=8000)
 
 
 if __name__ == "__main__":

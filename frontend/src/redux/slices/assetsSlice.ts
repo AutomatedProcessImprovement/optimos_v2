@@ -52,7 +52,7 @@ export const assetSlice = createSlice({
       state.push(...action.payload);
     },
     removeAsset: (state, action: PayloadAction<string>) => {
-      state = state.filter((asset) => asset.id !== action.payload);
+      return state.filter((asset) => asset.id !== action.payload);
     },
     updateAsset: (
       state,

@@ -26,6 +26,9 @@ uvicorn = "^0.30.6"
 pytest-cov = "^5.0.0"
 pytest-watch = "^4.2.0"
 
+[tool.poetry.scripts]
+server = "o2_server.server:start"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
