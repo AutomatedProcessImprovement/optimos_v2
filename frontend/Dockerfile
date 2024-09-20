@@ -1,10 +1,10 @@
 # Stage 1: Build the React app with Parcel
-FROM node:22-alpine as build
+FROM node:22-alpine AS build
 WORKDIR /app
 COPY ./package.json ./yarn.lock /app/
 RUN yarn install
 COPY ./ /app/
-RUN yarn run build
+RUN NODE_ENV=production yarn run build
 
 # Stage 2: Serve with Nginx
 FROM nginx:alpine

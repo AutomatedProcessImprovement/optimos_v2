@@ -1,4 +1,3 @@
-version: "3.9"
 services:
   traefik:
     image: traefik:v2.9
@@ -29,7 +28,7 @@ services:
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile.frontend
+      dockerfile: Dockerfile
     volumes:
       - ./frontend:/frontend
     labels:
@@ -41,7 +40,7 @@ services:
   backend:
     build:
       context: .
-      dockerfile: Dockerfile.backend
+      dockerfile: o2_server/Dockerfile
     volumes:
       - .:/app
     labels:

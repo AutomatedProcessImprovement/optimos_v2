@@ -1,20 +1,21 @@
 # Use Python 3.11 as the base image
-FROM python:3.11-slim
+FROM python:3.10-slim
 
 # Set the working directory
 WORKDIR /app
 
 # Copy the pyproject.toml and install dependencies
-COPY ./pyproject.toml /app/
 RUN pip install --upgrade pip
 RUN pip install poetry
-RUN poetry install --no-dev
+COPY ./pyproject.toml poetry.lock /app/
+RUN poetry install --only main
 
 # Copy the rest of the app code
 COPY ./o2_server /app/o2_server
+COPY ./o2 /app/o2
 
 # Expose port 8000 for FastAPI
 EXPOSE 8000
 
 # Run the FastAPI server with Uvicorn
-CMD ["uvicorn", "o2_server.server:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["poetry","run", "server"]

@@ -1,0 +1,7 @@
+node_modules
+npm-debug.log
+.mypy_cache
+.parcel-cache
+.ruff_cache
+.pytest_cache
+__pycache__

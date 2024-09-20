@@ -1,0 +1,51 @@
+services:
+  traefik:
+    platform: linux/amd64
+    image: traefik:v2.9
+    command:
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
+      - "--log.level=INFO"
+    ports:
+      - "80:80"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      - "traefik.enable=true"
+    restart: always
+
+  frontend:
+    platform: linux/amd64
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.local
+      platforms:
+        - "linux/amd64"
+    volumes:
+      - ./frontend:/frontend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.react-app.entrypoints=web"
+      - "traefik.http.routers.react-app.rule=Host(`localhost`) && !PathPrefix(`/api/`)"
+      - "traefik.http.services.react-app.loadbalancer.server.port=80"
+    restart: always
+
+  backend:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: o2_server/Dockerfile
+      platforms:
+        - "linux/amd64"
+    volumes:
+      - .:/app
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.fastapi.entrypoints=web"
+      - "traefik.http.routers.fastapi.rule=Host(`localhost`) && PathPrefix(`/api/`)"
+      - "traefik.http.services.fastapi.loadbalancer.server.port=8000"
+      - "traefik.http.middlewares.fastapi-stripprefix.stripprefix.prefixes=/api"
+      - "traefik.http.routers.fastapi.middlewares=fastapi-stripprefix"
+    environment:
+      - DOMAIN=localhost
+    restart: always
