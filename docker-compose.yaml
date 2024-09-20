@@ -1,0 +1,53 @@
+version: "3.9"
+services:
+  traefik:
+    image: traefik:v2.9
+    command:
+      - "--providers.docker=true"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=your-email@example.com"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+      - "--log.level=INFO"
+    ports:
+      - "443:443"
+      - "80:80"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./letsencrypt:/letsencrypt
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.react-app.rule=Host(`pix-w1.cloud.ut.ee`)"
+      - "traefik.http.routers.react-app.entrypoints=websecure"
+      - "traefik.http.routers.react-app.tls.certresolver=myresolver"
+      - "traefik.http.services.react-app.loadbalancer.server.port=80"
+      - "traefik.http.routers.fastapi.rule=Host(`pix-w1.cloud.ut.ee`) && PathPrefix(`/api/`)"
+      - "traefik.http.routers.fastapi.entrypoints=websecure"
+      - "traefik.http.routers.fastapi.tls.certresolver=myresolver"
+      - "traefik.http.services.fastapi.loadbalancer.server.port=8000"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.frontend
+    volumes:
+      - ./frontend:/frontend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.react-app.rule=Host(`pix-w1.cloud.ut.ee`)"
+      - "traefik.http.services.react-app.loadbalancer.server.port=80"
+    restart: always
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    volumes:
+      - .:/app
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.fastapi.rule=Host(`pix-w1.cloud.ut.ee`) && PathPrefix(`/api/`)"
+      - "traefik.http.services.fastapi.loadbalancer.server.port=8000"
+    environment:
+      - DOMAIN=pix-w1.cloud.ut.ee
+    restart: always

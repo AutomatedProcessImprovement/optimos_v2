@@ -1,0 +1,8 @@
+{
+  "schemaFile": "http://localhost:8000/openapi.json",
+  "apiFile": "./src/redux/slices/apiSlice.ts",
+  "apiImport": "apiSlice",
+  "outputFile": "./src/redux/slices/optimosApi.ts",
+  "exportName": "optimosApi",
+  "hooks": true
+}
