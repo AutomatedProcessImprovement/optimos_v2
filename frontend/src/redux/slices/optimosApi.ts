@@ -11,6 +11,12 @@ const injectedRtkApi = api.injectEndpoints({
         body: queryArg.processingRequest,
       }),
     }),
+    getReportZipFileGetReportZipIdGet: build.query<
+      GetReportZipFileGetReportZipIdGetApiResponse,
+      GetReportZipFileGetReportZipIdGetApiArg
+    >({
+      query: (queryArg) => ({ url: `/get_report_zip/${queryArg.id}` }),
+    }),
     getReportFileGetReportIdGet: build.query<
       GetReportFileGetReportIdGetApiResponse,
       GetReportFileGetReportIdGetApiArg
@@ -41,8 +47,14 @@ export type StartOptimizationStartOptimizationPostApiResponse =
 export type StartOptimizationStartOptimizationPostApiArg = {
   processingRequest: ProcessingRequest;
 };
+export type GetReportZipFileGetReportZipIdGetApiResponse =
+  /** status 200 Report zip file retrieved */ any;
+export type GetReportZipFileGetReportZipIdGetApiArg = {
+  /** The identifier of the zip file */
+  id: string;
+};
 export type GetReportFileGetReportIdGetApiResponse =
-  /** status 200 Report file retrieved */ any;
+  /** status 200 Report zip file retrieved */ JsonReport;
 export type GetReportFileGetReportIdGetApiArg = {
   /** The identifier of the zip file */
   id: string;
@@ -89,35 +101,18 @@ export type ResourcePool = {
   name: string;
   resource_list: Resource[];
 };
-export type DistributionType =
-  | "fix"
-  | "default"
-  | "norm"
-  | "expon"
-  | "exponnorm"
-  | "gamma"
-  | "triang"
-  | "lognorm";
 export type DistributionParameter = {
   value: number | number;
 };
 export type ArrivalTimeDistribution = {
-  distribution_name: DistributionType;
+  distribution_name: DISTRIBUTION_TYPE;
   distribution_params: DistributionParameter[];
 };
-export type Day =
-  | "MONDAY"
-  | "TUESDAY"
-  | "WEDNESDAY"
-  | "THURSDAY"
-  | "FRIDAY"
-  | "SATURDAY"
-  | "SUNDAY";
 export type TimePeriod = {
-  from_: Day;
-  to: Day;
-  begin_time: string;
-  end_time: string;
+  from: DAY;
+  to: DAY;
+  beginTime: string;
+  endTime: string;
 };
 export type Probability = {
   path_id: string;
@@ -142,26 +137,18 @@ export type ResourceCalendar = {
   time_periods: TimePeriod[];
 };
 export type EventDistribution = {};
-export type BatchType = "Sequential" | "Concurrent" | "Parallel";
 export type Distribution = {
   key: string | number;
   value: number;
 };
-export type RuleType =
-  | "ready_wt"
-  | "large_wt"
-  | "daily_hour"
-  | "week_day"
-  | "size";
-export type Comparator = "<" | "<=" | ">" | ">=" | "=";
 export type FiringRule = {
-  attribute: RuleType;
-  comparison: Comparator;
-  value: Day | number;
+  attribute: RULE_TYPE;
+  comparison: COMPARATOR;
+  value: DAY | number;
 };
 export type BatchingRule = {
   task_id: string;
-  type: BatchType;
+  type: BATCH_TYPE;
   size_distrib: Distribution[];
   duration_distrib: Distribution[];
   firing_rules: FiringRule[][];
@@ -181,8 +168,8 @@ export type TimetableType = {
 export type SizeRuleConstraints = {
   id: string;
   tasks: string[];
-  batch_type: BatchType;
-  rule_type: RuleType;
+  batch_type: BATCH_TYPE;
+  rule_type: RULE_TYPE;
   duration_fn: string;
   min_size: number;
   max_size: number;
@@ -190,31 +177,31 @@ export type SizeRuleConstraints = {
 export type ReadyWtRuleConstraints = {
   id: string;
   tasks: string[];
-  batch_type: BatchType;
-  rule_type: RuleType;
+  batch_type: BATCH_TYPE;
+  rule_type: RULE_TYPE;
   min_wt: number;
   max_wt: number;
 };
 export type LargeWtRuleConstraints = {
   id: string;
   tasks: string[];
-  batch_type: BatchType;
-  rule_type: RuleType;
+  batch_type: BATCH_TYPE;
+  rule_type: RULE_TYPE;
   min_wt: number;
   max_wt: number;
 };
 export type WeekDayRuleConstraints = {
   id: string;
   tasks: string[];
-  batch_type: BatchType;
-  rule_type: RuleType;
-  allowed_days: Day[];
+  batch_type: BATCH_TYPE;
+  rule_type: RULE_TYPE;
+  allowed_days: DAY[];
 };
 export type DailyHourRuleConstraints = {
   id: string;
   tasks: string[];
-  batch_type: BatchType;
-  rule_type: RuleType;
+  batch_type: BATCH_TYPE;
+  rule_type: RULE_TYPE;
   allowed_hours: number[];
 };
 export type GlobalConstraints = {
@@ -264,11 +251,118 @@ export type ProcessingRequest = {
   timetable: TimetableType;
   constraints: ConstraintsType;
 };
+export type JsonGlobalInfo = {
+  average_cost: number;
+  average_time: number;
+  average_resource_utilization: number;
+  total_cost: number;
+  total_time: number;
+  average_batching_waiting_time: number;
+  average_waiting_time: number;
+};
+export type JsonResourceModifiers = {
+  deleted: boolean | null;
+  added: boolean | null;
+  shifts_modified: boolean | null;
+  tasks_modified: boolean | null;
+};
+export type JsonResourceInfo = {
+  id: string;
+  name: string;
+  worked_time: number;
+  available_time: number;
+  utilization: number;
+  cost_per_week: number;
+  total_cost: number;
+  hourly_rate: number;
+  is_human: boolean;
+  max_weekly_capacity: number;
+  max_daily_capacity: number;
+  max_consecutive_capacity: number;
+  timetable_bitmask: WorkMasks;
+  original_timetable_bitmask: WorkMasks;
+  work_hours_per_week: number;
+  never_work_bitmask: WorkMasks;
+  always_work_bitmask: WorkMasks;
+  assigned_tasks: string[];
+  added_tasks: string[];
+  removed_tasks: string[];
+  total_batching_waiting_time: number;
+  modifiers: JsonResourceModifiers;
+};
+export type JsonAction = {
+  type: string;
+  params: object;
+};
+export type JsonSolution = {
+  is_base_solution: boolean;
+  solution_no: number;
+  global_info: JsonGlobalInfo;
+  resource_info: {
+    [key: string]: JsonResourceInfo;
+  };
+  deleted_resources_info: {
+    [key: string]: JsonResourceInfo;
+  };
+  timetable: TimetableType;
+  actions: JsonAction[];
+};
+export type JsonParetoFront = {
+  solutions: JsonSolution[];
+};
+export type JsonReport = {
+  name: string;
+  constraints: ConstraintsType;
+  bpmn_definition: string;
+  base_solution: JsonSolution;
+  pareto_fronts: JsonParetoFront[];
+  is_final: boolean;
+  approach?: string | null;
+};
 export type CancelResponse = {
   message: string;
 };
+export enum DISTRIBUTION_TYPE {
+  Fix = "fix",
+  Default = "default",
+  Norm = "norm",
+  Expon = "expon",
+  Exponnorm = "exponnorm",
+  Gamma = "gamma",
+  Triang = "triang",
+  Lognorm = "lognorm",
+}
+export enum DAY {
+  Monday = "MONDAY",
+  Tuesday = "TUESDAY",
+  Wednesday = "WEDNESDAY",
+  Thursday = "THURSDAY",
+  Friday = "FRIDAY",
+  Saturday = "SATURDAY",
+  Sunday = "SUNDAY",
+}
+export enum BATCH_TYPE {
+  Sequential = "Sequential",
+  Concurrent = "Concurrent",
+  Parallel = "Parallel",
+}
+export enum RULE_TYPE {
+  ReadyWt = "ready_wt",
+  LargeWt = "large_wt",
+  DailyHour = "daily_hour",
+  WeekDay = "week_day",
+  Size = "size",
+}
+export enum COMPARATOR {
+  $ = "<",
+  $ = "<=",
+  $ = ">",
+  $ = ">=",
+  $ = "=",
+}
 export const {
   useStartOptimizationStartOptimizationPostMutation,
+  useGetReportZipFileGetReportZipIdGetQuery,
   useGetReportFileGetReportIdGetQuery,
   useCancelOptimizationCancelOptimizationIdPostMutation,
   useGetStatusStatusIdGetQuery,

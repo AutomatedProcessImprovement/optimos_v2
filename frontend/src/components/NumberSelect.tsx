@@ -17,7 +17,7 @@ const NumberSelect: FC<NumberSelectProps> = (props) => {
   return (
     <Select
       {...otherProps}
-      value={value.toString()}
+      value={value?.toString()}
       onChange={(it) => onChange(Number(it) || 0)}
       data={data}
     />

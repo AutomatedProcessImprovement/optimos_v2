@@ -9,6 +9,10 @@ const uiStateSlice = createSlice({
     currentTab: TABS.SCENARIO_CONSTRAINTS,
     selectedAssets: [] as string[],
     runningOptimizations: [] as string[],
+    sidePanelsOpen: {
+      left: true,
+      right: true,
+    },
   },
   reducers: {
     setCurrentTab: (state, action: PayloadAction<TABS>) => {
@@ -32,6 +36,10 @@ const uiStateSlice = createSlice({
         (id) => id !== action.payload
       );
     },
+    toggleSidePanel: (state, action: PayloadAction<"left" | "right">) => {
+      state.sidePanelsOpen[action.payload] =
+        !state.sidePanelsOpen[action.payload];
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(PURGE, (state) => {
@@ -39,6 +47,10 @@ const uiStateSlice = createSlice({
         currentTab: TABS.SCENARIO_CONSTRAINTS,
         selectedAssets: [],
         runningOptimizations: [],
+        sidePanelsOpen: {
+          left: true,
+          right: true,
+        },
       };
     });
     builder.addCase(removeAsset, (state, action) => {
@@ -55,6 +67,7 @@ export const {
   deselectAsset,
   addRunningOptimization,
   removeRunningOptimization,
+  toggleSidePanel,
 } = uiStateSlice.actions;
 
 export const uiStateReducer = uiStateSlice.reducer;

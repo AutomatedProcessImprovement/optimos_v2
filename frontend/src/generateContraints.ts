@@ -1,12 +1,12 @@
 import {
-  SimParams,
-  ConsParams,
-  ResourceConstraints,
+  ConstraintsResourcesItem,
+  ConstraintsType,
   GlobalConstraints,
-  DailyStartTimes,
-  ConstraintWorkMask,
   ResourceCalendar,
-} from "./types/optimos_json_type";
+  ResourceConstraints,
+  TimetableType,
+  WorkMasks,
+} from "./redux/slices/optimosApi";
 
 const int_week_days = {
   "0": "MONDAY",
@@ -32,12 +32,14 @@ interface CalendarInfo {
   total_weekly_work: number; // Assuming total_weekly_work is of seconds
 }
 
-export const generateConstraints = (simParams: SimParams): ConsParams => {
+export const generateConstraints = (
+  simParams: TimetableType
+): ConstraintsType => {
   const calendarsMap: Record<string, CalendarInfo> = parseResourceCalendars(
     simParams["resource_calendars"]
   );
 
-  const localConstraints: ResourceConstraints[] = [];
+  const localConstraints: ConstraintsResourcesItem[] = [];
 
   for (const cId of Object.keys(calendarsMap)) {
     const cInfo = calendarsMap[cId];
@@ -68,16 +70,7 @@ export const generateConstraints = (simParams: SimParams): ConsParams => {
       is_human: !cId.toLowerCase().includes("system"),
     };
 
-    const dailyStartTimes: DailyStartTimes = {
-      monday: null,
-      tuesday: null,
-      wednesday: null,
-      thursday: null,
-      friday: null,
-      saturday: null,
-      sunday: null,
-    };
-    const neverWorkMasks: ConstraintWorkMask = {
+    const neverWorkMasks: WorkMasks = {
       monday: 0,
       tuesday: 0,
       wednesday: 0,
@@ -86,7 +79,7 @@ export const generateConstraints = (simParams: SimParams): ConsParams => {
       saturday: 0,
       sunday: 0,
     };
-    const alwaysWorkMasks: ConstraintWorkMask = {
+    const alwaysWorkMasks: WorkMasks = {
       monday: 0,
       tuesday: 0,
       wednesday: 0,
@@ -102,11 +95,8 @@ export const generateConstraints = (simParams: SimParams): ConsParams => {
     const mask24Hour = 16777215;
 
     for (const wDay of DAY_NUMBERS) {
-      const cDay = int_week_days[
-        wDay
-      ].toLowerCase() as keyof ConstraintWorkMask;
-      dailyStartTimes[cDay] =
-        cInfo.work_rest_count[wDay][0] > 0 ? minDateStr : null;
+      const cDay = int_week_days[wDay].toLowerCase() as keyof WorkMasks;
+
       //neverWorkMasks[cDay] = !dailyStartTimes[cDay] ? mask24Hour : 0;
       alwaysWorkMasks[cDay] = 0; // will keep untouched to always allowing removal
     }
@@ -115,14 +105,14 @@ export const generateConstraints = (simParams: SimParams): ConsParams => {
       id: cId,
       constraints: {
         global_constraints: globalConstraints,
-        daily_start_times: dailyStartTimes,
+
         never_work_masks: neverWorkMasks,
         always_work_masks: alwaysWorkMasks,
       },
     });
   }
 
-  const jsonStruct: ConsParams = {
+  const jsonStruct: ConstraintsType = {
     time_var: 60,
     max_cap: 9999999999,
     max_shift_size: 24,

@@ -1,8 +1,7 @@
 import moment from "moment";
 
 import type { MasterFormData } from "./hooks/useMasterFormData";
-
-import { ConsParams, TimePeriod } from "./types/optimos_json_type";
+import { ConstraintsType, TimePeriod } from "./redux/slices/optimosApi";
 
 export const DAYS = [
   "monday",
@@ -64,7 +63,7 @@ export const deepClone = <T>(obj: T): T => {
 };
 
 export const applyConstraintsToResources = (
-  resources: ConsParams["resources"],
+  resources: ConstraintsType["resources"],
   srcResourceId: string,
   targetResourceIds: string[]
 ) => {
@@ -87,7 +86,7 @@ export const applyConstraintsToResources = (
 };
 
 export const applyConstraintsToAllResources = (
-  resources: ConsParams["resources"],
+  resources: ConstraintsType["resources"],
   srcResourceId: string
 ) => {
   const srcConstraints = resources.find(

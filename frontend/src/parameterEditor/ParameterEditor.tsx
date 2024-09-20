@@ -42,13 +42,11 @@ import { createFormContext } from "@mantine/form";
 import { MasterFormProvider, useMasterForm } from "../hooks/useFormContext";
 import { IconInfoCircle } from "@tabler/icons-react";
 import { CustomStepIcon } from "./CustomStepIcon";
-import {
-  ProcessingRequest,
-  useStartOptimizationStartOptimizationPostMutation,
-} from "../redux/slices/optimosApi";
+import { ProcessingRequest } from "../redux/slices/optimosApi";
 import { store } from "../redux/store";
 import { showError, showSuccess } from "../util/helpers";
 import { showNotification } from "@mantine/notifications";
+import { useStartOptimizationStartOptimizationPostMutation } from "../redux/slices/optimosApi";
 
 const tooltip_desc: Record<TABS, string> = {
   [TABS.GLOBAL_CONSTRAINTS]:

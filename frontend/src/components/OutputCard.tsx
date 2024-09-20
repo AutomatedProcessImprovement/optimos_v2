@@ -11,10 +11,7 @@ import {
 import React, { FC, useEffect, useState } from "react";
 import { removeRunningOptimization } from "../redux/slices/uiStateSlice";
 import { useDispatch } from "react-redux";
-import {
-  useCancelOptimizationCancelOptimizationIdPostMutation,
-  useGetStatusStatusIdGetQuery,
-} from "../redux/slices/optimosApi";
+
 import {
   IconCancel,
   IconCircle,
@@ -25,12 +22,18 @@ import {
   IconSquareCheck,
   IconTrash,
 } from "@tabler/icons-react";
+import { useNavigate } from "react-router-dom";
+import {
+  useCancelOptimizationCancelOptimizationIdPostMutation,
+  useGetStatusStatusIdGetQuery,
+} from "../redux/slices/optimosApi";
 
 type OutputCardProps = {
   outputId: string;
 };
 
 export const OutputCard: FC<OutputCardProps> = ({ outputId }) => {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const shortId = outputId.split("-")[0];
   const [pollingInterval, setPollingInterval] = useState(3000);
@@ -91,6 +94,7 @@ export const OutputCard: FC<OutputCardProps> = ({ outputId }) => {
         cursor: "pointer",
         transition: "border 0.2s ease",
       }}
+      onClick={() => navigate(`/results/${outputId}`)}
     >
       <Group justify="space-between" align="center">
         <Group>
@@ -102,7 +106,7 @@ export const OutputCard: FC<OutputCardProps> = ({ outputId }) => {
             </Badge>
           </Stack>
         </Group>
-        {status != "running" && (
+        {(status != "running" || notFound) && (
           <ActionIcon
             color={"gray"}
             onClick={(e) => {
@@ -113,7 +117,7 @@ export const OutputCard: FC<OutputCardProps> = ({ outputId }) => {
             <IconTrash size={18} />
           </ActionIcon>
         )}
-        {status == "running" && (
+        {status == "running" && !notFound && (
           <ActionIcon
             color={iconColor}
             onClick={(e) => {

@@ -13,8 +13,9 @@ import {
 import storage from "redux-persist/lib/storage";
 import { uiStateReducer } from "./slices/uiStateSlice";
 import { compressTransform } from "./compressTransform";
-import { apiSliceMiddleware, apiSliceReducer } from "./slices/apiSlice";
+
 import { setupListeners } from "@reduxjs/toolkit/query";
+import { apiSliceMiddleware, apiSliceReducer } from "./slices/apiSlice";
 
 const persistConfig = {
   key: "root",
