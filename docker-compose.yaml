@@ -5,25 +5,18 @@ services:
       - "--providers.docker=true"
       - "--entrypoints.websecure.address=:443"
       - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
-      - "--certificatesresolvers.myresolver.acme.email=your-email@example.com"
+      - "--certificatesresolvers.myresolver.acme.email=jannis.rosenbaum@ut.ee"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
       - "--log.level=INFO"
     ports:
-      - "443:443"
-      - "80:80"
+      - "0.0.0.0:443:443"
+      - "0.0.0.0:80:80"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./letsencrypt:/letsencrypt
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.react-app.rule=Host(`pix-w1.cloud.ut.ee`)"
-      - "traefik.http.routers.react-app.entrypoints=websecure"
-      - "traefik.http.routers.react-app.tls.certresolver=myresolver"
-      - "traefik.http.services.react-app.loadbalancer.server.port=80"
-      - "traefik.http.routers.fastapi.rule=Host(`pix-w1.cloud.ut.ee`) && PathPrefix(`/api/`)"
-      - "traefik.http.routers.fastapi.entrypoints=websecure"
-      - "traefik.http.routers.fastapi.tls.certresolver=myresolver"
-      - "traefik.http.services.fastapi.loadbalancer.server.port=8000"
+      
 
   frontend:
     build:
@@ -33,7 +26,8 @@ services:
       - ./frontend:/frontend
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.react-app.rule=Host(`pix-w1.cloud.ut.ee`)"
+      - "traefik.http.routers.react-app.entrypoints=web"
+      - "traefik.http.routers.react-app.rule=Host(`pix-w1.cloud.ut.ee`) && !PathPrefix(`/api/`)"
       - "traefik.http.services.react-app.loadbalancer.server.port=80"
     restart: always
 
@@ -45,8 +39,11 @@ services:
       - .:/app
     labels:
       - "traefik.enable=true"
+      - "traefik.http.routers.fastapi.entrypoints=web"
       - "traefik.http.routers.fastapi.rule=Host(`pix-w1.cloud.ut.ee`) && PathPrefix(`/api/`)"
       - "traefik.http.services.fastapi.loadbalancer.server.port=8000"
+      - "traefik.http.middlewares.fastapi-stripprefix.stripprefix.prefixes=/api"
+      - "traefik.http.routers.fastapi.middlewares=fastapi-stripprefix"
     environment:
       - DOMAIN=pix-w1.cloud.ut.ee
     restart: always
