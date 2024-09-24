@@ -8,6 +8,9 @@ services:
       - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
       - "--certificatesresolvers.myresolver.acme.email=jannis.rosenbaum@ut.ee"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+      
       - "--log.level=INFO"
     ports:
       - "0.0.0.0:443:443"
@@ -36,7 +39,7 @@ services:
       - "traefik.http.services.react-app-https.loadbalancer.server.port=80"
       - "traefik.http.routers.react-app-https.tls=true"
       - "traefik.http.routers.react-app-https.tls.certresolver=myresolver"
-      
+
     restart: always
 
   backend:
