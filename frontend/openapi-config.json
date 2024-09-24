@@ -4,5 +4,7 @@
   "apiImport": "apiSlice",
   "outputFile": "./src/redux/slices/optimosApi.ts",
   "exportName": "optimosApi",
-  "hooks": true
+  "hooks": true,
+  "tag": false,
+  "useEnumType": true
 }

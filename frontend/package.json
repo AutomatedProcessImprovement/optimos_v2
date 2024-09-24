@@ -62,7 +62,7 @@
   },
   "scripts": {
     "start": "parcel src/index.html",
-    "build": "NODE_ENV=production parcel build src/index.html",
+    "build": "parcel build --no-cache src/index.html",
     "generate-client": "npx @rtk-query/codegen-openapi openapi-config.json"
   }
 }

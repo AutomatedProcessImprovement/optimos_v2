@@ -87,6 +87,9 @@ async def start_optimization(data: "ProcessingRequest") -> OptimizationResponse:
 
         executor.submit(asyncio.run, optimos_service.process(data))
 
+        # Wait a bit for the optimization to start
+        await asyncio.sleep(1)
+
         json_url = f"/get_json/{optimos_service.id}"
         return {
             "message": "Optimization started",

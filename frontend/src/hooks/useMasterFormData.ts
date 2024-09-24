@@ -35,21 +35,19 @@ const DEFAULT_CONFIG: ConfigType = {
 export const useMasterFormData = () => {
   const constraintsAsset = useSelector(selectSelectedConstraintsAsset);
   const simParamsAsset = useSelector(selectSelectedTimetableAsset);
-  const configFileAsset = useSelector(selectSelectedConfigAsset);
   const bpmnAsset = useSelector(selectSelectedBPMNAsset);
 
   const masterFormData = useMemo<MasterFormData>(
     () => ({
       constraints: constraintsAsset?.value,
       simulationParameters: simParamsAsset?.value,
-      scenarioProperties: configFileAsset?.value || DEFAULT_CONFIG,
+      scenarioProperties: DEFAULT_CONFIG,
     }),
-    [constraintsAsset, simParamsAsset, configFileAsset]
+    [constraintsAsset, simParamsAsset]
   );
 
   const hasSimParamsFile = !!simParamsAsset;
   const hasConsParamsFile = !!constraintsAsset;
-  const hasConfigFile = !!configFileAsset;
   const hasBPMNFile = !!bpmnAsset;
 
   const simParamsError = useMemo<Error | null>(() => {
@@ -104,7 +102,7 @@ export const useMasterFormData = () => {
     masterFormData,
     hasSimParamsFile,
     hasConsParamsFile,
-    hasConfigFile,
+
     hasBPMNFile,
     simParamsError,
     constraintsError,

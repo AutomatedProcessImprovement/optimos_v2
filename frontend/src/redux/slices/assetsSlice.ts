@@ -83,7 +83,7 @@ export const assetSlice = createSlice({
 
   extraReducers: (builder) => {
     builder.addCase(PURGE, (state) => {
-      state = [];
+      return [];
     });
   },
 });

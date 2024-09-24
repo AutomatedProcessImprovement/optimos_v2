@@ -78,7 +78,7 @@ export const constraintResolver: ValidationFnType = (values) => {
   const resources = constraints?.resources;
   const resource_calendars = values.simulationParameters?.resource_calendars;
 
-  if (!resources || !resource_calendars) return { errors: {}, values };
+  if (!resources || !resource_calendars) return {};
 
   const errors: any = {}; // TODO: Improve type
 

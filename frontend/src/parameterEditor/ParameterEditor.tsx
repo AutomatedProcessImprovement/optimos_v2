@@ -70,7 +70,6 @@ export const ParameterEditor = () => {
     masterFormData,
     hasSimParamsFile,
     hasConsParamsFile,
-    hasConfigFile,
     hasBPMNFile,
     simParamsError,
     constraintsError,
@@ -154,6 +153,27 @@ export const ParameterEditor = () => {
     dispatch(setSidePanel({ side: "right", open: true }));
     navigate(`/results/${data?.id}`);
   };
+
+  useEffect(() => {
+    if (
+      hasBPMNFile &&
+      hasSimParamsFile &&
+      hasConsParamsFile &&
+      !simParamsError &&
+      !constraintsError &&
+      !bpmnError
+    ) {
+      console.log("Validating with", validate);
+      validate();
+    }
+  }, [
+    hasBPMNFile,
+    hasSimParamsFile,
+    hasConsParamsFile,
+    simParamsError,
+    constraintsError,
+    bpmnError,
+  ]);
 
   return (
     <Box>

@@ -52,7 +52,7 @@ const uiStateSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(PURGE, (state) => {
-      state = {
+      return {
         currentTab: TABS.SCENARIO_CONSTRAINTS,
         selectedAssets: [],
         runningOptimizations: [],

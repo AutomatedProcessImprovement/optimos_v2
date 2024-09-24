@@ -4,7 +4,7 @@ WORKDIR /app
 COPY ./package.json ./yarn.lock /app/
 RUN yarn install
 COPY ./ /app/
-RUN NODE_ENV=production yarn run build
+RUN yarn run build
 
 # Stage 2: Serve with Nginx
 FROM nginx:alpine

@@ -40,6 +40,7 @@ import {
   setSidePanel,
   toggleSidePanel,
 } from "./redux/slices/uiStateSlice";
+import { PURGE, purgeStoredState } from "redux-persist";
 
 export const Root = () => {
   const leftOpened = useSelector(selectLeftPanelOpen);
@@ -78,6 +79,16 @@ export const Root = () => {
           <Group ml="xl" gap={0} visibleFrom="sm">
             <Button variant="white" onClick={goHome}>
               Start new Optimization
+            </Button>
+            <Button
+              variant="white"
+              onClick={async () => {
+                await persistor.purge();
+                navigate("/");
+              }}
+              color="red"
+            >
+              Clear Data
             </Button>
           </Group>
         </Group>
