@@ -5,12 +5,9 @@ services:
       - "--providers.docker=true"
       - "--entrypoints.websecure.address=:443"
       - "--entrypoints.web.address=:80"
-      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
       - "--certificatesresolvers.myresolver.acme.email=jannis.rosenbaum@ut.ee"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
       - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
-      - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
-      
       - "--log.level=INFO"
     ports:
       - "0.0.0.0:443:443"
@@ -20,7 +17,6 @@ services:
       - ./letsencrypt:/letsencrypt
     labels:
       - "traefik.enable=true"
-      
 
   frontend:
     build:
@@ -30,15 +26,13 @@ services:
       - ./frontend:/frontend
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.react-app.entrypoints=web"
+      - "traefik.http.routers.react-app.entrypoints=web,websecure"
       - "traefik.http.routers.react-app.rule=Host(`pix-w1.cloud.ut.ee`) && !PathPrefix(`/api/`)"
       - "traefik.http.services.react-app.loadbalancer.server.port=80"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.permanent=true"
       - "traefik.http.routers.react-app.middlewares=redirect-to-https"
-      - "traefik.http.routers.react-app-https.entrypoints=websecure"
-      - "traefik.http.routers.react-app-https.rule=Host(`pix-w1.cloud.ut.ee`) && !PathPrefix(`/api/`)"
-      - "traefik.http.services.react-app-https.loadbalancer.server.port=80"
-      - "traefik.http.routers.react-app-https.tls=true"
-      - "traefik.http.routers.react-app-https.tls.certresolver=myresolver"
+      - "traefik.http.routers.react-app.tls.certresolver=myresolver"
 
     restart: always
 
@@ -50,23 +44,12 @@ services:
       - .:/app
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.fastapi.entrypoints=web"
+      - "traefik.http.routers.fastapi.entrypoints=web,websecure"
       - "traefik.http.routers.fastapi.rule=Host(`pix-w1.cloud.ut.ee`) && PathPrefix(`/api/`)"
       - "traefik.http.services.fastapi.loadbalancer.server.port=8000"
       - "traefik.http.middlewares.fastapi-stripprefix.stripprefix.prefixes=/api"
-      - "traefik.http.routers.fastapi.middlewares=fastapi-stripprefix"
-      # Redirect to HTTPS
-      - "traefik.http.routers.fastapi-https.entrypoints=websecure"
-      - "traefik.http.routers.fastapi-https.rule=Host(`pix-w1.cloud.ut.ee`) && PathPrefix(`/api/`)"
-      - "traefik.http.routers.fastapi-https.middlewares=redirect-to-https"
-      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
-      - "traefik.http.middlewares.redirect-to-https.redirectscheme.permanent=true"
-      - "traefik.http.services.fastapi-https.loadbalancer.server.port=8000"
-      - "traefik.http.middlewares.fastapi-stripprefix-https.stripprefix.prefixes=/api"
-      - "traefik.http.routers.fastapi-https.middlewares=fastapi-stripprefix-https"
-      - "traefik.http.routers.fastapi-https.tls=true"
-      - "traefik.http.routers.fastapi-https.tls.certresolver=myresolver"
-      
+      - "traefik.http.routers.fastapi.middlewares=fastapi-stripprefix,redirect-to-https"
+      - "traefik.http.routers.fastapi.tls.certresolver=myresolver"
 
     environment:
       - DOMAIN=pix-w1.cloud.ut.ee
