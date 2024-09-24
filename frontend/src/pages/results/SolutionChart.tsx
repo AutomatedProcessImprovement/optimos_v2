@@ -67,12 +67,15 @@ export const SolutionChart: FC<SolutionChartProps> = ({
           events: {
             click: function () {
               console.log(this);
-              if (this.color === "red")
-                return navigate("#initial-solution-acc");
-              if (this.color === "gray")
-                return navigate("#non-optimal-solutions");
-              // Navigate to specific execution via anchor link
-              navigate(`#solution_${this.index}`);
+              let id;
+              if (this.color === "gray" || this.color == "red")
+                id = "non-optimal-solutions";
+              else id = `solution_${this.name.split("#")?.[1]}`;
+              document.getElementById(id)?.scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+                inline: "center",
+              });
             },
           },
         },

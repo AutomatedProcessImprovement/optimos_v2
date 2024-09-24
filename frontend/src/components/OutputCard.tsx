@@ -47,16 +47,22 @@ export const OutputCard: FC<OutputCardProps> = ({ outputId }) => {
     { pollingInterval: pollingInterval, skipPollingIfUnfocused: true }
   );
 
+  const notFound = error && "status" in error && error?.status === 404;
+
   useEffect(() => {
-    if (status === "completed" || status === "cancelled") {
+    if (
+      pollingInterval > 0 &&
+      (status === "completed" ||
+        status === "cancelled" ||
+        status === "error" ||
+        notFound)
+    ) {
       setPollingInterval(0);
     }
-  }, [status]);
+  }, [status, notFound]);
 
   const [cancelRequest, { isLoading: isCancelLoading }] =
     useCancelOptimizationCancelOptimizationIdPostMutation();
-
-  const notFound = error && "status" in error && error?.status === 404;
 
   const Icon = notFound
     ? IconHelpCircle

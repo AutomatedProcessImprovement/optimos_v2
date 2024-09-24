@@ -39,8 +39,9 @@ export const useReport = (): [JsonReport | null, any | null] => {
   }, [status]);
 
   useEffect(() => {
+    console.log("Run useReport effect", lastReportDate, report);
     if (!lastReportDate) return;
-    if (lastReportDate && lastReportDate <= report?.created_at) return;
+    if (!!report && lastReportDate <= report?.created_at) return;
     const selector = optimosApi.endpoints.getReportFileGetReportIdGet.select({
       id: optimizationId,
     });
@@ -48,10 +49,13 @@ export const useReport = (): [JsonReport | null, any | null] => {
 
     if (error || (!error && jsonError)) {
       setJsonError(error ? String(error) : null);
+      console.error("Error fetching report", error);
     }
 
-    if (isLoading || !data) return;
-
+    if (!data) {
+      console.log("Loading report... / No data");
+      return;
+    }
     if (!report || data.created_at > report?.created_at) {
       setReport(data);
     }

@@ -30,7 +30,10 @@ import {
 } from "../redux/slices/assetsSlice";
 import {
   addRunningOptimization,
+  deselectAsset,
+  deselectAssets,
   setCurrentTab,
+  setSidePanel,
 } from "../redux/slices/uiStateSlice";
 import {
   selectSelectedAssets,
@@ -47,6 +50,7 @@ import { store } from "../redux/store";
 import { showError, showSuccess } from "../util/helpers";
 import { showNotification } from "@mantine/notifications";
 import { useStartOptimizationStartOptimizationPostMutation } from "../redux/slices/optimosApi";
+import { useNavigate } from "react-router-dom";
 
 const tooltip_desc: Record<TABS, string> = {
   [TABS.GLOBAL_CONSTRAINTS]:
@@ -59,6 +63,7 @@ const tooltip_desc: Record<TABS, string> = {
 };
 
 export const ParameterEditor = () => {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const activeTab = useSelector(selectCurrentTab);
   const [
@@ -85,10 +90,6 @@ export const ParameterEditor = () => {
   });
 
   const { getTransformedValues, validate } = masterForm;
-
-  useEffect(() => {
-    validate();
-  }, [validate, masterFormData]);
 
   const getStepContent = (index: TABS) => {
     switch (index) {
@@ -148,6 +149,10 @@ export const ParameterEditor = () => {
       dispatch(addRunningOptimization(data?.id));
       showSuccess("Optimization started successfully");
     }
+    dispatch(deselectAssets());
+    dispatch(setSidePanel({ side: "left", open: false }));
+    dispatch(setSidePanel({ side: "right", open: true }));
+    navigate(`/results/${data?.id}`);
   };
 
   return (

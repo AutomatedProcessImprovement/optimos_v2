@@ -114,23 +114,24 @@ const ResultPage: FC = () => {
                   Download json
                 </a>
               </Grid.Col>
-              <Grid.Col span={12} ta="center">
-                <Loader size={60} />
+              {!report.is_final && (
+                <Grid.Col span={12} ta="center" p="xl">
+                  <Loader size={60} />
 
-                <Text ta="center">
-                  The Process is still running, below you find the current
-                  iteration
-                </Text>
-
-                <SolutionChart
-                  optimalSolutions={lastParetoFront.solutions.filter(
-                    (sol) => !sol.is_base_solution
-                  )}
-                  otherSolutions={all_but_last_pareto_front
-                    .flatMap((front) => front.solutions)
-                    .filter((sol) => !sol.is_base_solution)}
-                />
-              </Grid.Col>
+                  <Text ta="center">
+                    The Process is still running, below you find the current
+                    iteration
+                  </Text>
+                </Grid.Col>
+              )}
+              <SolutionChart
+                optimalSolutions={lastParetoFront.solutions.filter(
+                  (sol) => !sol.is_base_solution
+                )}
+                otherSolutions={all_but_last_pareto_front
+                  .flatMap((front) => front.solutions)
+                  .filter((sol) => !sol.is_base_solution)}
+              />
             </Grid>
           </Paper>
           <Grid>
@@ -138,7 +139,7 @@ const ResultPage: FC = () => {
               <Grid.Col
                 span={12}
                 key={`grid-${index}`}
-                id={`solution_${index}`}
+                id={`solution_${solution.solution_no}`}
               >
                 <OptimosSolution
                   key={index}
@@ -148,57 +149,57 @@ const ResultPage: FC = () => {
                 />
               </Grid.Col>
             ))}
-            {/* {!!all_but_last_pareto_front.length && (
-                <>
-                  <Grid.Col id="non-optimal-solutions">
-                    <Text size="lg" fw={500}>
-                      Previous (non-optimal) solutions
-                    </Text>
-                  </Grid.Col>
-                  <Grid.Col span={12} my="md">
-                    <Accordion>
-                      <Accordion.Item value="initialSolution">
-                        <Accordion.Control>Initial Solution</Accordion.Control>
+            {!!all_but_last_pareto_front.length && (
+              <>
+                <Grid.Col id="non-optimal-solutions">
+                  <Title order={3} mt="xl">
+                    Previous (non-optimal) solutions
+                  </Title>
+                </Grid.Col>
+                <Grid.Col span={12} my="md">
+                  <Accordion>
+                    <Accordion.Item value="initialSolution">
+                      <Accordion.Control>Initial Solution</Accordion.Control>
+                      <Accordion.Panel>
+                        <OptimosSolution
+                          solution={report.base_solution}
+                          constraints={report.constraints}
+                        />
+                      </Accordion.Panel>
+                    </Accordion.Item>
+
+                    {all_but_last_pareto_front.map((front, index) => (
+                      <Accordion.Item
+                        value={`non-optimal-solution-chunk-${index}`}
+                        key={`non-optimal-solution-chunk-${index}`}
+                      >
+                        <Accordion.Control>
+                          Solution-Group {index + 1}
+                        </Accordion.Control>
                         <Accordion.Panel>
-                          <OptimosSolution
-                            solution={report.base_solution}
-                            constraints={report.constraints}
-                          />
+                          <Grid>
+                            {front.solutions.map((solution, index) => (
+                              <Grid.Col
+                                span={12}
+                                key={`grid-${index}`}
+                                id={`solution_${index}`}
+                              >
+                                <OptimosSolution
+                                  key={index}
+                                  solution={solution}
+                                  finalMetrics={final_metrics}
+                                  constraints={report.constraints}
+                                />
+                              </Grid.Col>
+                            ))}
+                          </Grid>
                         </Accordion.Panel>
                       </Accordion.Item>
-
-                      {all_but_last_pareto_front.map((front, index) => (
-                        <Accordion.Item
-                          value={`non-optimal-solution-chunk-${index}`}
-                          key={`non-optimal-solution-chunk-${index}`}
-                        >
-                          <Accordion.Control>
-                            Solution-Group ${index + 1}
-                          </Accordion.Control>
-                          <Accordion.Panel>
-                            <Grid>
-                              {front.solutions.map((solution, index) => (
-                                <Grid.Col
-                                  span={12}
-                                  key={`grid-${index}`}
-                                  id={`solution_${index}`}
-                                >
-                                  <OptimosSolution
-                                    key={index}
-                                    solution={solution}
-                                    finalMetrics={final_metrics}
-                                    constraints={report.constraints}
-                                  />
-                                </Grid.Col>
-                              ))}
-                            </Grid>
-                          </Accordion.Panel>
-                        </Accordion.Item>
-                      ))}
-                    </Accordion>
-                  </Grid.Col>
-                </>
-              )} */}
+                    ))}
+                  </Accordion>
+                </Grid.Col>
+              </>
+            )}
           </Grid>
         </InitialSolutionContext.Provider>
       </Grid.Col>

@@ -28,6 +28,9 @@ const uiStateSlice = createSlice({
         (asset) => asset !== action.payload
       );
     },
+    deselectAssets: (state) => {
+      state.selectedAssets = [];
+    },
     addRunningOptimization: (state, action: PayloadAction<string>) => {
       state.runningOptimizations.splice(0, 0, action.payload);
     },
@@ -39,6 +42,12 @@ const uiStateSlice = createSlice({
     toggleSidePanel: (state, action: PayloadAction<"left" | "right">) => {
       state.sidePanelsOpen[action.payload] =
         !state.sidePanelsOpen[action.payload];
+    },
+    setSidePanel: (
+      state,
+      action: PayloadAction<{ side: "left" | "right"; open: boolean }>
+    ) => {
+      state.sidePanelsOpen[action.payload.side] = action.payload.open;
     },
   },
   extraReducers: (builder) => {
@@ -68,6 +77,8 @@ export const {
   addRunningOptimization,
   removeRunningOptimization,
   toggleSidePanel,
+  setSidePanel,
+  deselectAssets,
 } = uiStateSlice.actions;
 
 export const uiStateReducer = uiStateSlice.reducer;

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { Provider, useDispatch, useSelector } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { persistor, store } from "./redux/store";
@@ -15,6 +15,7 @@ import {
   Burger,
   Button,
   createTheme,
+  Group,
   MantineProvider,
   Text,
   UnstyledButton,
@@ -34,13 +35,23 @@ import {
   selectLeftPanelOpen,
   selectRightPanelOpen,
 } from "./redux/selectors/uiStateSelectors";
-import { toggleSidePanel } from "./redux/slices/uiStateSlice";
+import {
+  deselectAssets,
+  setSidePanel,
+  toggleSidePanel,
+} from "./redux/slices/uiStateSlice";
 
 export const Root = () => {
   const leftOpened = useSelector(selectLeftPanelOpen);
   const rightOpened = useSelector(selectRightPanelOpen);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const goHome = useCallback(() => {
+    dispatch(deselectAssets());
+    dispatch(setSidePanel({ side: "left", open: true }));
+    dispatch(setSidePanel({ side: "right", open: false }));
+    navigate("/");
+  }, [dispatch, navigate]);
   return (
     <AppShell
       padding="md"
@@ -58,11 +69,18 @@ export const Root = () => {
     >
       {/* Header */}
       <AppShell.Header p="md" h={60} display="flex" ta="center">
-        <UnstyledButton onClick={() => navigate("/")}>
-          <Text size="xl" fw={500}>
-            Optimos V2
-          </Text>
-        </UnstyledButton>
+        <Group justify="space-between" w="100%">
+          <UnstyledButton onClick={goHome}>
+            <Text size="xl" fw={500}>
+              Optimos V2
+            </Text>
+          </UnstyledButton>
+          <Group ml="xl" gap={0} visibleFrom="sm">
+            <Button variant="white" onClick={goHome}>
+              Start new Optimization
+            </Button>
+          </Group>
+        </Group>
       </AppShell.Header>
 
       {/* Left Sidebar - Navbar */}
