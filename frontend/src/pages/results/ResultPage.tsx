@@ -7,6 +7,7 @@ import {
   Loader,
   Accordion,
   Box,
+  Title,
 } from "@mantine/core";
 import { IconDownload, IconX } from "@tabler/icons-react";
 import React, { FC, useCallback, useEffect, useRef, useState } from "react";
@@ -14,9 +15,12 @@ import { ProcessingRequest } from "../../redux/slices/optimosApi";
 import { OptimosSolution } from "./Solution";
 import { SolutionChart } from "./SolutionChart";
 import { useReport } from "../../hooks/useReport";
+import { InitialSolutionContext } from "../../hooks/useInitialSolution";
 
-const OptimizationResults: FC = () => {
-  const [report, loading, error] = useReport();
+const ResultPage: FC = () => {
+  const [report, error] = useReport();
+
+  console.log("Refreshed Report Page! ", new Date().toISOString(), report);
 
   const [fileDownloadUrl, setFileDownloadUrl] = useState("");
 
@@ -45,15 +49,17 @@ const OptimizationResults: FC = () => {
     // TODO Cancel
   }, []);
 
-  if (!report || loading || !report.pareto_fronts) {
+  if (!report || !report.pareto_fronts) {
     return (
       <Grid
         justify="center"
         ta="center"
         style={{ height: "100vh", flexDirection: "column" }}
       >
-        <Loader size={50} />
-        <Text size="lg">Loading...</Text>
+        <Grid.Col span={12}>
+          <Loader size={75} p="lg " />
+          <Text size="lg">Loading...</Text>
+        </Grid.Col>
       </Grid>
     );
   }
@@ -68,84 +74,81 @@ const OptimizationResults: FC = () => {
   };
 
   return (
-    <Grid pt="50px" ta="center" justify="center" style={{ paddingTop: "10px" }}>
-      <Grid.Col span={8}>
-        <Grid>
-          <Grid.Col span={12}>
-            <h1 className="text-3xl font-semibold">Your Optimization Report</h1>
-          </Grid.Col>
-          <Grid.Col span={12}>
-            <Paper shadow="sm" p="md">
-              <Grid>
-                <Grid.Col span={8}>
-                  <Text size="lg">{report.name}</Text>
-                </Grid.Col>
-                <Grid.Col span={4} style={{ textAlign: "right" }}>
-                  <Group>
-                    {!report.isFinal && (
-                      <Button
-                        variant="outline"
-                        color="red"
-                        leftSection={<IconX />}
-                        onClick={onCancel}
-                      >
-                        Cancel
-                      </Button>
-                    )}
-                    <Button
-                      variant="filled"
-                      onClick={onDownload}
-                      leftSection={<IconDownload />}
-                    >
-                      Report
-                    </Button>
-                  </Group>
-                  <a
-                    style={{ display: "none" }}
-                    download="report.json"
-                    href={fileDownloadUrl}
-                    ref={linkDownloadRef}
-                  >
-                    Download json
-                  </a>
-                </Grid.Col>
-                <Grid.Col span={12}>
-                  <Grid justify="center">
-                    <Loader size={60} />
-                  </Grid>
-                  <Grid justify="center" mb="md">
-                    <Text ta="center">
-                      The Process is still running, below you find the current
-                      iteration
-                    </Text>
-                  </Grid>
-                  <SolutionChart
-                    optimalSolutions={lastParetoFront.solutions.filter(
-                      (sol) => !sol.isBaseSolution
-                    )}
-                    otherSolutions={all_but_last_pareto_front
-                      .flatMap((front) => front.solutions)
-                      .filter((sol) => !sol.isBaseSolution)}
-                  />
-                </Grid.Col>
-              </Grid>
-            </Paper>
+    <Grid pt="50px" ta="left" justify="center" style={{ paddingTop: "10px" }}>
+      <Grid.Col span={12}>
+        <h1 className="text-3xl font-semibold">Your Optimization Report</h1>
+      </Grid.Col>
+      <Grid.Col span={12}>
+        <InitialSolutionContext.Provider value={report.base_solution}>
+          <Paper shadow="sm" p="md">
             <Grid>
-              {lastParetoFront.solutions.map((solution, index) => (
-                <Grid.Col
-                  span={12}
-                  key={`grid-${index}`}
-                  id={`solution_${index}`}
+              <Grid.Col span={8}>
+                <Title order={3}>{report.name}</Title>
+              </Grid.Col>
+              <Grid.Col span={4} style={{ textAlign: "right" }}>
+                {!report.is_final && (
+                  <Button
+                    variant="outline"
+                    color="red"
+                    leftSection={<IconX />}
+                    onClick={onCancel}
+                  >
+                    Cancel
+                  </Button>
+                )}
+                <Button
+                  ml="md"
+                  variant="filled"
+                  onClick={onDownload}
+                  leftSection={<IconDownload />}
                 >
-                  <OptimosSolution
-                    key={index}
-                    solution={solution}
-                    finalMetrics={final_metrics}
-                    constraints={report.constraints}
-                  />
-                </Grid.Col>
-              ))}
-              {!!all_but_last_pareto_front.length && (
+                  Report
+                </Button>
+
+                <a
+                  style={{ display: "none" }}
+                  download="report.json"
+                  href={fileDownloadUrl}
+                  ref={linkDownloadRef}
+                >
+                  Download json
+                </a>
+              </Grid.Col>
+              <Grid.Col span={12} ta="center">
+                <Loader size={60} />
+
+                <Text ta="center">
+                  The Process is still running, below you find the current
+                  iteration
+                </Text>
+
+                <SolutionChart
+                  optimalSolutions={lastParetoFront.solutions.filter(
+                    (sol) => !sol.is_base_solution
+                  )}
+                  otherSolutions={all_but_last_pareto_front
+                    .flatMap((front) => front.solutions)
+                    .filter((sol) => !sol.is_base_solution)}
+                />
+              </Grid.Col>
+            </Grid>
+          </Paper>
+          <Grid>
+            {lastParetoFront.solutions.map((solution, index) => (
+              <Grid.Col
+                span={12}
+                key={`grid-${index}`}
+                id={`solution_${index}`}
+              >
+                <OptimosSolution
+                  key={index}
+                  solution={solution}
+                  finalMetrics={final_metrics}
+                  constraints={report.constraints}
+                />
+              </Grid.Col>
+            ))}
+            {/* {!!all_but_last_pareto_front.length && (
                 <>
                   <Grid.Col id="non-optimal-solutions">
                     <Text size="lg" fw={500}>
@@ -158,7 +161,7 @@ const OptimizationResults: FC = () => {
                         <Accordion.Control>Initial Solution</Accordion.Control>
                         <Accordion.Panel>
                           <OptimosSolution
-                            solution={report.baseSolution}
+                            solution={report.base_solution}
                             constraints={report.constraints}
                           />
                         </Accordion.Panel>
@@ -195,13 +198,12 @@ const OptimizationResults: FC = () => {
                     </Accordion>
                   </Grid.Col>
                 </>
-              )}
-            </Grid>
-          </Grid.Col>
-        </Grid>
+              )} */}
+          </Grid>
+        </InitialSolutionContext.Provider>
       </Grid.Col>
     </Grid>
   );
 };
 
-export default OptimizationResults;
+export default ResultPage;

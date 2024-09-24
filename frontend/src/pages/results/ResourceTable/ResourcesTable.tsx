@@ -1,4 +1,4 @@
-import { Table, Paper, Text, Box, UnstyledButton } from "@mantine/core";
+import { Table, Paper, Text, Box, Button } from "@mantine/core";
 import { IconChevronUp, IconChevronDown } from "@tabler/icons-react";
 import type { FC } from "react";
 import React, { useCallback, useEffect, useState } from "react";
@@ -33,19 +33,19 @@ const getOrderByHasChangesValue = (resource: JsonResourceInfo) => {
   if (resource.modifiers.deleted) return "1";
   if (resource.modifiers.added) return "2";
   if (resource.modifiers.tasks_modified) return "3";
-  if (resource.modifiers.shiftsModified) return "4";
+  if (resource.modifiers.shifts_modified) return "4";
   return "5";
 };
 
 export const ResourcesTable: FC<ResourcesTableProps> = React.memo(
   ({ solution }) => {
-    const resourceInfo = Object.values(solution.resourceInfo);
-    const deletedResourcesInfo = Object.values(solution.deletedResourcesInfo);
+    const resourceInfo = Object.values(solution.resource_info);
+    const deletedResourcesInfo = Object.values(solution.deleted_resources_info);
 
     const [orderBy, setOrderBy] = useState<OrderByField>("has_changes");
     const [order, setOrder] = useState<Order>("desc");
 
-    const [sortedResources, setSortedResources] = useState<JSONResourceInfo[]>([
+    const [sortedResources, setSortedResources] = useState<JsonResourceInfo[]>([
       ...resourceInfo,
       ...deletedResourcesInfo,
     ]);
@@ -80,48 +80,67 @@ export const ResourcesTable: FC<ResourcesTableProps> = React.memo(
 
     return (
       <Paper>
-        <Table>
-          <thead>
-            <tr>
-              <th />
-              <th>
-                <UnstyledButton onClick={() => onSortingClick("has_changes")}>
-                  <Text>Status</Text>
-                  {orderBy === "has_changes" ? (
-                    <Box component="span">
-                      {order === "desc" ? (
-                        <IconChevronDown size={16} />
-                      ) : (
-                        <IconChevronUp size={16} />
-                      )}
-                    </Box>
-                  ) : null}
-                </UnstyledButton>
-              </th>
-              {COLUMN_DEFINITIONS.map((column) => (
-                <th key={column.id} style={{ minWidth: column.minWidth }}>
-                  <UnstyledButton onClick={() => onSortingClick(column.id)}>
-                    <Text>{column.label}</Text>
-                    {orderBy === column.id ? (
-                      <Box component="span">
-                        {order === "desc" ? (
-                          <IconChevronDown size={16} />
-                        ) : (
-                          <IconChevronUp size={16} />
-                        )}
-                      </Box>
-                    ) : null}
-                  </UnstyledButton>
-                </th>
+        <Table.ScrollContainer minWidth={1300}>
+          <Table>
+            <Table.Thead>
+              <Table.Tr>
+                <Table.Th />
+                <Table.Th>
+                  <Button
+                    variant="white"
+                    color="black"
+                    size="compact-sm"
+                    onClick={() => onSortingClick("has_changes")}
+                    leftSection={
+                      orderBy === "has_changes" ? (
+                        <>
+                          {order === "desc" ? (
+                            <IconChevronDown size={16} />
+                          ) : (
+                            <IconChevronUp size={16} />
+                          )}
+                        </>
+                      ) : null
+                    }
+                  >
+                    Status
+                  </Button>
+                </Table.Th>
+                {COLUMN_DEFINITIONS.map((column) => (
+                  <Table.Th
+                    key={column.id}
+                    style={{ minWidth: column.minWidth }}
+                  >
+                    <Button
+                      size="compact-sm"
+                      variant="white"
+                      color="black"
+                      onClick={() => onSortingClick(column.id)}
+                      leftSection={
+                        orderBy === column.id ? (
+                          <>
+                            {order === "desc" ? (
+                              <IconChevronDown size={16} />
+                            ) : (
+                              <IconChevronUp size={16} />
+                            )}
+                          </>
+                        ) : null
+                      }
+                    >
+                      {column.label}
+                    </Button>
+                  </Table.Th>
+                ))}
+              </Table.Tr>
+            </Table.Thead>
+            <Table.Tbody>
+              {sortedResources.map((resource) => (
+                <ResourceTableRow key={resource.id} resource={resource} />
               ))}
-            </tr>
-          </thead>
-          <tbody>
-            {sortedResources.map((resource) => (
-              <ResourceTableRow key={resource.id} resource={resource} />
-            ))}
-          </tbody>
-        </Table>
+            </Table.Tbody>
+          </Table>
+        </Table.ScrollContainer>
       </Paper>
     );
   }

@@ -312,6 +312,7 @@ export type JsonParetoFront = {
 };
 export type JsonReport = {
   name: string;
+  created_at: string;
   constraints: ConstraintsType;
   bpmn_definition: string;
   base_solution: JsonSolution;
@@ -354,11 +355,11 @@ export enum RULE_TYPE {
   Size = "size",
 }
 export enum COMPARATOR {
-  $ = "<",
-  $ = "<=",
-  $ = ">",
-  $ = ">=",
-  $ = "=",
+  "<",
+  "<=",
+  ">",
+  ">=",
+  "=",
 }
 export const {
   useStartOptimizationStartOptimizationPostMutation,

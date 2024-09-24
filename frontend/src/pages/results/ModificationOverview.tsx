@@ -22,7 +22,7 @@ export const ModificationOverview: FC<ModificationOverviewProps> = (props) => {
     <Grid>
       {actions.map((action, index) => {
         return (
-          <Grid.Col span={6} key={index}>
+          <Grid.Col span={{ md: 6, lg: 4, xl: 3 }} key={index}>
             <ActionCard action={action} />
           </Grid.Col>
         );

@@ -13,12 +13,20 @@ import {
   AppShell,
   Box,
   Burger,
+  Button,
   createTheme,
   MantineProvider,
   Text,
+  UnstyledButton,
 } from "@mantine/core";
 
-import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
+import {
+  createBrowserRouter,
+  Link,
+  Outlet,
+  RouterProvider,
+  useNavigate,
+} from "react-router-dom";
 import { router } from "./router";
 import { AssetsView } from "./components/AssetsView";
 import { OutputView } from "./components/OutputView";
@@ -32,6 +40,7 @@ export const Root = () => {
   const leftOpened = useSelector(selectLeftPanelOpen);
   const rightOpened = useSelector(selectRightPanelOpen);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   return (
     <AppShell
       padding="md"
@@ -49,9 +58,11 @@ export const Root = () => {
     >
       {/* Header */}
       <AppShell.Header p="md" h={60} display="flex" ta="center">
-        <Text size="xl" fw={500}>
-          Optimos V2
-        </Text>
+        <UnstyledButton onClick={() => navigate("/")}>
+          <Text size="xl" fw={500}>
+            Optimos V2
+          </Text>
+        </UnstyledButton>
       </AppShell.Header>
 
       {/* Left Sidebar - Navbar */}

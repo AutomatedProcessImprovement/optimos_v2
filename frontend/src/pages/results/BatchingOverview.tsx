@@ -3,9 +3,10 @@ import { Grid, Text } from "@mantine/core";
 import { useInitialSolution } from "../../hooks/useInitialSolution";
 
 import { formatSeconds } from "../../util/num_helper";
-import { DiffInfo } from "./ResourceTable/ResourcesTableCell";
+import { JsonSolution } from "../../redux/slices/optimosApi";
+import { DiffInfo } from "./ResourceTable/DiffInfo";
 
-export const BatchingOverview = ({ solution }: { solution: JSONSolution }) => {
+export const BatchingOverview = ({ solution }: { solution: JsonSolution }) => {
   const initialSolution = useInitialSolution();
 
   return (
@@ -20,10 +21,10 @@ export const BatchingOverview = ({ solution }: { solution: JSONSolution }) => {
       </Grid.Col>
       <Grid.Col span={7}>
         <Text ta="left">
-          {formatSeconds(solution.globalInfo.totalCost)}{" "}
+          {formatSeconds(solution.global_info.total_cost)}{" "}
           <DiffInfo
-            a={initialSolution?.globalInfo.totalCost}
-            b={solution.globalInfo.totalCost}
+            a={initialSolution?.global_info.total_cost}
+            b={solution.global_info.total_cost}
             formatFn={formatSeconds}
             lowerIsBetter
             suffix="initial solution"

@@ -22,7 +22,7 @@ import {
   IconSquareCheck,
   IconTrash,
 } from "@tabler/icons-react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   useCancelOptimizationCancelOptimizationIdPostMutation,
   useGetStatusStatusIdGetQuery,
@@ -33,6 +33,7 @@ type OutputCardProps = {
 };
 
 export const OutputCard: FC<OutputCardProps> = ({ outputId }) => {
+  const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const shortId = outputId.split("-")[0];
@@ -84,6 +85,7 @@ export const OutputCard: FC<OutputCardProps> = ({ outputId }) => {
     ? "Unknown Error"
     : status;
 
+  const isSelected = location.pathname === `/results/${outputId}`;
   return (
     <Card
       pos="relative"
@@ -95,12 +97,18 @@ export const OutputCard: FC<OutputCardProps> = ({ outputId }) => {
         transition: "border 0.2s ease",
       }}
       onClick={() => navigate(`/results/${outputId}`)}
+      withBorder={isSelected}
+      styles={{
+        root: {
+          borderColor: isSelected ? "green" : "gray",
+        },
+      }}
     >
       <Group justify="space-between" align="center">
         <Group>
           <Icon size={24} color={iconColor} />
           <Stack gap={0}>
-            <Text size="sm">Optimization {shortId}</Text>
+            <Text size="sm">Run {shortId}</Text>
             <Badge color={iconColor} size="xs">
               {statusText}
             </Badge>

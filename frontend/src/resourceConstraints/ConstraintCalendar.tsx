@@ -16,9 +16,9 @@ import {
   useSimParamsWorkTimes,
 } from "../hooks/useSimParamsWorkTimes";
 import React from "react";
-import { ConstraintWorkMask } from "../types/optimos_json_type";
 import { useMasterFormContext } from "../hooks/useFormContext";
 import { useFormError } from "../hooks/useFormError";
+import { WorkMasks } from "../redux/slices/optimosApi";
 
 type ConstraintCalendarProps = {
   field: "never_work_masks" | "always_work_masks";
@@ -39,7 +39,7 @@ export const ConstraintCalendar: FC<ConstraintCalendarProps> = ({
 
   const resources = form.values?.constraints?.resources;
   const workMask = resources.find((resource) => resource.id === resourceId)
-    ?.constraints[field] as ConstraintWorkMask;
+    ?.constraints[field] as WorkMasks;
 
   useEffect(() => {
     // Finds the selected element by data-column, data-day, and data-index
@@ -118,7 +118,7 @@ export const ConstraintCalendar: FC<ConstraintCalendarProps> = ({
           ))}
         </Grid>
       </Box>
-      <Text
+      <Box
         size="xs"
         color="dimmed"
         style={{ display: "flex", flexDirection: "row", alignItems: "center" }}
@@ -153,7 +153,7 @@ export const ConstraintCalendar: FC<ConstraintCalendarProps> = ({
           }}
         />
         Work time
-      </Text>
+      </Box>
     </Box>
   );
 };

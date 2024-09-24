@@ -1,7 +1,7 @@
-import { SimParams } from "../types/optimos_json_type";
+import { TimetableType } from "../redux/slices/optimosApi";
 import { parseBpmn } from "../util/parseBpmn";
 
-export const validateBPMN = async (bpmn: string, simParams: SimParams) => {
+export const validateBPMN = async (bpmn: string, simParams: TimetableType) => {
   const { tasks, gateways, catchEvents } = await parseBpmn(bpmn);
 
   // Ensure all tasks have a task_resource_distribution

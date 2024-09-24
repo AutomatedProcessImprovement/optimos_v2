@@ -1,13 +1,8 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-import {
-  ConsParams,
-  Constraints,
-  ScenarioProperties,
-  SimParams,
-} from "../../types/optimos_json_type";
 import { PURGE } from "redux-persist";
 import { MasterFormData } from "../../hooks/useMasterFormData";
+import { ConfigType, ConstraintsType, TimetableType } from "./optimosApi";
 
 export enum AssetType {
   BPMN = "BPMN",
@@ -27,15 +22,15 @@ export type Asset = {
     }
   | {
       type: AssetType.OPTIMOS_CONFIG;
-      value?: ScenarioProperties;
+      value?: ConfigType;
     }
   | {
       type: AssetType.OPTIMOS_CONSTRAINTS;
-      value?: ConsParams;
+      value?: ConstraintsType;
     }
   | {
       type: AssetType.TIMETABLE;
-      value?: SimParams;
+      value?: TimetableType;
     }
 );
 

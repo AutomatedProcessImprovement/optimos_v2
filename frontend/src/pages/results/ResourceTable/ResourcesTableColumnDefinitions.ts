@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 
-import { JSONResourceInfo } from "../../../types/optimos_json_type";
 import {
   formatSeconds,
   formatPercentage,
@@ -8,9 +7,10 @@ import {
   formatCurrency,
   formatHours,
 } from "../../../util/num_helper";
+import { JsonResourceInfo } from "../../../redux/slices/optimosApi";
 
 export const COLUMN_DEFINITIONS: {
-  id: keyof JSONResourceInfo;
+  id: keyof JsonResourceInfo;
   label: string;
   formatFn: (x: any) => ReactNode;
   lowerIsBetter?: boolean;
@@ -18,17 +18,17 @@ export const COLUMN_DEFINITIONS: {
 }[] = [
   { id: "name", label: "Name", formatFn: (x) => x, minWidth: "10em" },
   {
-    id: "workedTime",
+    id: "worked_time",
     label: "Worktime (Calendar)",
     formatFn: formatSeconds,
-    lowerIsBetter: false,
+    lowerIsBetter: true,
     minWidth: "10em",
   },
   {
-    id: "availableTime",
+    id: "available_time",
     label: "Worktime (Actual)",
     formatFn: formatSeconds,
-    lowerIsBetter: true,
+    lowerIsBetter: false,
   },
   {
     id: "utilization",
@@ -37,38 +37,38 @@ export const COLUMN_DEFINITIONS: {
     lowerIsBetter: false,
   },
   {
-    id: "hourlyRate",
+    id: "hourly_rate",
     label: "Hourly Rate",
     formatFn: formatHourlyRate,
     lowerIsBetter: true,
   },
   {
-    id: "totalBatchingWaitingTime",
+    id: "total_batching_waiting_time",
     label: "Batching Waiting Time",
     formatFn: formatSeconds,
     lowerIsBetter: true,
   },
-  { id: "isHuman", label: "Type", formatFn: (x) => (x ? "Human" : "Machine") },
+  { id: "is_human", label: "Type", formatFn: (x) => (x ? "Human" : "Machine") },
   {
-    id: "costPerWeek",
+    id: "cost_per_week",
     label: "Cost/week",
     formatFn: formatCurrency,
     lowerIsBetter: true,
   },
   {
-    id: "maxWeeklyCapacity",
+    id: "max_weekly_capacity",
     label: "Max h/week",
     formatFn: formatHours,
     lowerIsBetter: false,
   },
   {
-    id: "maxDailyCapacity",
+    id: "max_daily_capacity",
     label: "Max h/day",
     formatFn: formatHours,
     lowerIsBetter: false,
   },
   {
-    id: "maxConsecutiveCapacity",
+    id: "max_consecutive_capacity",
     label: "Max Hours consecutively",
     formatFn: formatHours,
     lowerIsBetter: false,

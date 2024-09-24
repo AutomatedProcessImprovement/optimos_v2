@@ -6,12 +6,12 @@ import {
   timePeriodsToBinary,
 } from "../helpers";
 import type { MasterFormData } from "../hooks/useMasterFormData";
+import { TimePeriod } from "../redux/slices/optimosApi";
 import {
   getMaxShiftSizeFromBitmask,
   getMaxShiftSizeFromTimePeriods,
   getNumberOfShiftsFromBitmask,
 } from "./validationHelper";
-import { TimePeriod } from "../types/optimos_json_type";
 import { createFormContext, useForm } from "@mantine/form";
 
 export const getOverlappingHours = (

@@ -7,11 +7,12 @@ import {
   testUniqueAttributes,
   testUniqueKeys,
 } from "../types/prosimos_scheme";
+import { COMPARATOR } from "../redux/slices/optimosApi";
 
 const distributionSchema = {
   distribution_name: yup.string().required(),
   distribution_params: yup
-    .mixed()
+    .array()
     .when("distribution_name", (distributionName: string | string[], _) => {
       const dtype = (
         Array.isArray(distributionName) ? distributionName[0] : distributionName
@@ -86,7 +87,7 @@ export const timetableSchema = yup.object({
               cost_per_hour: yup.number().required(),
               amount: yup.number().positive().integer().required(),
               calendar: yup.string().required(),
-              assignedTasks: yup.array(),
+              assigned_tasks: yup.array(),
             })
           )
           .min(1, "At least one resource is required")
@@ -200,7 +201,7 @@ export const timetableSchema = yup.object({
             .of(
               yup.object({
                 attribute: yup.string().required(),
-                comparison: yup.string().required(),
+                comparison: yup.mixed().oneOf(Object.values(COMPARATOR)),
                 // string for weekday and numeric string for all others
                 value: yup.lazy((value) => {
                   const stringOrNumber = yup.string().when("attribute", {

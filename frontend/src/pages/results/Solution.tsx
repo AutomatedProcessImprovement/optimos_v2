@@ -14,20 +14,20 @@ import {
 } from "@tabler/icons-react";
 import React, { FC } from "react";
 import { useEffect, useRef, useState, memo, useContext } from "react";
-import { DiffInfo } from "./ResourceTable/ResourcesTableCell";
 import {
   formatCurrency,
   formatSeconds,
   formatPercentage,
 } from "../../util/num_helper";
 import { ResourcesTable } from "./ResourceTable/ResourcesTable";
-import { ConstraintsType } from "../../redux/slices/optimosApi";
+import { ConstraintsType, JsonSolution } from "../../redux/slices/optimosApi";
 import { useInitialSolution } from "../../hooks/useInitialSolution";
 import { BatchingOverview } from "./BatchingOverview";
 import { ModificationOverview } from "./ModificationOverview";
+import { DiffInfo } from "./ResourceTable/DiffInfo";
 
 interface OptimosSolutionProps {
-  solution: JSONSolution;
+  solution: JsonSolution;
   finalMetrics?: any;
   constraints: ConstraintsType;
 }
@@ -36,7 +36,7 @@ export const OptimosSolution: FC<OptimosSolutionProps> = memo(
   ({ finalMetrics, solution, constraints }) => {
     const initialSolution = useInitialSolution();
 
-    const [expanded, setExpanded] = useState<string | false>(false);
+    const [expanded, setExpanded] = useState<string | null>(null);
 
     const link2DownloadRef = useRef<HTMLAnchorElement>(null);
     const link3DownloadRef = useRef<HTMLAnchorElement>(null);
@@ -86,16 +86,16 @@ export const OptimosSolution: FC<OptimosSolutionProps> = memo(
       };
 
     return (
-      <Paper shadow="sm" p="md" mt="md">
-        <Grid justify="space-between" align="center" style={{ height: "4em" }}>
-          <Grid.Col span={8}>
-            <Text size="lg" fw={500} tt="capitalize">
-              {solution.isBaseSolution
+      <Paper shadow="sm" p="md" mt="md" ta="left">
+        <Grid justify="space-between" align="stretch" style={{ height: "4em" }}>
+          <Grid.Col span={7}>
+            <Text size="lg" fw={500} tt="capitalize" ta="left">
+              {solution.is_base_solution
                 ? "Initial Solution"
-                : `Solution #${solution.solutionNo}`}
+                : `Solution #${solution.solution_no}`}
             </Text>
           </Grid.Col>
-          <Grid.Col span={4}>
+          <Grid.Col span={5}>
             <a
               style={{ display: "none" }}
               download="constraints.json"
@@ -112,129 +112,162 @@ export const OptimosSolution: FC<OptimosSolutionProps> = memo(
             >
               Download json
             </a>
-            <Group>
+            <Button.Group>
               <Button
+                fullWidth
+                variant="outline"
+                size="xs"
                 onClick={() => onDownloadEntrySimParams(solution.timetable)}
                 leftSection={<IconDownload />}
               >
                 Parameters
               </Button>
               <Button
+                fullWidth
+                variant="outline"
+                size="xs"
                 onClick={() => onDownloadEntryConsParams(constraints)}
                 leftSection={<IconDownload />}
               >
                 Constraints
               </Button>
-            </Group>
+            </Button.Group>
           </Grid.Col>
         </Grid>
 
-        <Accordion defaultValue="details">
+        <Accordion
+          defaultValue="details"
+          value={expanded}
+          onChange={setExpanded}
+        >
           <Accordion.Item value="details">
             <Accordion.Control>Details</Accordion.Control>
             <Accordion.Panel>
-              <Grid>
-                <Grid.Col span={5}>
-                  <Text fw={700}>Mean cost (per case)</Text>
-                  <Text fw={700}>Total cost (all cases)</Text>
-                  <Text fw={700}>Mean time (per case)</Text>
-                  <Text fw={700}>Total time (all cases)</Text>
-                  <Text fw={700}>Mean waiting time (per case)</Text>
-                  <Text fw={700}>Mean resource utilization</Text>
-                </Grid.Col>
-                <Grid.Col span={7}>
-                  <Text>
-                    {formatCurrency(solution.globalInfo.averageCost)}{" "}
-                    <DiffInfo
-                      a={initialSolution?.globalInfo.averageCost}
-                      b={solution.globalInfo.averageCost}
-                      formatFn={formatCurrency}
-                      lowerIsBetter
-                      suffix="initial solution"
-                      onlyShowDiff
-                    />
-                  </Text>
-                  <Text>
-                    {formatCurrency(solution.globalInfo.totalCost)}{" "}
-                    <DiffInfo
-                      a={initialSolution?.globalInfo.totalCost}
-                      b={solution.globalInfo.totalCost}
-                      formatFn={formatCurrency}
-                      lowerIsBetter
-                      suffix="initial solution"
-                      onlyShowDiff
-                    />
-                  </Text>
-                  <Text>
-                    {formatSeconds(solution.globalInfo.averageTime)}{" "}
-                    <DiffInfo
-                      a={initialSolution?.globalInfo.averageTime}
-                      b={solution.globalInfo.averageTime}
-                      formatFn={formatSeconds}
-                      lowerIsBetter
-                      suffix="initial solution"
-                      onlyShowDiff
-                    />
-                  </Text>
-                  <Text>
-                    {formatSeconds(solution.globalInfo.totalTime)}{" "}
-                    <DiffInfo
-                      a={initialSolution?.globalInfo.totalTime}
-                      b={solution.globalInfo.totalTime}
-                      formatFn={formatSeconds}
-                      lowerIsBetter
-                      suffix="initial solution"
-                      onlyShowDiff
-                    />
-                  </Text>
-                  <Text>
-                    {formatSeconds(solution.globalInfo.averageWaitingTime)}{" "}
-                    <DiffInfo
-                      a={initialSolution?.globalInfo.averageWaitingTime}
-                      b={solution.globalInfo.averageWaitingTime}
-                      formatFn={formatSeconds}
-                      lowerIsBetter
-                      suffix="initial solution"
-                      onlyShowDiff
-                    />
-                  </Text>
-                  <Text>
-                    {formatPercentage(
-                      solution.globalInfo.averageResourceUtilization
-                    )}{" "}
-                    <DiffInfo
-                      a={initialSolution?.globalInfo.averageResourceUtilization}
-                      b={solution.globalInfo.averageResourceUtilization}
-                      formatFn={formatPercentage}
-                      lowerIsBetter={false}
-                      suffix="initial solution"
-                      onlyShowDiff
-                      margin={0.01}
-                    />
-                  </Text>
-                </Grid.Col>
-              </Grid>
+              {expanded == "details" && (
+                <Grid justify="flex-start" ta="left">
+                  <Grid.Col span={5}>
+                    <Text size="sm" fw="bold">
+                      Mean cost (per case)
+                    </Text>
+                    <Text size="sm" fw="bold">
+                      Total cost (all cases)
+                    </Text>
+                    <Text size="sm" fw="bold">
+                      Mean time (per case)
+                    </Text>
+                    <Text size="sm" fw="bold">
+                      Total time (all cases)
+                    </Text>
+                    <Text size="sm" fw="bold">
+                      Mean waiting time (per case)
+                    </Text>
+                    <Text size="sm" fw="bold">
+                      Mean resource utilization
+                    </Text>
+                  </Grid.Col>
+                  <Grid.Col span={7}>
+                    <Text size="sm">
+                      {formatCurrency(solution.global_info.average_cost)}{" "}
+                      <DiffInfo
+                        a={initialSolution?.global_info.average_cost}
+                        b={solution.global_info.average_cost}
+                        formatFn={formatCurrency}
+                        lowerIsBetter
+                        suffix="initial solution"
+                        onlyShowDiff
+                      />
+                    </Text>
+                    <Text size="sm">
+                      {formatCurrency(solution.global_info.total_cost)}{" "}
+                      <DiffInfo
+                        a={initialSolution?.global_info.total_cost}
+                        b={solution.global_info.total_cost}
+                        formatFn={formatCurrency}
+                        lowerIsBetter
+                        suffix="initial solution"
+                        onlyShowDiff
+                      />
+                    </Text>
+                    <Text size="sm">
+                      {formatSeconds(solution.global_info.average_time)}{" "}
+                      <DiffInfo
+                        a={initialSolution?.global_info.average_time}
+                        b={solution.global_info.average_time}
+                        formatFn={formatSeconds}
+                        lowerIsBetter
+                        suffix="initial solution"
+                        onlyShowDiff
+                      />
+                    </Text>
+                    <Text size="sm">
+                      {formatSeconds(solution.global_info.total_time)}{" "}
+                      <DiffInfo
+                        a={initialSolution?.global_info.total_time}
+                        b={solution.global_info.total_time}
+                        formatFn={formatSeconds}
+                        lowerIsBetter
+                        suffix="initial solution"
+                        onlyShowDiff
+                      />
+                    </Text>
+                    <Text size="sm">
+                      {formatSeconds(solution.global_info.average_waiting_time)}{" "}
+                      <DiffInfo
+                        a={initialSolution?.global_info.average_waiting_time}
+                        b={solution.global_info.average_waiting_time}
+                        formatFn={formatSeconds}
+                        lowerIsBetter
+                        suffix="initial solution"
+                        onlyShowDiff
+                      />
+                    </Text>
+                    <Text size="sm">
+                      {formatPercentage(
+                        solution.global_info.average_resource_utilization
+                      )}{" "}
+                      <DiffInfo
+                        a={
+                          initialSolution?.global_info
+                            .average_resource_utilization
+                        }
+                        b={solution.global_info.average_resource_utilization}
+                        formatFn={formatPercentage}
+                        lowerIsBetter={false}
+                        suffix="initial solution"
+                        onlyShowDiff
+                        margin={0.01}
+                      />
+                    </Text>
+                  </Grid.Col>
+                </Grid>
+              )}
             </Accordion.Panel>
           </Accordion.Item>
 
           <Accordion.Item value="resources">
             <Accordion.Control>Resources</Accordion.Control>
             <Accordion.Panel>
-              <ResourcesTable solution={solution} />
+              {expanded == "resources" && (
+                <ResourcesTable solution={solution} />
+              )}
             </Accordion.Panel>
           </Accordion.Item>
 
-          <Accordion.Item value="batching">
+          {/* <Accordion.Item value="batching">
             <Accordion.Control>Batching</Accordion.Control>
             <Accordion.Panel>
-              <BatchingOverview solution={solution} />
+              {expanded == "batching" && (
+                <BatchingOverview solution={solution} />
+              )}
             </Accordion.Panel>
-          </Accordion.Item>
+          </Accordion.Item> */}
 
           <Accordion.Item value="actions">
-            <Accordion.Control>value="All Modifications"</Accordion.Control>
+            <Accordion.Control>All Modifications</Accordion.Control>
             <Accordion.Panel>
-              <ModificationOverview solution={solution} />
+              {expanded == "actions" && (
+                <ModificationOverview solution={solution} />
+              )}
             </Accordion.Panel>
           </Accordion.Item>
         </Accordion>

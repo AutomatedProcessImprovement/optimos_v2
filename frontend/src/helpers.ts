@@ -102,7 +102,7 @@ export const applyConstraintsToAllResources = (
 };
 
 export const applyTimetableToAllResources = (
-  resources: ConsParams["resources"],
+  resources: ConstraintsType["resources"],
   srcResourceId: string
 ) => {
   const { never_work_masks, always_work_masks } = resources.find(
@@ -184,7 +184,7 @@ export const NINE_TO_FIVE_CONSTRAINTS = {
 };
 
 export const resetResourceConstraintsToBlank = (
-  oldResources: ConsParams["resources"],
+  oldResources: ConstraintsType["resources"],
   resourceId: string
 ) => {
   const resources = deepClone(oldResources);
@@ -200,7 +200,7 @@ export const resetResourceConstraintsToBlank = (
 };
 
 export const resetResourceConstraintsToNineToFive = (
-  oldResources: ConsParams["resources"],
+  oldResources: ConstraintsType["resources"],
   resourceId: string
 ) => {
   const resources = deepClone(oldResources);

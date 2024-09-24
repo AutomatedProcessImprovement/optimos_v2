@@ -161,7 +161,11 @@ async def cancel_optimization(id: str) -> CancelResponse:
 async def get_status(id: str) -> str:
     """Return the status of the optimization process."""
     if id not in services:
-        raise HTTPException(status_code=404, detail="Optimization not found")
+        mapping = get_mapping(id)
+        if mapping is None:
+            raise HTTPException(status_code=404, detail="Optimization not found")
+        else:
+            return "completed"
 
     if services[id].running:
         return "running"

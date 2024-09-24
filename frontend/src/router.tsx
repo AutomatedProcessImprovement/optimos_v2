@@ -1,7 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 import { HomePage } from "./pages/HomePage";
 import React from "react";
-import OptimizationResults from "./pages/results/ResultPage";
+import ResultPage from "./pages/results/ResultPage";
 import { Root } from "./Root";
 
 export const router = createBrowserRouter([
@@ -15,7 +15,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "/results/:optimizationId",
-        Component: OptimizationResults,
+        Component: ResultPage,
       },
     ],
   },

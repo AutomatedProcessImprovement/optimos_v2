@@ -1,4 +1,14 @@
-import { Table, Collapse, Box, Text, Grid, Chip, Button } from "@mantine/core";
+import {
+  Table,
+  Collapse,
+  Box,
+  Text,
+  Grid,
+  Chip,
+  Button,
+  Group,
+  SimpleGrid,
+} from "@mantine/core";
 import { FC, useState } from "react";
 
 import {
@@ -7,16 +17,16 @@ import {
   IconCopy,
   IconAlertCircle,
   IconPlus,
+  IconStatusChange,
 } from "@tabler/icons-react"; // Replace with appropriate Mantine icons
 import { COLUMN_DEFINITIONS } from "./ResourcesTableColumnDefinitions";
 import { ResourcesTableCell } from "./ResourcesTableCell";
 import React from "react";
-import { WorkMasks } from "../../../redux/slices/optimosApi";
+import { JsonResourceInfo, WorkMasks } from "../../../redux/slices/optimosApi";
 import { WeekView } from "./WeekView";
-import { JSONResourceInfo } from "../../../types/optimos_json_type";
 
 type ResourceRowProps = {
-  resource: JSONResourceInfo;
+  resource: JsonResourceInfo;
 };
 
 const getShifts = (originalShift?: WorkMasks, currentShift?: WorkMasks) => {
@@ -54,59 +64,73 @@ export const ResourceTableRow: FC<ResourceRowProps> = ({ resource }) => {
   const [open, setOpen] = useState(false);
 
   const {
-    modifiers: { deleted, added, tasksModified, shiftsModified },
-    assignedTasks,
-    removedTasks,
-    addedTasks,
-    neverWorkBitmask,
-    alwaysWorkBitmask,
+    modifiers: { deleted, added, tasks_modified, shifts_modified },
+    assigned_tasks,
+    removed_tasks,
+    added_tasks,
+    never_work_bitmask,
+    always_work_bitmask,
   } = resource;
 
   const resource_calendar_entries = {
-    neverWorkTimes: neverWorkBitmask,
-    alwaysWorkTimes: alwaysWorkBitmask,
-    ...getShifts(resource.originalTimetableBitmask, resource.timetableBitmask),
+    neverWorkTimes: never_work_bitmask,
+    alwaysWorkTimes: always_work_bitmask,
+    ...getShifts(
+      resource.original_timetable_bitmask,
+      resource.timetable_bitmask
+    ),
   };
 
   return (
     <>
       <Table.Tr>
         <Table.Td>
-          <Button variant="subtle" compact-sm onClick={() => setOpen(!open)}>
+          <Button
+            variant="subtle"
+            size="compact-sm"
+            onClick={() => setOpen(!open)}
+          >
             {open ? <IconChevronUp size={16} /> : <IconChevronDown size={16} />}
           </Button>
         </Table.Td>
         <Table.Td>
           {deleted && (
-            <Chip color="red" variant="outline">
+            <Chip color="red" variant="outline" checked>
               Unused
             </Chip>
           )}
           {added && (
-            <Chip icon={<IconCopy size={16} />} color="green" variant="outline">
+            <Chip
+              icon={<IconCopy size={13} />}
+              color="green"
+              variant="outline"
+              checked
+            >
               New
             </Chip>
           )}
-          {!added && !deleted && tasksModified && (
+          {!added && !deleted && tasks_modified && (
             <Chip
-              icon={<IconAlertCircle size={16} />}
+              checked
+              icon={<IconAlertCircle size={13} />}
               color="yellow"
               variant="outline"
             >
               Tasks
             </Chip>
           )}
-          {!added && !deleted && shiftsModified && (
+          {!added && !deleted && shifts_modified && (
             <Chip
-              icon={<IconAlertCircle size={16} />}
+              checked
+              icon={<IconStatusChange size={13} />}
               color="yellow"
               variant="outline"
             >
               Shifts
             </Chip>
           )}
-          {!deleted && !added && !tasksModified && !shiftsModified && (
-            <Chip color="gray" variant="outline">
+          {!deleted && !added && !tasks_modified && !shifts_modified && (
+            <Chip color="gray" variant="outline" checked>
               Required
             </Chip>
           )}
@@ -121,96 +145,116 @@ export const ResourceTableRow: FC<ResourceRowProps> = ({ resource }) => {
       </Table.Tr>
 
       <Table.Tr>
-        <Table.Td colSpan={12} style={{ padding: 0 }}>
-          <Collapse in={open}>
-            <Box mt="sm" p="md">
-              <Text size="lg" fw={500} mb="xs">
-                Assigned Tasks
-              </Text>
-              <Grid>
-                {assignedTasks
-                  .filter((name) => !addedTasks?.includes(name))
-                  .map((name) => (
-                    <Grid.Col key={name} span="auto">
-                      <Chip variant="outline">{name}</Chip>
-                    </Grid.Col>
-                  ))}
-                {addedTasks.map((name) => (
+        {open && (
+          <Table.Td colSpan={COLUMN_DEFINITIONS.length + 2}>
+            <Text size="lg" fw={500} mb="xs">
+              Assigned Tasks
+            </Text>
+            <SimpleGrid cols={2} maw={"550px"}>
+              {assigned_tasks
+                .filter((name) => !added_tasks?.includes(name))
+                .map((name) => (
                   <Grid.Col key={name} span="auto">
-                    <Chip color="green" variant="outline">
-                      {name}
-                    </Chip>
+                    <Chip variant="outline">{name}</Chip>
                   </Grid.Col>
                 ))}
-                {removedTasks?.map((name) => (
-                  <Grid.Col key={name} span="auto">
-                    <Chip color="red" variant="outline">
-                      {name}
-                    </Chip>
-                  </Grid.Col>
-                ))}
-              </Grid>
+              {added_tasks.map((name) => (
+                <Grid.Col key={name} span="auto">
+                  <Chip color="green" variant="outline">
+                    {name}
+                  </Chip>
+                </Grid.Col>
+              ))}
+              {removed_tasks?.map((name) => (
+                <Grid.Col key={name} span="auto">
+                  <Chip color="red" variant="outline">
+                    {name}
+                  </Chip>
+                </Grid.Col>
+              ))}
+            </SimpleGrid>
 
-              <Text size="lg" fw={500} mt="lg" mb="xs">
-                Calendar
-              </Text>
-              <WeekView
-                entries={resource_calendar_entries}
-                columnStyles={{
-                  unchangedShift: { backgroundColor: "darkgrey" },
-                  neverWorkTimes: {
-                    backgroundColor: "rgba(242, 107, 44, 0.5)",
-                    borderColor: "rgb(242, 107, 44)",
-                    borderWidth: 1,
-                    borderStyle: "dashed",
-                  },
-                  alwaysWorkTimes: { backgroundColor: "lightblue" },
-                  onlyInOriginalShift: {
-                    backgroundColor: "rgb(248,248,248)",
-                    borderColor: "rgb(196,196,196)",
-                    borderWidth: 1,
-                    borderStyle: "dashed",
-                  },
-                  onlyInCurrent: {
-                    backgroundColor: "rgba(34,139,34, 0.7)",
-                  },
-                }}
-                columnIndices={{
-                  unchangedShift: 0,
-                  neverWorkTimes: 1,
-                  alwaysWorkTimes: 0,
-                  onlyInOriginalShift: 2,
-                  onlyInCurrent: 2,
+            <Text size="lg" fw={500} mt="lg" mb="xs">
+              Calendar
+            </Text>
+            <WeekView
+              entries={resource_calendar_entries}
+              columnStyles={{
+                unchangedShift: { backgroundColor: "darkgrey" },
+                neverWorkTimes: {
+                  backgroundColor: "rgba(242, 107, 44, 0.5)",
+                  borderColor: "rgb(242, 107, 44)",
+                  borderWidth: 1,
+                  borderStyle: "dashed",
+                  borderBottom: "none",
+                },
+                alwaysWorkTimes: { backgroundColor: "lightblue" },
+                onlyInOriginalShift: {
+                  backgroundColor: "rgb(248,248,248)",
+                  borderColor: "rgb(196,196,196)",
+                  borderWidth: 1,
+                  borderStyle: "dashed",
+                  borderBottom: "none",
+                },
+                onlyInCurrent: {
+                  backgroundColor: "rgba(34,139,34, 0.7)",
+                },
+              }}
+              columnIndices={{
+                unchangedShift: 0,
+                neverWorkTimes: 1,
+                alwaysWorkTimes: 0,
+                onlyInOriginalShift: 2,
+                onlyInCurrent: 2,
+              }}
+            />
+
+            <Group>
+              <strong>Legend:</strong>
+              <Box
+                style={{
+                  width: "10px",
+                  height: "10px",
+                  backgroundColor: "rgba(242, 107, 44, 0.5)",
                 }}
               />
-              <Text size="xs" mt="sm">
-                <Grid>
-                  <Grid.Col span={6}>
-                    <strong>Legend:</strong>
-                  </Grid.Col>
-                  <Grid.Col
-                    span={6}
-                    style={{ color: "rgba(242, 107, 44, 0.5)" }}
-                  >
-                    Never Work Time
-                  </Grid.Col>
-                  <Grid.Col span={6} style={{ color: "lightblue" }}>
-                    Always Work Time
-                  </Grid.Col>
-                  <Grid.Col span={6} style={{ color: "darkgrey" }}>
-                    Unchanged Working Time
-                  </Grid.Col>
-                  <Grid.Col span={6} style={{ color: "rgb(248,248,248)" }}>
-                    Removed Work Time
-                  </Grid.Col>
-                  <Grid.Col span={6} style={{ color: "rgba(34,139,34, 0.7)" }}>
-                    Added Work Time
-                  </Grid.Col>
-                </Grid>
-              </Text>
-            </Box>
-          </Collapse>
-        </Table.Td>
+              Never Work Time
+              <Box
+                style={{
+                  width: "10px",
+                  height: "10px",
+                  backgroundColor: "lightblue",
+                }}
+              />
+              Always Work Time
+              <Box
+                style={{
+                  width: "10px",
+                  height: "10px",
+                  backgroundColor: "darkgrey",
+                }}
+              />
+              Unchanged Working Time
+              <Box
+                style={{
+                  width: "10px",
+                  height: "10px",
+                  backgroundColor: "rgb(248,248,248)",
+                  border: "1px dashed rgb(196,196,196)",
+                }}
+              />
+              Removed Work Time
+              <Box
+                style={{
+                  width: "10px",
+                  height: "10px",
+                  backgroundColor: "rgba(34,139,34, 0.7)",
+                }}
+              />
+              Added Work Time
+            </Group>
+          </Table.Td>
+        )}
       </Table.Tr>
     </>
   );

@@ -1,7 +1,9 @@
+import datetime
 from dataclasses import dataclass
 from typing import Any, Optional
 
 from dataclass_wizard import JSONWizard
+from dataclass_wizard.enums import DateTimeTo, LetterCase
 from typing_extensions import TypedDict
 
 from o2.actions.base_action import BaseAction
@@ -22,6 +24,8 @@ class JSONReport(JSONWizard):
     """Class to represent report in JSON format."""
 
     name: str
+    created_at: str
+    """Time when the report was created."""
 
     constraints: ConstraintsType
     bpmn_definition: str
@@ -48,6 +52,7 @@ class JSONReport(JSONWizard):
             ],
             is_final=is_final,
             approach=str(store.settings.legacy_approach),
+            created_at=datetime.datetime.now().isoformat(),
         )
 
 
@@ -107,9 +112,6 @@ class _JSONResourceInfo(JSONWizard):
     total_batching_waiting_time: float
 
     modifiers: "_JSONResourceModifiers"
-
-    class _(JSONWizard.Meta):  # noqa: N801
-        key_transform_with_dump = "CAMEL"
 
     @staticmethod
     def from_resource(

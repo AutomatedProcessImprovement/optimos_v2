@@ -1,4 +1,4 @@
-import { Box, Grid, Text, Divider } from "@mantine/core";
+import { Box, Grid, Text, Divider, Group } from "@mantine/core";
 import React, { FC, useState, CSSProperties } from "react";
 import { TimePeriod, WorkMasks } from "../../../redux/slices/optimosApi";
 
@@ -60,7 +60,6 @@ const convertToInternalEntries = (
 
 export const WeekView: FC<WeekViewProps> = (props) => {
   const columnCount = Math.max(...Object.values(props.columnIndices ?? {}), 0);
-  const [selectedCells, setSelectedCells] = useState<any>([]);
 
   // Generate an array of 24 hours
   const hours = Array.from({ length: 24 }, (_, i) => i);
@@ -75,12 +74,6 @@ export const WeekView: FC<WeekViewProps> = (props) => {
     "Saturday",
     "Sunday",
   ];
-
-  // Function to handle cell selection
-  const handleSelect = (event: any) => {
-    const selected = Array.from(event.selected);
-    setSelectedCells(selected);
-  };
 
   const internalEntries = convertToInternalEntries(
     props.entries,
@@ -116,43 +109,34 @@ export const WeekView: FC<WeekViewProps> = (props) => {
         {/* Days events */}
         {days.map((day, dayIndex) => (
           <Grid.Col span="auto" key={dayIndex}>
-            <Grid>
-              {hours.map((hour, hourIndex) => (
-                <Grid
-                  key={`hour-${day}-${hourIndex}`}
-                  style={{ display: "flex" }}
-                >
-                  {Array.from({ length: columnCount + 1 }, (_, i) => i).map(
-                    (columnIndex) => {
-                      const entry = internalEntries.find(
-                        (entry) =>
-                          entry.day.toLowerCase() === day.toLowerCase() &&
-                          entry.hour === hour &&
-                          entry.column === columnIndex
-                      );
-                      const hasEvent = entry !== undefined;
+            {hours.map((hour, hourIndex) => (
+              <Group key={`hour-${day}-${hourIndex}`} gap={0}>
+                {Array.from({ length: columnCount + 1 }, (_, i) => i).map(
+                  (columnIndex) => {
+                    const entry = internalEntries.find(
+                      (entry) =>
+                        entry.day.toLowerCase() === day.toLowerCase() &&
+                        entry.hour === hour &&
+                        entry.column === columnIndex
+                    );
+                    const hasEvent = entry !== undefined;
 
-                      return (
-                        <Grid.Col
-                          key={`event-${day}-${hourIndex}-${columnIndex}`}
-                          span={hasEvent ? 1 : 0}
-                          style={{ flex: hasEvent ? 1 : 0 }}
-                        >
-                          <Box
-                            style={{
-                              ...(hasEvent ? entry?.style : {}),
-                              borderBottom: "1px solid",
-                              borderColor: "gray",
-                            }}
-                            h={20}
-                          />
-                        </Grid.Col>
-                      );
-                    }
-                  )}
-                </Grid>
-              ))}
-            </Grid>
+                    return (
+                      <Box
+                        key={`event-${day}-${hourIndex}-${columnIndex}`}
+                        style={{
+                          borderBottom: "1px solid",
+                          borderColor: "rgb(142, 144, 144)",
+                          flex: hasEvent ? 1 : 0,
+                          ...(hasEvent ? entry?.style : {}),
+                        }}
+                        h={20}
+                      />
+                    );
+                  }
+                )}
+              </Group>
+            ))}
           </Grid.Col>
         ))}
       </Grid>

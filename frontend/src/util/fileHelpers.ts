@@ -2,8 +2,8 @@ import { Asset, AssetType } from "../redux/slices/assetsSlice";
 import JSZip, { JSZipObject } from "jszip";
 import { timetableSchema } from "../validation/timetableSchema";
 import { constraintsSchema } from "../validation/constraintsSchema";
-import { ConsParams, SimParams } from "../types/optimos_json_type";
 import * as uuid from "uuid";
+import { ConstraintsType, TimetableType } from "../redux/slices/optimosApi";
 
 export const unzipFile = async (file: File): Promise<[Asset[], string[]]> => {
   const zip = await new JSZip().loadAsync(file);
@@ -63,14 +63,14 @@ export const fileToAsset = async (
         id: uuid.v4(),
         name: filename,
         type: AssetType.TIMETABLE,
-        value: parsedJson as SimParams,
+        value: parsedJson as TimetableType,
       };
     } else if (constraintsSchema.isValidSync(parsedJson)) {
       return {
         id: uuid.v4(),
         name: filename,
         type: AssetType.OPTIMOS_CONSTRAINTS,
-        value: parsedJson as ConsParams,
+        value: parsedJson as ConstraintsType,
       };
     } else {
       throw new Error(`Unknown JSON file: ${filename}`);

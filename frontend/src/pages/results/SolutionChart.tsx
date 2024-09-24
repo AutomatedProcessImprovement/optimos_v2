@@ -7,10 +7,11 @@ import { Grid } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import { formatSeconds, formatCurrency } from "../../util/num_helper";
 import { useInitialSolution } from "../../hooks/useInitialSolution";
+import { JsonSolution } from "../../redux/slices/optimosApi";
 
 interface SolutionChartProps {
-  optimalSolutions: JSONSolution[];
-  otherSolutions: JSONSolution[];
+  optimalSolutions: JsonSolution[];
+  otherSolutions: JsonSolution[];
 }
 
 export const SolutionChart: FC<SolutionChartProps> = ({
@@ -81,10 +82,10 @@ export const SolutionChart: FC<SolutionChartProps> = ({
       {
         name: "Other Solutions",
         data: otherSolutions.map((solution, index) => ({
-          x: solution.globalInfo.totalTime,
-          y: solution.globalInfo.totalCost,
+          x: solution.global_info.total_time,
+          y: solution.global_info.total_cost,
           id: `execution_${optimalSolutions.length + index}`,
-          name: `Solution #${solution.solutionNo}`,
+          name: `Solution #${solution.solution_no}`,
         })),
         color: "gray",
         type: "scatter",
@@ -93,10 +94,10 @@ export const SolutionChart: FC<SolutionChartProps> = ({
         name: "Initial Solution",
         data: [
           {
-            x: initialSolution?.globalInfo.totalTime,
-            y: initialSolution?.globalInfo.totalCost,
+            x: initialSolution?.global_info.total_time,
+            y: initialSolution?.global_info.total_cost,
             id: `execution_${0}`,
-            name: `Solution #${initialSolution?.solutionNo}`,
+            name: `Solution #${initialSolution?.solution_no}`,
           },
         ],
         color: "red",
@@ -105,10 +106,10 @@ export const SolutionChart: FC<SolutionChartProps> = ({
       {
         name: "Optimal Solution",
         data: optimalSolutions.map((solution, index) => ({
-          x: solution.globalInfo.totalTime,
-          y: solution.globalInfo.totalCost,
+          x: solution.global_info.total_time,
+          y: solution.global_info.total_cost,
           id: `execution_${index}`,
-          name: `Solution #${solution.solutionNo}`,
+          name: `Solution #${solution.solution_no}`,
         })),
         type: "scatter",
       },

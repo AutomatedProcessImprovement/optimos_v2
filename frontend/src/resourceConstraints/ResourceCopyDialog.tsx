@@ -13,9 +13,8 @@ import {
   ListItemIcon,
   ListItemText,
 } from "@mui/material";
+import React from "react";
 import { useState, type FC } from "react";
-import type { FieldArrayWithId } from "react-hook-form";
-import type { ConsParams } from "~/shared/optimos_json_type";
 
 export type ResourceCopyDialogProps = {
   open: boolean;
@@ -24,7 +23,12 @@ export type ResourceCopyDialogProps = {
   resources: ConsParams["resources"];
 };
 
-export const ResourceCopyDialog: FC<ResourceCopyDialogProps> = ({ onClose, selectedValue, open, resources }) => {
+export const ResourceCopyDialog: FC<ResourceCopyDialogProps> = ({
+  onClose,
+  selectedValue,
+  open,
+  resources,
+}) => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const handleClose = () => {
     onClose(selectedIds);
@@ -53,25 +57,42 @@ export const ResourceCopyDialog: FC<ResourceCopyDialogProps> = ({ onClose, selec
         <List sx={{ pt: 0 }}>
           {resources.map((resource) => (
             <ListItem disableGutters key={resource.id} disablePadding>
-              <ListItemButton onClick={() => onSelect(resource.id)} disabled={selectedValue === resource.id}>
+              <ListItemButton
+                onClick={() => onSelect(resource.id)}
+                disabled={selectedValue === resource.id}
+              >
                 <ListItemIcon>
                   <Checkbox
                     disabled={selectedValue === resource.id}
                     edge="start"
-                    checked={selectedValue === resource.id || selectedIds.includes(resource.id)}
+                    checked={
+                      selectedValue === resource.id ||
+                      selectedIds.includes(resource.id)
+                    }
                     tabIndex={-1}
                     disableRipple
-                    inputProps={{ "aria-labelledby": `checkbox-list-label-${resource.id}` }}
+                    inputProps={{
+                      "aria-labelledby": `checkbox-list-label-${resource.id}`,
+                    }}
                   />
                 </ListItemIcon>
-                <ListItemText id={`checkbox-list-label-${resource.id}`} primary={resource.id} />
+                <ListItemText
+                  id={`checkbox-list-label-${resource.id}`}
+                  primary={resource.id}
+                />
               </ListItemButton>
             </ListItem>
           ))}
         </List>
       </DialogContent>
       <DialogActions>
-        <Button onClick={() => setSelectedIds(resources.map((resource) => resource.id))}>Select All</Button>
+        <Button
+          onClick={() =>
+            setSelectedIds(resources.map((resource) => resource.id))
+          }
+        >
+          Select All
+        </Button>
         <Button autoFocus onClick={handleCancel}>
           Cancel
         </Button>
