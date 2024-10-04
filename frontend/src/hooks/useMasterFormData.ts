@@ -43,7 +43,7 @@ export const useMasterFormData = () => {
       simulationParameters: simParamsAsset?.value,
       scenarioProperties: DEFAULT_CONFIG,
     }),
-    [constraintsAsset, simParamsAsset]
+    [constraintsAsset?.value, simParamsAsset?.value]
   );
 
   const hasSimParamsFile = !!simParamsAsset;

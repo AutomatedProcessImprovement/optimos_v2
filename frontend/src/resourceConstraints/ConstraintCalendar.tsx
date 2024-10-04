@@ -74,7 +74,7 @@ export const ConstraintCalendar: FC<ConstraintCalendarProps> = ({
 
           {/* Days headers */}
           {DAYS.map((day, index) => (
-            <Grid.Col span={1.5} key={index}>
+            <Grid.Col span={1.5} key={`day-label-${index}`}>
               <Text ta="center" fw={500} tt="capitalize">
                 {day}
               </Text>
@@ -105,7 +105,7 @@ export const ConstraintCalendar: FC<ConstraintCalendarProps> = ({
           </Grid.Col>
 
           {DAYS.map((day, dayIndex) => (
-            <Grid.Col span={1.5}>
+            <Grid.Col span={1.5} key={`day-${dayIndex}`}>
               <ConstraintDay
                 color={color}
                 key={`constraint-day-${day}`}

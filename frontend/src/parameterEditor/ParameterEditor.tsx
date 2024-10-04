@@ -77,7 +77,6 @@ export const ParameterEditor = () => {
   ] = useMasterFormData();
 
   const masterForm = useMasterForm({
-    initialValues: masterFormData,
     validate: constraintResolver,
     transformValues: (values) => ({
       ...values,
@@ -87,6 +86,11 @@ export const ParameterEditor = () => {
       },
     }),
   });
+
+  useEffect(() => {
+    console.log("Resetting form");
+    masterForm.setValues(masterFormData);
+  }, [masterFormData]);
 
   const { getTransformedValues, validate } = masterForm;
 
