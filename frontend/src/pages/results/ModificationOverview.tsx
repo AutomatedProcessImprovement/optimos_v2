@@ -158,7 +158,17 @@ const ActionCard = ({ action }: { action: JsonAction }) => {
         );
       }
       break;
+    case "RemoveResourceByUtilizationAction":
+      icon = <IconTrash size={16} />;
+      title = "Remove Resource";
+      description = (
+        <span>
+          Removed resource <b>{action.params["resource_id"]}.</b>
+        </span>
+      );
+      break;
     default:
+      console.warn("Unknown action type", action);
       title = "Unknown action";
       description = "Unknown action type";
   }

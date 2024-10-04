@@ -18,7 +18,12 @@ import {
   IconAlertCircle,
   IconPlus,
   IconStatusChange,
-} from "@tabler/icons-react"; // Replace with appropriate Mantine icons
+  IconMinus,
+  IconCircleMinus,
+  IconChecklist,
+  IconCirclePlus,
+  IconReplace,
+} from "@tabler/icons-react";
 import { COLUMN_DEFINITIONS } from "./ResourcesTableColumnDefinitions";
 import { ResourcesTableCell } from "./ResourcesTableCell";
 import React from "react";
@@ -95,7 +100,12 @@ export const ResourceTableRow: FC<ResourceRowProps> = ({ resource }) => {
         </Table.Td>
         <Table.Td>
           {deleted && (
-            <Chip color="red" variant="outline" checked>
+            <Chip
+              color="red"
+              variant="outline"
+              checked
+              icon={<IconCircleMinus size={13} />}
+            >
               Unused
             </Chip>
           )}
@@ -112,7 +122,7 @@ export const ResourceTableRow: FC<ResourceRowProps> = ({ resource }) => {
           {!added && !deleted && tasks_modified && (
             <Chip
               checked
-              icon={<IconAlertCircle size={13} />}
+              icon={<IconReplace size={13} />}
               color="yellow"
               variant="outline"
             >
@@ -152,22 +162,43 @@ export const ResourceTableRow: FC<ResourceRowProps> = ({ resource }) => {
             </Text>
             <SimpleGrid cols={2} maw={"550px"}>
               {assigned_tasks
-                .filter((name) => !added_tasks?.includes(name))
+                .filter(
+                  (name) =>
+                    !added_tasks?.includes(name) &&
+                    !removed_tasks?.includes(name)
+                )
                 .map((name) => (
                   <Grid.Col key={name} span="auto">
-                    <Chip variant="outline">{name}</Chip>
+                    <Chip
+                      variant="outline"
+                      checked
+                      icon={<IconChecklist size={13} />}
+                      color="black"
+                    >
+                      {name}
+                    </Chip>
                   </Grid.Col>
                 ))}
               {added_tasks.map((name) => (
                 <Grid.Col key={name} span="auto">
-                  <Chip color="green" variant="outline">
+                  <Chip
+                    color="green"
+                    variant="outline"
+                    checked
+                    icon={<IconCirclePlus size={13} />}
+                  >
                     {name}
                   </Chip>
                 </Grid.Col>
               ))}
               {removed_tasks?.map((name) => (
                 <Grid.Col key={name} span="auto">
-                  <Chip color="red" variant="outline">
+                  <Chip
+                    color="red"
+                    variant="outline"
+                    checked
+                    icon={<IconCircleMinus size={13} />}
+                  >
                     {name}
                   </Chip>
                 </Grid.Col>
