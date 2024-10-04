@@ -46,9 +46,10 @@ class OptimosService:
             bpmn_tree=bpmn_tree,
             timetable=timetable,
         )
-        store = Store(
-            state=initial_state,
-            constraints=constraints,
+
+        store = Store.from_state_and_constraints(
+            initial_state,
+            constraints,
         )
         # Settings
         store.settings.optimos_legacy_mode = True
@@ -66,8 +67,6 @@ class OptimosService:
             num_instances * store.settings.max_threads
         )
 
-        # Create base evaluation
-        store.evaluate()
         # Upload initial evaluation
         self.iteration_callback(store)
 

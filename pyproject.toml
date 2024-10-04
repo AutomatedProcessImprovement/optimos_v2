@@ -20,6 +20,8 @@ scipy = "^1.13.0"
 intervaltree = { git = "https://github.com/chaimleib/intervaltree.git" }
 fastapi = "^0.114.0"
 uvicorn = "^0.30.6"
+rtree = "^1.3.0"
+xxhash = "^3.5.0"
 
 
 [tool.poetry.group.dev.dependencies]

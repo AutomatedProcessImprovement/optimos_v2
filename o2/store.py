@@ -1,11 +1,13 @@
 from dataclasses import replace
-from typing import TYPE_CHECKING, TypeAlias
+from typing import TYPE_CHECKING, Optional, TypeAlias
 
 from o2.actions.modify_calendar_base_action import ModifyCalendarBaseAction
 from o2.actions.modify_resource_base_action import ModifyResourceBaseAction
 from o2.models.constraints import ConstraintsType
 from o2.models.evaluation import Evaluation
 from o2.models.settings import Settings
+from o2.models.solution import Solution
+from o2.models.solution_tree import SolutionTree
 from o2.models.state import State
 from o2.pareto_front import FRONT_STATUS, ParetoFront
 
@@ -13,7 +15,7 @@ if TYPE_CHECKING:
     from o2.actions.base_action import BaseAction
     from o2.models.timetable import TimetableType
 
-ActionTry: TypeAlias = tuple[FRONT_STATUS, Evaluation, State, "BaseAction"]
+ActionTry: TypeAlias = tuple[FRONT_STATUS, Solution]
 
 
 class Store:
@@ -24,17 +26,25 @@ class Store:
     """
 
     def __init__(
-        self, state: State, constraints: ConstraintsType, name: str = "An Optimos Run"
+        self,
+        solution: Solution,
+        constraints: ConstraintsType,
+        name: str = "An Optimos Run",
     ) -> None:
         self.name = name
 
-        self.state = state
         self.constraints = constraints
 
-        self.previous_states: list[State] = []
-        self.pareto_fronts: list[ParetoFront] = []
+        self.pareto_fronts: list[ParetoFront] = [ParetoFront()]
+        self.pareto_fronts[0].add(solution)
 
-        self.tabu_list: list[BaseAction] = []
+        self.solution_tree = SolutionTree()
+
+        self.solution = solution
+        """The current solution of the optimization process.
+
+        It will be updated after any change to the pareto front or after a iteration.
+        """
 
         self.settings: Settings = Settings()
 
@@ -49,103 +59,85 @@ class Store:
         return self.pareto_fronts[-1]
 
     @property
+    def base_solution(self) -> Solution:
+        """Returns the base solution, e.g. the fist solution with no changes."""
+        return self.pareto_fronts[0].solutions[0]
+
+    @property
     def base_evaluation(self) -> Evaluation:
         """Returns the base evaluation, e.g. the fist evaluation with no changes."""
-        return self.pareto_fronts[0].evaluations[0]
+        return self.base_solution.evaluation
 
     @property
     def base_state(self) -> State:
         """Returns the base state, e.g. the state before any changes."""
-        return self.pareto_fronts[0].states[0]
+        return self.base_solution.state
 
     @property
-    def current_fastest_evaluation(self):
-        if (len(self.current_pareto_front.evaluations)) == 0:
-            raise ValueError("No Base Evaluation found in Pareto Front")
-        return min(
-            # TODO Waiting Time ?
-            self.current_pareto_front.evaluations,
-            key=lambda x: x.total_cycle_time,
-        )
+    def current_evaluation(self) -> Evaluation:
+        return self.solution.evaluation
 
     @property
     def current_timetable(self) -> "TimetableType":
-        return self.state.timetable
+        return self.base_solution.state.timetable
 
-    def apply_action(self, action: "BaseAction") -> None:
-        """Update the state by applying a given action."""
-        new_state = action.apply(self.state)
-        new_state_with_action = replace(
-            new_state, actions=self.state.actions + [action]
+    def choose_new_base_evaluation(self) -> Optional[Solution]:
+        """Choose a new base evaluation from the solution tree."""
+        new_solution = self.solution_tree.pop_nearest_solution(
+            self.current_pareto_front
         )
-        self._add_action_state(action, new_state_with_action)
+        if new_solution is None:
+            return None
 
-    def _add_action_state(self, action: "BaseAction", state: State):
+        self.solution = new_solution
+        return new_solution
+
+    def _add_solution(self, solution: Solution) -> None:
         """Add an action and state to the store."""
-        self.previous_states.append(state)
+        self.solution_tree.add_solution(solution)
         # If we are in legacy optimos combined mode, we need to switch the mode
         if (
             self.settings.legacy_approach.combined_enabled
-            and isinstance(action, ModifyCalendarBaseAction)
-            or isinstance(action, ModifyResourceBaseAction)
+            and isinstance(solution.last_action, ModifyCalendarBaseAction)
+            or isinstance(solution.last_action, ModifyResourceBaseAction)
         ):
             self.settings.set_next_combined_mode_status()
-        self.state = state
 
     def process_many_action_tries(
-        self, evaluations: list[ActionTry]
+        self, solutions: list[Solution]
     ) -> tuple[list[ActionTry], list[ActionTry]]:
-        """Process a list of action evaluations.
+        """Process a list of action solutions.
 
-        Ignores the evaluations that are dominated by the current Pareto Front.
+        Ignores the solutions that are dominated by the current Pareto Front.
         Returns two lists, one with the chosen actions and one with the not chosen actions.
 
         This is useful if multiple actions are evaluated at once.
         """
         chosen_tries = []
         not_chosen_tries = []
-        for action_try in evaluations:
-            status, evaluation, new_state, action = action_try
-
+        for solution in solutions:
             status = (
-                self.current_pareto_front.is_in_front(evaluation)
+                self.current_pareto_front.is_in_front(solution)
                 # We need to skip actions not valid by legacy_combined_mode_status
                 if not self.settings.legacy_approach.combined_enabled
-                or self.settings.legacy_approach.action_matches(action)
+                or self.settings.legacy_approach.action_matches(solution.last_action)
                 else None
             )
-            if evaluation.is_empty:
+            if solution.evaluation.is_empty:
                 status = FRONT_STATUS.INVALID
 
             if status == FRONT_STATUS.IN_FRONT:
-                chosen_tries.append(action_try)
-                self.current_pareto_front.add(evaluation, new_state)
-                self._add_action_state(action, new_state)
+                chosen_tries.append((status, solution))
+                self.current_pareto_front.add(solution)
+                self._add_solution(solution)
             elif status == FRONT_STATUS.IS_DOMINATED:
-                chosen_tries.append(action_try)
+                chosen_tries.append((status, solution))
                 self.pareto_fronts.append(ParetoFront())
-                self.current_pareto_front.add(evaluation, new_state)
-                self.reset_tabu_list()
-                self._add_action_state(action, new_state)
+                self.current_pareto_front.add(solution)
+                self._add_solution(solution)
             else:
-                self.tabu_list.append(action)
-                not_chosen_tries.append(action_try)
+                not_chosen_tries.append((status, solution))
         return chosen_tries, not_chosen_tries
-
-    def evaluate(self) -> tuple[Evaluation, FRONT_STATUS]:
-        """Evaluate the current state and add it to the Pareto Front."""
-        evaluation = self.state.evaluate(self.settings.show_simulation_errors)
-        status = self.current_pareto_front.is_in_front(evaluation)
-        if status == FRONT_STATUS.IN_FRONT:
-            self.current_pareto_front.add(evaluation, self.state)
-        elif status == FRONT_STATUS.IS_DOMINATED:
-            self.pareto_fronts.append(ParetoFront())
-            self.current_pareto_front.add(evaluation, self.state)
-
-        return evaluation, status
-
-    def reset_tabu_list(self):
-        self.tabu_list = []
 
     # Tries an action and returns the status of the new evaluation
     # Does NOT modify the store
@@ -155,41 +147,24 @@ class Store:
         If the evaluation throws an exception, it returns IS_DOMINATED.
         """
         try:
-            new_state = action.apply(self.state, enable_prints=False)
-            new_state_with_action = replace(
-                new_state, actions=self.state.actions + [action]
-            )
-            evaluation = new_state_with_action.evaluate()
-            if evaluation.is_empty:
+            new_solution = Solution.from_parent(self.solution, action)
+            if not new_solution.is_valid:
                 raise Exception("Evaluation empty. Please check the timetable & model.")
-            status = self.current_pareto_front.is_in_front(evaluation)
-            return (status, evaluation, new_state_with_action, action)
+            status = self.current_pareto_front.is_in_front(new_solution)
+            return (status, new_solution)
         except Exception as e:
             print(f"Error in try_action: {e}")
-            return (FRONT_STATUS.INVALID, Evaluation.empty(), self.state, action)
+            return (FRONT_STATUS.INVALID, Solution.empty(self.solution.state))
 
-    def replaceConstraints(self, /, **changes):
-        self.constraints = replace(self.constraints, **changes)
-        return self.constraints
+    def is_tabu(self, action: "BaseAction") -> bool:
+        """Check if the action is tabu."""
+        return self.solution_tree.check_if_already_done(self.solution, action)
 
-    def replaceState(self, /, **changes):
-        self.state = replace(self.state, **changes)
-        return self.state
-
-    def replaceTimetable(self, /, **changes):
-        self.state = self.state.replace_timetable(**changes)
-        return self.state.timetable
-
-    def is_tabu(self, action: "BaseAction"):
-        return action in self.tabu_list
-
-    def get_state_index(self, state: State):
-        """Get the index of a state.
-
-        This can be used to get a "iteration" count
-        """
-        return (
-            len(self.previous_states)
-            if self.state == state
-            else next((i for i, s in enumerate(self.previous_states) if state == s), -1)
-        )
+    @staticmethod
+    def from_state_and_constraints(
+        state: State, constraints: ConstraintsType
+    ) -> "Store":
+        """Create a new Store from a state and constraints."""
+        evaluation = state.evaluate()
+        solution = Solution(evaluation, state, None)
+        return Store(solution, constraints)

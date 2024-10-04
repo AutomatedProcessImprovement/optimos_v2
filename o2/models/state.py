@@ -19,7 +19,10 @@ if TYPE_CHECKING:
 class State:
     """A state in the optimization process.
 
-    It's mainly a container class for the timetable
+    It's mainly a container class for the timetable.
+
+    The State should contain all information to run a simulation -- that's why it
+    contains the BPMN definition as well.
     """
 
     bpmn_definition: str
@@ -28,14 +31,6 @@ class State:
     timetable: "TimetableType"
     # TODO: Move to setting class
     for_testing: bool = False
-
-    actions: list["BaseAction"] = field(default_factory=list)
-    """Actions taken since the base state. Will only be filled if the state is added to a pareto front"""
-
-    @property
-    def is_base_state(self) -> bool:
-        """Check if this state is the base state."""
-        return not self.actions
 
     def replace_timetable(self, /, **changes) -> "State":
         """Replace the timetable with the given changes."""

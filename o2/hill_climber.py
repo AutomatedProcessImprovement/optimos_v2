@@ -7,12 +7,15 @@ from typing import Generator
 from o2.actions.action_selector import ActionSelector
 from o2.actions.base_action import BaseAction
 from o2.models.evaluation import Evaluation
+from o2.models.solution import Solution
 from o2.pareto_front import FRONT_STATUS
 from o2.store import ActionTry, Store
 from o2.util.indented_printer import print_l0, print_l1, print_l2, print_l3
 
 
 class HillClimber:
+    """The Hill Climber class is the main class that runs the optimization process."""
+
     def __init__(self, store: Store):
         self.store = store
         self.max_iter = store.settings.max_iterations
@@ -24,11 +27,7 @@ class HillClimber:
 
     def solve(self) -> None:
         """Run the hill climber and print the result."""
-        print_l0("Running Base Evaluation...")
-        self.store.evaluate()
-        print_l1(
-            f"Initial evaluation: {self.store.current_pareto_front.evaluations[-1]}"
-        )
+        print_l1(f"Initial evaluation: {self.store.base_solution.evaluation}")
         generator = self.get_iteration_generator()
         for _ in generator:
             # Just iterate through the generator to run it
@@ -37,23 +36,23 @@ class HillClimber:
         self.executor.shutdown()
         self._print_result()
 
-    def get_iteration_generator(self) -> Generator[Evaluation, None, None]:
-        """Run the hill climber and yield optimal evaluations.
+    def get_iteration_generator(self) -> Generator[Solution, None, None]:
+        """Run the hill climber and yield optimal Solution.
 
         NOTE: You usually want to use the `solve` method instead of this
-        method, but if you want to process the evaluations as they come,
+        method, but if you want to process the Solution as they come,
         you can use this method.
         """
         for it in range(self.max_iter):
             try:
                 if self.max_non_improving_iter <= 0:
-                    print("Maxium non improving iterations reached")
+                    print("Maximum non improving iterations reached")
                     break
                 print_l0(f"Iteration {it}")
 
                 actions_to_perform = ActionSelector.select_actions(self.store)
                 if actions_to_perform is None or len(actions_to_perform) == 0:
-                    print_l1("No actions left")
+                    print_l1("Iteration finished, no actions to perform.")
                     break
                 print_l1(f"Running {len(actions_to_perform)} actions...")
                 start_time = time.time()
@@ -70,28 +69,28 @@ class HillClimber:
                 if len(chosen_tries) == 0:
                     print_l1("No action improved the evaluation")
                     self.max_non_improving_iter -= len(actions_to_perform)
-                    for _, _, _, action in not_chosen_tries:
-                        print_l2(str(action))
+                    for _, solution in not_chosen_tries:
+                        print_l2(str(solution.last_action))
                 else:
                     if len(not_chosen_tries) > 0:
                         print_l1("Actions NOT chosen:")
-                    for _, _, _, action in not_chosen_tries:
-                        print_l2(str(action))
+                    for _, solution in not_chosen_tries:
+                        print_l2(str(solution.last_action))
                         self.max_non_improving_iter -= 1
                     print_l1("Actions chosen:")
-                    for status, evaluation, _, action in chosen_tries:
-                        print_l2(str(action))
+                    for status, solution in chosen_tries:
+                        print_l2(str(solution.last_action))
                         if status == FRONT_STATUS.IN_FRONT:
                             print_l3("Result Pareto front CONTAINS new evaluation.")
-                            print_l3(f"Evaluation: {evaluation}")
-                            yield evaluation
+                            print_l3(f"Evaluation: {solution.evaluation}")
+                            yield solution
                         elif status == FRONT_STATUS.IS_DOMINATED:
                             print_l3("Pareto front IS DOMINATED by new evaluation.")
-                            print_l3(f"New best Evaluation: {evaluation}")
+                            print_l3(f"New best Evaluation: {solution.evaluation}")
                             self.max_non_improving_iter = (
                                 self.store.settings.max_non_improving_actions
                             )
-                            yield evaluation
+                            yield solution
 
             except Exception as e:
                 print_l1(f"Error in iteration: {e}")
@@ -100,17 +99,15 @@ class HillClimber:
 
     def _print_result(self):
         print_l0("Final result:")
-        print_l1(
-            f"Best evaluation: \t{self.store.current_pareto_front.evaluations[-1]}"
-        )
+        print_l1(f"Best evaluation: \t{self.store.current_evaluation}")
         print_l1(f"Base evaluation: \t{self.store.base_evaluation}")
         print_l1("Modifications:")
-        for action in self.store.state.actions:
+        for action in self.store.base_solution.actions:
             print_l2(str(action))
 
     def _execute_actions_parallel(
         self, store: Store, actions_to_perform: list[BaseAction]
-    ) -> list[ActionTry]:
+    ) -> list[Solution]:
         """Execute the given actions in parallel and return the results.
 
         The results are sorted, so that the most impactful actions are first,
@@ -118,7 +115,7 @@ class HillClimber:
         The results have not modified the state of the store.
 
         """
-        action_tries = []
+        action_tries: list[ActionTry] = []
 
         futures: list[concurrent.futures.Future[ActionTry]] = []
         for action in actions_to_perform:
@@ -144,4 +141,4 @@ class HillClimber:
             if x[0] == FRONT_STATUS.DOMINATES
             else 0
         )
-        return action_tries
+        return list(map(lambda x: x[1], action_tries))

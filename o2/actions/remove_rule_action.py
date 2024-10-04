@@ -69,7 +69,7 @@ class RemoveRuleAction(BatchingRuleAction):
 
         # TODO: Check constraints
         # Check if this evaluation beats the current pareto front
-        if store.current_pareto_front.is_dominated_by(evaluation):
+        if store.current_pareto_front.is_dominated_by_evaluation(evaluation):
             print(
                 f"\t\t>> Most impactful rule dominates current. Rule: {rule_selector}"
             )

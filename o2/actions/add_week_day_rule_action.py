@@ -91,7 +91,7 @@ class AddWeekDayRuleAction(BatchingRuleAction):
         if rule_selector is None:
             return
 
-        firing_rule = rule_selector.get_firing_rule_from_state(store.state)
+        firing_rule = rule_selector.get_firing_rule_from_state(store.base_state)
 
         if not rule_is_week_day(firing_rule):
             return

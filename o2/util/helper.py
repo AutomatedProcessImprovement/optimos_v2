@@ -1,7 +1,9 @@
 import random
 import re
 import string
-from typing import Optional, TypeVar
+from typing import Any, Optional, TypeVar
+
+import xxhash
 
 CLONE_REGEX = re.compile(r"^(.*)_clone_[a-z0-9]{8}(?:timetable)?$")
 
@@ -30,3 +32,13 @@ def safe_list_index(l: list[T], item: T) -> Optional[int]:
         return l.index(item)
     except ValueError:
         return None
+
+
+def hash_int(s: object) -> int:
+    """Create int hash based on the string representation of the object."""
+    return xxhash.xxh64(str(s)).intdigest()
+
+
+def hash_string(s: object) -> str:
+    """Create string hash based on the string representation of the object."""
+    return xxhash.xxh64(str(s)).hexdigest()

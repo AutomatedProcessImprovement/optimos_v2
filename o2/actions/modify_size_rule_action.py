@@ -121,13 +121,13 @@ class ModifySizeRuleAction(BatchingRuleAction):
         if rule_selector is None or evaluation is None:
             return
 
-        firing_rule = rule_selector.get_firing_rule_from_state(store.state)
+        firing_rule = rule_selector.get_firing_rule_from_state(store.base_state)
 
         if not rule_is_size(firing_rule):
             return
 
         # TODO Get current fastest evaluation by task
-        base_evaluation = store.current_fastest_evaluation
+        base_evaluation = store.current_evaluation
 
         base_avg_waiting_time = base_evaluation.get_avg_waiting_time_of_task_id(
             rule_selector.batching_rule_task_id, store

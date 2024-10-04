@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from json import dumps
 from typing import (
     TYPE_CHECKING,
     Generator,
@@ -9,6 +10,8 @@ from typing import (
 )
 
 from typing_extensions import TypedDict
+
+from o2.util.helper import hash_string
 
 if TYPE_CHECKING:
     from o2.models.self_rating import RATING, SelfRatingInput
@@ -56,3 +59,7 @@ class BaseAction(ABC):
             "type": self.__class__.__name__,
             "params": self.params,
         }
+
+    def id(self) -> str:
+        """Return a hash of the action."""
+        return hash_string(dumps(self.to_json()))

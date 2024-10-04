@@ -31,7 +31,7 @@ class Settings:
 
     This is useful for debugging, but can be very verbose."""
 
-    show_simulation_errors = False
+    show_simulation_errors = True
     """Should the simulation errors be shown?
 
     Most of the time this is not needed, as the errors might just indicate an invalid

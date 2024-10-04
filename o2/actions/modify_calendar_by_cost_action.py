@@ -36,7 +36,7 @@ class ModifyCalendarByCostAction(ModifyCalendarBaseAction):
     @staticmethod
     def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
         """Generate a best set of parameters & self-evaluates this action."""
-        resources = store.state.timetable.get_resources_with_cost()
+        resources = store.solution.state.timetable.get_resources_with_cost()
         for resource, _cost in resources:
             calendar = store.current_timetable.get_calendar(resource.calendar)
             if calendar is None:

@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import Literal
 
+from o2.actions.base_action import RateSelfReturnType
 from o2.actions.batching_rule_action import (
     BatchingRuleAction,
     BatchingRuleActionParamsType,
@@ -10,7 +11,6 @@ from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.state import State
 from o2.models.timetable import COMPARATOR, FiringRule, rule_is_large_wt
 from o2.store import Store
-from o2.actions.base_action import RateSelfReturnType
 
 SIZE_OF_CHANGE = 100
 CLOSENESS_TO_MAX_WT = 0.01
@@ -66,11 +66,11 @@ class ModifyLargeWtRuleAction(BatchingRuleAction):
     def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
         """Generate a best set of parameters & self-evaluates this action."""
         rule_selector = input.most_impactful_rule
-        base_evaluation = store.current_fastest_evaluation
+        current_evaluation = store.current_evaluation
         if rule_selector is None:
             return
 
-        firing_rule = rule_selector.get_firing_rule_from_state(store.state)
+        firing_rule = rule_selector.get_firing_rule_from_state(store.base_state)
 
         if not rule_is_large_wt(firing_rule):
             return
@@ -82,7 +82,7 @@ class ModifyLargeWtRuleAction(BatchingRuleAction):
         ]:
             return
 
-        base_max_waiting_time = base_evaluation.get_max_waiting_time_of_task_id(
+        base_max_waiting_time = current_evaluation.get_max_waiting_time_of_task_id(
             rule_selector.batching_rule_task_id, store
         )
 

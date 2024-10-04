@@ -42,7 +42,7 @@ class JSONReport(JSONWizard):
         return JSONReport(
             name=store.name,
             constraints=store.constraints,
-            bpmn_definition=store.state.bpmn_definition,
+            bpmn_definition=store.base_solution.bpmn_definition,
             base_solution=_JSONSolution.from_state_evaluation(
                 store.base_state, store.base_evaluation, store
             ),

@@ -33,11 +33,11 @@ class ModifyCalendarByWTAction(ModifyCalendarBaseAction):
     @staticmethod
     def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
         """Generate a best set of parameters & self-evaluates this action."""
-        base_evaluation = input.base_evaluation
-        tasks = base_evaluation.get_task_names_sorted_by_waiting_time_desc()
+        parent_evaluation = input.parent_evaluation
+        tasks = parent_evaluation.get_task_names_sorted_by_waiting_time_desc()
         for task in tasks:
-            days = base_evaluation.get_most_frequent_enablement_weekdays(task)
-            resources = base_evaluation.get_most_frequent_resources(task)
+            days = parent_evaluation.get_most_frequent_enablement_weekdays(task)
+            resources = parent_evaluation.get_most_frequent_resources(task)
             for day in days:
                 for resource in resources:
                     calendar = store.current_timetable.get_calendar_for_resource(

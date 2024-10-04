@@ -1,13 +1,9 @@
 from dataclasses import replace
 from datetime import datetime
 
-from bpdfr_simulation_engine.execution_info import TaskEvent, Trace
+from bpdfr_simulation_engine.execution_info import TaskEvent
 
 from o2.actions.base_action import BaseAction, BaseActionParamsType, RateSelfReturnType
-from o2.actions.batching_rule_action import (
-    BatchingRuleAction,
-    BatchingRuleActionParamsType,
-)
 from o2.models.constraints import RULE_TYPE
 from o2.models.days import DAY
 from o2.models.legacy_constraints import WorkMasks
@@ -192,7 +188,7 @@ class ModifyDateTimeRulesByEnablementAction(BaseAction):
         # Now we iterate of over all enablement times in the event log, and add it to
         # a second dict (if it's not already in the first)
         enablement_counter: dict[tuple[str, DAY, int], int] = {}
-        for trace in input.base_evaluation.cases:
+        for trace in input.parent_evaluation.cases:
             events: list[TaskEvent] = trace.event_list
             for event in events:
                 enablement = event.enabled_datetime

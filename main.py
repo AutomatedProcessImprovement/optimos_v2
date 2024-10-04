@@ -36,9 +36,9 @@ def main():
         bpmn_tree=bpmn_tree,
         timetable=timetable,
     )
-    store = o2.store.Store(
-        state=initial_state,
-        constraints=constraints,
+    store = o2.store.Store.from_state_and_constraints(
+        initial_state,
+        constraints,
     )
 
     # Change settings here:

@@ -69,11 +69,11 @@ class ModifyReadyWtRuleAction(BatchingRuleAction):
     def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
         """Generate a best set of parameters & self-evaluates this action."""
         rule_selector = input.most_impactful_rule
-        base_evaluation = store.current_fastest_evaluation
+        base_evaluation = store.current_evaluation
         if rule_selector is None:
             return
 
-        firing_rule = rule_selector.get_firing_rule_from_state(store.state)
+        firing_rule = rule_selector.get_firing_rule_from_state(store.base_state)
 
         if not rule_is_ready_wt(firing_rule):
             return

@@ -304,6 +304,17 @@ class Evaluation:
     def __ne__(self, other):
         return self.total_cost != other.total_cost
 
+    def to_tuple(self) -> tuple[float, float]:
+        """Convert the evaluation to a tuple of total cost and total cycle time."""
+        return (self.total_cost, self.total_cycle_time)
+
+    def distance_to(self, other: "Evaluation") -> float:
+        """Calculate the euclidean distance between two evaluations."""
+        return math.sqrt(
+            (self.total_cost - other.total_cost) ** 2
+            + (self.total_cycle_time - other.total_cycle_time) ** 2
+        )
+
     @staticmethod
     def empty():
         return Evaluation(KPIMap(), {}, {}, None)  # type: ignore

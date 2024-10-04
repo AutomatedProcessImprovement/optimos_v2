@@ -98,7 +98,7 @@ class ModifyDailyHourRuleAction(BatchingRuleAction):
             if rule_selector is None:
                 continue
 
-            rule = rule_selector.get_firing_rule_from_state(store.state)
+            rule = rule_selector.get_firing_rule_from_state(store.base_state)
             if rule is None:
                 continue
 

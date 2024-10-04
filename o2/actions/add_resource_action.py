@@ -41,9 +41,9 @@ class AddResourceAction(ModifyResourceBaseAction):
     @staticmethod
     def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
         """Generate a best set of parameters & self-evaluates this action."""
-        base_evaluation = input.base_evaluation
-        timetable = store.state.timetable
-        tasks = base_evaluation.get_tasks_sorted_by_occurrences_of_wt_and_it()
+        parent_evaluation = input.parent_evaluation
+        timetable = store.solution.state.timetable
+        tasks = parent_evaluation.get_tasks_sorted_by_occurrences_of_wt_and_it()
         for task in tasks:
             resource_profile = timetable.get_resource_profile(task)
             if resource_profile is None:
@@ -80,7 +80,7 @@ class AddResourceAction(ModifyResourceBaseAction):
                         )
             else:
                 sorted_resources = (
-                    base_evaluation.get_resources_sorted_by_task_execution_count(task)
+                    parent_evaluation.get_resources_sorted_by_task_execution_count(task)
                 )
                 for resource_id in sorted_resources:
                     resource = timetable.get_resource(resource_id)
@@ -132,8 +132,8 @@ class AddResourceAction(ModifyResourceBaseAction):
         are also done by other resources, are considered.
         Of course the task must differ from the protected task.
         """
-        timetable = store.state.timetable
-        evaluation = input.base_evaluation
+        timetable = store.solution.state.timetable
+        evaluation = input.parent_evaluation
         resource = timetable.get_resource(resource_id)
 
         if resource is None:

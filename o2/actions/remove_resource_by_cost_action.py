@@ -29,9 +29,9 @@ class RemoveResourceByCostAction(ModifyResourceBaseAction):
     @staticmethod
     def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
         """Generate a best set of parameters & self-evaluates this action."""
-        resources = store.state.timetable.get_resources_with_cost()
+        resources = store.solution.state.timetable.get_resources_with_cost()
         for resource, _cost in resources:
-            if not resource.can_safely_be_removed(store.state.timetable):
+            if not resource.can_safely_be_removed(store.solution.state.timetable):
                 continue
             yield (
                 RemoveResourceByCostAction.get_default_rating(store),

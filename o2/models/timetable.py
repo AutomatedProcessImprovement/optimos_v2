@@ -25,7 +25,7 @@ from o2.models.legacy_constraints import WorkMasks
 from o2.models.time_period import TimePeriod
 from o2.util.bit_mask_helper import any_has_overlap, get_ranges_from_bitmask
 from o2.util.custom_dumper import CustomDumper, CustomLoader
-from o2.util.helper import CLONE_REGEX, name_is_clone_of, random_string
+from o2.util.helper import CLONE_REGEX, hash_string, name_is_clone_of, random_string
 
 if TYPE_CHECKING:
     from o2.models.rule_selector import RuleSelector
@@ -413,8 +413,7 @@ class FiringRule(JSONWizard, Generic[V]):
 
         We need to use this and not hash, because hash will not give you the same result on different threads.
         """
-        # TODO Use a more performant hash function
-        return hashlib.md5(str(dumps(asdict(self))).encode()).hexdigest()
+        return hash_string(dumps(asdict(self)))
 
 
 AndRules = List[FiringRule]
