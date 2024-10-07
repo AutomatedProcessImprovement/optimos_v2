@@ -66,7 +66,7 @@ class Solution:
     @staticmethod
     def hash_action_list(actions: list["BaseAction"]) -> int:
         """Hash a list of actions."""
-        return hash_int(dumps([a.to_json() for a in actions]))
+        return hash_int(dumps([a.id for a in actions]))
 
     @staticmethod
     def from_parent(parent: "Solution", action: "BaseAction") -> "Solution":

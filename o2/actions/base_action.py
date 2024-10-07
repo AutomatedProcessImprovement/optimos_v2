@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+import functools
 from json import dumps
 from typing import (
     TYPE_CHECKING,
@@ -60,6 +61,7 @@ class BaseAction(ABC):
             "params": self.params,
         }
 
+    @functools.cached_property
     def id(self) -> str:
         """Return a hash of the action."""
         return hash_string(dumps(self.to_json()))

@@ -92,16 +92,22 @@ class Store:
         self.solution = new_solution
         return new_solution
 
-    def _add_solution(self, solution: Solution) -> None:
+    def _add_solution(self, solution: Solution, dominated_by_front: bool) -> None:
         """Add an action and state to the store."""
         self.solution_tree.add_solution(solution)
         # If we are in legacy optimos combined mode, we need to switch the mode
         if (
-            self.settings.legacy_approach.combined_enabled
+            not dominated_by_front
+            and self.settings.legacy_approach.combined_enabled
             and isinstance(solution.last_action, ModifyCalendarBaseAction)
             or isinstance(solution.last_action, ModifyResourceBaseAction)
         ):
             self.settings.set_next_combined_mode_status()
+
+        # While it's reasonable to assume that the given solution is a valid next
+        # base solution, we will still use choose_new_base_evaluation, as
+        # maybe it's still suboptimal to choose the nearest solution.
+        self.choose_new_base_evaluation()
 
     def process_many_action_tries(
         self, solutions: list[Solution]
@@ -129,13 +135,14 @@ class Store:
             if status == FRONT_STATUS.IN_FRONT:
                 chosen_tries.append((status, solution))
                 self.current_pareto_front.add(solution)
-                self._add_solution(solution)
+                self._add_solution(solution, False)
             elif status == FRONT_STATUS.IS_DOMINATED:
                 chosen_tries.append((status, solution))
                 self.pareto_fronts.append(ParetoFront())
                 self.current_pareto_front.add(solution)
-                self._add_solution(solution)
+                self._add_solution(solution, False)
             else:
+                self._add_solution(solution, True)
                 not_chosen_tries.append((status, solution))
         return chosen_tries, not_chosen_tries
 
