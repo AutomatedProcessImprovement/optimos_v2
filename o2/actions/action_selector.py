@@ -179,15 +179,26 @@ class ActionSelector:
             for i in range(0, len(firing_rule_selectors), chunk_size)
         ]
 
-        with concurrent.futures.ProcessPoolExecutor(
-            max_workers=num_threads
-        ) as executor:
-            futures: list[concurrent.futures.Future[tuple[FRONT_STATUS, Solution]]] = []
+        if store.settings.disable_parallel_evaluation:
+            for chunk in chunks:
+                for rule_selector in chunk:
+                    solution = Solution.from_parent(
+                        store.solution,
+                        RemoveRuleAction(
+                            RemoveRuleActionParamsType(rule=rule_selector)
+                        ),
+                    )
+                    evaluations[solution.last_action.params["rule"]] = solution  # type: ignore
+            return evaluations
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=num_threads) as executor:
+            futures: list[concurrent.futures.Future[Solution]] = []
             for chunk in chunks:
                 for rule_selector in chunk:
                     futures.append(
                         executor.submit(
-                            store.try_action,
+                            Solution.from_parent,
+                            store.solution,
                             RemoveRuleAction(
                                 RemoveRuleActionParamsType(rule=rule_selector)
                             ),
@@ -196,9 +207,9 @@ class ActionSelector:
 
             for future in concurrent.futures.as_completed(futures):
                 try:
-                    status, solution = future.result()
+                    solution = future.result()
                     # TODO Fix Type
-                    evaluations[solution.last_action.action.params["rule"]] = solution  # type: ignore
+                    evaluations[solution.last_action.params["rule"]] = solution  # type: ignore
                 except Exception as e:
                     print_l1(f"Error in future: {e}")
                     continue

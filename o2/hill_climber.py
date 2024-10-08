@@ -21,9 +21,10 @@ class HillClimber:
         self.max_iter = store.settings.max_iterations
         self.max_non_improving_iter = store.settings.max_non_improving_actions
         self.max_parallel = store.settings.max_threads
-        self.executor = concurrent.futures.ProcessPoolExecutor(
-            max_workers=self.store.settings.max_threads
-        )
+        if not store.settings.disable_parallel_evaluation:
+            self.executor = concurrent.futures.ProcessPoolExecutor(
+                max_workers=self.store.settings.max_threads
+            )
 
     def solve(self) -> None:
         """Run the hill climber and print the result."""
@@ -33,7 +34,8 @@ class HillClimber:
             # Just iterate through the generator to run it
             pass
 
-        self.executor.shutdown()
+        if not self.store.settings.disable_parallel_evaluation:
+            self.executor.shutdown()
         self._print_result()
 
     def get_iteration_generator(self) -> Generator[Solution, None, None]:
@@ -60,7 +62,7 @@ class HillClimber:
                 action_tries = self._execute_actions_parallel(
                     self.store, actions_to_perform
                 )
-                print_l1(f"Simulation took {time.time() - start_time:.2f}s")
+                print_l2(f"Simulation took {time.time() - start_time:.2f}s")
 
                 chosen_tries, not_chosen_tries = self.store.process_many_action_tries(
                     action_tries
@@ -117,21 +119,25 @@ class HillClimber:
         """
         action_tries: list[ActionTry] = []
 
-        futures: list[concurrent.futures.Future[ActionTry]] = []
-        for action in actions_to_perform:
-            futures.append(
-                self.executor.submit(
-                    store.try_action,
-                    action,
+        if not store.settings.disable_parallel_evaluation:
+            futures: list[concurrent.futures.Future[Solution]] = []
+            for action in actions_to_perform:
+                futures.append(
+                    self.executor.submit(Solution.from_parent, store.solution, action)
                 )
-            )
 
-        for future in concurrent.futures.as_completed(futures):
-            try:
-                action_try = future.result()
+            for future in concurrent.futures.as_completed(futures):
+                try:
+                    new_solution = future.result()
+                    action_tries.append(self.store.try_solution(new_solution))
+                except Exception as e:
+                    print_l1(f"Error evaluating actions : {e}")
+        else:
+            for action in actions_to_perform:
+                action_try = store.try_solution(
+                    Solution.from_parent(store.solution, action)
+                )
                 action_tries.append(action_try)
-            except Exception as e:
-                print_l1(f"Error evaluating actions : {e}")
 
         # Sort tries with dominating ones first
         action_tries.sort(

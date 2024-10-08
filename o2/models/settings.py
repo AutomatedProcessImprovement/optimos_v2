@@ -31,7 +31,7 @@ class Settings:
 
     This is useful for debugging, but can be very verbose."""
 
-    show_simulation_errors = True
+    show_simulation_errors = False
     """Should the simulation errors be shown?
 
     Most of the time this is not needed, as the errors might just indicate an invalid
@@ -62,6 +62,9 @@ class Settings:
 
     max_number_of_actions_to_select = os.cpu_count() or 1
     """The maximum number of actions to select for for (parallel) evaluation."""
+
+    disable_parallel_evaluation = False
+    """Should the parallel evaluation be disabled? This is useful for debugging."""
 
     def set_next_combined_mode_status(self) -> None:
         """Set the next combined mode status."""
