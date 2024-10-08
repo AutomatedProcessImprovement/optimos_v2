@@ -1,5 +1,7 @@
 import json
+import sys
 import xml.etree.ElementTree as ElementTree
+import yappi
 
 import o2.hill_climber
 import o2.store
@@ -46,12 +48,43 @@ def main():
 
     # Enable legacy mode
     store.settings.optimos_legacy_mode = True
-    store.settings.max_iterations = 1000
+    store.settings.max_iterations = 10
+    store.settings.max_threads = 5
+    store.settings.max_number_of_actions_to_select = 5
+    # store.settings.disable_parallel_evaluation = True
 
     hill_climber = o2.hill_climber.HillClimber(store)
     hill_climber.solve()
-    # SimulationRunner.run_simulation(store.state)
+
+
+# SimulationRunner.run_simulation(store.state)
 
 
 if __name__ == "__main__":
+    yappi.set_clock_type("WALL")
+    yappi.start()
     main()
+    yappi.stop()
+    yappi.get_func_stats().print_all(
+        columns={
+            0: ("name", 80),
+            1: ("ncall", 5),
+            2: ("tsub", 8),
+            3: ("ttot", 8),
+            4: ("tavg", 8),
+        }
+    )
+    threads = yappi.get_thread_stats()
+    for thread in threads:
+        print(
+            "Function stats for (%s) (%d)" % (thread.name, thread.id)
+        )  # it is the Thread.__class__.__name__
+        yappi.get_func_stats(ctx_id=thread.id).print_all(
+            columns={
+                0: ("name", 80),
+                1: ("ncall", 5),
+                2: ("tsub", 8),
+                3: ("ttot", 8),
+                4: ("tavg", 8),
+            }
+        )
