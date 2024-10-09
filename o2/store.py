@@ -148,17 +148,16 @@ class Store:
 
     # Tries an action and returns the status of the new evaluation
     # Does NOT modify the store
-    def try_action(self, action: "BaseAction") -> ActionTry:
+    def try_solution(self, solution: "Solution") -> ActionTry:
         """Try an action and return the status of the new evaluation.
 
         If the evaluation throws an exception, it returns IS_DOMINATED.
         """
         try:
-            new_solution = Solution.from_parent(self.solution, action)
-            if not new_solution.is_valid:
+            if not solution.is_valid:
                 raise Exception("Evaluation empty. Please check the timetable & model.")
-            status = self.current_pareto_front.is_in_front(new_solution)
-            return (status, new_solution)
+            status = self.current_pareto_front.is_in_front(solution)
+            return (status, solution)
         except Exception as e:
             print(f"Error in try_action: {e}")
             return (FRONT_STATUS.INVALID, Solution.empty(self.solution.state))
