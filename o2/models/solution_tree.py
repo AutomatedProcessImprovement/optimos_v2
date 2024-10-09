@@ -24,13 +24,13 @@ class SolutionTree:
 
     def __init__(self) -> None:
         self.rtree = rtree.index.Index()
-        self.discarded_solutions: list["Solution"] = []
-        self.tried_ids: set[int] = set()
+        self.discarded_solutions: list[Solution] = []
+        self.solution_lookup: dict[int, Solution] = {}
 
     def add_solution(self, solution: "Solution") -> None:
         """Add a solution to the tree."""
-        self.rtree.insert(solution.id, solution.point, solution)
-        self.tried_ids.add(solution.id)
+        self.solution_lookup[solution.id] = solution
+        self.rtree.insert(solution.id, solution.point)
 
     def get_nearest_solution(self, pareto_front: ParetoFront) -> Optional["Solution"]:
         """Get the nearest solution to the given Pareto Front.
@@ -41,11 +41,13 @@ class SolutionTree:
         """
         nearest_solution: Optional[Solution] = None
         nearest_distance = float("inf")
-        for solution in pareto_front.solutions:
-            solution = next(self.rtree.nearest(solution.point, 1, objects="raw"), None)
-            if solution is None:
+        for pareto_solution in pareto_front.solutions:
+            item = next(
+                self.rtree.nearest(pareto_solution.point, 1, objects=True), None
+            )
+            if item is None:
                 continue
-            solution = cast("Solution", solution)
+            solution = self.solution_lookup[item.id]
             distance = solution.evaluation.distance_to(solution.evaluation)
             if distance < nearest_distance:
                 nearest_solution = solution
@@ -66,5 +68,5 @@ class SolutionTree:
         """Check if the given action has already been tried."""
         return (
             Solution.hash_action_list(base_solution.actions + [new_action])
-            in self.tried_ids
+            in self.solution_lookup
         )

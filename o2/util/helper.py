@@ -36,9 +36,9 @@ def safe_list_index(l: list[T], item: T) -> Optional[int]:
 
 def hash_int(s: object) -> int:
     """Create int hash based on the string representation of the object."""
-    return xxhash.xxh64(str(s)).intdigest()
+    return xxhash.xxh32(str(s)).intdigest()
 
 
 def hash_string(s: object) -> str:
     """Create string hash based on the string representation of the object."""
-    return xxhash.xxh64(str(s)).hexdigest()
+    return xxhash.xxh32(str(s)).hexdigest()
