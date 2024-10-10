@@ -17,10 +17,10 @@ def test_remove_single_rule(store: Store):
             TimetableGenerator.batching_size_rule(TimetableGenerator.FIRST_ACTIVITY, 2)
         ]
     )
-    first_rule = store.state.timetable.batch_processing[0]
+    first_rule = store.base_solution.timetable.batch_processing[0]
     selector = RuleSelector.from_batching_rule(first_rule, (0, 0))
     action = RemoveRuleAction(RemoveRuleActionParamsType(rule=selector))
-    new_state = action.apply(state=store.state)
+    new_state = action.apply(state=store.base_solution)
     assert len(new_state.timetable.batch_processing) == 0
 
 
@@ -33,10 +33,10 @@ def test_remove_one_of_two_batching_rules(store: Store):
             ),
         ]
     )
-    first_rule = store.state.timetable.batch_processing[0]
+    first_rule = store.base_solution.timetable.batch_processing[0]
     selector = RuleSelector.from_batching_rule(first_rule, (0, 0))
     action = RemoveRuleAction(RemoveRuleActionParamsType(rule=selector))
-    new_state = action.apply(state=store.state)
+    new_state = action.apply(state=store.base_solution)
     assert len(new_state.timetable.batch_processing) == 1
     assert new_state.timetable.batch_processing[0].task_id == "SECOND_ACTIVITY"
 
@@ -55,10 +55,10 @@ def test_remove_one_of_two_firing_rules(store: Store):
         ]
     )
     store.replaceTimetable(batch_processing=[batching_rule])
-    first_rule = store.state.timetable.batch_processing[0]
+    first_rule = store.base_solution.timetable.batch_processing[0]
     selector = RuleSelector.from_batching_rule(first_rule, (0, 0))
     action = RemoveRuleAction(RemoveRuleActionParamsType(rule=selector))
-    new_state = action.apply(state=store.state)
+    new_state = action.apply(state=store.base_solution)
     assert len(new_state.timetable.batch_processing[0].firing_rules) == 1
     assert new_state.timetable.batch_processing[0].firing_rules[0][0].value == 42
 
@@ -103,12 +103,12 @@ def test_remove_complex_firing_rule(store: Store):
             ],
         ],
     )
-    store.state.timetable.batch_processing.insert(1, batching_rule)
+    store.base_solution.timetable.batch_processing.insert(1, batching_rule)
 
-    second_rule = store.state.timetable.batch_processing[1]
+    second_rule = store.base_solution.timetable.batch_processing[1]
     selector = RuleSelector.from_batching_rule(second_rule, (1, 1))
     action = RemoveRuleAction(RemoveRuleActionParamsType(rule=selector))
-    new_state = action.apply(state=store.state)
+    new_state = action.apply(state=store.base_solution)
     assert len(new_state.timetable.batch_processing[1].firing_rules[1]) == 2
     assert new_state.timetable.batch_processing[1].firing_rules[1][0].value == 41
     assert new_state.timetable.batch_processing[1].firing_rules[1][1].value == 43
@@ -127,7 +127,7 @@ def test_self_rating_optimal_rule(store: Store):
 
     store.evaluate()
     evaluations = ActionSelector.evaluate_rules(store)
-    rating_input = SelfRatingInput.from_rule_evaluations(store, evaluations)
+    rating_input = SelfRatingInput.from_rule_solutions(store, evaluations)
     assert rating_input is not None
     result = next(RemoveRuleAction.rate_self(store, rating_input), None)
     assert result is None
@@ -141,7 +141,9 @@ def test_self_rating_non_optimal_rule(one_task_store: Store):
                 TimetableGenerator.FIRST_ACTIVITY, 50, 1
             )
         ],
-        task_resource_distribution=TimetableGenerator(store.state.bpmn_definition)
+        task_resource_distribution=TimetableGenerator(
+            store.base_solution.bpmn_definition
+        )
         # 1 Minute Tasks
         .create_simple_task_resource_distribution(60)
         # TODO: Improve Syntax
@@ -149,7 +151,7 @@ def test_self_rating_non_optimal_rule(one_task_store: Store):
     )
     store.evaluate()
     evaluations = ActionSelector.evaluate_rules(store)
-    rating_input = SelfRatingInput.from_rule_evaluations(store, evaluations)
+    rating_input = SelfRatingInput.from_rule_solutions(store, evaluations)
     assert rating_input is not None
     result = next(RemoveRuleAction.rate_self(store, rating_input))
     assert result[0] == RATING.LOW

@@ -16,7 +16,7 @@ from tests.fixtures.timetable_generator import TimetableGenerator
 
 def test_action_creation_simple_shrink(one_task_store: Store):
     evaluation, _ = one_task_store.evaluate()
-    input = SelfRatingInput.from_base_evaluation(evaluation)
+    input = SelfRatingInput.from_base_solution(evaluation)
 
     rating, action = next(ModifyCalendarByCostAction.rate_self(one_task_store, input))
 
@@ -30,7 +30,7 @@ def test_action_creation_simple_shrink(one_task_store: Store):
 
 
 def test_action_creation_simple_removal(one_task_store: Store):
-    resource_calendar = one_task_store.state.timetable.resource_calendars[0]
+    resource_calendar = one_task_store.base_solution.timetable.resource_calendars[0]
     resource_calendar = replace(
         resource_calendar,
         time_periods=[
@@ -41,7 +41,7 @@ def test_action_creation_simple_removal(one_task_store: Store):
     one_task_store.replaceTimetable(resource_calendars=[resource_calendar])
 
     evaluation, _ = one_task_store.evaluate()
-    input = SelfRatingInput.from_base_evaluation(evaluation)
+    input = SelfRatingInput.from_base_solution(evaluation)
 
     rating, action = next(ModifyCalendarByCostAction.rate_self(one_task_store, input))
 
@@ -63,7 +63,7 @@ def test_action_creation_shrink_start(one_task_store: Store):
     )
 
     evaluation, _ = one_task_store.evaluate()
-    input = SelfRatingInput.from_base_evaluation(evaluation)
+    input = SelfRatingInput.from_base_solution(evaluation)
 
     rating, action = next(ModifyCalendarByCostAction.rate_self(one_task_store, input))
 
@@ -86,7 +86,7 @@ def test_action_creation_shrink_end(one_task_store: Store):
     )
 
     evaluation, _ = one_task_store.evaluate()
-    input = SelfRatingInput.from_base_evaluation(evaluation)
+    input = SelfRatingInput.from_base_solution(evaluation)
 
     rating, action = next(ModifyCalendarByCostAction.rate_self(one_task_store, input))
 

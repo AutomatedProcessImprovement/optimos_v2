@@ -16,13 +16,13 @@ def test_increment_size(store: Store):
             TimetableGenerator.large_wt_rule(TimetableGenerator.FIRST_ACTIVITY, 5 * 60)
         ]
     )
-    first_rule = store.state.timetable.batch_processing[0]
+    first_rule = store.base_solution.timetable.batch_processing[0]
 
     selector = RuleSelector.from_batching_rule(first_rule, (0, 1))
     action = ModifyLargeWtRuleAction(
         ModifyLargeWtRuleActionParamsType(rule=selector, wt_increment=1 * 60)
     )
-    new_state = action.apply(state=store.state)
+    new_state = action.apply(state=store.base_solution)
     assert first_rule.task_id == new_state.timetable.batch_processing[0].task_id
     assert new_state.timetable.batch_processing[0].firing_rules[0][1].value == (6 * 60)
 
@@ -33,13 +33,13 @@ def test_decrement_size(store: Store):
             TimetableGenerator.large_wt_rule(TimetableGenerator.FIRST_ACTIVITY, 5 * 60)
         ]
     )
-    first_rule = store.state.timetable.batch_processing[0]
+    first_rule = store.base_solution.timetable.batch_processing[0]
 
     selector = RuleSelector.from_batching_rule(first_rule, (0, 1))
     action = ModifyLargeWtRuleAction(
         ModifyLargeWtRuleActionParamsType(rule=selector, wt_increment=-1 * 60)
     )
-    new_state = action.apply(state=store.state)
+    new_state = action.apply(state=store.base_solution)
     assert first_rule.task_id == new_state.timetable.batch_processing[0].task_id
     assert new_state.timetable.batch_processing[0].firing_rules[0][1].value == (4 * 60)
 
@@ -52,20 +52,22 @@ def test_self_rating_optimal(one_task_store: Store):
                 TimetableGenerator.FIRST_ACTIVITY, 30 * 60, size=2
             )
         ],
-        task_resource_distribution=TimetableGenerator(store.state.bpmn_definition)
+        task_resource_distribution=TimetableGenerator(
+            store.base_solution.bpmn_definition
+        )
         # 1 Minute Tasks
         .create_simple_task_resource_distribution(60)
         .timetable.task_resource_distribution,
     )
 
     store.replaceConstraints(
-        batching_constraints=ConstraintsGenerator(store.state.bpmn_definition)
+        batching_constraints=ConstraintsGenerator(store.base_solution.bpmn_definition)
         .add_large_wt_constraint()
         .constraints.batching_constraints
     )
     store.evaluate()
     evaluations = ActionSelector.evaluate_rules(store)
-    rating_input = SelfRatingInput.from_rule_evaluations(store, evaluations)
+    rating_input = SelfRatingInput.from_rule_solutions(store, evaluations)
     assert rating_input is not None
     result = next(ModifyLargeWtRuleAction.rate_self(store, rating_input), None)
     assert result is None
@@ -82,7 +84,7 @@ def test_self_rating_non_optimal(one_task_store: Store):
     )
 
     store.replaceConstraints(
-        batching_constraints=ConstraintsGenerator(store.state.bpmn_definition)
+        batching_constraints=ConstraintsGenerator(store.base_solution.bpmn_definition)
         .add_large_wt_constraint()
         .constraints.batching_constraints
     )

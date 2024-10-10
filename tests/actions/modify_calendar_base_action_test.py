@@ -28,7 +28,7 @@ def test_simple_add_hour(one_task_store: Store):
     )
 
     one_task_store.apply_action(action)
-    calendar = one_task_store.state.timetable.get_calendar(
+    calendar = one_task_store.base_solution.timetable.get_calendar(
         TimetableGenerator.CALENDAR_ID
     )
     assert calendar is not None
@@ -54,7 +54,7 @@ def test_simple_shift_hour(one_task_store: Store):
     )
 
     one_task_store.apply_action(action)
-    calendar = one_task_store.state.timetable.get_calendar(
+    calendar = one_task_store.base_solution.timetable.get_calendar(
         TimetableGenerator.CALENDAR_ID
     )
     assert calendar is not None
@@ -79,7 +79,7 @@ def test_add_hour_before_and_after(one_task_store: Store):
     )
 
     one_task_store.apply_action(action)
-    calendar = one_task_store.state.timetable.get_calendar(
+    calendar = one_task_store.base_solution.timetable.get_calendar(
         TimetableGenerator.CALENDAR_ID
     )
     assert calendar is not None
@@ -105,7 +105,7 @@ def test_remove_period(one_task_store: Store):
     )
 
     one_task_store.apply_action(action)
-    calendar = one_task_store.state.timetable.get_calendar(
+    calendar = one_task_store.base_solution.timetable.get_calendar(
         TimetableGenerator.CALENDAR_ID
     )
     assert calendar is not None

@@ -15,7 +15,7 @@ def test_action_creation_simple_addition(one_task_store: Store):
     )
 
     evaluation, _ = one_task_store.evaluate()
-    input = SelfRatingInput.from_base_evaluation(evaluation)
+    input = SelfRatingInput.from_base_solution(evaluation)
 
     rating, action = next(ModifyCalendarByWTAction.rate_self(one_task_store, input))
 
@@ -40,7 +40,7 @@ def test_action_creation_simple_shift(one_task_store: Store):
     )
 
     evaluation, _ = one_task_store.evaluate()
-    input = SelfRatingInput.from_base_evaluation(evaluation)
+    input = SelfRatingInput.from_base_solution(evaluation)
 
     rating, action = next(ModifyCalendarByWTAction.rate_self(one_task_store, input))
 

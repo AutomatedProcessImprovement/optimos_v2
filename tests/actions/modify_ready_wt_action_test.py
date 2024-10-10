@@ -13,13 +13,13 @@ def test_increment_size(store: Store):
             TimetableGenerator.ready_wt_rule(TimetableGenerator.FIRST_ACTIVITY, 5 * 60)
         ]
     )
-    first_rule = store.state.timetable.batch_processing[0]
+    first_rule = store.base_solution.timetable.batch_processing[0]
 
     selector = RuleSelector.from_batching_rule(first_rule, (0, 0))
     action = ModifyReadyWtRuleAction(
         ModifyReadyWtRuleActionParamsType(rule=selector, wt_increment=1 * 60)
     )
-    new_state = action.apply(state=store.state)
+    new_state = action.apply(state=store.base_solution)
     assert first_rule.task_id == new_state.timetable.batch_processing[0].task_id
     assert new_state.timetable.batch_processing[0].firing_rules[0][0].value == (6 * 60)
 
@@ -30,13 +30,13 @@ def test_decrement_size(store: Store):
             TimetableGenerator.ready_wt_rule(TimetableGenerator.FIRST_ACTIVITY, 5 * 60)
         ]
     )
-    first_rule = store.state.timetable.batch_processing[0]
+    first_rule = store.base_solution.timetable.batch_processing[0]
 
     selector = RuleSelector.from_batching_rule(first_rule, (0, 0))
     action = ModifyReadyWtRuleAction(
         ModifyReadyWtRuleActionParamsType(rule=selector, wt_increment=-1 * 60)
     )
-    new_state = action.apply(state=store.state)
+    new_state = action.apply(state=store.base_solution)
     assert first_rule.task_id == new_state.timetable.batch_processing[0].task_id
     assert new_state.timetable.batch_processing[0].firing_rules[0][0].value == (4 * 60)
 

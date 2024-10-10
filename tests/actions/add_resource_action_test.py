@@ -7,7 +7,7 @@ from tests.fixtures.timetable_generator import TimetableGenerator
 
 def test_action_creation_one_resource_one_task(one_task_store: Store):
     evaluation, _ = one_task_store.evaluate()
-    input = SelfRatingInput.from_base_evaluation(evaluation)
+    input = SelfRatingInput.from_base_solution(evaluation)
 
     rating, action = next(AddResourceAction.rate_self(one_task_store, input))
 
@@ -22,7 +22,7 @@ def test_action_creation_one_resource_one_task(one_task_store: Store):
 
 def test_action_creation_one_resource_two_tasks(two_tasks_store: Store):
     evaluation, _ = two_tasks_store.evaluate()
-    input = SelfRatingInput.from_base_evaluation(evaluation)
+    input = SelfRatingInput.from_base_solution(evaluation)
 
     rating, action = next(AddResourceAction.rate_self(two_tasks_store, input))
 
@@ -38,14 +38,14 @@ def test_action_creation_one_resource_two_tasks(two_tasks_store: Store):
 def test_action_creation_two_resources_one_task(one_task_store: Store):
     one_task_store.replaceState(
         # Add a second resource
-        timetable=one_task_store.state.timetable.clone_resource(
+        timetable=one_task_store.base_solution.timetable.clone_resource(
             TimetableGenerator.RESOURCE_ID,
             [TimetableGenerator.FIRST_ACTIVITY],
         )
     )
     evaluation, _ = one_task_store.evaluate()
 
-    input = SelfRatingInput.from_base_evaluation(evaluation)
+    input = SelfRatingInput.from_base_solution(evaluation)
 
     rating, action = next(AddResourceAction.rate_self(one_task_store, input))
 
@@ -61,7 +61,7 @@ def test_action_creation_two_resources_one_task(one_task_store: Store):
 def test_action_creation_two_resources_two_tasks(two_tasks_store: Store):
     two_tasks_store.replaceState(
         # Add a second resource, and limit the first resource to a small time frame
-        timetable=two_tasks_store.state.timetable.clone_resource(
+        timetable=two_tasks_store.base_solution.timetable.clone_resource(
             TimetableGenerator.RESOURCE_ID,
             [TimetableGenerator.FIRST_ACTIVITY, TimetableGenerator.SECOND_ACTIVITY],
         ).replace_resource_calendar(TimetableGenerator.resource_calendars(10, 12)[0])
@@ -69,7 +69,7 @@ def test_action_creation_two_resources_two_tasks(two_tasks_store: Store):
 
     evaluation, _ = two_tasks_store.evaluate()
 
-    input = SelfRatingInput.from_base_evaluation(evaluation)
+    input = SelfRatingInput.from_base_solution(evaluation)
 
     rating, action = next(AddResourceAction.rate_self(two_tasks_store, input))
 

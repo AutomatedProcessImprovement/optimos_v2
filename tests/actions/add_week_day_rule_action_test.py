@@ -20,13 +20,13 @@ def test_add_day_simple(store: Store):
             )
         ]
     )
-    first_rule = store.state.timetable.batch_processing[0]
+    first_rule = store.base_solution.timetable.batch_processing[0]
 
     selector = RuleSelector.from_batching_rule(first_rule, (0, 0))
     action = AddWeekDayRuleAction(
         AddWeekDayRuleActionParamsType(rule=selector, add_days=[DAY.TUESDAY])
     )
-    new_state = action.apply(state=store.state)
+    new_state = action.apply(state=store.base_solution)
     assert first_rule.task_id == new_state.timetable.batch_processing[0].task_id
     assert (
         new_state.timetable.batch_processing[0].firing_rules[0][0].value == DAY.MONDAY
@@ -46,7 +46,9 @@ def test_self_rate_simple(one_task_store: Store):
                 TimetableGenerator.FIRST_ACTIVITY, DAY.WEDNESDAY
             )
         ],
-        task_resource_distribution=TimetableGenerator(store.state.bpmn_definition)
+        task_resource_distribution=TimetableGenerator(
+            store.base_solution.bpmn_definition
+        )
         # 12 Hour Tasks
         .create_simple_task_resource_distribution(4 * 60 * 60)
         # TODO: Improve Syntax
@@ -54,7 +56,7 @@ def test_self_rate_simple(one_task_store: Store):
     )
 
     store.replaceConstraints(
-        batching_constraints=ConstraintsGenerator(store.state.bpmn_definition)
+        batching_constraints=ConstraintsGenerator(store.base_solution.bpmn_definition)
         .add_week_day_constraint()
         .constraints.batching_constraints
     )

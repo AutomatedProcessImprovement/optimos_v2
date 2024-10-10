@@ -16,7 +16,7 @@ def test_hill_climber_simple(one_task_store: Store):
     )
 
     store.replaceConstraints(
-        batching_constraints=ConstraintsGenerator(store.state.bpmn_definition)
+        batching_constraints=ConstraintsGenerator(store.base_solution.bpmn_definition)
         # We don't allow removal of the batching
         .add_size_constraint(optimal_duration=5, optimal_duration_bonus=0.1, min_size=1)
         .constraints.batching_constraints
