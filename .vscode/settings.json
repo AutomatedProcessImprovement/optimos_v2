@@ -3,5 +3,13 @@
   "python.testing.pytestArgs": ["."],
   "python.testing.unittestEnabled": false,
   "python.testing.pytestEnabled": true,
-  "python.testing.cwd": "${workspaceFolder}"
+  "python.testing.cwd": "${workspaceFolder}",
+  "cssVariables.lookupFiles": [
+    "**/*.css",
+    "**/*.scss",
+    "**/*.sass",
+    "**/*.less",
+    "node_modules/@mantine/core/styles.css"
+  ],
+  "cSpell.words": ["Fileless", "pytz"]
 }
