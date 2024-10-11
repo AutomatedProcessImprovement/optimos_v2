@@ -12,6 +12,7 @@ from o2.actions.modify_resource_base_action import ModifyResourceBaseAction
 from o2.models.constraints import ConstraintsType
 from o2.models.evaluation import Evaluation
 from o2.models.legacy_constraints import WorkMasks
+from o2.models.solution import Solution
 from o2.models.state import State
 from o2.models.timetable import Resource, TimetableType
 from o2.pareto_front import ParetoFront
@@ -42,9 +43,9 @@ class JSONReport(JSONWizard):
         return JSONReport(
             name=store.name,
             constraints=store.constraints,
-            bpmn_definition=store.base_solution.bpmn_definition,
+            bpmn_definition=store.base_state.bpmn_definition,
             base_solution=_JSONSolution.from_state_evaluation(
-                store.base_state, store.base_evaluation, store
+                store.base_solution, store
             ),
             pareto_fronts=[
                 _JSONParetoFront.from_pareto_front(pareto_front, store)
@@ -66,10 +67,8 @@ class _JSONParetoFront(JSONWizard):
     ) -> "_JSONParetoFront":
         return _JSONParetoFront(
             solutions=[
-                _JSONSolution.from_state_evaluation(state, evaluation, store)
-                for state, evaluation in zip(
-                    pareto_front.states, pareto_front.evaluations
-                )
+                _JSONSolution.from_state_evaluation(solution, store)
+                for solution in pareto_front.solutions
             ]
         )
 
@@ -116,17 +115,16 @@ class _JSONResourceInfo(JSONWizard):
     @staticmethod
     def from_resource(
         resource: Resource,
-        state: State,
-        evaluation: Evaluation,
+        solution: Solution,
         store: Store,
     ) -> "_JSONResourceInfo":
-        timetable = state.timetable.get_calendar_for_resource(
+        timetable = solution.state.timetable.get_calendar_for_resource(
             resource.id
         ) or store.base_state.timetable.get_calendar_for_base_resource(resource.id)
         resource_constraints = store.constraints.get_legacy_constraints_for_resource(
             resource.id
         )
-        if state.is_base_state:
+        if solution.is_base_solution:
             original_time_table = timetable
         else:
             original_time_table = (
@@ -139,7 +137,7 @@ class _JSONResourceInfo(JSONWizard):
 
         relevant_actions = [
             action
-            for action in state.actions
+            for action in solution.actions
             if (
                 isinstance(action, ModifyResourceBaseAction)
                 and action.params["resource_id"] == resource.id
@@ -179,6 +177,8 @@ class _JSONResourceInfo(JSONWizard):
             for task_id in resource.assigned_tasks
             if task_id not in original_tasks
         ]
+
+        evaluation = solution.evaluation
 
         return _JSONResourceInfo(
             id=resource.id,
@@ -245,14 +245,13 @@ class _JSONSolution(JSONWizard):
     actions: list[_JSONAction]
 
     @staticmethod
-    def from_state_evaluation(
-        state: State, evaluation: Evaluation, store: Store
-    ) -> "_JSONSolution":
+    def from_state_evaluation(solution: Solution, store: Store) -> "_JSONSolution":
+        state = solution.state
+        evaluation = solution.evaluation
         return _JSONSolution(
             timetable=state.timetable,
-            is_base_solution=state.is_base_state,
-            solution_no=(safe_list_index(store.previous_states, state) or 0)
-            + 1,  # TODO make this more efficient
+            is_base_solution=solution.is_base_solution,
+            solution_no=store.solution_tree.get_index_of_solution(solution),
             global_info=_JSONGlobalInfo(
                 average_cost=evaluation.avg_cost,
                 average_time=evaluation.avg_cycle_time,
@@ -263,16 +262,12 @@ class _JSONSolution(JSONWizard):
                 average_waiting_time=evaluation.avg_waiting_time,
             ),
             resource_info={
-                resource.id: _JSONResourceInfo.from_resource(
-                    resource, state, evaluation, store
-                )
+                resource.id: _JSONResourceInfo.from_resource(resource, solution, store)
                 for resource in state.timetable.get_all_resources()
             },
             deleted_resources_info={
-                resource.id: _JSONResourceInfo.from_resource(
-                    resource, state, evaluation, store
-                )
+                resource.id: _JSONResourceInfo.from_resource(resource, solution, store)
                 for resource in state.timetable.get_deleted_resources(store.base_state)
             },
-            actions=[action.to_json() for action in state.actions],  # type: ignore
+            actions=[action.to_json() for action in solution.actions],  # type: ignore
         )

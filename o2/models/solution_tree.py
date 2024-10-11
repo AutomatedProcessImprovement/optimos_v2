@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from typing import TYPE_CHECKING, Optional, cast
 
 import rtree
@@ -25,7 +26,7 @@ class SolutionTree:
     def __init__(self) -> None:
         self.rtree = rtree.index.Index()
         self.discarded_solutions: list[Solution] = []
-        self.solution_lookup: dict[int, Solution] = {}
+        self.solution_lookup = OrderedDict()
 
     def add_solution(self, solution: "Solution") -> None:
         """Add a solution to the tree."""
@@ -70,3 +71,7 @@ class SolutionTree:
             Solution.hash_action_list(base_solution.actions + [new_action])
             in self.solution_lookup
         )
+
+    def get_index_of_solution(self, solution: Solution) -> int:
+        """Get the index of the solution in the tree."""
+        return list(self.solution_lookup).index(solution.id)

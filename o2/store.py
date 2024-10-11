@@ -39,6 +39,7 @@ class Store:
         self.pareto_fronts[0].add(solution)
 
         self.solution_tree = SolutionTree()
+        self.solution_tree.add_solution(solution)
 
         self.solution = solution
         """The current solution of the optimization process.
@@ -79,21 +80,26 @@ class Store:
 
     @property
     def current_timetable(self) -> "TimetableType":
-        return self.base_solution.state.timetable
+        return self.solution.state.timetable
 
-    def choose_new_base_evaluation(self) -> Optional[Solution]:
+    def choose_new_base_evaluation(self, pop: bool = False) -> Optional[Solution]:
         """Choose a new base evaluation from the solution tree."""
-        new_solution = self.solution_tree.pop_nearest_solution(
-            self.current_pareto_front
-        )
+        if pop:
+            new_solution = self.solution_tree.pop_nearest_solution(
+                self.current_pareto_front
+            )
+        else:
+            new_solution = self.solution_tree.get_nearest_solution(
+                self.current_pareto_front
+            )
         if new_solution is None:
-            return None
+            raise Exception("No new base solutions left in the solution tree.")
 
         self.solution = new_solution
         return new_solution
 
     def _add_solution(self, solution: Solution, dominated_by_front: bool) -> None:
-        """Add an action and state to the store."""
+        """Add an action and state to the store"""
         self.solution_tree.add_solution(solution)
         # If we are in legacy optimos combined mode, we need to switch the mode
         if (
@@ -103,11 +109,6 @@ class Store:
             or isinstance(solution.last_action, ModifyResourceBaseAction)
         ):
             self.settings.set_next_combined_mode_status()
-
-        # While it's reasonable to assume that the given solution is a valid next
-        # base solution, we will still use choose_new_base_evaluation, as
-        # maybe it's still suboptimal to choose the nearest solution.
-        self.choose_new_base_evaluation()
 
     def process_many_action_tries(
         self, solutions: list[Solution]
@@ -141,6 +142,8 @@ class Store:
                 self.pareto_fronts.append(ParetoFront())
                 self.current_pareto_front.add(solution)
                 self._add_solution(solution, False)
+                # We choose a new base evaluation, because we are in a new front
+                self.choose_new_base_evaluation()
             else:
                 self._add_solution(solution, True)
                 not_chosen_tries.append((status, solution))
