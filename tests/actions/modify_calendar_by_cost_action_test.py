@@ -26,7 +26,7 @@ def test_action_creation_simple_shrink(one_task_store: Store):
     assert "add_hours_after" in action.params
     assert action.params["add_hours_after"] == -1
     assert action.params["calendar_id"] == TimetableGenerator.CALENDAR_ID
-    assert action.params["period_index"] == 0
+    assert action.params["period_id"] == 0
 
 
 def test_action_creation_simple_removal(one_task_store: Store):
@@ -49,7 +49,7 @@ def test_action_creation_simple_removal(one_task_store: Store):
     assert "remove_period" in action.params
     assert action.params["remove_period"] == 1
     assert action.params["calendar_id"] == TimetableGenerator.CALENDAR_ID
-    assert action.params["period_index"] == 0
+    assert action.params["period_id"] == 0
 
 
 def test_action_creation_shrink_start(one_task_store: Store):
@@ -72,7 +72,7 @@ def test_action_creation_shrink_start(one_task_store: Store):
     assert action.params["add_hours_before"] == -1
     assert "add_hours_after" not in action.params
     assert action.params["calendar_id"] == TimetableGenerator.CALENDAR_ID
-    assert action.params["period_index"] == 0
+    assert action.params["period_id"] == 0
 
 
 def test_action_creation_shrink_end(one_task_store: Store):
@@ -95,4 +95,4 @@ def test_action_creation_shrink_end(one_task_store: Store):
     assert action.params["add_hours_after"] == -1
     assert "add_hours_before" not in action.params
     assert action.params["calendar_id"] == TimetableGenerator.CALENDAR_ID
-    assert action.params["period_index"] == 0
+    assert action.params["period_id"] == 0

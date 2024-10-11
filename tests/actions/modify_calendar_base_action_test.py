@@ -21,7 +21,7 @@ def test_simple_add_hour(one_task_store: Store):
     action = ModifyCalendarByWTAction(
         ModifyCalendarByWTActionParamsType(
             calendar_id=TimetableGenerator.CALENDAR_ID,
-            period_index=0,
+            period_id=None,
             day=DAY.MONDAY,
             add_hours_before=1,
         )
@@ -47,7 +47,7 @@ def test_simple_shift_hour(one_task_store: Store):
     action = ModifyCalendarByWTAction(
         ModifyCalendarByWTActionParamsType(
             calendar_id=TimetableGenerator.CALENDAR_ID,
-            period_index=0,
+            period_id=None,
             day=DAY.MONDAY,
             shift_hours=-1,
         )
@@ -71,7 +71,7 @@ def test_add_hour_before_and_after(one_task_store: Store):
     action = ModifyCalendarByWTAction(
         ModifyCalendarByWTActionParamsType(
             calendar_id=TimetableGenerator.CALENDAR_ID,
-            period_index=0,
+            period_id=None,
             day=DAY.MONDAY,
             add_hours_before=1,
             add_hours_after=1,
@@ -98,7 +98,7 @@ def test_remove_period(one_task_store: Store):
     action = ModifyCalendarByWTAction(
         ModifyCalendarByWTActionParamsType(
             calendar_id=TimetableGenerator.CALENDAR_ID,
-            period_index=0,
+            period_id=None,
             day=DAY.MONDAY,
             remove_period=True,
         )

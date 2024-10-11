@@ -48,6 +48,7 @@ class ModifyCalendarByWTAction(ModifyCalendarBaseAction):
                     periods = calendar.get_periods_containing_day(day)
                     for period in periods:
                         index = calendar.time_periods.index(period)
+                        period_id = period.id
                         # We need to fix the day period to not change
                         # change the times of other days
                         fixed_day_period = period.model_copy(
@@ -66,7 +67,7 @@ class ModifyCalendarByWTAction(ModifyCalendarBaseAction):
                                 ModifyCalendarByWTAction(
                                     ModifyCalendarByWTActionParamsType(
                                         calendar_id=calendar.id,
-                                        period_index=index,
+                                        period_id=period_id,
                                         day=day,
                                         add_hours_before=1,
                                     )
@@ -85,7 +86,7 @@ class ModifyCalendarByWTAction(ModifyCalendarBaseAction):
                                 ModifyCalendarByWTAction(
                                     ModifyCalendarByWTActionParamsType(
                                         calendar_id=calendar.id,
-                                        period_index=index,
+                                        period_id=period_id,
                                         day=day,
                                         add_hours_before=0,
                                         shift_hours=-1,

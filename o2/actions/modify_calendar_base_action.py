@@ -10,7 +10,7 @@ from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.state import State
 from o2.models.time_period import TimePeriod
 from o2.models.timetable import ResourceCalendar
-from o2.util.indented_printer import print_l2
+from o2.util.indented_printer import print_l2, print_l3
 
 if TYPE_CHECKING:
     from o2.store import Store
@@ -20,7 +20,7 @@ class ModifyCalendarBaseActionParamsType(BaseActionParamsType):
     """Parameter for `ModifyCalendarBaseAction`."""
 
     calendar_id: str
-    period_index: int
+    period_id: int
     day: DAY
     shift_hours: NotRequired[int]
     add_hours_before: NotRequired[int]
@@ -40,12 +40,19 @@ class ModifyCalendarBaseAction(BaseAction, ABC):
     def apply(self, state: State, enable_prints: bool = True) -> State:
         """Apply the action to the state."""
         calendar_id = self.params["calendar_id"]
-        period_index = self.params["period_index"]
+        period_id = self.params["period_id"]
         day = self.params["day"]
 
         calendar = state.timetable.get_calendar(calendar_id)
         assert calendar is not None
 
+        period_index = calendar.get_period_index_by_id(period_id)
+        if period_index is None:
+            # print_l2("Error in applying action " + str(self))
+            # print_l3(
+            #     f"Period {period_id} not found in calendar {calendar_id}. Most likely it was modified beforehand."  # noqa: E501
+            # )
+            return state
         period = calendar.time_periods[period_index]
         fixed_day_period = period.model_copy(update={"to": day})
 
@@ -85,16 +92,16 @@ class ModifyCalendarBaseAction(BaseAction, ABC):
     def __str__(self) -> str:
         """Return a string representation of the action."""
         if "shift_hours" in self.params:
-            return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['day']}-{self.params['period_index']}) -- Shift {self.params['shift_hours']} hours)"  # noqa: E501
+            return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['day']}-{self.params['period_id']}) -- Shift {self.params['shift_hours']} hours)"  # noqa: E501
         elif "add_hours_after" in self.params and "add_hours_before" in self.params:
-            return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['day']}-{self.params['period_index']}) -- Add {self.params['add_hours_before']} hours before, {self.params['add_hours_after']} hours after)"  # noqa: E501
+            return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['day']}-{self.params['period_id']}) -- Add {self.params['add_hours_before']} hours before, {self.params['add_hours_after']} hours after)"  # noqa: E501
         elif "add_hours_after" in self.params:
-            return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['day']}-{self.params['period_index']}) -- Add {self.params['add_hours_after']} hours after)"  # noqa: E501
+            return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['day']}-{self.params['period_id']}) -- Add {self.params['add_hours_after']} hours after)"  # noqa: E501
         elif "add_hours_before" in self.params:
-            return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['day']}-{self.params['period_index']}) -- Add {self.params['add_hours_before']} hours before)"  # noqa: E501
+            return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['day']}-{self.params['period_id']}) -- Add {self.params['add_hours_before']} hours before)"  # noqa: E501
         elif "remove_period" in self.params:
-            return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['day']}-{self.params['period_index']}) -- Remove)"  # noqa: E501
-        return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['day']}-{self.params['period_index']}) -- Unknown)"  # noqa: E501
+            return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['day']}-{self.params['period_id']}) -- Remove)"  # noqa: E501
+        return f"{self.__class__.__name__}(Calender '{self.params['calendar_id']}' ({self.params['day']}-{self.params['period_id']}) -- Unknown)"  # noqa: E501
 
     @staticmethod
     def get_default_rating(store: "Store") -> RATING:

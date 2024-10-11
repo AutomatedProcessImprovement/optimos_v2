@@ -1,9 +1,11 @@
 from dataclasses import replace
+import functools
 from typing import TYPE_CHECKING, ClassVar, List, Optional
 
 from pydantic import BaseModel, Field
 
 from o2.models.days import DAY, day_range
+from o2.util.helper import hash_int
 
 
 class TimePeriod(BaseModel):
@@ -173,3 +175,8 @@ class TimePeriod(BaseModel):
             begin_time="00:00:00",
             end_time="00:00:00",
         )
+
+    @functools.cached_property
+    def id(self) -> int:
+        """A unique identifier for the time period."""
+        return hash_int(self.model_dump_json())
