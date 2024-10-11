@@ -33,7 +33,9 @@ class SolutionTree:
         self.solution_lookup[solution.id] = solution
         self.rtree.insert(solution.id, solution.point)
 
-    def get_nearest_solution(self, pareto_front: ParetoFront) -> Optional["Solution"]:
+    def get_nearest_solution(
+        self, pareto_front: ParetoFront, max_distance: float = float("inf")
+    ) -> Optional["Solution"]:
         """Get the nearest solution to the given Pareto Front.
 
         This means the solution with the smallest distance to any solution in the
@@ -50,7 +52,7 @@ class SolutionTree:
                 continue
             solution = self.solution_lookup[item.id]
             distance = solution.evaluation.distance_to(solution.evaluation)
-            if distance < nearest_distance:
+            if distance < nearest_distance and distance <= max_distance:
                 nearest_solution = solution
                 nearest_distance = distance
         return nearest_solution

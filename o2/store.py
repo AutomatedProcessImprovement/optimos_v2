@@ -82,16 +82,21 @@ class Store:
     def current_timetable(self) -> "TimetableType":
         return self.solution.state.timetable
 
-    def choose_new_base_evaluation(self, pop: bool = False) -> Optional[Solution]:
-        """Choose a new base evaluation from the solution tree."""
-        if pop:
-            new_solution = self.solution_tree.pop_nearest_solution(
-                self.current_pareto_front
-            )
-        else:
-            new_solution = self.solution_tree.get_nearest_solution(
-                self.current_pareto_front
-            )
+    def choose_new_base_evaluation(
+        self, reinsert_current_solution: bool = False
+    ) -> Optional[Solution]:
+        """Choose a new base evaluation from the solution tree.
+
+        If reinsert_current_solution is True, the current solution will be
+        reinserted into the solution tree. This is useful if you aren't
+        sure if you exhausted all possible actions for this solution.
+        """
+        if reinsert_current_solution:
+            self.solution_tree.add_solution(self.solution)
+        new_solution = self.solution_tree.pop_nearest_solution(
+            self.current_pareto_front
+        )
+
         if new_solution is None:
             raise Exception("No new base solutions left in the solution tree.")
 
@@ -143,7 +148,7 @@ class Store:
                 self.current_pareto_front.add(solution)
                 self._add_solution(solution, False)
                 # We choose a new base evaluation, because we are in a new front
-                self.choose_new_base_evaluation()
+                self.choose_new_base_evaluation(reinsert_current_solution=True)
             else:
                 self._add_solution(solution, True)
                 not_chosen_tries.append((status, solution))
