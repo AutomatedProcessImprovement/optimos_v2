@@ -104,10 +104,10 @@ class ActionSelector:
 
             if len(possible_actions) == 0:
                 print_l1("No actions remaining, after removing Tabu & N/A actions.")
-                print_l1("Choosing new baseline evaluation.")
+                print_l2("Choosing new baseline evaluation.")
                 success = store.choose_new_base_evaluation() is not None
                 if not success:
-                    print_l1("No new baseline evaluation found. Stopping.")
+                    print_l2("No new baseline evaluation found. Stopping.")
                     return None
                 continue
 

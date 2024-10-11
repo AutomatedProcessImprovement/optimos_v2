@@ -5,7 +5,6 @@ from rtree import index
 
 from o2.models.evaluation import Evaluation
 
-
 if TYPE_CHECKING:
     from o2.models.solution import Solution
 

@@ -51,12 +51,7 @@ class Store:
 
     @property
     def current_pareto_front(self) -> ParetoFront:
-        """Returns the current Pareto Front.
-
-        If there is no Pareto Front, creates a new one and returns it.
-        """
-        if not self.pareto_fronts:
-            self.pareto_fronts = [ParetoFront()]
+        """Returns the current Pareto Front."""
         return self.pareto_fronts[-1]
 
     @property

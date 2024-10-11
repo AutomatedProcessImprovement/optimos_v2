@@ -5,6 +5,7 @@ import rtree
 
 from o2.models.solution import Solution
 from o2.pareto_front import ParetoFront
+from o2.util.indented_printer import print_l3
 
 if TYPE_CHECKING:
     from o2.actions.base_action import BaseAction
@@ -63,6 +64,13 @@ class SolutionTree:
         if nearest_solution is not None:
             self.rtree.delete(nearest_solution.id, nearest_solution.point)
             self.discarded_solutions.append(nearest_solution)
+            print_l3(
+                f"Popped solution. {len(self.solution_lookup) - len(self.discarded_solutions)} solutions left. ({len(self.discarded_solutions)} exhausted so far)"  # noqa: E501
+            )
+            if nearest_solution not in pareto_front.solutions:
+                print_l3("Nearest solution is NOT in pareto front.")
+            else:
+                print_l3("Nearest solution is IN pareto front.")
         return nearest_solution
 
     def check_if_already_done(
