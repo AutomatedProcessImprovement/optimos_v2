@@ -42,10 +42,13 @@ class SolutionTree:
         This means the solution with the smallest distance to any solution in the
         given Pareto Front. With the distance being the euclidean distance of the
         evaluations on the time & cost axis.
+
+        If there are still pareto solutions left, it will usually return the
+        most recent one. If there are no pareto solutions left, it will return
         """
         nearest_solution: Optional[Solution] = None
         nearest_distance = float("inf")
-        for pareto_solution in pareto_front.solutions:
+        for pareto_solution in reversed(pareto_front.solutions):
             item = next(
                 self.rtree.nearest(pareto_solution.point, 1, objects=True), None
             )
@@ -53,6 +56,10 @@ class SolutionTree:
                 continue
             solution = self.solution_lookup[item.id]
             distance = solution.evaluation.distance_to(solution.evaluation)
+            # Early exit if we find a pareto solution.
+            # Because of reversed, it will be the most recent
+            if distance == 0:
+                return solution
             if distance < nearest_distance and distance <= max_distance:
                 nearest_solution = solution
                 nearest_distance = distance

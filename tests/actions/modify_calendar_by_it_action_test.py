@@ -6,46 +6,52 @@ from o2.models.self_rating import SelfRatingInput
 from o2.models.timetable import TimePeriod
 from o2.store import Store
 from tests.fixtures.constraints_generator import ConstraintsGenerator
+from tests.fixtures.test_helpers import (
+    first_calendar_first_period_id,
+    replace_constraints,
+    replace_timetable,
+)
 from tests.fixtures.timetable_generator import TimetableGenerator
 
 
 def test_action_creation_simple_addition(one_task_store: Store):
-    one_task_store.replaceTimetable(
-        resource_calendars=TimetableGenerator.resource_calendars(8, 16, False)
+    store = replace_timetable(
+        one_task_store,
+        resource_calendars=TimetableGenerator.resource_calendars(8, 16, False),
     )
 
-    evaluation, _ = one_task_store.evaluate()
-    input = SelfRatingInput.from_base_solution(evaluation)
+    input = SelfRatingInput.from_base_solution(store.solution)
 
-    rating, action = next(ModifyCalendarByITAction.rate_self(one_task_store, input))
+    rating, action = next(ModifyCalendarByITAction.rate_self(store, input))
 
     assert action is not None
     assert "add_hours_after" in action.params
     assert action.params["add_hours_after"] == 1
     assert action.params["calendar_id"] == TimetableGenerator.CALENDAR_ID
-    assert action.params["period_index"] == 0
+    assert action.params["period_id"] == first_calendar_first_period_id(store)
 
 
 def test_action_creation_simple_shift(one_task_store: Store):
-    one_task_store.replaceTimetable(
-        resource_calendars=TimetableGenerator.resource_calendars(8, 16, False)
+    store = replace_timetable(
+        one_task_store,
+        resource_calendars=TimetableGenerator.resource_calendars(8, 16, False),
     )
-    one_task_store.replaceConstraints(
+    store = replace_constraints(
+        store,
         resources=ConstraintsGenerator.resource_constraints(
             global_constraints=ConstraintsGenerator.global_constraints(
                 # Restrict to 8 hours, so we cant just add a new hour
                 max_consecutive_cap=8
             )
-        )
+        ),
     )
 
-    evaluation, _ = one_task_store.evaluate()
-    input = SelfRatingInput.from_base_solution(evaluation)
+    input = SelfRatingInput.from_base_solution(store.solution)
 
-    rating, action = next(ModifyCalendarByITAction.rate_self(one_task_store, input))
+    rating, action = next(ModifyCalendarByITAction.rate_self(store, input))
 
     assert action is not None
     assert "shift_hours" in action.params
     assert action.params["shift_hours"] == 1
     assert action.params["calendar_id"] == TimetableGenerator.CALENDAR_ID
-    assert action.params["period_index"] == 0
+    assert action.params["period_id"] == first_calendar_first_period_id(store)

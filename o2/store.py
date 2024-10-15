@@ -142,6 +142,16 @@ class Store:
                 not_chosen_tries.append((status, solution))
         return chosen_tries, not_chosen_tries
 
+    def run_action(self, action: "BaseAction") -> Optional[Solution]:
+        """Run an action and add the new solution to the store.
+
+        NOTE: Usually you would use the HillClimber to run actions.
+        This method should only be used in tests.
+        """
+        new_solution = Solution.from_parent(self.solution, action)
+        self.process_many_action_tries([new_solution])
+        self.choose_new_base_evaluation()
+
     # Tries an action and returns the status of the new evaluation
     # Does NOT modify the store
     def try_solution(self, solution: "Solution") -> ActionTry:

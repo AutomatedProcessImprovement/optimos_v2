@@ -1,5 +1,6 @@
 from dataclasses import replace
 
+from o2.actions.base_action import BaseAction
 from o2.models.solution import Solution
 from o2.store import Store
 
@@ -30,3 +31,7 @@ def replace_constraints(store: Store, **kwargs):
         solution=store.solution,
         constraints=new_constraints,
     )
+
+
+def first_calendar_first_period_id(store: Store):
+    return store.base_timetable.resource_calendars[0].time_periods[0].id

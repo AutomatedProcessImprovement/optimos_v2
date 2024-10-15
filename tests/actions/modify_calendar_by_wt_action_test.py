@@ -23,7 +23,7 @@ def test_action_creation_simple_addition(one_task_store: Store):
     assert "add_hours_before" in action.params
     assert action.params["add_hours_before"] == 1
     assert action.params["calendar_id"] == TimetableGenerator.CALENDAR_ID
-    assert action.params["period_index"] == 0
+    assert action.params["period_id"] == 0
 
 
 def test_action_creation_simple_shift(one_task_store: Store):
@@ -48,4 +48,4 @@ def test_action_creation_simple_shift(one_task_store: Store):
     assert "shift_hours" in action.params
     assert action.params["shift_hours"] == -1
     assert action.params["calendar_id"] == TimetableGenerator.CALENDAR_ID
-    assert action.params["period_index"] == 0
+    assert action.params["period_id"] == 0
