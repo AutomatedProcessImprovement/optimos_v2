@@ -10,6 +10,7 @@ from typing import (
     TypeAlias,
 )
 
+from dataclass_wizard import JSONWizard
 from typing_extensions import TypedDict
 
 from o2.util.helper import hash_string
@@ -28,7 +29,7 @@ class BaseActionParamsType(TypedDict):
 
 
 @dataclass(frozen=True)
-class BaseAction(ABC):
+class BaseAction(JSONWizard, ABC):
     """Abstract class for all actions."""
 
     params: BaseActionParamsType
@@ -53,13 +54,6 @@ class BaseAction(ABC):
         if not isinstance(other, BaseAction):
             return NotImplemented
         return self.__class__ == other.__class__ and self.params == other.params
-
-    def to_json(self) -> dict:
-        """Convert the action to a JSON serializable format."""
-        return {
-            "type": self.__class__.__name__,
-            "params": self.params,
-        }
 
     @functools.cached_property
     def id(self) -> str:

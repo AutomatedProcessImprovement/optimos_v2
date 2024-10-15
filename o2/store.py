@@ -70,11 +70,18 @@ class Store:
         return self.base_solution.state
 
     @property
+    def base_timetable(self) -> "TimetableType":
+        """Returns the base timetable, e.g. the timetable before any changes."""
+        return self.base_state.timetable
+
+    @property
     def current_evaluation(self) -> Evaluation:
+        """Returns the current evaluation of the solution."""
         return self.solution.evaluation
 
     @property
     def current_timetable(self) -> "TimetableType":
+        """Return the current timetable of the solution."""
         return self.solution.state.timetable
 
     def choose_new_base_evaluation(
@@ -99,16 +106,8 @@ class Store:
         return new_solution
 
     def _add_solution(self, solution: Solution, dominated_by_front: bool) -> None:
-        """Add an action and state to the store"""
+        """Add an action and state to the store."""
         self.solution_tree.add_solution(solution)
-        # If we are in legacy optimos combined mode, we need to switch the mode
-        if (
-            not dominated_by_front
-            and self.settings.legacy_approach.combined_enabled
-            and isinstance(solution.last_action, ModifyCalendarBaseAction)
-            or isinstance(solution.last_action, ModifyResourceBaseAction)
-        ):
-            self.settings.set_next_combined_mode_status()
 
     def process_many_action_tries(
         self, solutions: list[Solution]
@@ -123,13 +122,7 @@ class Store:
         chosen_tries = []
         not_chosen_tries = []
         for solution in solutions:
-            status = (
-                self.current_pareto_front.is_in_front(solution)
-                # We need to skip actions not valid by legacy_combined_mode_status
-                if not self.settings.legacy_approach.combined_enabled
-                or self.settings.legacy_approach.action_matches(solution.last_action)
-                else None
-            )
+            status = self.current_pareto_front.is_in_front(solution)
             if solution.evaluation.is_empty:
                 status = FRONT_STATUS.INVALID
 

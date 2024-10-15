@@ -1,5 +1,6 @@
 import concurrent.futures
 import os
+import traceback
 from typing import Optional, Type, Union
 
 from o2.actions.add_resource_action import AddResourceAction
@@ -144,7 +145,7 @@ class ActionSelector:
         # TODO: Find a smart way to see which rules not to evaluate,
         #  when all possible actions are already in the tabu list
         # # tabu_indices = [action.params["rule_hash"] for action in store.tabu_list]
-        #  type: ignore TODO FIX Type
+        #  type: ignore # TODO FIX Type
 
         # # Only allow rules, that can be decreased / modified in size
         # batching_rules = [
@@ -213,6 +214,7 @@ class ActionSelector:
                     evaluations[solution.last_action.params["rule"]] = solution  # type: ignore
                 except Exception as e:
                     print_l1(f"Error in future: {e}")
+                    print_l2(traceback.format_exc())
                     continue
 
         return evaluations

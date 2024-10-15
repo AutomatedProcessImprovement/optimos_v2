@@ -5,14 +5,15 @@ from typing import TYPE_CHECKING
 from typing_extensions import NotRequired
 
 from o2.actions.base_action import BaseAction, BaseActionParamsType, RateSelfReturnType
-from o2.models.days import DAY
+from o2.models.legacy_approach import LegacyApproach
 from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.state import State
 from o2.models.time_period import TimePeriod
 from o2.models.timetable import ResourceCalendar
-from o2.util.indented_printer import print_l2, print_l3
+from o2.util.indented_printer import print_l2
 
 if TYPE_CHECKING:
+    from o2.models.days import DAY
     from o2.store import Store
 
 
@@ -21,7 +22,7 @@ class ModifyCalendarBaseActionParamsType(BaseActionParamsType):
 
     calendar_id: str
     period_id: int
-    day: DAY
+    day: "DAY"
     shift_hours: NotRequired[int]
     add_hours_before: NotRequired[int]
     add_hours_after: NotRequired[int]
@@ -106,8 +107,14 @@ class ModifyCalendarBaseAction(BaseAction, ABC):
     @staticmethod
     def get_default_rating(store: "Store") -> RATING:
         """Return the default rating for this action."""
-        if store.settings.legacy_approach.calendar_is_next:
-            return RATING.HIGH
+        if store.settings.legacy_approach == LegacyApproach.COMBINED:
+            last_action = next(iter(store.solution.actions), None)
+            if last_action is None:
+                return RATING.HIGH
+            elif isinstance(last_action, ModifyCalendarBaseAction):
+                return RATING.LOW
+            else:
+                return RATING.HIGH
         elif store.settings.legacy_approach.calendar_is_disabled:
             return RATING.NOT_APPLICABLE
-        return RATING.LOW
+        return RATING.MEDIUM

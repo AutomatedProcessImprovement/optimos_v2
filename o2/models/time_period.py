@@ -1,6 +1,5 @@
-from dataclasses import replace
 import functools
-from typing import TYPE_CHECKING, ClassVar, List, Optional
+from typing import ClassVar, List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -15,15 +14,15 @@ class TimePeriod(BaseModel):
     this also means that we need to use pydantic directly instead of JSONWizard.
     """
 
-    from_: "DAY" = Field(..., alias="from")
+    from_: "DAY" = Field(..., serialization_alias="from")
     """The start of the time period (day, uppercase, e.g. MONDAY)"""
 
     to: "DAY" = Field(...)
     """The end of the time period (day, uppercase, e.g. FRIDAY)"""
 
-    begin_time: str = Field(..., alias="beginTime")
+    begin_time: str = Field(..., serialization_alias="beginTime")
     """The start time of the time period (24h format, e.g. 08:00)"""
-    end_time: str = Field(..., alias="endTime")
+    end_time: str = Field(..., serialization_alias="endTime")
     """The end time of the time period (24h format, e.g. 17:00)"""
 
     class Config:  # noqa: D106

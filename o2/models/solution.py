@@ -1,14 +1,12 @@
-from dataclasses import dataclass, field
 import functools
+from dataclasses import dataclass, field
 from json import dumps
 from typing import Optional
-from uuid import uuid4
 
 from o2.actions.base_action import BaseAction
 from o2.models.evaluation import Evaluation
 from o2.models.state import State
-from o2.pareto_front import FRONT_STATUS
-from o2.util.helper import hash_int, hash_string
+from o2.util.helper import hash_int
 
 
 @dataclass(frozen=True)

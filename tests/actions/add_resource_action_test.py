@@ -2,12 +2,12 @@ from o2.actions.add_resource_action import AddResourceAction
 from o2.models.self_rating import SelfRatingInput
 from o2.store import Store
 from o2.util.helper import name_is_clone_of
+from tests.fixtures.test_helpers import replace_state
 from tests.fixtures.timetable_generator import TimetableGenerator
 
 
 def test_action_creation_one_resource_one_task(one_task_store: Store):
-    evaluation, _ = one_task_store.evaluate()
-    input = SelfRatingInput.from_base_solution(evaluation)
+    input = SelfRatingInput.from_base_solution(one_task_store.solution)
 
     rating, action = next(AddResourceAction.rate_self(one_task_store, input))
 
@@ -21,8 +21,7 @@ def test_action_creation_one_resource_one_task(one_task_store: Store):
 
 
 def test_action_creation_one_resource_two_tasks(two_tasks_store: Store):
-    evaluation, _ = two_tasks_store.evaluate()
-    input = SelfRatingInput.from_base_solution(evaluation)
+    input = SelfRatingInput.from_base_solution(two_tasks_store.solution)
 
     rating, action = next(AddResourceAction.rate_self(two_tasks_store, input))
 
@@ -36,18 +35,18 @@ def test_action_creation_one_resource_two_tasks(two_tasks_store: Store):
 
 
 def test_action_creation_two_resources_one_task(one_task_store: Store):
-    one_task_store.replaceState(
+    store = replace_state(
+        one_task_store,
         # Add a second resource
-        timetable=one_task_store.base_solution.timetable.clone_resource(
+        timetable=one_task_store.base_timetable.clone_resource(
             TimetableGenerator.RESOURCE_ID,
             [TimetableGenerator.FIRST_ACTIVITY],
-        )
+        ),
     )
-    evaluation, _ = one_task_store.evaluate()
 
-    input = SelfRatingInput.from_base_solution(evaluation)
+    input = SelfRatingInput.from_base_solution(store.solution)
 
-    rating, action = next(AddResourceAction.rate_self(one_task_store, input))
+    rating, action = next(AddResourceAction.rate_self(store, input))
 
     assert action is not None
     assert "resource_id" in action.params
@@ -59,19 +58,18 @@ def test_action_creation_two_resources_one_task(one_task_store: Store):
 
 
 def test_action_creation_two_resources_two_tasks(two_tasks_store: Store):
-    two_tasks_store.replaceState(
+    store = replace_state(
+        two_tasks_store,
         # Add a second resource, and limit the first resource to a small time frame
-        timetable=two_tasks_store.base_solution.timetable.clone_resource(
+        timetable=two_tasks_store.base_timetable.clone_resource(
             TimetableGenerator.RESOURCE_ID,
             [TimetableGenerator.FIRST_ACTIVITY, TimetableGenerator.SECOND_ACTIVITY],
-        ).replace_resource_calendar(TimetableGenerator.resource_calendars(10, 12)[0])
+        ).replace_resource_calendar(TimetableGenerator.resource_calendars(10, 12)[0]),
     )
 
-    evaluation, _ = two_tasks_store.evaluate()
+    input = SelfRatingInput.from_base_solution(store.solution)
 
-    input = SelfRatingInput.from_base_solution(evaluation)
-
-    rating, action = next(AddResourceAction.rate_self(two_tasks_store, input))
+    rating, action = next(AddResourceAction.rate_self(store, input))
 
     assert action is not None
     assert "resource_id" in action.params

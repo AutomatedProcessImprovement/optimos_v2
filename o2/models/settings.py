@@ -71,7 +71,3 @@ class Settings:
     With distance being the min euclidean distance to any solution in
     the current Pareto Front.
     """
-
-    def set_next_combined_mode_status(self) -> None:
-        """Set the next combined mode status."""
-        self.legacy_approach = self.legacy_approach.next_combined()

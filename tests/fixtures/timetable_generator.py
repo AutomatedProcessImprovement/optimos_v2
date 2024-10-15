@@ -44,9 +44,10 @@ class TimetableGenerator:
         self.bpmn = ElementTree.parse(fileIo)
         self.bpmnRoot = self.bpmn.getroot()
         # Get all the Elements of kind bpmn:task in bpmn:process
-        self.tasks = self.bpmnRoot.findall(
+        self.tasks: list[ElementTree.Element] = self.bpmnRoot.findall(
             ".//{http://www.omg.org/spec/BPMN/20100524/MODEL}task"
         )
+        self.task_ids = [task.attrib["id"] for task in self.tasks]
         self.timetable = TimetableType(
             resource_profiles=[],
             arrival_time_distribution=ArrivalTimeDistribution(
@@ -121,19 +122,9 @@ class TimetableGenerator:
     def create_simple_task_resource_distribution(self, duration=60 * 60):
         self.timetable = replace(
             self.timetable,
-            task_resource_distribution=[
-                TaskResourceDistributions(
-                    task_id=task.attrib["id"],
-                    resources=[
-                        TaskResourceDistribution(
-                            resource_id=self.RESOURCE_ID,
-                            distribution_name=DISTRIBUTION_TYPE.FIXED,
-                            distribution_params=[DistributionParameter(value=duration)],
-                        )
-                    ],
-                )
-                for task in self.tasks
-            ],
+            task_resource_distribution=TimetableGenerator.simple_task_resource_distribution(
+                self.task_ids, duration
+            ),
         )
         return self
 
@@ -404,6 +395,22 @@ class TimetableGenerator:
                 ],
             ],
         )
+
+    @staticmethod
+    def simple_task_resource_distribution(task_ids: list[str], duration=60 * 60):
+        return [
+            TaskResourceDistributions(
+                task_id=task_id,
+                resources=[
+                    TaskResourceDistribution(
+                        resource_id=TimetableGenerator.RESOURCE_ID,
+                        distribution_name=DISTRIBUTION_TYPE.FIXED,
+                        distribution_params=[DistributionParameter(value=duration)],
+                    )
+                ],
+            )
+            for task_id in task_ids
+        ]
 
     def generate_simple(self, include_batching=False):
         self.create_simple_resource_profile()

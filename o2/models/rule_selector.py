@@ -1,12 +1,16 @@
 from dataclasses import dataclass
 from typing import Optional
 
+from dataclass_wizard import JSONWizard
+
 from o2.models.state import State
 from o2.models.timetable import BatchingRule, FiringRule
 
 
 @dataclass(frozen=True)
-class RuleSelector:
+class RuleSelector(JSONWizard):
+    """Rule selector for batching rule and firing rule."""
+
     batching_rule_task_id: str
     # OR Index, AND Index
     firing_rule_index: Optional[tuple[int, int]]

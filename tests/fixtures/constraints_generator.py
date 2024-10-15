@@ -36,6 +36,7 @@ class ConstraintsGenerator:
         self.tasks = self.bpmnRoot.findall(
             ".//{http://www.omg.org/spec/BPMN/20100524/MODEL}task"
         )
+        self.task_ids = [task.attrib["id"] for task in self.tasks]
 
     # Add a size constraint to the constraints
     def add_size_constraint(
@@ -82,13 +83,7 @@ class ConstraintsGenerator:
 
     def add_week_day_constraint(self):
         self.constraints.batching_constraints.append(
-            WeekDayRuleConstraints(
-                id=self.SIMPLE_CONSTRAINT_ID + "_week_day",
-                tasks=[task.attrib["id"] for task in self.tasks],
-                batch_type=BATCH_TYPE.PARALLEL,
-                rule_type=RULE_TYPE.WEEK_DAY,
-                allowed_days=list(DAY),
-            )
+            self.week_day_constraint(self.task_ids, allowed_days=[DAY.MONDAY])
         )
         return self
 
@@ -156,6 +151,20 @@ class ConstraintsGenerator:
                 ),
             )
         ]
+
+    @staticmethod
+    def week_day_constraint(
+        task_ids: list[str], allowed_days: Optional[list[DAY]] = None
+    ):
+        if allowed_days is None:
+            allowed_days = list(DAY)
+        return WeekDayRuleConstraints(
+            id=ConstraintsGenerator.SIMPLE_CONSTRAINT_ID + "_week_day",
+            tasks=[task_id for task_id in task_ids],
+            batch_type=BATCH_TYPE.PARALLEL,
+            rule_type=RULE_TYPE.WEEK_DAY,
+            allowed_days=allowed_days,
+        )
 
     def generate(self):
         self.add_ready_wt_constraint()
