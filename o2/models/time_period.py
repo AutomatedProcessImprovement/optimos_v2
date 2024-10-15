@@ -1,9 +1,11 @@
 import functools
-from typing import ClassVar, List, Optional
+from json import dumps, loads
+from typing import Any, ClassVar, List, Optional
 
 from pydantic import BaseModel, Field
 
 from o2.models.days import DAY, day_range
+from o2.util.bit_mask_helper import get_ranges_from_bitmask
 from o2.util.helper import hash_int
 
 
@@ -14,19 +16,64 @@ class TimePeriod(BaseModel):
     this also means that we need to use pydantic directly instead of JSONWizard.
     """
 
-    from_: "DAY" = Field(..., serialization_alias="from")
+    from_: "DAY" = Field(...)
     """The start of the time period (day, uppercase, e.g. MONDAY)"""
 
     to: "DAY" = Field(...)
     """The end of the time period (day, uppercase, e.g. FRIDAY)"""
 
-    begin_time: str = Field(..., serialization_alias="beginTime")
+    begin_time: str = Field(
+        ...,
+    )
     """The start time of the time period (24h format, e.g. 08:00)"""
-    end_time: str = Field(..., serialization_alias="endTime")
+    end_time: str = Field(
+        ...,
+    )
     """The end time of the time period (24h format, e.g. 17:00)"""
 
     class Config:  # noqa: D106
         frozen = True
+
+    # Override model_dump for custom dictionary serialization
+    def model_dump(self, **kwargs):  # noqa: ANN201, D102, ANN003
+        # Get the default dictionary
+        data = super().model_dump(**kwargs)
+        # Replace Python-safe names with JSON-friendly aliases
+        data["from"] = data.pop("from_")
+        data["beginTime"] = data.pop("begin_time")
+        data["endTime"] = data.pop("end_time")
+        return data
+
+    # Override model_dump_json for custom JSON serialization
+    def model_dump_json(self, **kwargs):  # noqa: ANN201, D102
+        # Serialize using model_dump and convert to JSON string
+        return dumps(self.model_dump(**kwargs))
+
+    # Custom deserialization from dictionary
+    @classmethod
+    def model_validate(  # noqa: ANN206, D102
+        cls,  # noqa: ANN102
+        obj: Any,  # noqa: ANN401
+        *,
+        strict: bool | None = None,
+        from_attributes: bool | None = None,
+        context: Any | None = None,  # noqa: ANN401
+    ):
+        # Convert JSON keys back to Python attribute names
+        if "from" in obj:
+            obj["from_"] = obj.pop("from")
+        if "beginTime" in obj:
+            obj["begin_time"] = obj.pop("beginTime")
+        if "endTime" in obj:
+            obj["end_time"] = obj.pop("endTime")
+        return super().model_validate(obj)
+
+    # Custom deserialization from JSON
+    @classmethod
+    def model_validate_json(cls, json_data, **kwargs):  # noqa: ANN206, D102, ANN001, ANN102, ANN003
+        # Use model_validate after parsing the JSON data
+        data = loads(json_data)
+        return cls.model_validate(data, **kwargs)
 
     ALL_DAY_BITMASK: ClassVar[int] = 0b111111111111111111111111
 
