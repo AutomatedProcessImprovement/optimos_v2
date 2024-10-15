@@ -8,7 +8,7 @@ from o2.actions.action_selector import ActionSelector
 from o2.actions.base_action import BaseAction
 from o2.models.solution import Solution
 from o2.pareto_front import FRONT_STATUS
-from o2.store import ActionTry, Store
+from o2.store import SolutionTry, Store
 from o2.util.indented_printer import print_l0, print_l1, print_l2, print_l3
 
 
@@ -58,13 +58,13 @@ class HillClimber:
                 print_l1(f"Running {len(actions_to_perform)} actions...")
                 start_time = time.time()
 
-                action_tries = self._execute_actions_parallel(
+                solutions = self._execute_actions_parallel(
                     self.store, actions_to_perform
                 )
                 print_l2(f"Simulation took {time.time() - start_time:.2f}s")
 
-                chosen_tries, not_chosen_tries = self.store.process_many_action_tries(
-                    action_tries
+                chosen_tries, not_chosen_tries = self.store.process_many_solutions(
+                    solutions
                 )
 
                 if len(chosen_tries) == 0:
@@ -116,7 +116,7 @@ class HillClimber:
         The results have not modified the state of the store.
 
         """
-        action_tries: list[ActionTry] = []
+        solution_tries: list[SolutionTry] = []
 
         if not store.settings.disable_parallel_evaluation:
             futures: list[concurrent.futures.Future[Solution]] = []
@@ -128,22 +128,22 @@ class HillClimber:
             for future in concurrent.futures.as_completed(futures):
                 try:
                     new_solution = future.result()
-                    action_tries.append(self.store.try_solution(new_solution))
+                    solution_tries.append(self.store.try_solution(new_solution))
                 except Exception as e:
                     print_l1(f"Error evaluating actions : {e}")
         else:
             for action in actions_to_perform:
-                action_try = store.try_solution(
+                solution_try = store.try_solution(
                     Solution.from_parent(store.solution, action)
                 )
-                action_tries.append(action_try)
+                solution_tries.append(solution_try)
 
         # Sort tries with dominating ones first
-        action_tries.sort(
+        solution_tries.sort(
             key=lambda x: -1
             if x[0] == FRONT_STATUS.IS_DOMINATED
             else 1
             if x[0] == FRONT_STATUS.DOMINATES
             else 0
         )
-        return list(map(lambda x: x[1], action_tries))
+        return list(map(lambda x: x[1], solution_tries))

@@ -7,65 +7,69 @@ from o2.models.rule_selector import RuleSelector
 from o2.models.self_rating import RATING, SelfRatingInput
 from o2.store import Store
 from tests.fixtures.constraints_generator import ConstraintsGenerator
+from tests.fixtures.test_helpers import replace_constraints, replace_timetable
 from tests.fixtures.timetable_generator import TimetableGenerator
 
 
 def test_increment_size(store: Store):
-    store.replaceTimetable(
+    store = replace_timetable(
+        store,
         batch_processing=[
             TimetableGenerator.large_wt_rule(TimetableGenerator.FIRST_ACTIVITY, 5 * 60)
-        ]
+        ],
     )
-    first_rule = store.base_solution.timetable.batch_processing[0]
+    first_rule = store.base_timetable.batch_processing[0]
 
     selector = RuleSelector.from_batching_rule(first_rule, (0, 1))
     action = ModifyLargeWtRuleAction(
         ModifyLargeWtRuleActionParamsType(rule=selector, wt_increment=1 * 60)
     )
-    new_state = action.apply(state=store.base_solution)
+    new_state = action.apply(state=store.base_state)
     assert first_rule.task_id == new_state.timetable.batch_processing[0].task_id
     assert new_state.timetable.batch_processing[0].firing_rules[0][1].value == (6 * 60)
 
 
 def test_decrement_size(store: Store):
-    store.replaceTimetable(
+    store = replace_timetable(
+        store,
         batch_processing=[
             TimetableGenerator.large_wt_rule(TimetableGenerator.FIRST_ACTIVITY, 5 * 60)
-        ]
+        ],
     )
-    first_rule = store.base_solution.timetable.batch_processing[0]
+    first_rule = store.base_timetable.batch_processing[0]
 
     selector = RuleSelector.from_batching_rule(first_rule, (0, 1))
     action = ModifyLargeWtRuleAction(
         ModifyLargeWtRuleActionParamsType(rule=selector, wt_increment=-1 * 60)
     )
-    new_state = action.apply(state=store.base_solution)
+    new_state = action.apply(state=store.base_state)
     assert first_rule.task_id == new_state.timetable.batch_processing[0].task_id
     assert new_state.timetable.batch_processing[0].firing_rules[0][1].value == (4 * 60)
 
 
 def test_self_rating_optimal(one_task_store: Store):
-    store = one_task_store
-    store.replaceTimetable(
+    store = replace_timetable(
+        one_task_store,
         batch_processing=[
             TimetableGenerator.large_wt_rule(
                 TimetableGenerator.FIRST_ACTIVITY, 30 * 60, size=2
             )
         ],
         task_resource_distribution=TimetableGenerator(
-            store.base_solution.bpmn_definition
+            one_task_store.base_state.bpmn_definition
         )
         # 1 Minute Tasks
         .create_simple_task_resource_distribution(60)
         .timetable.task_resource_distribution,
     )
 
-    store.replaceConstraints(
-        batching_constraints=ConstraintsGenerator(store.base_solution.bpmn_definition)
+    store = replace_constraints(
+        store,
+        batching_constraints=ConstraintsGenerator(store.base_state.bpmn_definition)
         .add_large_wt_constraint()
-        .constraints.batching_constraints
+        .constraints.batching_constraints,
     )
-    store.evaluate()
+
     evaluations = ActionSelector.evaluate_rules(store)
     rating_input = SelfRatingInput.from_rule_solutions(store, evaluations)
     assert rating_input is not None
@@ -74,24 +78,25 @@ def test_self_rating_optimal(one_task_store: Store):
 
 
 def test_self_rating_non_optimal(one_task_store: Store):
-    store = one_task_store
-    store.replaceTimetable(
+    store = replace_timetable(
+        one_task_store,
         batch_processing=[
             TimetableGenerator.large_wt_rule(
                 TimetableGenerator.FIRST_ACTIVITY, 30 * 60, size=10
             )
-        ]
+        ],
     )
 
-    store.replaceConstraints(
-        batching_constraints=ConstraintsGenerator(store.base_solution.bpmn_definition)
+    store = replace_constraints(
+        store,
+        batching_constraints=ConstraintsGenerator(store.base_state.bpmn_definition)
         .add_large_wt_constraint()
-        .constraints.batching_constraints
+        .constraints.batching_constraints,
     )
-    store.evaluate()
+
     evaluations = ActionSelector.evaluate_rules(store)
     rating_input = SelfRatingInput(
-        store.current_fastest_evaluation,
+        store.solution,
         evaluations,
         RuleSelector(TimetableGenerator.FIRST_ACTIVITY, (0, 1)),
     )

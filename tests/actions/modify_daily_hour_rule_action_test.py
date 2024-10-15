@@ -7,16 +7,18 @@ from o2.models.rule_selector import RuleSelector
 from o2.models.self_rating import RATING, SelfRatingInput
 from o2.store import Store
 from tests.fixtures.constraints_generator import ConstraintsGenerator
+from tests.fixtures.test_helpers import replace_constraints, replace_timetable
 from tests.fixtures.timetable_generator import TimetableGenerator
 
 
 def test_add_to_greater_then(store: Store):
-    store.replaceTimetable(
+    store = replace_timetable(
+        store,
         batch_processing=[
             TimetableGenerator.daily_hour_rule(TimetableGenerator.FIRST_ACTIVITY, 9, 12)
-        ]
+        ],
     )
-    first_rule = store.base_solution.timetable.batch_processing[0]
+    first_rule = store.base_timetable.batch_processing[0]
     greater_then_selector = RuleSelector.from_batching_rule(first_rule, (0, 0))
 
     action = ModifyDailyHourRuleAction(
@@ -25,54 +27,55 @@ def test_add_to_greater_then(store: Store):
         )
     )
 
-    new_state = action.apply(state=store.base_solution)
+    new_state = action.apply(state=store.base_state)
     assert first_rule.task_id == new_state.timetable.batch_processing[0].task_id
     assert new_state.timetable.batch_processing[0].firing_rules[0][0].value == 10
     assert len(new_state.timetable.batch_processing[0].firing_rules[0]) == 3
 
 
 def test_add_to_less_then(store: Store):
-    store.replaceTimetable(
+    store = replace_timetable(
+        store,
         batch_processing=[
             TimetableGenerator.daily_hour_rule(TimetableGenerator.FIRST_ACTIVITY, 9, 12)
-        ]
+        ],
     )
-    first_rule = store.base_solution.timetable.batch_processing[0]
+    first_rule = store.base_timetable.batch_processing[0]
     less_then_selector = RuleSelector.from_batching_rule(first_rule, (0, 1))
 
     action = ModifyDailyHourRuleAction(
         ModifyDailyHourRuleActionParamsType(rule=less_then_selector, hour_increment=-1)
     )
 
-    new_state = action.apply(state=store.base_solution)
+    new_state = action.apply(state=store.base_state)
     assert first_rule.task_id == new_state.timetable.batch_processing[0].task_id
     assert new_state.timetable.batch_processing[0].firing_rules[0][1].value == 11
     assert len(new_state.timetable.batch_processing[0].firing_rules[0]) == 3
 
 
 def test_self_rate_simple(one_task_store: Store):
-    store = one_task_store
-    store.replaceTimetable(
+    store = replace_timetable(
+        one_task_store,
         batch_processing=[
             TimetableGenerator.daily_hour_rule(TimetableGenerator.FIRST_ACTIVITY, 9, 12)
         ],
         task_resource_distribution=TimetableGenerator(
-            store.base_solution.bpmn_definition
+            one_task_store.base_state.bpmn_definition
         )
         # 1 Minute Tasks
         .create_simple_task_resource_distribution(60)
         .timetable.task_resource_distribution,
     )
 
-    store.replaceConstraints(
-        batching_constraints=ConstraintsGenerator(store.base_solution.bpmn_definition)
+    store = replace_constraints(
+        store,
+        batching_constraints=ConstraintsGenerator(store.base_state.bpmn_definition)
         .add_daily_hour_constraint()
-        .constraints.batching_constraints
+        .constraints.batching_constraints,
     )
 
-    first_rule = store.base_solution.timetable.batch_processing[0]
+    first_rule = store.base_timetable.batch_processing[0]
 
-    store.evaluate()
     evaluations = ActionSelector.evaluate_rules(store, skip_size_rules=True)
     rating_input = SelfRatingInput.from_rule_solutions(store, evaluations)
     assert rating_input is not None
@@ -97,32 +100,34 @@ def test_self_rate_simple2(one_task_store: Store):
     impactful (most increasing ) one
     """
 
-    store = one_task_store
-    store.replaceTimetable(
+    store = replace_timetable(
+        one_task_store,
         batch_processing=[
             TimetableGenerator.daily_hour_rule(TimetableGenerator.FIRST_ACTIVITY, 9, 12)
         ],
-        arrival_time_calendar=TimetableGenerator(store.base_solution.bpmn_definition)
+        arrival_time_calendar=TimetableGenerator(
+            one_task_store.base_state.bpmn_definition
+        )
         # Events come in from 10:00-17:00
         .create_simple_arrival_time_calendar(00, 12)
         .timetable.arrival_time_calendar,
         task_resource_distribution=TimetableGenerator(
-            store.base_solution.bpmn_definition
+            one_task_store.base_state.bpmn_definition
         )
         # 1 Minute Tasks
         .create_simple_task_resource_distribution(60)
         .timetable.task_resource_distribution,
     )
 
-    store.replaceConstraints(
-        batching_constraints=ConstraintsGenerator(store.base_solution.bpmn_definition)
+    store = replace_constraints(
+        store,
+        batching_constraints=ConstraintsGenerator(store.base_state.bpmn_definition)
         .add_daily_hour_constraint()
-        .constraints.batching_constraints
+        .constraints.batching_constraints,
     )
 
-    first_rule = store.base_solution.timetable.batch_processing[0]
+    first_rule = store.base_timetable.batch_processing[0]
 
-    store.evaluate()
     evaluations = ActionSelector.evaluate_rules(store, skip_size_rules=True)
     rating_input = SelfRatingInput.from_rule_solutions(store, evaluations)
     assert rating_input is not None

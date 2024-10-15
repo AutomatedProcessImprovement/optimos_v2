@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from o2.actions.base_action import BaseAction
     from o2.models.timetable import TimetableType
 
-ActionTry: TypeAlias = tuple[FRONT_STATUS, Solution]
+SolutionTry: TypeAlias = tuple[FRONT_STATUS, Solution]
 
 
 class Store:
@@ -109,9 +109,9 @@ class Store:
         """Add an action and state to the store."""
         self.solution_tree.add_solution(solution)
 
-    def process_many_action_tries(
+    def process_many_solutions(
         self, solutions: list[Solution]
-    ) -> tuple[list[ActionTry], list[ActionTry]]:
+    ) -> tuple[list[SolutionTry], list[SolutionTry]]:
         """Process a list of action solutions.
 
         Ignores the solutions that are dominated by the current Pareto Front.
@@ -149,12 +149,12 @@ class Store:
         This method should only be used in tests.
         """
         new_solution = Solution.from_parent(self.solution, action)
-        self.process_many_action_tries([new_solution])
+        self.process_many_solutions([new_solution])
         self.choose_new_base_evaluation()
 
     # Tries an action and returns the status of the new evaluation
     # Does NOT modify the store
-    def try_solution(self, solution: "Solution") -> ActionTry:
+    def try_solution(self, solution: "Solution") -> SolutionTry:
         """Try an action and return the status of the new evaluation.
 
         If the evaluation throws an exception, it returns IS_DOMINATED.

@@ -4,39 +4,42 @@ from o2.actions.modify_ready_wt_rule_action import (
 )
 from o2.models.rule_selector import RuleSelector
 from o2.store import Store
+from tests.fixtures.test_helpers import replace_timetable
 from tests.fixtures.timetable_generator import TimetableGenerator
 
 
 def test_increment_size(store: Store):
-    store.replaceTimetable(
+    store = replace_timetable(
+        store,
         batch_processing=[
             TimetableGenerator.ready_wt_rule(TimetableGenerator.FIRST_ACTIVITY, 5 * 60)
-        ]
+        ],
     )
-    first_rule = store.base_solution.timetable.batch_processing[0]
+    first_rule = store.base_timetable.batch_processing[0]
 
     selector = RuleSelector.from_batching_rule(first_rule, (0, 0))
     action = ModifyReadyWtRuleAction(
         ModifyReadyWtRuleActionParamsType(rule=selector, wt_increment=1 * 60)
     )
-    new_state = action.apply(state=store.base_solution)
+    new_state = action.apply(state=store.base_state)
     assert first_rule.task_id == new_state.timetable.batch_processing[0].task_id
     assert new_state.timetable.batch_processing[0].firing_rules[0][0].value == (6 * 60)
 
 
 def test_decrement_size(store: Store):
-    store.replaceTimetable(
+    store = replace_timetable(
+        store,
         batch_processing=[
             TimetableGenerator.ready_wt_rule(TimetableGenerator.FIRST_ACTIVITY, 5 * 60)
-        ]
+        ],
     )
-    first_rule = store.base_solution.timetable.batch_processing[0]
+    first_rule = store.base_timetable.batch_processing[0]
 
     selector = RuleSelector.from_batching_rule(first_rule, (0, 0))
     action = ModifyReadyWtRuleAction(
         ModifyReadyWtRuleActionParamsType(rule=selector, wt_increment=-1 * 60)
     )
-    new_state = action.apply(state=store.base_solution)
+    new_state = action.apply(state=store.base_state)
     assert first_rule.task_id == new_state.timetable.batch_processing[0].task_id
     assert new_state.timetable.batch_processing[0].firing_rules[0][0].value == (4 * 60)
 

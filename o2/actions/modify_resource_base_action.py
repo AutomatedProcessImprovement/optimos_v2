@@ -82,10 +82,10 @@ class ModifyResourceBaseAction(BaseAction, ABC):
     def get_default_rating(store: "Store") -> RATING:
         """Return the default rating for this action."""
         if store.settings.legacy_approach == LegacyApproach.COMBINED:
-            last_action = next(iter(store.solution.actions), None)
-            if last_action is None:
-                return RATING.HIGH
-            elif isinstance(last_action, ModifyResourceBaseAction):
+            # We start with Calendar actions, so we start with LOW rating
+            if store.solution.is_base_solution:  # noqa: SIM114
+                return RATING.LOW
+            elif isinstance(store.solution.last_action, ModifyResourceBaseAction):
                 return RATING.LOW
             else:
                 return RATING.HIGH

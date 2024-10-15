@@ -1,25 +1,26 @@
 from o2.hill_climber import HillClimber
 from o2.store import Store
 from tests.fixtures.constraints_generator import ConstraintsGenerator
+from tests.fixtures.test_helpers import replace_constraints, replace_timetable
 from tests.fixtures.timetable_generator import TimetableGenerator
 
 
 def test_hill_climber_simple(one_task_store: Store):
-    store = one_task_store
-
-    store.replaceTimetable(
+    store = replace_timetable(
+        one_task_store,
         batch_processing=[
             TimetableGenerator.batching_size_rule(
                 TimetableGenerator.FIRST_ACTIVITY, 10, 6
             )
-        ]
+        ],
     )
 
-    store.replaceConstraints(
-        batching_constraints=ConstraintsGenerator(store.base_solution.bpmn_definition)
+    store = replace_constraints(
+        store,
+        batching_constraints=ConstraintsGenerator(store.base_state.bpmn_definition)
         # We don't allow removal of the batching
         .add_size_constraint(optimal_duration=5, optimal_duration_bonus=0.1, min_size=1)
-        .constraints.batching_constraints
+        .constraints.batching_constraints,
     )
 
     store.settings.max_iterations = 3

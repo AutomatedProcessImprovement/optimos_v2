@@ -108,10 +108,9 @@ class ModifyCalendarBaseAction(BaseAction, ABC):
     def get_default_rating(store: "Store") -> RATING:
         """Return the default rating for this action."""
         if store.settings.legacy_approach == LegacyApproach.COMBINED:
-            last_action = next(iter(store.solution.actions), None)
-            if last_action is None:
+            if store.solution.is_base_solution:
                 return RATING.HIGH
-            elif isinstance(last_action, ModifyCalendarBaseAction):
+            elif isinstance(store.solution.last_action, ModifyCalendarBaseAction):
                 return RATING.LOW
             else:
                 return RATING.HIGH

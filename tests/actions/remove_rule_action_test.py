@@ -8,35 +8,38 @@ from o2.models.rule_selector import RuleSelector
 from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.timetable import COMPARATOR, BatchingRule, FiringRule
 from o2.store import Store
+from tests.fixtures.test_helpers import replace_timetable
 from tests.fixtures.timetable_generator import TimetableGenerator
 
 
 def test_remove_single_rule(store: Store):
-    store.replaceTimetable(
+    store = replace_timetable(
+        store,
         batch_processing=[
             TimetableGenerator.batching_size_rule(TimetableGenerator.FIRST_ACTIVITY, 2)
-        ]
+        ],
     )
-    first_rule = store.base_solution.timetable.batch_processing[0]
+    first_rule = store.base_timetable.batch_processing[0]
     selector = RuleSelector.from_batching_rule(first_rule, (0, 0))
     action = RemoveRuleAction(RemoveRuleActionParamsType(rule=selector))
-    new_state = action.apply(state=store.base_solution)
+    new_state = action.apply(state=store.base_state)
     assert len(new_state.timetable.batch_processing) == 0
 
 
 def test_remove_one_of_two_batching_rules(store: Store):
-    store.replaceTimetable(
+    store = replace_timetable(
+        store,
         batch_processing=[
             TimetableGenerator.batching_size_rule(TimetableGenerator.FIRST_ACTIVITY, 2),
             TimetableGenerator.batching_size_rule(
                 TimetableGenerator.SECOND_ACTIVITY, 2
             ),
-        ]
+        ],
     )
-    first_rule = store.base_solution.timetable.batch_processing[0]
+    first_rule = store.base_timetable.batch_processing[0]
     selector = RuleSelector.from_batching_rule(first_rule, (0, 0))
     action = RemoveRuleAction(RemoveRuleActionParamsType(rule=selector))
-    new_state = action.apply(state=store.base_solution)
+    new_state = action.apply(state=store.base_state)
     assert len(new_state.timetable.batch_processing) == 1
     assert new_state.timetable.batch_processing[0].task_id == "SECOND_ACTIVITY"
 
@@ -54,11 +57,11 @@ def test_remove_one_of_two_firing_rules(store: Store):
             )
         ]
     )
-    store.replaceTimetable(batch_processing=[batching_rule])
-    first_rule = store.base_solution.timetable.batch_processing[0]
+    store = replace_timetable(store, batch_processing=[batching_rule])
+    first_rule = store.base_timetable.batch_processing[0]
     selector = RuleSelector.from_batching_rule(first_rule, (0, 0))
     action = RemoveRuleAction(RemoveRuleActionParamsType(rule=selector))
-    new_state = action.apply(state=store.base_solution)
+    new_state = action.apply(state=store.base_state)
     assert len(new_state.timetable.batch_processing[0].firing_rules) == 1
     assert new_state.timetable.batch_processing[0].firing_rules[0][0].value == 42
 
@@ -103,12 +106,12 @@ def test_remove_complex_firing_rule(store: Store):
             ],
         ],
     )
-    store.base_solution.timetable.batch_processing.insert(1, batching_rule)
+    store.base_timetable.batch_processing.insert(1, batching_rule)
 
-    second_rule = store.base_solution.timetable.batch_processing[1]
+    second_rule = store.base_timetable.batch_processing[1]
     selector = RuleSelector.from_batching_rule(second_rule, (1, 1))
     action = RemoveRuleAction(RemoveRuleActionParamsType(rule=selector))
-    new_state = action.apply(state=store.base_solution)
+    new_state = action.apply(state=store.base_state)
     assert len(new_state.timetable.batch_processing[1].firing_rules[1]) == 2
     assert new_state.timetable.batch_processing[1].firing_rules[1][0].value == 41
     assert new_state.timetable.batch_processing[1].firing_rules[1][1].value == 43
@@ -117,15 +120,16 @@ def test_remove_complex_firing_rule(store: Store):
 
 
 def test_self_rating_optimal_rule(store: Store):
-    store.replaceTimetable(
+    store = replace_timetable(
+        store,
         batch_processing=[
+            # Be a 1000 times more efficient with batching
             TimetableGenerator.batching_size_rule(
-                TimetableGenerator.FIRST_ACTIVITY, 3, 0.1
+                TimetableGenerator.FIRST_ACTIVITY, 3, 0.001
             )
-        ]
+        ],
     )
 
-    store.evaluate()
     evaluations = ActionSelector.evaluate_rules(store)
     rating_input = SelfRatingInput.from_rule_solutions(store, evaluations)
     assert rating_input is not None
@@ -134,22 +138,18 @@ def test_self_rating_optimal_rule(store: Store):
 
 
 def test_self_rating_non_optimal_rule(one_task_store: Store):
-    store = one_task_store
-    store.replaceTimetable(
+    store = replace_timetable(
+        one_task_store,
         batch_processing=[
             TimetableGenerator.batching_size_rule(
                 TimetableGenerator.FIRST_ACTIVITY, 50, 1
             )
         ],
-        task_resource_distribution=TimetableGenerator(
-            store.base_solution.bpmn_definition
-        )
-        # 1 Minute Tasks
-        .create_simple_task_resource_distribution(60)
-        # TODO: Improve Syntax
-        .timetable.task_resource_distribution,
+        task_resource_distribution=TimetableGenerator.simple_task_resource_distribution(
+            TimetableGenerator(one_task_store.base_state.bpmn_definition).task_ids, 60
+        ),
     )
-    store.evaluate()
+
     evaluations = ActionSelector.evaluate_rules(store)
     rating_input = SelfRatingInput.from_rule_solutions(store, evaluations)
     assert rating_input is not None
