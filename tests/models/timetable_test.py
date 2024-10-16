@@ -199,8 +199,12 @@ def test_resource_calendar_verify_overlap():
         id="1",
         name="Resource Calendar",
         time_periods=[
-            TimePeriod(DAY.MONDAY, DAY.MONDAY, "08:00", "12:00"),
-            TimePeriod(DAY.MONDAY, DAY.MONDAY, "11:00", "23:00"),
+            TimePeriod(
+                from_=DAY.MONDAY, to=DAY.MONDAY, begin_time="08:00", end_time="12:00"
+            ),
+            TimePeriod(
+                from_=DAY.MONDAY, to=DAY.MONDAY, begin_time="11:00", end_time="23:00"
+            ),
         ],
     )
 
@@ -212,7 +216,9 @@ def test_resource_calendar_verify_end_before_begin():
         id="1",
         name="Resource Calendar",
         time_periods=[
-            TimePeriod(DAY.MONDAY, DAY.MONDAY, "12:00", "08:00"),
+            TimePeriod(
+                from_=DAY.MONDAY, to=DAY.MONDAY, begin_time="12:00", end_time="08:00"
+            ),
         ],
     )
 
@@ -403,8 +409,8 @@ def test_remove_task_from_resource(two_tasks_state: State):
 
 def test_bit_mask_off_by_one():
     expected_time_periods = [
-        TimePeriod.from_json(
-            '{"from": "MONDAY","to": "MONDAY","beginTime": "12:00:00","endTime": "18:00:00"}'
+        TimePeriod.model_validate_json(
+            '{"from": "MONDAY","to": "MONDAY","beginTime": "12:00:00","endTime": "18:00:00"}',
         )
     ]
 
@@ -422,15 +428,13 @@ def test_bit_mask_off_by_one():
 
 def test_time_period_json():
     time_period = TimePeriod(
-        **{
-            "from": DAY.MONDAY,
-            "to": DAY.MONDAY,
-            "begin_time": "08:00",
-            "end_time": "16:00",
-        }
+        from_=DAY.MONDAY,
+        to=DAY.MONDAY,
+        begin_time="08:00",
+        end_time="16:00",
     )
 
-    time_period_json = time_period.model_dump_json(by_alias=True)
+    time_period_json = time_period.model_dump_json()
 
     assert "from_" not in time_period_json
     assert time_period == TimePeriod.model_validate_json(time_period_json)

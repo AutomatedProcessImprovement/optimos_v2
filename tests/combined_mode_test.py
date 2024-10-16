@@ -45,6 +45,8 @@ def test_combined_mode(one_task_store: Store):
 
 
 def test_multiple_actions_of_same_type(one_task_store: Store):
+    # TODO : Think about this test
+
     store = one_task_store
 
     store.settings.legacy_approach = LegacyApproach.COMBINED
