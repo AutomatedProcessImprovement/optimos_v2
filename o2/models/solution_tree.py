@@ -55,7 +55,7 @@ class SolutionTree:
             if item is None:
                 continue
             solution = self.solution_lookup[item.id]
-            distance = solution.evaluation.distance_to(solution.evaluation)
+            distance = pareto_solution.evaluation.distance_to(solution.evaluation)
             # Early exit if we find a pareto solution.
             # Because of reversed, it will be the most recent
             if distance == 0:
@@ -65,9 +65,13 @@ class SolutionTree:
                 nearest_distance = distance
         return nearest_solution
 
-    def pop_nearest_solution(self, pareto_front: ParetoFront) -> Optional["Solution"]:
+    def pop_nearest_solution(
+        self, pareto_front: ParetoFront, max_distance: float = float("inf")
+    ) -> Optional["Solution"]:
         """Pop the nearest solution to the given Pareto Front."""
-        nearest_solution = self.get_nearest_solution(pareto_front)
+        nearest_solution = self.get_nearest_solution(
+            pareto_front, max_distance=max_distance
+        )
         if nearest_solution is not None:
             self.rtree.delete(nearest_solution.id, nearest_solution.point)
             self.discarded_solutions.append(nearest_solution)
