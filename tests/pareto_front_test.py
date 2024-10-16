@@ -1,20 +1,20 @@
 from dataclasses import replace
 
 import pandas as pd
-from bpdfr_simulation_engine.simulation_stats_calculator import KPIInfo, KPIMap
 
 from o2.models.evaluation import Evaluation
 from o2.models.solution import Solution
 from o2.models.state import State
 from o2.pareto_front import FRONT_STATUS, ParetoFront
 from o2.util.helper import random_string
+from tests.fixtures.test_helpers import create_mock_solution
 
 
 def test_pareto_front_add(simple_state: State):
-    bad_solution = __create_solution(simple_state, 10, 10)
+    bad_solution = create_mock_solution(simple_state, 10, 10)
     # We set the bpmn_definition to a different value to differentiate the states
 
-    good_solution = __create_solution(simple_state, 5, 5)
+    good_solution = create_mock_solution(simple_state, 5, 5)
 
     front = ParetoFront()
 
@@ -39,12 +39,12 @@ def test_is_in_front(simple_state: State):
     front = ParetoFront()
 
     # Create some evaluations for testing
-    base_solution = __create_solution(simple_state, 5, 5)
+    base_solution = create_mock_solution(simple_state, 5, 5)
 
-    evaluation1 = __create_solution(simple_state, 4, 5)
-    evaluation2 = __create_solution(simple_state, 5, 4)
-    evaluation3 = __create_solution(simple_state, 10, 10)
-    evaluation4 = __create_solution(simple_state, 3, 3)
+    evaluation1 = create_mock_solution(simple_state, 4, 5)
+    evaluation2 = create_mock_solution(simple_state, 5, 4)
+    evaluation3 = create_mock_solution(simple_state, 10, 10)
+    evaluation4 = create_mock_solution(simple_state, 3, 3)
 
     assert evaluation1.is_dominated_by(base_solution) is False
     assert base_solution.is_dominated_by(evaluation1) is False
@@ -72,28 +72,14 @@ def test_one_dimension_equal(simple_state: State):
     front = ParetoFront()
 
     # Create some evaluations for testing
-    base_solution = __create_solution(simple_state, 5, 5)
+    base_solution = create_mock_solution(simple_state, 5, 5)
 
-    solution1 = __create_solution(simple_state, 5, 5)
-    solution2 = __create_solution(simple_state, 5, 6)
-    solution3 = __create_solution(simple_state, 6, 5)
+    solution1 = create_mock_solution(simple_state, 5, 5)
+    solution2 = create_mock_solution(simple_state, 5, 6)
+    solution3 = create_mock_solution(simple_state, 6, 5)
 
     front.add(base_solution)
 
     assert front.is_in_front(solution1) == FRONT_STATUS.IN_FRONT
     assert front.is_in_front(solution2) == FRONT_STATUS.IN_FRONT
     assert front.is_in_front(solution3) == FRONT_STATUS.IN_FRONT
-
-
-def __create_solution(state, total_cycle_time, total_cost, total_waiting_time=0):
-    kpis = KPIMap()
-    kpis.cycle_time = KPIInfo()
-    kpis.cycle_time.total = total_cycle_time
-    kpis.waiting_time = KPIInfo()
-    kpis.waiting_time.total = total_cycle_time
-    cost_kpi = KPIMap()
-    cost_kpi.cost.total = total_cost
-
-    evaluation = Evaluation(kpis, {"_": cost_kpi}, {}, None)  # type: ignore
-    state = replace(state, bpmn_definition=random_string())
-    return Solution(evaluation, state, None, [])
