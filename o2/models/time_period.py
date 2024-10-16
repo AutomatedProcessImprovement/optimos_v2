@@ -2,7 +2,7 @@ import functools
 from json import dumps, loads
 from typing import Any, ClassVar, List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator, root_validator
 
 from o2.models.days import DAY, day_range
 from o2.util.bit_mask_helper import get_ranges_from_bitmask
@@ -74,6 +74,17 @@ class TimePeriod(BaseModel):
         # Use model_validate after parsing the JSON data
         data = loads(json_data)
         return cls.model_validate(data, **kwargs)
+
+    @model_validator(mode="before")
+    def handle_aliases(cls, values):
+        # Handle aliasing for 'from', 'beginTime', and 'endTime'
+        if "from" in values:
+            values["from_"] = values.pop("from")
+        if "beginTime" in values:
+            values["begin_time"] = values.pop("beginTime")
+        if "endTime" in values:
+            values["end_time"] = values.pop("endTime")
+        return values
 
     ALL_DAY_BITMASK: ClassVar[int] = 0b111111111111111111111111
 

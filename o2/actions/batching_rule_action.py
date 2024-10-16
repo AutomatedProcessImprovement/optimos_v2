@@ -15,7 +15,7 @@ class BatchingRuleActionParamsType(BaseActionParamsType):
 
 
 @dataclass(frozen=True)
-class BatchingRuleAction(BaseAction):
+class BatchingRuleAction(BaseAction, str=False):
     """Abstract class for all actions."""
 
     params: BaseActionParamsType

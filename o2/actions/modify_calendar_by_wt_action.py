@@ -16,7 +16,7 @@ class ModifyCalendarByWTActionParamsType(ModifyCalendarBaseActionParamsType):
 
 
 @dataclass(frozen=True)
-class ModifyCalendarByWTAction(ModifyCalendarBaseAction):
+class ModifyCalendarByWTAction(ModifyCalendarBaseAction, str=False):
     """`ModifyCalendarByWTAction` will modify the resource calendars based on wt.
 
     This action is based on the original optimos implementation,

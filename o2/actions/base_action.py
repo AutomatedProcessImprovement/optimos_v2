@@ -1,6 +1,6 @@
+import functools
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-import functools
 from json import dumps
 from typing import (
     TYPE_CHECKING,
@@ -10,7 +10,7 @@ from typing import (
     TypeAlias,
 )
 
-from dataclass_wizard import JSONWizard
+from dataclass_wizard import JSONSerializable, JSONWizard
 from typing_extensions import TypedDict
 
 from o2.util.helper import hash_string
@@ -29,7 +29,7 @@ class BaseActionParamsType(TypedDict):
 
 
 @dataclass(frozen=True)
-class BaseAction(JSONWizard, ABC):
+class BaseAction(JSONSerializable, ABC, str=False):
     """Abstract class for all actions."""
 
     params: BaseActionParamsType

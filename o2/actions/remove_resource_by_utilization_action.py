@@ -16,7 +16,7 @@ class RemoveResourceByUtilizationActionParamsType(ModifyResourceBaseActionParams
 
 
 @dataclass(frozen=True)
-class RemoveResourceByUtilizationAction(ModifyResourceBaseAction):
+class RemoveResourceByUtilizationAction(ModifyResourceBaseAction, str=False):
     """`RemoveResourceByUtilizationAction` will remove the most unutilized resource.
 
     This action is based on the original optimos implementation,

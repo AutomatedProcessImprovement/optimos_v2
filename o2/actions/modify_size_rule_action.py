@@ -32,7 +32,7 @@ class ModifySizeRuleActionParamsType(BatchingRuleActionParamsType):
 
 
 @dataclass(frozen=True)
-class ModifySizeRuleAction(BatchingRuleAction):
+class ModifySizeRuleAction(BatchingRuleAction, str=False):
     """ModifySizeRuleAction will modify the size of a BatchingRule.
 
     This will effect the size distribution and the duration distribution of the rule,

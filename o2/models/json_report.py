@@ -226,11 +226,16 @@ class _JSONGlobalInfo(JSONWizard):
     average_waiting_time: float
 
 
-class _JSONAction(TypedDict):
+@dataclass(frozen=True)
+class _JSONAction(JSONWizard):
     """Class to represent action in JSON format."""
 
     type: str
-    params: dict[str, Any]
+    params: Any
+
+    @staticmethod
+    def from_action(action: "BaseAction") -> "_JSONAction":
+        return _JSONAction(action.__class__.__name__, action.params)
 
 
 @dataclass(frozen=True)
@@ -269,5 +274,5 @@ class _JSONSolution(JSONWizard):
                 resource.id: _JSONResourceInfo.from_resource(resource, solution, store)
                 for resource in state.timetable.get_deleted_resources(store.base_state)
             },
-            actions=[action.to_json() for action in solution.actions],  # type: ignore
+            actions=[_JSONAction.from_action(action) for action in solution.actions],  # type: ignore
         )

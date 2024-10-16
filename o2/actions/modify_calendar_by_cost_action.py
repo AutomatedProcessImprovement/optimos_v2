@@ -19,7 +19,7 @@ class ModifyCalendarByCostActionParamsType(ModifyCalendarBaseActionParamsType):
 
 
 @dataclass(frozen=True)
-class ModifyCalendarByCostAction(ModifyCalendarBaseAction):
+class ModifyCalendarByCostAction(ModifyCalendarBaseAction, str=False):
     """`ModifyCalendarByCostAction` will modify the resource calendars based on wt.
 
     This action is based on the original optimos implementation,

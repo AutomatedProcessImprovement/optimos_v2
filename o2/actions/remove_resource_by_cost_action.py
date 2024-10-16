@@ -15,7 +15,7 @@ class RemoveResourceByCostActionParamsType(ModifyResourceBaseActionParamsType):
 
 
 @dataclass(frozen=True)
-class RemoveResourceByCostAction(ModifyResourceBaseAction):
+class RemoveResourceByCostAction(ModifyResourceBaseAction, str=False):
     """`RemoveResourceByCostAction` will remove the resource with the highest cost.
 
      This action is based on the original optimos implementation,

@@ -15,7 +15,7 @@ class AddResourceActionParamsType(ModifyResourceBaseActionParamsType):
 
 
 @dataclass(frozen=True)
-class AddResourceAction(ModifyResourceBaseAction):
+class AddResourceAction(ModifyResourceBaseAction, str=False):
     """`AddResourceAction` will add (clone) a resource.
 
     This action is based on the original optimos implementation,

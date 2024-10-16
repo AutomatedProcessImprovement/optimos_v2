@@ -24,7 +24,7 @@ class ModifyDailyHourRuleActionParamsType(BatchingRuleActionParamsType):
     hour_increment: int
 
 
-class ModifyDailyHourRuleAction(BatchingRuleAction):
+class ModifyDailyHourRuleAction(BatchingRuleAction, str=False):
     """ModifyDailyHourRuleAction will add a new day to the firing rules of a BatchingRule.
 
     It does this by cloning all the surrounding (AND) `FiringRule`s of

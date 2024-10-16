@@ -18,7 +18,7 @@ class RemoveRuleActionParamsType(BatchingRuleActionParamsType):
 
 
 @dataclass(frozen=True)
-class RemoveRuleAction(BatchingRuleAction):
+class RemoveRuleAction(BatchingRuleAction, str=False):
     """`RemoveRuleAction` will remove a `FiringRule` from a `BatchingRule`."""
 
     params: RemoveRuleActionParamsType

@@ -27,7 +27,7 @@ class ModifyReadyWtRuleActionParamsType(BatchingRuleActionParamsType):
 
 
 @dataclass(frozen=True)
-class ModifyReadyWtRuleAction(BatchingRuleAction):
+class ModifyReadyWtRuleAction(BatchingRuleAction, str=False):
     """`ModifyReadyWtRuleAction` will modify the `READY_WT` value of a `FiringRule`."""
 
     params: ModifyReadyWtRuleActionParamsType

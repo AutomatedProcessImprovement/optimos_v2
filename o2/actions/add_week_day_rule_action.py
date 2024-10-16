@@ -24,7 +24,7 @@ class AddWeekDayRuleActionParamsType(BatchingRuleActionParamsType):
     add_days: list[DAY]
 
 
-class AddWeekDayRuleAction(BatchingRuleAction):
+class AddWeekDayRuleAction(BatchingRuleAction, str=False):
     """AddWeekDayRuleAction will add a new day to the firing rules of a BatchingRule.
 
     It does this by cloning all the surrounding (AND) `FiringRule`s of

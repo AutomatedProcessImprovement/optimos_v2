@@ -23,7 +23,7 @@ class ModifyLargeWtRuleActionParamsType(BatchingRuleActionParamsType):
 
 
 @dataclass(frozen=True)
-class ModifyLargeWtRuleAction(BatchingRuleAction):
+class ModifyLargeWtRuleAction(BatchingRuleAction, str=False):
     """`ModifyLargeWtRuleAction` will modify the `LARGE_WT` value of a `FiringRule`."""
 
     params: ModifyLargeWtRuleActionParamsType
