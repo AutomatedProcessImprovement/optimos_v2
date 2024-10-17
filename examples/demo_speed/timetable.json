@@ -1,0 +1,607 @@
+{
+  "resource_profiles": [
+    {
+      "id": "TASK_CHECK_CREDIT_HISTORY",
+      "name": "Check credit history",
+      "resource_list": [
+        {
+          "id": "Clerk_1",
+          "name": "Clerk_1",
+          "cost_per_hour": 1,
+          "amount": 1,
+          "calendar": "Clerk_1timetable",
+          "assigned_tasks": [
+            "TASK_CHECK_CREDIT_HISTORY",
+            "TASK_CHECK_INCOME_SOURCES"
+          ]
+        },
+        {
+          "id": "Clerk_2",
+          "name": "Clerk_2",
+          "cost_per_hour": 1,
+          "amount": 1,
+          "calendar": "Clerk_2timetable",
+          "assigned_tasks": [
+            "TASK_CHECK_CREDIT_HISTORY",
+            "TASK_CHECK_INCOME_SOURCES"
+          ]
+        },
+        {
+          "id": "Clerk_3",
+          "name": "Clerk_3",
+          "cost_per_hour": 1,
+          "amount": 1,
+          "calendar": "Clerk_3timetable",
+          "assigned_tasks": [
+            "TASK_CHECK_CREDIT_HISTORY",
+            "TASK_CHECK_INCOME_SOURCES"
+          ]
+        },
+        {
+          "id": "Clerk_4",
+          "name": "Clerk_4",
+          "cost_per_hour": 1,
+          "amount": 1,
+          "calendar": "Clerk_4timetable",
+          "assigned_tasks": [
+            "TASK_CHECK_CREDIT_HISTORY",
+            "TASK_CHECK_INCOME_SOURCES"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "TASK_CHECK_INCOME_SOURCES",
+      "name": "Check income sources",
+      "resource_list": [
+        {
+          "id": "Clerk_2",
+          "name": "Clerk_2",
+          "cost_per_hour": 1,
+          "amount": 1,
+          "calendar": "Clerk_2timetable",
+          "assigned_tasks": [
+            "TASK_CHECK_CREDIT_HISTORY",
+            "TASK_CHECK_INCOME_SOURCES"
+          ]
+        },
+        {
+          "id": "Clerk_1",
+          "name": "Clerk_1",
+          "cost_per_hour": 1,
+          "amount": 1,
+          "calendar": "Clerk_1timetable",
+          "assigned_tasks": [
+            "TASK_CHECK_CREDIT_HISTORY",
+            "TASK_CHECK_INCOME_SOURCES"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "TASK_ASSESS_APPLICATION",
+      "name": "Assess application",
+      "resource_list": [
+        {
+          "id": "Credit_Officer_1",
+          "name": "Credit_Officer_1",
+          "cost_per_hour": 1,
+          "amount": 1,
+          "calendar": "Credit_Officer_1timetable",
+          "assigned_tasks": ["TASK_ASSESS_APPLICATION"]
+        }
+      ]
+    },
+    {
+      "id": "TASK_MAKE_CREDIT_OFFER",
+      "name": "Make credit offer",
+      "resource_list": [
+        {
+          "id": "Clerk_1",
+          "name": "Clerk_1",
+          "cost_per_hour": 1,
+          "amount": 1,
+          "calendar": "Clerk_1timetable",
+          "assigned_tasks": [
+            "TASK_CHECK_CREDIT_HISTORY",
+            "TASK_CHECK_INCOME_SOURCES"
+          ]
+        },
+        {
+          "id": "Clerk_2",
+          "name": "Clerk_2",
+          "cost_per_hour": 1,
+          "amount": 1,
+          "calendar": "Clerk_2timetable",
+          "assigned_tasks": [
+            "TASK_CHECK_CREDIT_HISTORY",
+            "TASK_CHECK_INCOME_SOURCES"
+          ]
+        },
+        {
+          "id": "Clerk_3",
+          "name": "Clerk_3",
+          "cost_per_hour": 1,
+          "amount": 1,
+          "calendar": "Clerk_3timetable",
+          "assigned_tasks": [
+            "TASK_CHECK_CREDIT_HISTORY",
+            "TASK_CHECK_INCOME_SOURCES"
+          ]
+        },
+        {
+          "id": "Clerk_4",
+          "name": "Clerk_4",
+          "cost_per_hour": 1,
+          "amount": 1,
+          "calendar": "Clerk_4timetable",
+          "assigned_tasks": [
+            "TASK_CHECK_CREDIT_HISTORY",
+            "TASK_CHECK_INCOME_SOURCES"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "TASK_NOTIFY_REJECTION",
+      "name": "Notify rejection",
+      "resource_list": [
+        {
+          "id": "Clerk_1",
+          "name": "Clerk_1",
+          "cost_per_hour": 1,
+          "amount": 1,
+          "calendar": "Clerk_1timetable",
+          "assigned_tasks": [
+            "TASK_CHECK_CREDIT_HISTORY",
+            "TASK_CHECK_INCOME_SOURCES"
+          ]
+        },
+        {
+          "id": "Clerk_2",
+          "name": "Clerk_2",
+          "cost_per_hour": 1,
+          "amount": 1,
+          "calendar": "Clerk_2timetable",
+          "assigned_tasks": [
+            "TASK_CHECK_CREDIT_HISTORY",
+            "TASK_CHECK_INCOME_SOURCES"
+          ]
+        },
+        {
+          "id": "Clerk_3",
+          "name": "Clerk_3",
+          "cost_per_hour": 1,
+          "amount": 1,
+          "calendar": "Clerk_3timetable",
+          "assigned_tasks": [
+            "TASK_CHECK_CREDIT_HISTORY",
+            "TASK_CHECK_INCOME_SOURCES"
+          ]
+        },
+        {
+          "id": "Clerk_4",
+          "name": "Clerk_4",
+          "cost_per_hour": 1,
+          "amount": 1,
+          "calendar": "Clerk_4timetable",
+          "assigned_tasks": [
+            "TASK_CHECK_CREDIT_HISTORY",
+            "TASK_CHECK_INCOME_SOURCES"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "TASK_RECIEVE_CUSTOMER_FEEDBACK",
+      "name": "Receive customer feedback",
+      "resource_list": [
+        {
+          "id": "Clerk_1",
+          "name": "Clerk_1",
+          "cost_per_hour": 1,
+          "amount": 1,
+          "calendar": "Clerk_1timetable",
+          "assigned_tasks": [
+            "TASK_CHECK_CREDIT_HISTORY",
+            "TASK_CHECK_INCOME_SOURCES"
+          ]
+        },
+        {
+          "id": "Clerk_2",
+          "name": "Clerk_2",
+          "cost_per_hour": 1,
+          "amount": 1,
+          "calendar": "Clerk_2timetable",
+          "assigned_tasks": [
+            "TASK_CHECK_CREDIT_HISTORY",
+            "TASK_CHECK_INCOME_SOURCES"
+          ]
+        },
+        {
+          "id": "Clerk_3",
+          "name": "Clerk_3",
+          "cost_per_hour": 1,
+          "amount": 1,
+          "calendar": "Clerk_3timetable",
+          "assigned_tasks": [
+            "TASK_CHECK_CREDIT_HISTORY",
+            "TASK_CHECK_INCOME_SOURCES"
+          ]
+        },
+        {
+          "id": "Clerk_4",
+          "name": "Clerk_4",
+          "cost_per_hour": 1,
+          "amount": 1,
+          "calendar": "Clerk_4timetable",
+          "assigned_tasks": [
+            "TASK_CHECK_CREDIT_HISTORY",
+            "TASK_CHECK_INCOME_SOURCES"
+          ]
+        }
+      ]
+    }
+  ],
+  "event_distribution": {},
+  "arrival_time_distribution": {
+    "distribution_name": "default",
+    "distribution_params": [{ "value": 1500 }, { "value": 3000 }]
+  },
+  "arrival_time_calendar": [
+    {
+      "from": "MONDAY",
+      "to": "MONDAY",
+      "beginTime": "09:00:00",
+      "endTime": "13:00:00"
+    },
+    {
+      "from": "TUESDAY",
+      "to": "TUESDAY",
+      "beginTime": "09:00:00",
+      "endTime": "13:00:00"
+    },
+    {
+      "from": "WEDNESDAY",
+      "to": "WEDNESDAY",
+      "beginTime": "09:00:00",
+      "endTime": "13:00:00"
+    },
+    {
+      "from": "THURSDAY",
+      "to": "THURSDAY",
+      "beginTime": "09:00:00",
+      "endTime": "13:00:00"
+    },
+    {
+      "from": "FRIDAY",
+      "to": "FRIDAY",
+      "beginTime": "09:00:00",
+      "endTime": "13:00:00"
+    }
+  ],
+  "gateway_branching_probabilities": [
+    {
+      "gateway_id": "GATEWAY_CUSTOMER_FEEDBACK",
+      "probabilities": [
+        {
+          "path_id": "sid-AFEC7074-8C12-43E2-A1FE-87D5CEF395C8",
+          "value": 0.2
+        },
+        {
+          "path_id": "sid-AE313010-5715-438C-AD61-1C02F03DCF77",
+          "value": 0.8
+        }
+      ]
+    },
+    {
+      "gateway_id": "GATEWAY_LENDING_DECISION",
+      "probabilities": [
+        {
+          "path_id": "sid-8AE82A7B-75EE-401B-8ABE-279FB05A3946",
+          "value": 0.2
+        },
+        {
+          "path_id": "sid-789335C6-205C-4A03-9AD6-9655893C1FFB",
+          "value": 0.8
+        }
+      ]
+    }
+  ],
+  "task_resource_distribution": [
+    {
+      "task_id": "TASK_CHECK_CREDIT_HISTORY",
+      "resources": [
+        {
+          "resource_id": "Clerk_1",
+          "distribution_name": "fix",
+          "distribution_params": [{ "value": 900 }]
+        },
+        {
+          "resource_id": "Clerk_2",
+          "distribution_name": "fix",
+          "distribution_params": [{ "value": 900 }]
+        },
+        {
+          "resource_id": "Clerk_3",
+          "distribution_name": "fix",
+          "distribution_params": [{ "value": 900 }]
+        },
+        {
+          "resource_id": "Clerk_4",
+          "distribution_name": "fix",
+          "distribution_params": [{ "value": 900 }]
+        }
+      ]
+    },
+    {
+      "task_id": "TASK_CHECK_INCOME_SOURCES",
+      "resources": [
+        {
+          "resource_id": "Clerk_1",
+          "distribution_name": "fix",
+          "distribution_params": [{ "value": 900 }]
+        },
+        {
+          "resource_id": "Clerk_2",
+          "distribution_name": "fix",
+          "distribution_params": [{ "value": 900 }]
+        },
+        {
+          "resource_id": "Clerk_3",
+          "distribution_name": "fix",
+          "distribution_params": [{ "value": 900 }]
+        },
+        {
+          "resource_id": "Clerk_4",
+          "distribution_name": "fix",
+          "distribution_params": [{ "value": 900 }]
+        }
+      ]
+    },
+    {
+      "task_id": "TASK_ASSESS_APPLICATION",
+      "resources": [
+        {
+          "resource_id": "Credit_Officer_1",
+          "distribution_name": "fix",
+          "distribution_params": [{ "value": 3600 }]
+        }
+      ]
+    },
+    {
+      "task_id": "TASK_MAKE_CREDIT_OFFER",
+      "resources": [
+        {
+          "resource_id": "Clerk_1",
+          "distribution_name": "fix",
+          "distribution_params": [{ "value": 900 }]
+        },
+        {
+          "resource_id": "Clerk_2",
+          "distribution_name": "fix",
+          "distribution_params": [{ "value": 900 }]
+        },
+        {
+          "resource_id": "Clerk_3",
+          "distribution_name": "fix",
+          "distribution_params": [{ "value": 900 }]
+        },
+        {
+          "resource_id": "Clerk_4",
+          "distribution_name": "fix",
+          "distribution_params": [{ "value": 900 }]
+        }
+      ]
+    },
+    {
+      "task_id": "TASK_NOTIFY_REJECTION",
+      "resources": [
+        {
+          "resource_id": "Clerk_1",
+          "distribution_name": "fix",
+          "distribution_params": [{ "value": 900 }]
+        },
+        {
+          "resource_id": "Clerk_2",
+          "distribution_name": "fix",
+          "distribution_params": [{ "value": 900 }]
+        },
+        {
+          "resource_id": "Clerk_3",
+          "distribution_name": "fix",
+          "distribution_params": [{ "value": 900 }]
+        },
+        {
+          "resource_id": "Clerk_4",
+          "distribution_name": "fix",
+          "distribution_params": [{ "value": 900 }]
+        }
+      ]
+    },
+    {
+      "task_id": "TASK_RECIEVE_CUSTOMER_FEEDBACK",
+      "resources": [
+        {
+          "resource_id": "Clerk_1",
+          "distribution_name": "fix",
+          "distribution_params": [{ "value": 900 }]
+        },
+        {
+          "resource_id": "Clerk_2",
+          "distribution_name": "fix",
+          "distribution_params": [{ "value": 900 }]
+        },
+        {
+          "resource_id": "Clerk_3",
+          "distribution_name": "fix",
+          "distribution_params": [{ "value": 900 }]
+        },
+        {
+          "resource_id": "Clerk_4",
+          "distribution_name": "fix",
+          "distribution_params": [{ "value": 900 }]
+        }
+      ]
+    }
+  ],
+  "resource_calendars": [
+    {
+      "id": "Clerk_1timetable",
+      "name": "Clerk_1timetable",
+      "time_periods": [
+        {
+          "from": "MONDAY",
+          "to": "MONDAY",
+          "beginTime": "09:00:00",
+          "endTime": "17:00:00"
+        },
+        {
+          "from": "TUESDAY",
+          "to": "TUESDAY",
+          "beginTime": "09:00:00",
+          "endTime": "17:00:00"
+        },
+        {
+          "from": "WEDNESDAY",
+          "to": "WEDNESDAY",
+          "beginTime": "09:00:00",
+          "endTime": "17:00:00"
+        },
+        {
+          "from": "THURSDAY",
+          "to": "THURSDAY",
+          "beginTime": "09:00:00",
+          "endTime": "17:00:00"
+        }
+      ]
+    },
+    {
+      "id": "Clerk_2timetable",
+      "name": "Clerk_2timetable",
+      "time_periods": [
+        {
+          "from": "MONDAY",
+          "to": "MONDAY",
+          "beginTime": "09:00:00",
+          "endTime": "17:00:00"
+        },
+        {
+          "from": "TUESDAY",
+          "to": "TUESDAY",
+          "beginTime": "09:00:00",
+          "endTime": "17:00:00"
+        },
+        {
+          "from": "WEDNESDAY",
+          "to": "WEDNESDAY",
+          "beginTime": "09:00:00",
+          "endTime": "17:00:00"
+        },
+        {
+          "from": "THURSDAY",
+          "to": "THURSDAY",
+          "beginTime": "09:00:00",
+          "endTime": "17:00:00"
+        }
+      ]
+    },
+    {
+      "id": "Clerk_3timetable",
+      "name": "Clerk_3timetable",
+      "time_periods": [
+        {
+          "from": "MONDAY",
+          "to": "MONDAY",
+          "beginTime": "09:00:00",
+          "endTime": "17:00:00"
+        },
+        {
+          "from": "TUESDAY",
+          "to": "TUESDAY",
+          "beginTime": "09:00:00",
+          "endTime": "17:00:00"
+        },
+        {
+          "from": "WEDNESDAY",
+          "to": "WEDNESDAY",
+          "beginTime": "09:00:00",
+          "endTime": "17:00:00"
+        },
+        {
+          "from": "THURSDAY",
+          "to": "THURSDAY",
+          "beginTime": "09:00:00",
+          "endTime": "17:00:00"
+        }
+      ]
+    },
+    {
+      "id": "Clerk_4timetable",
+      "name": "Clerk_4timetable",
+      "time_periods": [
+        {
+          "from": "MONDAY",
+          "to": "MONDAY",
+          "beginTime": "09:00:00",
+          "endTime": "17:00:00"
+        },
+        {
+          "from": "TUESDAY",
+          "to": "TUESDAY",
+          "beginTime": "09:00:00",
+          "endTime": "17:00:00"
+        },
+        {
+          "from": "WEDNESDAY",
+          "to": "WEDNESDAY",
+          "beginTime": "09:00:00",
+          "endTime": "17:00:00"
+        },
+        {
+          "from": "THURSDAY",
+          "to": "THURSDAY",
+          "beginTime": "09:00:00",
+          "endTime": "17:00:00"
+        }
+      ]
+    },
+
+    {
+      "id": "Credit_Officer_1timetable",
+      "name": "Credit_Officer_1timetable",
+      "time_periods": [
+        {
+          "from": "MONDAY",
+          "to": "MONDAY",
+          "beginTime": "14:00:00",
+          "endTime": "17:00:00"
+        },
+        {
+          "from": "TUESDAY",
+          "to": "TUESDAY",
+          "beginTime": "14:00:00",
+          "endTime": "17:00:00"
+        },
+        {
+          "from": "WEDNESDAY",
+          "to": "WEDNESDAY",
+          "beginTime": "14:00:00",
+          "endTime": "17:00:00"
+        },
+        {
+          "from": "THURSDAY",
+          "to": "THURSDAY",
+          "beginTime": "14:00:00",
+          "endTime": "17:00:00"
+        },
+        {
+          "from": "FRIDAY",
+          "to": "FRIDAY",
+          "beginTime": "14:00:00",
+          "endTime": "17:00:00"
+        }
+      ]
+    }
+  ]
+}

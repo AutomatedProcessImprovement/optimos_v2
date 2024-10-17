@@ -1,0 +1,7 @@
+Gateway GATEWAY_CUSTOMER_FEEDBACK is using conditions, but some are missing. Flows without conditions: sid-AFEC7074-8C12-43E2-A1FE-87D5CEF395C8, sid-AE313010-5715-438C-AD61-1C02F03DCF77
+Gateway GATEWAY_LENDING_DECISION is using conditions, but some are missing. Flows without conditions: sid-8AE82A7B-75EE-401B-8ABE-279FB05A3946, sid-789335C6-205C-4A03-9AD6-9655893C1FFB
+TASK 'Assess application' (ID: TASK_ASSESS_APPLICATION) is used more frequently than expected, in 104 out of 100 cases (104.00%).
+Flow sid-FA2D48D3-A316-4C2F-90DB-C2390990D727 from TASK 'Assess application' (ID: TASK_ASSESS_APPLICATION) is used more frequently than expected, in 104 out of 100 cases (104.00%).
+EXCLUSIVE-GATEWAY 'sid-5CD7112A-35AE-483D-95BC-EC8270DA9A39' (ID: sid-5CD7112A-35AE-483D-95BC-EC8270DA9A39) is used more frequently than expected, in 104 out of 100 cases (104.00%).
+Flow sid-0617E6F8-139D-4F02-B850-6604A21D603D from EXCLUSIVE-GATEWAY 'sid-5CD7112A-35AE-483D-95BC-EC8270DA9A39' (ID: sid-5CD7112A-35AE-483D-95BC-EC8270DA9A39) is used more frequently than expected, in 104 out of 100 cases (104.00%).
+EXCLUSIVE-GATEWAY 'lending decision?' (ID: GATEWAY_LENDING_DECISION) is used more frequently than expected, in 104 out of 100 cases (104.00%).

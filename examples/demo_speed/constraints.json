@@ -1,0 +1,209 @@
+{
+  "time_var": 60,
+  "max_cap": 9999999999,
+  "max_shift_size": 24,
+  "max_shift_blocks": 24,
+  "hours_in_day": 24,
+  "resources": [
+    {
+      "id": "Clerk_1timetable",
+      "constraints": {
+        "global_constraints": {
+          "max_weekly_cap": 32,
+          "max_daily_cap": 8,
+          "max_consecutive_cap": 8,
+          "max_shifts_day": 24,
+          "max_shifts_week": 32,
+          "is_human": true
+        },
+        "daily_start_times": {
+          "monday": "09:00:00",
+          "tuesday": "09:00:00",
+          "wednesday": "09:00:00",
+          "thursday": "09:00:00",
+          "friday": null,
+          "saturday": null,
+          "sunday": null
+        },
+        "never_work_masks": {
+          "monday": 0,
+          "tuesday": 0,
+          "wednesday": 0,
+          "thursday": 0,
+          "friday": 0,
+          "saturday": 0,
+          "sunday": 0
+        },
+        "always_work_masks": {
+          "monday": 0,
+          "tuesday": 0,
+          "wednesday": 0,
+          "thursday": 0,
+          "friday": 0,
+          "saturday": 0,
+          "sunday": 0
+        }
+      }
+    },
+    {
+      "id": "Clerk_2timetable",
+      "constraints": {
+        "global_constraints": {
+          "max_weekly_cap": 32,
+          "max_daily_cap": 8,
+          "max_consecutive_cap": 8,
+          "max_shifts_day": 24,
+          "max_shifts_week": 32,
+          "is_human": true
+        },
+        "daily_start_times": {
+          "monday": "09:00:00",
+          "tuesday": "09:00:00",
+          "wednesday": "09:00:00",
+          "thursday": "09:00:00",
+          "friday": null,
+          "saturday": null,
+          "sunday": null
+        },
+        "never_work_masks": {
+          "monday": 0,
+          "tuesday": 0,
+          "wednesday": 0,
+          "thursday": 0,
+          "friday": 0,
+          "saturday": 0,
+          "sunday": 0
+        },
+        "always_work_masks": {
+          "monday": 0,
+          "tuesday": 0,
+          "wednesday": 0,
+          "thursday": 0,
+          "friday": 0,
+          "saturday": 0,
+          "sunday": 0
+        }
+      }
+    },
+    {
+      "id": "Clerk_3timetable",
+      "constraints": {
+        "global_constraints": {
+          "max_weekly_cap": 32,
+          "max_daily_cap": 8,
+          "max_consecutive_cap": 8,
+          "max_shifts_day": 24,
+          "max_shifts_week": 32,
+          "is_human": true
+        },
+        "daily_start_times": {
+          "monday": "09:00:00",
+          "tuesday": "09:00:00",
+          "wednesday": "09:00:00",
+          "thursday": "09:00:00",
+          "friday": null,
+          "saturday": null,
+          "sunday": null
+        },
+        "never_work_masks": {
+          "monday": 0,
+          "tuesday": 0,
+          "wednesday": 0,
+          "thursday": 0,
+          "friday": 0,
+          "saturday": 0,
+          "sunday": 0
+        },
+        "always_work_masks": {
+          "monday": 0,
+          "tuesday": 0,
+          "wednesday": 0,
+          "thursday": 0,
+          "friday": 0,
+          "saturday": 0,
+          "sunday": 0
+        }
+      }
+    },
+    {
+      "id": "Clerk_4timetable",
+      "constraints": {
+        "global_constraints": {
+          "max_weekly_cap": 40,
+          "max_daily_cap": 8,
+          "max_consecutive_cap": 8,
+          "max_shifts_day": 24,
+          "max_shifts_week": 32,
+          "is_human": true
+        },
+        "daily_start_times": {
+          "monday": "09:00:00",
+          "tuesday": "09:00:00",
+          "wednesday": "09:00:00",
+          "thursday": "09:00:00",
+          "friday": null,
+          "saturday": null,
+          "sunday": null
+        },
+        "never_work_masks": {
+          "monday": 0,
+          "tuesday": 0,
+          "wednesday": 0,
+          "thursday": 0,
+          "friday": 0,
+          "saturday": 0,
+          "sunday": 0
+        },
+        "always_work_masks": {
+          "monday": 0,
+          "tuesday": 0,
+          "wednesday": 0,
+          "thursday": 0,
+          "friday": 0,
+          "saturday": 0,
+          "sunday": 0
+        }
+      }
+    },
+    {
+      "id": "Credit_Officer_1timetable",
+      "constraints": {
+        "global_constraints": {
+          "max_weekly_cap": 40,
+          "max_daily_cap": 8,
+          "max_consecutive_cap": 8,
+          "max_shifts_day": 24,
+          "max_shifts_week": 40,
+          "is_human": true
+        },
+        "daily_start_times": {
+          "monday": "09:00:00",
+          "tuesday": "09:00:00",
+          "wednesday": "09:00:00",
+          "thursday": "09:00:00",
+          "friday": "09:00:00",
+          "saturday": null,
+          "sunday": null
+        },
+        "never_work_masks": {
+          "monday": 16711807,
+          "tuesday": 16711807,
+          "wednesday": 16711807,
+          "thursday": 16711807,
+          "friday": 16711807,
+          "saturday": 16777215,
+          "sunday": 16777215
+        },
+        "always_work_masks": {
+          "monday": 0,
+          "tuesday": 0,
+          "wednesday": 0,
+          "thursday": 0,
+          "friday": 0,
+          "saturday": 0,
+          "sunday": 0
+        }
+      }
+    }
+  ]
+}

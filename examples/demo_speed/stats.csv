@@ -1,0 +1,28 @@
+started_at,2024-10-21 09:00:00+00:00
+completed_at,2024-10-30 14:45:00+00:00
+""
+Resource Utilization
+Resource ID,Resource name,Utilization Ratio,Tasks Allocated,Worked Time (seconds),Available Time (seconds),Pool ID,Pool name
+Clerk_1,Clerk_1,0.07906976744186046,17,15300.0,193500.0,TASK_RECIEVE_CUSTOMER_FEEDBACK,Receive customer feedback
+Clerk_2,Clerk_2,0.07441860465116279,16,14400.0,193500.0,TASK_RECIEVE_CUSTOMER_FEEDBACK,Receive customer feedback
+Clerk_3,Clerk_3,0.06976744186046512,15,13500.0,193500.0,TASK_RECIEVE_CUSTOMER_FEEDBACK,Receive customer feedback
+Clerk_4,Clerk_4,0.07441860465116279,16,14400.0,193500.0,TASK_RECIEVE_CUSTOMER_FEEDBACK,Receive customer feedback
+Credit_Officer_1,Credit_Officer_1,0.9655172413793104,21,75600.0,78300.0,TASK_ASSESS_APPLICATION,Assess application
+""
+Individual Task Statistics
+Name,Count,Min Duration,Max Duration,Avg Duration,Total Duration,Min Waiting Time,Max Waiting Time,Avg Waiting Time,Total Waiting Time,Min Processing Time,Max Processing Time,Avg Processing Time,Total Processing Time,Min Cycle Time,Max Cycle Time,Avg Cycle Time,Total Cycle Time,Min Idle Time,Max Idle Time,Avg Idle Time,Total Idle Time,Min Idle Cycle Time,Max Idle Cycle Time,Avg Idle Cycle Time,Total Idle Cycle Time,Min Idle Processing Time,Max Idle Processing Time,Avg Idle Processing Time,Total Idle Processing Time,Min Cost,Max Cost,Avg Cost,Total Cost
+Check credit history,20,1.7976931348623157e+308,0,0,0,0,0,0.0,0.0,900.0,900.0,900.0,18000.0,900.0,900.0,900.0,18000.0,0.0,0,0.0,0.0,900.0,900.0,900.0,18000.0,900.0,900.0,900.0,18000.0,0.25,0.25,0.25,5.0
+Check income sources,20,1.7976931348623157e+308,0,0,0,0,0,0.0,0.0,900.0,900.0,900.0,18000.0,900.0,900.0,900.0,18000.0,0.0,0,0.0,0.0,900.0,900.0,900.0,18000.0,900.0,900.0,900.0,18000.0,0.25,0.25,0.25,5.0
+Assess application,21,1.7976931348623157e+308,0,0,0,0.0,522946.99986129976,202843.2869678968,4259709.026325833,3600.0,3600.0,3600.0,75600.0,3600.0,526546.9998612998,206443.2869678968,4335309.026325833,0.0,75600.0,10800.0,226800.0,20700.0,526546.9998612998,217243.2869678968,4562109.026325833,3600.0,79200.0,14400.0,302400.0,1.0,1.0,1.0,21.0
+Make credit offer,18,1.7976931348623157e+308,0,0,0,0.0,291600.0,46000.0,828000.0,900.0,900.0,900.0,16200.0,900.0,292500.0,46900.0,844200.0,0.0,0,0.0,0.0,900.0,292500.0,46900.0,844200.0,900.0,900.0,900.0,16200.0,0.25,0.25,0.25,4.5
+Notify rejection,3,1.7976931348623157e+308,0,0,0,0.0,237600.0,90000.0,270000.0,900.0,900.0,900.0,2700.0,900.0,238500.0,90900.0,272700.0,0.0,0,0.0,0.0,900.0,238500.0,90900.0,272700.0,900.0,900.0,900.0,2700.0,0.25,0.25,0.25,0.75
+Receive customer feedback,3,1.7976931348623157e+308,0,0,0,0.0,0,0.0,0.0,900.0,900.0,900.0,2700.0,900.0,900.0,900.0,2700.0,0.0,0,0.0,0.0,900.0,900.0,900.0,2700.0,900.0,900.0,900.0,2700.0,0.25,0.25,0.25,0.75
+""
+Overall Scenario Statistics
+KPI,Min,Max,Average,Accumulated Value,Trace Ocurrences
+cycle_time,22500.0,528346.999861,277335.45131635,5546709.026327,20
+processing_time,5400.0,19800.0,9450.0,189000.0,20
+idle_cycle_time,22500.0,539100.0,284985.45131635,5699709.026327,20
+idle_processing_time,5400.0,86400.0,17100.0,342000.0,20
+waiting_time,17100.0,522946.999861,267885.45131635,5357709.026327,20
+idle_time,0.0,66600.0,7650.0,153000.0,20
