@@ -43,6 +43,12 @@ export const COLUMN_DEFINITIONS: {
     lowerIsBetter: true,
   },
   {
+    id: "total_cost",
+    label: "Total Cost",
+    formatFn: formatCurrency,
+    lowerIsBetter: true,
+  },
+  {
     id: "total_batching_waiting_time",
     label: "Batching Waiting Time",
     formatFn: formatSeconds,

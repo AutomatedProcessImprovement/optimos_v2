@@ -43,7 +43,7 @@ export const SolutionChart: FC<SolutionChartProps> = ({
       },
       labels: {
         formatter: function () {
-          return Math.round(((this.value as number) * 10) / 60 / 60) / 10 + "h";
+          return formatSeconds(this.value as number);
         },
       },
     },

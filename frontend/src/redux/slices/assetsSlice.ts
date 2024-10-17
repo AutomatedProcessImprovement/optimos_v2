@@ -60,23 +60,17 @@ export const assetSlice = createSlice({
       }
     },
     updateByMasterForm: (state, action: PayloadAction<MasterFormData>) => {
-      const { constraints, simulationParameters, scenarioProperties } =
-        action.payload;
+      const { constraints, simulationParameters } = action.payload;
       const constraintsAsset = state.find(
         (asset) => asset.type === "OPTIMOS_CONSTRAINTS"
       );
       const simParamsAsset = state.find((asset) => asset.type === "TIMETABLE");
-      const configFileAsset = state.find(
-        (asset) => asset.type === "OPTIMOS_CONFIG"
-      );
+
       if (constraintsAsset) {
         constraintsAsset.value = constraints;
       }
       if (simParamsAsset) {
         simParamsAsset.value = simulationParameters;
-      }
-      if (configFileAsset) {
-        configFileAsset.value = scenarioProperties;
       }
     },
   },

@@ -8,12 +8,23 @@ export const formatNumber = (num: number, decimals = 2) => {
 export const formatSeconds = (seconds?: number, includeHours = true) => {
   if (seconds === undefined) return "";
 
-  const days = Math.floor(seconds / (24 * 60 * 60));
-  const hours = Math.floor((seconds % (24 * 60 * 60)) / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
+  const years = Math.floor(seconds / (365 * 24 * 60 * 60));
+  const weeks = Math.floor(
+    (seconds % (365 * 24 * 60 * 60)) / (7 * 24 * 60 * 60)
+  );
+  const days = Math.floor((seconds % (7 * 24 * 60 * 60)) / (24 * 60 * 60));
+  const hours = Math.floor((seconds % (24 * 60 * 60)) / (60 * 60));
+  const minutes = Math.floor((seconds % (60 * 60)) / 60);
   const secondsLeft = Math.floor(seconds % 60);
 
   let result = "";
+
+  if (includeHours && years > 0) {
+    result += `${years}y `;
+  }
+  if (includeHours && weeks > 0) {
+    result += `${weeks}w `;
+  }
   if (includeHours && days > 0) {
     result += `${days}d `;
   }

@@ -57,7 +57,7 @@ const ActionCard = ({ action }: { action: JsonAction }) => {
         }`;
         description = (
           <span>
-            Moved <b>{action.params["period_id"]}. shift</b> on{" "}
+            Moved <b>shift "{action.params["period_id"]}"</b> on{" "}
             <b>{action.params["day"]}</b> by {action.params["shift_hours"]}{" "}
             hours for resource <b>{resourceId}</b>.
           </span>
@@ -76,7 +76,7 @@ const ActionCard = ({ action }: { action: JsonAction }) => {
             <span>
               Added {action.params["add_hours_before"]} hours before and{" "}
               {action.params["add_hours_after"]} hours after{" "}
-              <b>{action.params["period_id"]}. shift</b> on{" "}
+              <b>shift "{action.params["period_id"]}"</b> on{" "}
               <b>{action.params["day"]}</b> for resource <b>{resourceId}</b>.
             </span>
           );
@@ -90,7 +90,7 @@ const ActionCard = ({ action }: { action: JsonAction }) => {
             <span>
               Removed {Math.abs(action.params["add_hours_before"])} hours before
               and {Math.abs(action.params["add_hours_after"])} hours after{" "}
-              <b>{action.params["period_id"]}. shift</b> on{" "}
+              <b>shift "{action.params["period_id"]}"</b> on{" "}
               <b>{action.params["day"]}</b> for resource <b>{resourceId}</b>.
             </span>
           );
@@ -104,7 +104,7 @@ const ActionCard = ({ action }: { action: JsonAction }) => {
         description = (
           <span>
             Added {action.params["add_hours_after"]} hours after{" "}
-            <b>{action.params["period_id"]}. shift</b> on{" "}
+            <b>shift "{action.params["period_id"]}"</b> on{" "}
             <b>{action.params["day"]}</b> for resource <b>{resourceId}</b>.
           </span>
         );
@@ -117,7 +117,7 @@ const ActionCard = ({ action }: { action: JsonAction }) => {
         description = (
           <span>
             Removed {Math.abs(action.params["add_hours_after"])} hours after{" "}
-            <b>{action.params["period_id"]}. shift</b> on{" "}
+            <b>shift "{action.params["period_id"]}"</b> on{" "}
             <b>{action.params["day"]}</b> for resource <b>{resourceId}</b>.
           </span>
         );
@@ -130,7 +130,7 @@ const ActionCard = ({ action }: { action: JsonAction }) => {
         description = (
           <span>
             Added {action.params["add_hours_before"]} hours before{" "}
-            <b>{action.params["period_id"]}. shift</b> on{" "}
+            <b>shift "{action.params["period_id"]}"</b> on{" "}
             <b>{action.params["day"]}</b> for resource <b>{resourceId}</b>.
           </span>
         );
@@ -143,7 +143,7 @@ const ActionCard = ({ action }: { action: JsonAction }) => {
         description = (
           <span>
             Removed {Math.abs(action.params["add_hours_before"])} hours before{" "}
-            <b>{action.params["period_id"]}. shift</b> on{" "}
+            <b>shift "{action.params["period_id"]}"</b> on{" "}
             <b>{action.params["day"]}</b> for resource <b>{resourceId}</b>.
           </span>
         );
@@ -152,7 +152,7 @@ const ActionCard = ({ action }: { action: JsonAction }) => {
         title = "Remove shift";
         description = (
           <span>
-            Removed <b>{action.params["period_id"]}. shift</b> on{" "}
+            Removed <b>shift "{action.params["period_id"]}"</b> on{" "}
             <b>{action.params["day"]}</b> for resource <b>{resourceId}</b>.
           </span>
         );
