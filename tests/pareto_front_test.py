@@ -41,31 +41,31 @@ def test_is_in_front(simple_state: State):
     # Create some evaluations for testing
     base_solution = create_mock_solution(simple_state, 5, 5)
 
-    evaluation1 = create_mock_solution(simple_state, 4, 5)
-    evaluation2 = create_mock_solution(simple_state, 5, 4)
-    evaluation3 = create_mock_solution(simple_state, 10, 10)
-    evaluation4 = create_mock_solution(simple_state, 3, 3)
+    solution1 = create_mock_solution(simple_state, 4, 5)
+    solution2 = create_mock_solution(simple_state, 5, 4)
+    solution3 = create_mock_solution(simple_state, 10, 10)
+    solution4 = create_mock_solution(simple_state, 3, 3)
 
-    assert evaluation1.is_dominated_by(base_solution) is False
-    assert base_solution.is_dominated_by(evaluation1) is False
-    assert evaluation2.is_dominated_by(base_solution) is False
-    assert base_solution.is_dominated_by(evaluation2) is False
-    assert evaluation3.is_dominated_by(base_solution) is True
-    assert base_solution.is_dominated_by(evaluation3) is False
-    assert evaluation4.is_dominated_by(base_solution) is False
-    assert base_solution.is_dominated_by(evaluation4) is True
+    assert solution1.is_dominated_by(base_solution) is False
+    assert base_solution.is_dominated_by(solution1) is False
+    assert solution2.is_dominated_by(base_solution) is False
+    assert base_solution.is_dominated_by(solution2) is False
+    assert solution3.is_dominated_by(base_solution) is True
+    assert base_solution.is_dominated_by(solution3) is False
+    assert solution4.is_dominated_by(base_solution) is False
+    assert base_solution.is_dominated_by(solution4) is True
 
     # Test for empty front
-    assert front.is_in_front(evaluation1) == FRONT_STATUS.IN_FRONT
+    assert front.is_in_front(solution1) == FRONT_STATUS.IN_FRONT
 
     front.add(base_solution)
 
-    assert front.is_in_front(evaluation4) == FRONT_STATUS.IS_DOMINATED
+    assert front.is_in_front(solution4) == FRONT_STATUS.IS_DOMINATED
 
-    assert front.is_in_front(evaluation1) == FRONT_STATUS.IN_FRONT
-    assert front.is_in_front(evaluation2) == FRONT_STATUS.IN_FRONT
+    assert front.is_in_front(solution1) == FRONT_STATUS.IN_FRONT
+    assert front.is_in_front(solution2) == FRONT_STATUS.IN_FRONT
 
-    assert front.is_in_front(evaluation3) == FRONT_STATUS.DOMINATES
+    assert front.is_in_front(solution3) == FRONT_STATUS.DOMINATES
 
 
 def test_one_dimension_equal(simple_state: State):

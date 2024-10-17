@@ -1,6 +1,11 @@
 from dataclasses import replace
+from typing import TYPE_CHECKING
 
-from bpdfr_simulation_engine.simulation_stats_calculator import KPIInfo, KPIMap
+from bpdfr_simulation_engine.simulation_stats_calculator import (
+    KPIInfo,
+    KPIMap,
+    ResourceKPI,
+)
 
 from o2.actions.base_action import BaseAction
 from o2.models.evaluation import Evaluation
@@ -8,6 +13,10 @@ from o2.models.solution import Solution
 from o2.store import Store
 from o2.util.helper import random_string
 from tests.fixtures.mock_action import MockAction
+from tests.fixtures.timetable_generator import TimetableGenerator
+
+if TYPE_CHECKING:
+    from o2.models.state import State
 
 
 def replace_state(store: Store, **kwargs):
@@ -42,15 +51,29 @@ def first_calendar_first_period_id(store: Store):
     return store.base_timetable.resource_calendars[0].time_periods[0].id
 
 
-def create_mock_solution(state, total_cycle_time, total_cost, total_waiting_time=0):
+def create_mock_solution(
+    state: "State", total_cycle_time: int, total_cost: int, total_waiting_time=0
+):
     kpis = KPIMap()
     kpis.cycle_time = KPIInfo()
     kpis.cycle_time.total = total_cycle_time
     kpis.waiting_time = KPIInfo()
     kpis.waiting_time.total = total_cycle_time
-    cost_kpi = KPIMap()
-    cost_kpi.cost.total = total_cost
 
-    evaluation = Evaluation(kpis, {"_": cost_kpi}, {}, None)  # type: ignore
+    resource_kpi = ResourceKPI(
+        r_profile="",
+        task_allocated=[],
+        available_time=total_cost,
+        worked_time=total_cost,
+        utilization=0,
+    )
+
+    evaluation = Evaluation(
+        state.timetable.get_hourly_rates(),
+        kpis,
+        {},
+        {TimetableGenerator.RESOURCE_ID: resource_kpi},
+        None,  # type: ignore
+    )
     state = replace(state, bpmn_definition=random_string())
     return Solution(evaluation, state, None, [MockAction()])

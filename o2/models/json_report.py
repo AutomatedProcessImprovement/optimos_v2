@@ -3,21 +3,17 @@ from dataclasses import dataclass
 from typing import Any, Optional
 
 from dataclass_wizard import JSONWizard
-from dataclass_wizard.enums import DateTimeTo, LetterCase
-from typing_extensions import TypedDict
 
 from o2.actions.base_action import BaseAction
 from o2.actions.modify_calendar_base_action import ModifyCalendarBaseAction
 from o2.actions.modify_resource_base_action import ModifyResourceBaseAction
 from o2.models.constraints import ConstraintsType
-from o2.models.evaluation import Evaluation
 from o2.models.legacy_constraints import WorkMasks
 from o2.models.solution import Solution
-from o2.models.state import State
 from o2.models.timetable import Resource, TimetableType
 from o2.pareto_front import ParetoFront
 from o2.store import Store
-from o2.util.helper import CLONE_REGEX, safe_list_index
+from o2.util.helper import CLONE_REGEX
 
 
 @dataclass(frozen=True)
@@ -188,7 +184,9 @@ class _JSONResourceInfo(JSONWizard):
             available_time=evaluation.resource_available_times.get(resource.id, 0),
             utilization=evaluation.resource_utilizations.get(resource.id, 0),
             cost_per_week=timetable.total_hours * resource.cost_per_hour,
-            total_cost=(evaluation.resource_worked_times.get(resource.id, 0) / 60)
+            total_cost=(
+                evaluation.resource_available_times.get(resource.id, 0) / 60 / 60
+            )
             * resource.cost_per_hour,
             hourly_rate=resource.cost_per_hour,
             is_human=resource_constraints.global_constraints.is_human,
@@ -261,7 +259,7 @@ class _JSONSolution(JSONWizard):
                 average_cost=evaluation.avg_cost,
                 average_time=evaluation.avg_cycle_time,
                 average_resource_utilization=evaluation.avg_resource_utilization,
-                total_cost=evaluation.total_cost,
+                total_cost=evaluation.total_cost_for_available_time,
                 total_time=evaluation.total_cycle_time,
                 average_batching_waiting_time=evaluation.avg_batching_waiting_time,
                 average_waiting_time=evaluation.avg_waiting_time,

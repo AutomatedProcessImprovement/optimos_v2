@@ -8,6 +8,7 @@ from tests.fixtures.test_helpers import replace_timetable
 from tests.fixtures.timetable_generator import TimetableGenerator
 
 
+# TODO: Fix this test
 def test_increment_size(store: Store):
     store = replace_timetable(
         store,
@@ -26,6 +27,7 @@ def test_increment_size(store: Store):
     assert new_state.timetable.batch_processing[0].firing_rules[0][0].value == (6 * 60)
 
 
+# TODO: Fix this test
 def test_decrement_size(store: Store):
     store = replace_timetable(
         store,

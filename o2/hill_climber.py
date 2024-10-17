@@ -82,7 +82,7 @@ class HillClimber:
                     for status, solution in chosen_tries:
                         print_l2(str(solution.last_action))
                         if status == FRONT_STATUS.IN_FRONT:
-                            print_l3("Result Pareto front CONTAINS new evaluation.")
+                            print_l3("Pareto front CONTAINS new evaluation.")
                             print_l3(f"Evaluation: {solution.evaluation}")
                             yield solution
                         elif status == FRONT_STATUS.IS_DOMINATED:

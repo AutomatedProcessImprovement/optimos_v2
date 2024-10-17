@@ -39,7 +39,9 @@ class State:
     def evaluate(self, show_simulation_errors: bool = False) -> Evaluation:
         """Evaluate the current state."""
         result = SimulationRunner.run_simulation(self, show_simulation_errors)
-        return Evaluation.from_run_simulation_result(result)
+        return Evaluation.from_run_simulation_result(
+            self.timetable.get_hourly_rates(), result
+        )
 
     def to_sim_diff_setup(self) -> SimDiffSetup:
         """Convert the state to a SimDiffSetup."""

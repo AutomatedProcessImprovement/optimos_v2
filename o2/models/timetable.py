@@ -649,6 +649,12 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
             return None
         return resource.calendar
 
+    def get_hourly_rates(self) -> dict[str, int]:
+        """Get the cost per hour for each resource."""
+        return {
+            resource.id: resource.cost_per_hour for resource in self.get_all_resources()
+        }
+
     def get_calendar_for_resource(
         self, resource_name: str
     ) -> Optional[ResourceCalendar]:

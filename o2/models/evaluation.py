@@ -1,3 +1,4 @@
+import functools
 import math
 from dataclasses import dataclass
 from functools import cached_property, reduce
@@ -16,7 +17,11 @@ from o2.simulation_runner import RunSimulationResult
 from o2.util.waiting_time_helper import add_waiting_times_to_event_log
 
 if TYPE_CHECKING:
+    from o2.models.timetable import TimetableType
     from o2.store import Store
+
+
+HourlyRates = dict[str, int]
 
 
 @dataclass(frozen=True)
@@ -26,6 +31,8 @@ class Evaluation:
     It's a wrapper for the result classes of a PROSIMOS simulation run,
     with a lot of useful getters and methods to analyze the results.
     """
+
+    hourly_rates: HourlyRates
 
     global_kpis: KPIMap
     task_kpis: dict[str, KPIMap]
@@ -37,7 +44,7 @@ class Evaluation:
         """Get the waiting time canvas of the simulation."""
         return add_waiting_times_to_event_log(self.log_info)
 
-    @property
+    @cached_property
     def total_cost(self) -> float:
         """Get the total cost of the simulation.
 
@@ -51,7 +58,20 @@ class Evaluation:
             )
         )
 
-    @property
+    @cached_property
+    def total_cost_for_available_time(self) -> float:
+        """Get the total cost of the simulation.
+
+        This takes the available time and the resource cost per hour into account.
+        It will therefore give you a "realistic" of hiring the resources for the
+        duration of the simulation.
+        """
+        return sum(
+            (resource_kpi.available_time / (60 * 60)) * self.hourly_rates[resource_id]
+            for resource_id, resource_kpi in self.resource_kpis.items()
+        )
+
+    @cached_property
     def avg_cost(self) -> float:
         """Get the average cost of the simulation."""
         return sum(
@@ -61,24 +81,24 @@ class Evaluation:
             )
         )
 
-    @property
+    @cached_property
     def avg_cycle_time(self) -> float:
         """Get the mean cycle time of the simulation."""
         return self.global_kpis.cycle_time.avg
 
-    @property
+    @cached_property
     def avg_resource_utilization(self) -> float:
         """Get the average resource utilization of the simulation."""
         return reduce(lambda x, y: x + y, self.resource_utilizations.values()) / len(
             self.resource_utilizations
         )
 
-    @property
+    @cached_property
     def avg_waiting_time(self) -> float:
         """Get the average waiting time of the simulation."""
         return self.global_kpis.waiting_time.avg
 
-    @property
+    @cached_property
     def avg_batching_waiting_time(self) -> float:
         """Get the average batching waiting time per case."""
         return (
@@ -114,34 +134,34 @@ class Evaluation:
             return 0
         return result
 
-    @property
+    @cached_property
     def total_cycle_time(self) -> float:
         """Get the total cycle time of the simulation."""
         return self.global_kpis.cycle_time.total
 
-    @property
+    @cached_property
     def total_waiting_time(self) -> float:
         """Get the total waiting time of the simulation."""
         return self.global_kpis.waiting_time.total
 
-    @property
+    @cached_property
     def total_idle_time(self) -> float:
         """Get the total idle time of the simulation."""
         return self.global_kpis.idle_time.total
 
-    @property
+    @cached_property
     def cases(self) -> list[Trace]:
         """Get the cases of the simulation."""
         if self.log_info is None:
             return []
         return self.log_info.trace_list or []
 
-    @property
+    @cached_property
     def is_empty(self) -> bool:
         """Check if the evaluation is empty."""
         return not self.cases
 
-    @property
+    @cached_property
     def resource_utilizations(self) -> dict[str, float]:
         """Get the utilization of all resources."""
         return {
@@ -149,7 +169,7 @@ class Evaluation:
             for resource_id, resource_kpi in self.resource_kpis.items()
         }
 
-    @property
+    @cached_property
     def resource_worked_times(self) -> dict[str, float]:
         """Get the works time of all resources."""
         return {
@@ -157,7 +177,7 @@ class Evaluation:
             for resource_id, resource_kpi in self.resource_kpis.items()
         }
 
-    @property
+    @cached_property
     def resource_available_times(self) -> dict[str, float]:
         """Get the availability of all resources."""
         return {
@@ -286,53 +306,39 @@ class Evaluation:
             for resource, _ in sorted(counter.items(), key=lambda x: x[1], reverse=True)
         ]
 
-    def __lt__(self, other):
-        return self.total_cost < other.total_cost
-
-    def __gt__(self, other):
-        return self.total_cost > other.total_cost
-
-    def __eq__(self, other):
-        return self.total_cost == other.total_cost
-
-    def __le__(self, other):
-        return self.total_cost <= other.total_cost
-
-    def __ge__(self, other):
-        return self.total_cost >= other.total_cost
-
-    def __ne__(self, other):
-        return self.total_cost != other.total_cost
-
     def to_tuple(self) -> tuple[float, float]:
-        """Convert the evaluation to a tuple of total cost and total cycle time."""
-        return (self.total_cost, self.total_cycle_time)
+        """Convert self to a tuple of cost for available time and total cycle time."""
+        return (self.total_cost_for_available_time, self.total_cycle_time)
 
     def distance_to(self, other: "Evaluation") -> float:
         """Calculate the euclidean distance between two evaluations."""
         return math.sqrt(
-            (self.total_cost - other.total_cost) ** 2
+            (self.total_cost_for_available_time - other.total_cost_for_available_time)
+            ** 2
             + (self.total_cycle_time - other.total_cycle_time) ** 2
         )
 
     @staticmethod
     def empty():
-        return Evaluation(KPIMap(), {}, {}, None)  # type: ignore
+        """Create an empty evaluation."""
+        return Evaluation({}, KPIMap(), {}, {}, None)  # type: ignore
 
     @staticmethod
-    def from_run_simulation_result(result: RunSimulationResult) -> "Evaluation":
+    def from_run_simulation_result(
+        hourly_rates: HourlyRates, result: RunSimulationResult
+    ) -> "Evaluation":
         """Create an evaluation from a simulation result."""
         global_kpis, task_kpis, resource_kpis, log_info = result
-        return Evaluation(global_kpis, task_kpis, resource_kpis, log_info)
+        return Evaluation(hourly_rates, global_kpis, task_kpis, resource_kpis, log_info)
 
     def __str__(self) -> str:
-        return f"Cycle Time: {self.total_cycle_time}, Cost: {self.total_cost}, Waiting Time: {self.total_waiting_time}"
+        return f"Cycle Time: {self.total_cycle_time}, Cost: {self.total_cost_for_available_time}, Waiting Time: {self.total_waiting_time}"
 
     # Is this evaluation dominated by another evaluation?
     # (Taking only the total cost & total cycle time into account)
     def is_dominated_by(self, other: "Evaluation") -> bool:
         """Check if this evaluation is dominated by another evaluation."""
         return (
-            other.total_cost < self.total_cost
+            other.total_cost_for_available_time < self.total_cost_for_available_time
             and other.total_cycle_time < self.total_cycle_time
         )

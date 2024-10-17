@@ -137,6 +137,7 @@ def test_self_rating_optimal_rule(store: Store):
     assert result is None
 
 
+# TODO: Fix this test
 def test_self_rating_non_optimal_rule(one_task_store: Store):
     store = replace_timetable(
         one_task_store,
