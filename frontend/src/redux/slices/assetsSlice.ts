@@ -6,7 +6,6 @@ import { ConfigType, ConstraintsType, TimetableType } from "./optimosApi";
 
 export enum AssetType {
   BPMN = "BPMN",
-  OPTIMOS_CONFIG = "OPTIMOS_CONFIG",
   OPTIMOS_CONSTRAINTS = "OPTIMOS_CONSTRAINTS",
   TIMETABLE = "TIMETABLE",
 }
@@ -19,10 +18,6 @@ export type Asset = {
   | {
       type: AssetType.BPMN;
       value?: string;
-    }
-  | {
-      type: AssetType.OPTIMOS_CONFIG;
-      value?: ConfigType;
     }
   | {
       type: AssetType.OPTIMOS_CONSTRAINTS;

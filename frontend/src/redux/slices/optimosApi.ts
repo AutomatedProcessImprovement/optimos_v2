@@ -84,9 +84,13 @@ export type HttpValidationError = {
 };
 export type ConfigType = {
   scenario_name: string;
-  num_instances: number;
-  algorithm: string;
+  num_cases: number;
+  max_non_improving_actions: number;
+  max_iterations: number;
+  max_actions_per_iteration: number | null;
   approach: string;
+  agent: AgentType;
+  disable_batch_optimization: boolean;
 };
 export type Resource = {
   id: string;
@@ -292,7 +296,7 @@ export type JsonResourceInfo = {
 };
 export type JsonAction = {
   type: string;
-  params: object;
+  params: any;
 };
 export type JsonSolution = {
   is_base_solution: boolean;
@@ -323,6 +327,11 @@ export type JsonReport = {
 export type CancelResponse = {
   message: string;
 };
+export enum AgentType {
+  TabuSearch = "tabu_search",
+  SimulatedAnnealing = "simulated_annealing",
+  ProximalPolicyOptimization = "proximal_policy_optimization",
+}
 export enum DISTRIBUTION_TYPE {
   Fix = "fix",
   Default = "default",

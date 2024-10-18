@@ -9,7 +9,6 @@ import { validateBPMN } from "../validation/validateBPMN";
 import { useSelector } from "react-redux";
 import {
   selectSelectedBPMNAsset,
-  selectSelectedConfigAsset,
   selectSelectedConstraintsAsset,
   selectSelectedTimetableAsset,
 } from "../redux/selectors/assetSelectors";
@@ -18,30 +17,25 @@ import {
   ConstraintsType,
   TimetableType,
 } from "../redux/slices/optimosApi";
+import { selectOptimosConfig } from "../redux/selectors/optimosConfigSelectors";
 
 export type MasterFormData = {
   constraints?: ConstraintsType;
   simulationParameters?: TimetableType;
-  scenarioProperties: ConfigType;
-};
-
-const DEFAULT_CONFIG: ConfigType = {
-  scenario_name: "My first scenario",
-  num_instances: 100,
-  algorithm: "HC-FLEX",
-  approach: "CAAR",
+  optimosConfig: ConfigType;
 };
 
 export const useMasterFormData = () => {
   const constraintsAsset = useSelector(selectSelectedConstraintsAsset);
   const simParamsAsset = useSelector(selectSelectedTimetableAsset);
   const bpmnAsset = useSelector(selectSelectedBPMNAsset);
+  const optimosConfig = useSelector(selectOptimosConfig);
 
   const masterFormData = useMemo<MasterFormData>(
     () => ({
       constraints: constraintsAsset?.value,
       simulationParameters: simParamsAsset?.value,
-      scenarioProperties: DEFAULT_CONFIG,
+      optimosConfig: optimosConfig,
     }),
     [constraintsAsset?.value, simParamsAsset?.value]
   );

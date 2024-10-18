@@ -1,5 +1,6 @@
 import datetime
 import os
+from pprint import pprint
 import uuid
 from tempfile import mkstemp
 from xml.etree import ElementTree as ET
@@ -27,13 +28,9 @@ class OptimosService:
         self.running = True
         config = request["config"]
 
-        num_instances = config["num_instances"]
-        algorithm = config["algorithm"]
-        approach = config["approach"]
-
-        print(f"Num of instances: {num_instances}")
-        print(f"Algorithm: {algorithm}")
-        print(f"Approach: {approach}")
+        print("New Request!")
+        print("Config:")
+        pprint(config)
 
         timetable = request["timetable"]
         constraints = request["constraints"]
@@ -51,23 +48,26 @@ class OptimosService:
             initial_state,
             constraints,
         )
-        # Settings
-        store.settings.optimos_legacy_mode = True
+        store.name = config["scenario_name"]
 
-        # Keep one cpu core free for other processes
+        # Update settings
+
+        # Keep one cpu core free for other processes (e.g. web request handling)
         store.settings.max_threads = max(1, (os.cpu_count() or 1) - 1)
-        store.settings.max_number_of_actions_to_select = store.settings.max_threads
 
-        store.settings.legacy_approach = LegacyApproach.from_abbreviation(approach)
+        store.settings.optimos_legacy_mode = config["disable_batch_optimization"]
 
-        # TODO: This is not was was meant by 'num_instances' in the original code.
-        # That referred to the number of cases, which is currently somewhat static
-        store.settings.max_iterations = num_instances
-        # We know we will be doing about `max_threads` actions per iteration, so we can set the max_non_improving_actions
-        # to be the number of instances times the number of threads
-        store.settings.max_non_improving_actions = (
-            num_instances * store.settings.max_threads
+        # We limit the number of actions to select to the number of threads
+        store.settings.max_number_of_actions_to_select = min(
+            (config["max_actions_per_iteration"] or 1000), store.settings.max_threads
         )
+        store.settings.legacy_approach = LegacyApproach.from_abbreviation(
+            config["approach"]
+        )
+        store.settings.max_iterations = config["max_iterations"]
+        store.settings.max_non_improving_actions = config["max_non_improving_actions"]
+        store.settings.num_of_cases = config["num_cases"]
+        store.settings.agent = config["agent"]
 
         # Upload initial evaluation
         self.iteration_callback(store)

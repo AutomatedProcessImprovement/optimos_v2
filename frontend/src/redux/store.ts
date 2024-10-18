@@ -16,6 +16,7 @@ import { compressTransform } from "./compressTransform";
 
 import { setupListeners } from "@reduxjs/toolkit/query";
 import { apiSliceMiddleware, apiSliceReducer } from "./slices/apiSlice";
+import { optimosConfigReducer } from "./slices/optimosConfigSlice";
 
 const persistConfig = {
   key: "root",
@@ -28,6 +29,7 @@ const rootReducer = combineReducers({
   assets: assetReducer,
   uiState: uiStateReducer,
   api: apiSliceReducer,
+  optimosConfig: optimosConfigReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

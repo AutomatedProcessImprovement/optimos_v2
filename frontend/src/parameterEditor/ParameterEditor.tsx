@@ -16,7 +16,7 @@ import { v4 as uuidv4 } from "uuid";
 import { useDispatch, useSelector } from "react-redux";
 
 import { TABS, TabNames, getIndexOfTab } from "../hooks/useTabVisibility";
-import GlobalConstraints from "../constraintEditors/GlobalConstraints";
+import OptimosConfig from "../constraintEditors/OptimosConfig";
 import ResourceConstraints from "../resourceConstraints/ResourceConstraints";
 import ScenarioConstraints from "../constraintEditors/ScenarioConstraints";
 import { ValidationTab } from "../validation/ValidationTab";
@@ -51,6 +51,7 @@ import { showError, showSuccess } from "../util/helpers";
 import { showNotification } from "@mantine/notifications";
 import { useStartOptimizationStartOptimizationPostMutation } from "../redux/slices/optimosApi";
 import { useNavigate } from "react-router-dom";
+import { setConfig } from "../redux/slices/optimosConfigSlice";
 
 const tooltip_desc: Record<TABS, string> = {
   [TABS.GLOBAL_CONSTRAINTS]:
@@ -97,7 +98,7 @@ export const ParameterEditor = () => {
   const getStepContent = (index: TABS) => {
     switch (index) {
       case TABS.GLOBAL_CONSTRAINTS:
-        return <GlobalConstraints />;
+        return <OptimosConfig />;
       case TABS.SCENARIO_CONSTRAINTS:
         return <ScenarioConstraints />;
       case TABS.RESOURCE_CONSTRAINTS:
@@ -111,6 +112,7 @@ export const ParameterEditor = () => {
 
   const handleConfigSave = async () => {
     dispatch(updateByMasterForm(getTransformedValues()));
+    dispatch(setConfig(getTransformedValues().optimosConfig));
 
     masterForm.resetTouched();
     masterForm.resetDirty();
@@ -135,7 +137,7 @@ export const ParameterEditor = () => {
     useStartOptimizationStartOptimizationPostMutation();
   const startOptimization = async () => {
     const processingRequest: ProcessingRequest = {
-      config: getTransformedValues().scenarioProperties,
+      config: getTransformedValues().optimosConfig,
       bpmn_model: selectSelectedBPMNAsset(store.getState()).value,
       timetable: getTransformedValues().simulationParameters,
       constraints: getTransformedValues().constraints,

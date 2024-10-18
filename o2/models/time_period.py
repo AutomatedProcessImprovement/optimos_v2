@@ -22,13 +22,9 @@ class TimePeriod(BaseModel):
     to: "DAY" = Field(...)
     """The end of the time period (day, uppercase, e.g. FRIDAY)"""
 
-    begin_time: str = Field(
-        ...,
-    )
+    begin_time: str = Field(...)
     """The start time of the time period (24h format, e.g. 08:00)"""
-    end_time: str = Field(
-        ...,
-    )
+    end_time: str = Field(...)
     """The end time of the time period (24h format, e.g. 17:00)"""
 
     class Config:  # noqa: D106

@@ -96,7 +96,8 @@ class Store:
         if reinsert_current_solution:
             self.solution_tree.add_solution(self.solution)
         new_solution = self.solution_tree.pop_nearest_solution(
-            self.current_pareto_front
+            self.current_pareto_front,
+            max_distance=self.settings.max_distance_to_new_base_solution,
         )
 
         if new_solution is None:
@@ -149,10 +150,11 @@ class Store:
 
         NOTE: Usually you would use the HillClimber to run actions.
         This method should only be used in tests.
+
+        NOTE: This will only update the store if the action is not dominated
         """
         new_solution = Solution.from_parent(self.solution, action)
         self.process_many_solutions([new_solution])
-        self.choose_new_base_evaluation()
 
     # Tries an action and returns the status of the new evaluation
     # Does NOT modify the store

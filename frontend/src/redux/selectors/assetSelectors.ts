@@ -9,16 +9,6 @@ export const selectSelectedAssets = createSelector(
   }
 );
 
-export const selectSelectedConfigAsset = createSelector(
-  (state: RootState) => state.uiState.selectedAssets,
-  (state: RootState) =>
-    state.assets.filter((asset) => asset.type === "OPTIMOS_CONFIG"),
-  (selectedAssets, assets) => {
-    if (selectedAssets.length === 0) return null;
-    return assets.filter((asset) => selectedAssets.includes(asset.id))[0];
-  }
-);
-
 export const selectSelectedConstraintsAsset = createSelector(
   (state: RootState) => state.uiState.selectedAssets,
   (state: RootState) =>

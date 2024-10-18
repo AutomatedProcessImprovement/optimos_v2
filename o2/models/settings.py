@@ -1,7 +1,16 @@
 import os
 from dataclasses import dataclass
+from enum import Enum
 
 from o2.models.legacy_approach import LegacyApproach
+
+
+class AgentType(Enum):
+    """The type of agent to use for the optimization task."""
+
+    TABU_SEARCH = "tabu_search"
+    SIMULATED_ANNEALING = "simulated_annealing"
+    PROXIMAL_POLICY_OPTIMIZATION = "proximal_policy_optimization"
 
 
 @dataclass()
@@ -11,6 +20,12 @@ class Settings:
     This class is initialized with sensible defaults, but can be changed to
     suit the needs of the user, e.g. to run it in legacy optimos mode.
     """
+
+    num_of_cases = 100
+    """The number of cases to simulate per run."""
+
+    agent: AgentType = AgentType.TABU_SEARCH
+    """The agent to use for the optimization task."""
 
     max_non_improving_actions = 1000
     """The maximum number of actions before the application stops."""
@@ -66,7 +81,7 @@ class Settings:
     disable_parallel_evaluation = False
     """Should the parallel evaluation be disabled? This is useful for debugging."""
 
-    maximum_distance_to_new_base_solution = float("inf")
+    max_distance_to_new_base_solution = float("inf")
     """The maximum distance to the new base solution to be considered for evaluation.
     With distance being the min euclidean distance to any solution in
     the current Pareto Front.

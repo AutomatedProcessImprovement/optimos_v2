@@ -107,7 +107,7 @@ export const SolutionChart: FC<SolutionChartProps> = ({
         type: "scatter",
       },
       {
-        name: "Optimal Solution",
+        name: "Optimal Solutions",
         data: optimalSolutions.map((solution, index) => ({
           x: solution.global_info.total_time,
           y: solution.global_info.total_cost,
