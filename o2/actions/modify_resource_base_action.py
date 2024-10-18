@@ -89,6 +89,10 @@ class ModifyResourceBaseAction(BaseAction, ABC):
                 return RATING.LOW
             else:
                 return RATING.HIGH
+        elif store.settings.legacy_approach == LegacyApproach.RESOURCES_FIRST:
+            return RATING.HIGH
+        elif store.settings.legacy_approach == LegacyApproach.CALENDAR_FIRST:
+            return RATING.LOW
         elif store.settings.legacy_approach.calendar_is_disabled:
             return RATING.NOT_APPLICABLE
         return RATING.MEDIUM

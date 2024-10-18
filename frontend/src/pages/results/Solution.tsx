@@ -147,10 +147,10 @@ export const OptimosSolution: FC<OptimosSolutionProps> = memo(
                 <Grid justify="flex-start" ta="left">
                   <Grid.Col span={5}>
                     <Text size="sm" fw="bold">
-                      Mean cost (per case)
+                      Mean cost (work time only - per case)
                     </Text>
                     <Text size="sm" fw="bold">
-                      Total cost (all cases)
+                      Total cost (available time - all cases)
                     </Text>
                     <Text size="sm" fw="bold">
                       Mean time (per case)

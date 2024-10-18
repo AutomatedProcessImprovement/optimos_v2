@@ -130,6 +130,8 @@ class Store:
                 chosen_tries.append((status, solution))
                 self.current_pareto_front.add(solution)
                 self._add_solution(solution, False)
+                # We choose a new base evaluation, to continue with our new front entry
+                self.choose_new_base_evaluation(reinsert_current_solution=True)
             elif status == FRONT_STATUS.IS_DOMINATED:
                 chosen_tries.append((status, solution))
                 self.pareto_fronts.append(ParetoFront())

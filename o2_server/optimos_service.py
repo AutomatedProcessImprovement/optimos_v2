@@ -60,6 +60,8 @@ class OptimosService:
 
         store.settings.legacy_approach = LegacyApproach.from_abbreviation(approach)
 
+        # TODO: This is not was was meant by 'num_instances' in the original code.
+        # That referred to the number of cases, which is currently somewhat static
         store.settings.max_iterations = num_instances
         # We know we will be doing about `max_threads` actions per iteration, so we can set the max_non_improving_actions
         # to be the number of instances times the number of threads

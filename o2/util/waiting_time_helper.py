@@ -50,8 +50,6 @@ def add_waiting_times_to_event_log(log: LogInfo) -> pd.DataFrame:
 
     dataframe = pd.DataFrame(result)
 
-    print_l2(f"Time to add waiting times: {time.time() - start}")
-
     return dataframe
 
 
