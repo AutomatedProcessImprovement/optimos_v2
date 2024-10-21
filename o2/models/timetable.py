@@ -615,6 +615,15 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
                 return task_resource_distribution
         return None
 
+    def get_resources_assigned_to_task(self, task_id: str) -> List[str]:
+        """Get all resources assigned to a task."""
+        task_resource_distribution = self.get_task_resource_distribution(task_id)
+        if task_resource_distribution is None:
+            return []
+        return [
+            resource.resource_id for resource in task_resource_distribution.resources
+        ]
+
     def get_resource_profiles_containing_resource(
         self, resource_id: str
     ) -> list[ResourcePool]:

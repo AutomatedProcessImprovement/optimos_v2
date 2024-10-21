@@ -1,6 +1,6 @@
 from typing import Literal
 
-from o2.actions.action_selector import ActionSelector
+from o2.action_selectors.tabu_action_selector import TabuActionSelector
 from o2.actions.modify_size_rule_action import (
     ModifySizeRuleAction,
     ModifySizeRuleActionParamsType,
@@ -79,7 +79,7 @@ def test_self_rating_optimal_rule(store: Store):
         .constraints.batching_constraints,
     )
 
-    evaluations = ActionSelector.evaluate_rules(store)
+    evaluations = TabuActionSelector.evaluate_rules(store)
     rating_input = SelfRatingInput.from_rule_solutions(store, evaluations)
     assert rating_input is not None
     result = next(ModifySizeRuleAction.rate_self(store, rating_input), None)
@@ -106,7 +106,7 @@ def test_self_rating_non_optimal_rule_decrement(one_task_store: Store):
         .constraints.batching_constraints,
     )
 
-    evaluations = ActionSelector.evaluate_rules(store)
+    evaluations = TabuActionSelector.evaluate_rules(store)
     rating_input = SelfRatingInput.from_rule_solutions(store, evaluations)
     assert rating_input is not None
     rating, action = next(ModifySizeRuleAction.rate_self(store, rating_input))
@@ -133,7 +133,7 @@ def test_self_rating_non_optimal_rule_increment(one_task_store: Store):
         .constraints.batching_constraints,
     )
 
-    evaluations = ActionSelector.evaluate_rules(store)
+    evaluations = TabuActionSelector.evaluate_rules(store)
     rating_input = SelfRatingInput.from_rule_solutions(store, evaluations)
     assert rating_input is not None
     rating, action = next(ModifySizeRuleAction.rate_self(store, rating_input))

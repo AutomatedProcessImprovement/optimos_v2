@@ -4,7 +4,7 @@ import time
 import traceback
 from typing import Generator
 
-from o2.actions.action_selector import ActionSelector
+from o2.action_selectors.tabu_action_selector import TabuActionSelector
 from o2.actions.base_action import BaseAction
 from o2.models.solution import Solution
 from o2.pareto_front import FRONT_STATUS
@@ -51,7 +51,7 @@ class HillClimber:
                     break
                 print_l0(f"Iteration {it}")
 
-                actions_to_perform = ActionSelector.select_actions(self.store)
+                actions_to_perform = TabuActionSelector().select_actions(self.store)
                 if actions_to_perform is None or len(actions_to_perform) == 0:
                     print_l1("Iteration finished, no actions to perform.")
                     break

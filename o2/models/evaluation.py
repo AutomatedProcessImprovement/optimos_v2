@@ -108,6 +108,18 @@ class Evaluation:
             or 0
         )
 
+    @cached_property
+    def waiting_time_per_resource(self) -> dict[str, float]:
+        """Get the waiting time per resource."""
+        return (
+            self.waiting_time_canvas.groupby("resource")[
+                "waiting_time_batching_seconds"
+            ]
+            .sum()
+            .fillna(0)
+            .to_dict()
+        )
+
     def avg_batching_waiting_time_by_task_id(self, task_id: str) -> float:
         """Get the average batching waiting time of a task."""
         result = (
@@ -268,12 +280,16 @@ class Evaluation:
             )
         ]
 
-    def get_tasks_sorted_by_occurrences_of_wt_and_it(self) -> list[str]:
-        """Get a list of task names sorted by wt & it instances.
+    def get_task_execution_counts(self) -> dict[str, int]:
+        """Get the count each task was executed."""
+        occurrences: dict[str, int] = {}
+        for case in self.cases:
+            for event in cast(list[TaskEvent], case.event_list):
+                occurrences[event.task_id] = occurrences.get(event.task_id, 0) + 1
+        return occurrences
 
-        In clear words: Orders descending the tasks by the number of times
-        they were executed(number of events) and had either a waiting or idle time.
-        """
+    def get_task_execution_count_with_wt_or_it(self) -> dict[str, int]:
+        """Get the count each task was executed with a waiting or idle time."""
         occurrences: dict[str, int] = {}
         for case in self.cases:
             for event in cast(list[TaskEvent], case.event_list):
@@ -281,6 +297,15 @@ class Evaluation:
                     occurrences[event.task_id] = occurrences.get(event.task_id, 0) + 1
                 if event.idle_time is not None and event.idle_time > 0:
                     occurrences[event.task_id] = occurrences.get(event.task_id, 0) + 1
+        return occurrences
+
+    def get_tasks_sorted_by_occurrences_of_wt_and_it(self) -> list[str]:
+        """Get a list of task names sorted by wt & it instances.
+
+        In clear words: Orders descending the tasks by the number of times
+        they were executed(number of events) and had either a waiting or idle time.
+        """
+        occurrences = self.get_task_execution_count_with_wt_or_it()
         return [
             task_name
             for task_name, _ in sorted(

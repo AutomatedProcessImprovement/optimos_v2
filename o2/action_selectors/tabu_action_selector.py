@@ -1,82 +1,34 @@
 import concurrent.futures
-import os
 import traceback
-from typing import Optional, Type, Union
+from typing import Optional
 
-from o2.actions.add_resource_action import AddResourceAction
-from o2.actions.add_week_day_rule_action import AddWeekDayRuleAction
-from o2.actions.base_action import ActionRatingTuple, BaseAction, RateSelfReturnType
-from o2.actions.modify_calendar_by_cost_action import (
-    ModifyCalendarByCostAction,
+from o2.action_selectors.action_selector import (
+    ACTION_CATALOG,
+    ACTION_CATALOG_LEGACY,
+    ActionSelector,
 )
-from o2.actions.modify_calendar_by_it_action import ModifyCalendarByITAction
-from o2.actions.modify_calendar_by_wt_action import ModifyCalendarByWTAction
-from o2.actions.modify_daily_hour_rule_action import ModifyDailyHourRuleAction
-from o2.actions.modify_large_wt_rule_action import ModifyLargeWtRuleAction
-from o2.actions.modify_ready_wt_rule_action import ModifyReadyWtRuleAction
-from o2.actions.modify_size_rule_action import (
-    ModifySizeRuleAction,
-)
-from o2.actions.remove_resource_by_cost_action import (
-    RemoveResourceByCostAction,
-)
-from o2.actions.remove_resource_by_utilization_action import (
-    RemoveResourceByUtilizationAction,
-)
+from o2.actions.base_action import BaseAction, RateSelfReturnType
 from o2.actions.remove_rule_action import (
     RemoveRuleAction,
     RemoveRuleActionParamsType,
 )
-from o2.models.constraints import RULE_TYPE
-from o2.models.evaluation import Evaluation
 from o2.models.rule_selector import RuleSelector
 from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.solution import Solution
-from o2.models.state import State
-from o2.pareto_front import FRONT_STATUS
 from o2.store import Store
-from o2.util.indented_printer import print_l0, print_l1, print_l2
-
-ACTION_CATALOG: list[Type[BaseAction]] = [
-    AddResourceAction,
-    AddWeekDayRuleAction,
-    ModifyCalendarByCostAction,
-    ModifyCalendarByITAction,
-    ModifyCalendarByWTAction,
-    ModifyDailyHourRuleAction,
-    ModifyLargeWtRuleAction,
-    ModifyReadyWtRuleAction,
-    ModifySizeRuleAction,
-    RemoveResourceByCostAction,
-    RemoveResourceByUtilizationAction,
-    RemoveRuleAction,
-]
+from o2.util.indented_printer import print_l1, print_l2
 
 
-ACTION_CATALOG_LEGACY = [
-    AddResourceAction,
-    ModifyCalendarByCostAction,
-    ModifyCalendarByITAction,
-    ModifyCalendarByWTAction,
-    RemoveResourceByCostAction,
-    RemoveResourceByUtilizationAction,
-]
+class TabuActionSelector(ActionSelector):
+    """Selects the best action to take next, based on the current state of the store.
 
+    This Action Selector is based on the Tabu Search algorithm, and also has options to
+    support the simulated annealing.
+    """
 
-class ActionSelector:
-    """Selects the best action to take next, based on the current state of the store."""
-
-    @staticmethod
-    def select_actions(store: Store) -> Optional[list[BaseAction]]:
-        """Select the best actions to take next.
-
-        It will pick at most cpu_count actions, so parallel evaluation is possible.
-
-        If the possible options for the current base evaluation are exhausted,
-        it will choose a new base evaluation.
-        """
+    def select_actions(self, store: Store) -> Optional[list[BaseAction]]:  # noqa: D102
         while True:
-            evaluations = ActionSelector.evaluate_rules(store)
+            evaluations = TabuActionSelector.evaluate_rules(store)
 
             rating_input = SelfRatingInput.from_rule_solutions(store, evaluations)
             if rating_input is None:
@@ -95,7 +47,7 @@ class ActionSelector:
 
             # Get valid actions from the generators, even multiple per generator,
             # if we don't have enough valid actions yet
-            possible_actions = ActionSelector._get_valid_actions(
+            possible_actions = TabuActionSelector._get_valid_actions(
                 store, action_generators
             )
             # Remove None values

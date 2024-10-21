@@ -1,4 +1,4 @@
-from o2.actions.action_selector import ActionSelector
+from o2.action_selectors.tabu_action_selector import TabuActionSelector
 from o2.actions.modify_daily_hour_rule_action import (
     ModifyDailyHourRuleAction,
     ModifyDailyHourRuleActionParamsType,
@@ -76,7 +76,7 @@ def test_self_rate_simple(one_task_store: Store):
 
     first_rule = store.base_timetable.batch_processing[0]
 
-    evaluations = ActionSelector.evaluate_rules(store, skip_size_rules=True)
+    evaluations = TabuActionSelector.evaluate_rules(store, skip_size_rules=True)
     rating_input = SelfRatingInput.from_rule_solutions(store, evaluations)
     assert rating_input is not None
     rating, action = next(ModifyDailyHourRuleAction.rate_self(store, rating_input))
@@ -128,7 +128,7 @@ def test_self_rate_simple2(one_task_store: Store):
 
     first_rule = store.base_timetable.batch_processing[0]
 
-    evaluations = ActionSelector.evaluate_rules(store, skip_size_rules=True)
+    evaluations = TabuActionSelector.evaluate_rules(store, skip_size_rules=True)
     rating_input = SelfRatingInput.from_rule_solutions(store, evaluations)
     assert rating_input is not None
     rating, action = next(ModifyDailyHourRuleAction.rate_self(store, rating_input))
