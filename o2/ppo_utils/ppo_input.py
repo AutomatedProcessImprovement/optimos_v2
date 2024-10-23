@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Optional
 
 import numpy as np
-from gym import Space, spaces
+from gymnasium import spaces
 from sklearn.preprocessing import MinMaxScaler
 
 from o2.actions.base_action import BaseAction
@@ -69,59 +69,35 @@ class PPOInput:
 
         return spaces.Dict(
             {
-                "continuous": spaces.Dict(
-                    {
-                        "task": spaces.Dict(
-                            {
-                                "waiting_times": spaces.Box(
-                                    low=0, high=1, shape=(num_tasks, 1)
-                                ),
-                                "idle_time": spaces.Box(
-                                    low=0, high=1, shape=(num_tasks, 1)
-                                ),
-                            }
-                        ),
-                        "resource": spaces.Dict(
-                            {
-                                "waiting_times": spaces.Box(
-                                    low=0, high=1, shape=(num_resources, 1)
-                                ),
-                                "available_time": spaces.Box(
-                                    low=0, high=1, shape=(num_resources, 1)
-                                ),
-                                "utilization": spaces.Box(
-                                    low=0, high=1, shape=(num_resources, 1)
-                                ),
-                                "hourly_cost": spaces.Box(
-                                    low=0, high=1, shape=(num_resources, 1)
-                                ),
-                            }
-                        ),
-                    }
+                # Continuous resource-related observations
+                "resource_waiting_times": spaces.Box(
+                    low=0, high=1, shape=(num_resources, 1)
                 ),
-                "discrete": spaces.Dict(
-                    {
-                        "task": spaces.Dict(
-                            {
-                                "task_execution_count_with_wt_or_it": spaces.Box(
-                                    low=0, high=num_cases, shape=(num_tasks, 1)
-                                ),
-                                "task_execution_counts": spaces.Box(
-                                    low=0, high=num_cases, shape=(num_tasks, 1)
-                                ),
-                                "num_resources": spaces.Box(
-                                    low=0, high=num_resources, shape=(num_tasks, 1)
-                                ),
-                            }
-                        ),
-                        "resource": spaces.Dict(
-                            {
-                                "num_tasks": spaces.Box(
-                                    low=0, high=high, shape=(num_tasks, 1)
-                                ),
-                            }
-                        ),
-                    }
+                "resource_available_time": spaces.Box(
+                    low=0, high=1, shape=(num_resources, 1)
+                ),
+                "resource_utilization": spaces.Box(
+                    low=0, high=1, shape=(num_resources, 1)
+                ),
+                "resource_hourly_cost": spaces.Box(
+                    low=0, high=1, shape=(num_resources, 1)
+                ),
+                # Discrete resource-related observations
+                "resource_num_tasks": spaces.Box(
+                    low=0, high=high, shape=(num_resources, 1)
+                ),
+                # Continuous task-related observations
+                "task_waiting_times": spaces.Box(low=0, high=1, shape=(num_tasks, 1)),
+                "task_idle_time": spaces.Box(low=0, high=1, shape=(num_tasks, 1)),
+                # Discrete task-related observations
+                "task_execution_count_with_wt_or_it": spaces.Box(
+                    low=0, high=num_cases, shape=(num_tasks, 1)
+                ),
+                "task_execution_counts": spaces.Box(
+                    low=0, high=num_cases, shape=(num_tasks, 1)
+                ),
+                "task_num_resources": spaces.Box(
+                    low=0, high=num_resources, shape=(num_tasks, 1)
                 ),
             }
         )
@@ -170,20 +146,17 @@ class PPOInput:
         ).reshape(-1, 1)
 
         return {
-            "continuous": {
-                "waiting_times": waiting_times,
-                "idle_time": idle_times,
-            },
-            "discrete": {
-                "task_execution_count_with_wt_or_it": task_execution_count_with_wt_or_it_,
-                "task_execution_counts": task_execution_counts,
-                "num_resources": number_of_resources,
-            },
+            "task_waiting_times": waiting_times,
+            "task_idle_time": idle_times,
+            "task_execution_count_with_wt_or_it": task_execution_count_with_wt_or_it_,
+            "task_execution_counts": task_execution_counts,
+            "task_num_resources": number_of_resources,
         }
 
     @staticmethod
     def _get_resource_features(store: Store):
-        resources = store.current_timetable.get_all_resources()
+        # TODO: This only uses base resources
+        resources = store.base_timetable.get_all_resources()
         evaluation = store.current_evaluation
 
         # MinMaxScaler for continuous features
@@ -195,12 +168,20 @@ class PPOInput:
         # Continuous features
         waiting_times_dict = evaluation.waiting_time_per_resource
         waiting_times = np.array(
-            [waiting_times_dict[resource.id] for resource in resources]
+            [
+                waiting_times_dict[resource.id]
+                if resource.id in waiting_times_dict
+                # TODO: 0 might not be the best default value
+                else 0
+                for resource in resources
+            ]
         ).reshape(-1, 1)
 
         available_times = np.array(
             [
                 evaluation.resource_kpis[resource.id].available_time
+                if resource.id in evaluation.resource_kpis
+                else 0
                 for resource in resources
             ]
         ).reshape(-1, 1)
@@ -208,6 +189,8 @@ class PPOInput:
         utilizations = np.array(
             [
                 evaluation.resource_kpis[resource.id].utilization
+                if resource.id in evaluation.resource_kpis
+                else 0
                 for resource in resources
             ]
         ).reshape(-1, 1)
@@ -228,30 +211,22 @@ class PPOInput:
         ).reshape(-1, 1)
 
         return {
-            "continuous": {
-                "waiting_times": waiting_times,
-                "available_time": available_times,
-                "utilization": utilizations,
-                "hourly_cost": hourly_costs,
-            },
-            "discrete": {"num_tasks": number_of_tasks},
+            "resource_waiting_times": waiting_times,
+            "resource_available_time": available_times,
+            "resource_utilization": utilizations,
+            "resource_hourly_cost": hourly_costs,
+            "resource_num_tasks": number_of_tasks,
         }
 
     @staticmethod
     def state_from_store(store: Store) -> dict:
         """Get the input for the PPO model based on the current state of the store."""
-        task_features = PPOInput._get_task_features(store)
         resource_features = PPOInput._get_resource_features(store)
+        task_features = PPOInput._get_task_features(store)
 
         return {
-            "continuous": {
-                "task": task_features["continuous"],
-                "resource": resource_features["continuous"],
-            },
-            "discrete": {
-                "task": task_features["discrete"],
-                "resource": resource_features["discrete"],
-            },
+            **resource_features,
+            **task_features,
         }
 
     @staticmethod
@@ -264,7 +239,9 @@ class PPOInput:
     @staticmethod
     def get_actions_from_store(store: Store) -> list[Optional[BaseAction]]:
         """Get the action based on the index."""
-        resources = store.current_timetable.get_all_resources()
+        # TODO: This only uses base resources
+        resources = store.base_timetable.get_all_resources()
+        current_timetable = store.current_timetable
 
         actions = []
 
@@ -285,6 +262,9 @@ class PPOInput:
         ] = []
 
         for resource in resources:
+            if current_timetable.get_resource(resource.id) is None:
+                modify_resource_action_params.extend([None] * ((len(DAYS) * 6) + 2))
+                continue
             modify_resource_action_params.extend(
                 [
                     # Clone resource
@@ -302,11 +282,11 @@ class PPOInput:
             calendar = store.current_timetable.get_calendar_for_resource(resource.id)
             for day in DAYS:
                 if calendar is None:
-                    modify_calendar_action_params.append(None)
+                    modify_calendar_action_params.extend([None] * 6)
                     continue
                 periods = calendar.get_periods_for_day(day)
                 if periods is None or len(periods) == 0:
-                    modify_calendar_action_params.append(None)
+                    modify_calendar_action_params.extend([None] * 6)
                     continue
                 # Remove first hour
                 modify_calendar_action_params.extend(
@@ -371,9 +351,13 @@ class PPOInput:
                 for modify_resource_action_param in modify_resource_action_params
             ]
         )
-        return actions
+        return [
+            action if (action is not None and store.is_tabu(action) is False) else None
+            for action in actions
+        ]
 
     @staticmethod
     def get_action_mask_from_actions(actions: list[Optional[BaseAction]]) -> np.ndarray:
         """Get the action mask based on the actions."""
-        return np.array([action is not None for action in actions])
+        mask = np.array([action is not None for action in actions])
+        return mask
