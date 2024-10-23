@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
 
 ActionRatingTuple: TypeAlias = Tuple["RATING", Optional["BaseAction"]]
-RateSelfReturnType = Generator[ActionRatingTuple, None, Optional[ActionRatingTuple]]
+RateSelfReturnType = Generator[ActionRatingTuple, bool, Optional[ActionRatingTuple]]
 
 
 class BaseActionParamsType(TypedDict):
@@ -44,6 +44,13 @@ class BaseAction(JSONSerializable, ABC, str=False):
     def rate_self(store: "Store", input: "SelfRatingInput") -> RateSelfReturnType:
         """Generate a best set of parameters & self-evaluates this action."""
         pass
+
+    def check_if_valid(self, store: "Store") -> bool:
+        """Check if the action produces a valid state."""
+        new_state = self.apply(store.current_state)
+        return new_state.is_valid() and store.constraints.verify_legacy_constraints(
+            new_state.timetable
+        )
 
     def __str__(self) -> str:
         """Return a string representation of the action."""

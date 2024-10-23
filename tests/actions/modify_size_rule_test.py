@@ -11,7 +11,12 @@ from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.timetable import COMPARATOR, BatchingRule, FiringRule
 from o2.store import Store
 from tests.fixtures.constraints_generator import ConstraintsGenerator
-from tests.fixtures.test_helpers import replace_constraints, replace_timetable
+from tests.fixtures.test_helpers import (
+    assert_no_first_valid,
+    first_valid,
+    replace_constraints,
+    replace_timetable,
+)
 from tests.fixtures.timetable_generator import TimetableGenerator
 
 
@@ -82,8 +87,7 @@ def test_self_rating_optimal_rule(store: Store):
     evaluations = TabuActionSelector.evaluate_rules(store)
     rating_input = SelfRatingInput.from_rule_solutions(store, evaluations)
     assert rating_input is not None
-    result = next(ModifySizeRuleAction.rate_self(store, rating_input), None)
-    assert result is None
+    assert_no_first_valid(store, ModifySizeRuleAction.rate_self(store, rating_input))
 
 
 def test_self_rating_non_optimal_rule_decrement(one_task_store: Store):
@@ -109,7 +113,9 @@ def test_self_rating_non_optimal_rule_decrement(one_task_store: Store):
     evaluations = TabuActionSelector.evaluate_rules(store)
     rating_input = SelfRatingInput.from_rule_solutions(store, evaluations)
     assert rating_input is not None
-    rating, action = next(ModifySizeRuleAction.rate_self(store, rating_input))
+    rating, action = first_valid(
+        store, ModifySizeRuleAction.rate_self(store, rating_input)
+    )
     assert rating == RATING.MEDIUM
     assert action is not None
     assert action.params["size_increment"] == -1  # type: ignore
@@ -136,7 +142,9 @@ def test_self_rating_non_optimal_rule_increment(one_task_store: Store):
     evaluations = TabuActionSelector.evaluate_rules(store)
     rating_input = SelfRatingInput.from_rule_solutions(store, evaluations)
     assert rating_input is not None
-    rating, action = next(ModifySizeRuleAction.rate_self(store, rating_input))
+    rating, action = first_valid(
+        store, ModifySizeRuleAction.rate_self(store, rating_input)
+    )
     assert rating == RATING.MEDIUM
     assert action is not None
     assert action.params["size_increment"] == 1  # type: ignore

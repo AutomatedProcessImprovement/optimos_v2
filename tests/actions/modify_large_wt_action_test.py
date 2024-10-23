@@ -7,7 +7,12 @@ from o2.models.rule_selector import RuleSelector
 from o2.models.self_rating import RATING, SelfRatingInput
 from o2.store import Store
 from tests.fixtures.constraints_generator import ConstraintsGenerator
-from tests.fixtures.test_helpers import replace_constraints, replace_timetable
+from tests.fixtures.test_helpers import (
+    first_valid,
+    assert_no_first_valid,
+    replace_constraints,
+    replace_timetable,
+)
 from tests.fixtures.timetable_generator import TimetableGenerator
 
 
@@ -73,8 +78,7 @@ def test_self_rating_optimal(one_task_store: Store):
     evaluations = TabuActionSelector.evaluate_rules(store)
     rating_input = SelfRatingInput.from_rule_solutions(store, evaluations)
     assert rating_input is not None
-    result = next(ModifyLargeWtRuleAction.rate_self(store, rating_input), None)
-    assert result is None
+    assert_no_first_valid(store, ModifyLargeWtRuleAction.rate_self(store, rating_input))
 
 
 def test_self_rating_non_optimal(one_task_store: Store):
@@ -101,6 +105,6 @@ def test_self_rating_non_optimal(one_task_store: Store):
         RuleSelector(TimetableGenerator.FIRST_ACTIVITY, (0, 1)),
     )
     assert rating_input is not None
-    result = next(ModifyLargeWtRuleAction.rate_self(store, rating_input))
+    result = first_valid(store, ModifyLargeWtRuleAction.rate_self(store, rating_input))
     assert result[0] == RATING.MEDIUM
     assert result[1] is not None

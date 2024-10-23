@@ -47,7 +47,6 @@ class ModifyCalendarByWTAction(ModifyCalendarBaseAction, str=False):
                         continue
                     periods = calendar.get_periods_containing_day(day)
                     for period in periods:
-                        index = calendar.time_periods.index(period)
                         period_id = period.id
                         # We need to fix the day period to not change
                         # change the times of other days
@@ -59,39 +58,35 @@ class ModifyCalendarByWTAction(ModifyCalendarBaseAction, str=False):
                         new_period = fixed_day_period.add_hours_before(1)
                         if new_period is None:
                             continue
-                        new_calendar = calendar.replace_time_period(index, new_period)
-                        valid = ModifyCalendarByWTAction._verify(store, new_calendar)
-                        if valid:
-                            yield (
-                                ModifyCalendarByWTAction.get_default_rating(store),
-                                ModifyCalendarByWTAction(
-                                    ModifyCalendarByWTActionParamsType(
-                                        calendar_id=calendar.id,
-                                        period_id=period_id,
-                                        day=day,
-                                        add_hours_before=1,
-                                    )
-                                ),
-                            )
+
+                        yield (
+                            ModifyCalendarByWTAction.get_default_rating(store),
+                            ModifyCalendarByWTAction(
+                                ModifyCalendarByWTActionParamsType(
+                                    calendar_id=calendar.id,
+                                    period_id=period_id,
+                                    day=day,
+                                    add_hours_before=1,
+                                )
+                            ),
+                        )
 
                         # Try to shift the shift to start earlier
                         new_period = fixed_day_period.shift_hours(-1)
                         if new_period is None:
                             continue
-                        new_calendar = calendar.replace_time_period(index, new_period)
-                        valid = ModifyCalendarByWTAction._verify(store, new_calendar)
-                        if valid:
-                            yield (
-                                ModifyCalendarByWTAction.get_default_rating(store),
-                                ModifyCalendarByWTAction(
-                                    ModifyCalendarByWTActionParamsType(
-                                        calendar_id=calendar.id,
-                                        period_id=period_id,
-                                        day=day,
-                                        add_hours_before=0,
-                                        shift_hours=-1,
-                                    )
-                                ),
-                            )
+
+                        yield (
+                            ModifyCalendarByWTAction.get_default_rating(store),
+                            ModifyCalendarByWTAction(
+                                ModifyCalendarByWTActionParamsType(
+                                    calendar_id=calendar.id,
+                                    period_id=period_id,
+                                    day=day,
+                                    add_hours_before=0,
+                                    shift_hours=-1,
+                                )
+                            ),
+                        )
 
         return

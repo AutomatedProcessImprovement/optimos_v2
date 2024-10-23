@@ -780,7 +780,7 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
         )
 
     def clone_resource(
-        self, resource_id: str, assigned_tasks: list[str]
+        self, resource_id: str, assigned_tasks: Optional[list[str]]
     ) -> "TimetableType":
         """Get a new timetable with a resource duplicated.
 
@@ -801,6 +801,8 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
         original_resource = self.get_resource(resource_id)
         if original_resource is None:
             return self
+        if assigned_tasks is None:
+            assigned_tasks = original_resource.assigned_tasks
         resource_clone = original_resource.clone(assigned_tasks)
 
         cloned_resource_calendars = self._clone_resource_calendars(
@@ -944,3 +946,11 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
             for resource_profile in self.resource_profiles
             if resource_profile not in original_resource_profiles
         ] + new_resource_profiles
+
+    def is_valid(self) -> bool:
+        """Check if the timetable is valid.
+
+        The timetable is valid if all calendars are valid.
+        TODO: Add more checks.
+        """
+        return all(calendar.is_valid() for calendar in self.resource_calendars)

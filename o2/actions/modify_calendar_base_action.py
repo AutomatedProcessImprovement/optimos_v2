@@ -83,13 +83,6 @@ class ModifyCalendarBaseAction(BaseAction, ABC):
     def rate_self(store: "Store", input: SelfRatingInput) -> RateSelfReturnType:
         pass
 
-    @staticmethod
-    def _verify(store: "Store", new_calendar: ResourceCalendar) -> bool:
-        if not new_calendar.is_valid():
-            return False
-        new_timetable = store.current_timetable.replace_resource_calendar(new_calendar)
-        return store.constraints.verify_legacy_constraints(new_timetable)
-
     def __str__(self) -> str:
         """Return a string representation of the action."""
         if "shift_hours" in self.params:

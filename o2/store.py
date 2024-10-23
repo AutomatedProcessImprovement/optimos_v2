@@ -84,6 +84,11 @@ class Store:
         """Return the current timetable of the solution."""
         return self.solution.state.timetable
 
+    @property
+    def current_state(self) -> State:
+        """Return the current state of the solution."""
+        return self.solution.state
+
     def choose_new_base_evaluation(
         self, reinsert_current_solution: bool = False
     ) -> Optional[Solution]:

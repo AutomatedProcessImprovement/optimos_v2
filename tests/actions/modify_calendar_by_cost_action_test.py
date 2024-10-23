@@ -10,6 +10,7 @@ from o2.store import Store
 from tests.fixtures.constraints_generator import ConstraintsGenerator
 from tests.fixtures.test_helpers import (
     first_calendar_first_period_id,
+    first_valid,
     replace_constraints,
     replace_timetable,
 )
@@ -17,9 +18,10 @@ from tests.fixtures.timetable_generator import TimetableGenerator
 
 
 def test_action_creation_simple_shrink(one_task_store: Store):
-    input = SelfRatingInput.from_base_solution(one_task_store.solution)
+    store = one_task_store
+    input = SelfRatingInput.from_base_solution(store.solution)
 
-    rating, action = next(ModifyCalendarByCostAction.rate_self(one_task_store, input))
+    _, action = first_valid(store, ModifyCalendarByCostAction.rate_self(store, input))
 
     assert action is not None
     assert "add_hours_before" in action.params
@@ -27,7 +29,7 @@ def test_action_creation_simple_shrink(one_task_store: Store):
     assert "add_hours_after" in action.params
     assert action.params["add_hours_after"] == -1
     assert action.params["calendar_id"] == TimetableGenerator.CALENDAR_ID
-    assert action.params["period_id"] == first_calendar_first_period_id(one_task_store)
+    assert action.params["period_id"] == first_calendar_first_period_id(store)
 
 
 def test_action_creation_simple_removal(one_task_store: Store):
@@ -42,7 +44,7 @@ def test_action_creation_simple_removal(one_task_store: Store):
 
     input = SelfRatingInput.from_base_solution(store.solution)
 
-    rating, action = next(ModifyCalendarByCostAction.rate_self(store, input))
+    _, action = first_valid(store, ModifyCalendarByCostAction.rate_self(store, input))
 
     assert action is not None
     assert "remove_period" in action.params
@@ -65,7 +67,7 @@ def test_action_creation_shrink_start(one_task_store: Store):
 
     input = SelfRatingInput.from_base_solution(store.solution)
 
-    rating, action = next(ModifyCalendarByCostAction.rate_self(store, input))
+    _, action = first_valid(store, ModifyCalendarByCostAction.rate_self(store, input))
 
     assert action is not None
     assert "add_hours_before" in action.params
@@ -89,7 +91,7 @@ def test_action_creation_shrink_end(one_task_store: Store):
 
     input = SelfRatingInput.from_base_solution(store.solution)
 
-    rating, action = next(ModifyCalendarByCostAction.rate_self(store, input))
+    _, action = first_valid(store, ModifyCalendarByCostAction.rate_self(store, input))
 
     assert action is not None
     assert "add_hours_after" in action.params

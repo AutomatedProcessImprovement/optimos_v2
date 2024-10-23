@@ -151,11 +151,15 @@ class ConstraintsResourcesItem(JSONWizard):
     constraints: ResourceConstraints
 
     def verify_timetable(self, timetable: "TimetableType") -> bool:
-        """Check if the timetable is valid against the constraints."""
+        """Check if the timetable is valid against the constraints.
+
+        NOTE: This assumes the calendar itself is valid (e.g. no overlapping periods).
+        This should be checked before (e.g. see `calendar.is_valid()`).
+        """
         original_calendar = timetable.get_calendar_for_resource(self.id)
         calendars = timetable.get_calendars_for_resource_clones(self.id)
         if original_calendar is not None:
-            calendars.append(original_calendar)
+            calendars = [original_calendar, *calendars]
         return all(self._verify_calendar(calendar) for calendar in calendars)
 
     def _verify_calendar(self, calendar: "ResourceCalendar") -> bool:

@@ -1,5 +1,5 @@
 from dataclasses import replace
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from bpdfr_simulation_engine.simulation_stats_calculator import (
     KPIInfo,
@@ -7,7 +7,7 @@ from bpdfr_simulation_engine.simulation_stats_calculator import (
     ResourceKPI,
 )
 
-from o2.actions.base_action import BaseAction
+from o2.actions.base_action import ActionRatingTuple, BaseAction, RateSelfReturnType
 from o2.models.evaluation import Evaluation
 from o2.models.solution import Solution
 from o2.store import Store
@@ -77,3 +77,18 @@ def create_mock_solution(
     )
     state = replace(state, bpmn_definition=random_string())
     return Solution(evaluation, state, None, [MockAction()])
+
+
+def assert_no_first_valid(
+    store: Store, generator: RateSelfReturnType
+) -> Optional[ActionRatingTuple]:
+    for _, action in generator:
+        if action is not None and action.check_if_valid(store):
+            raise ValueError("Found valid action")
+
+
+def first_valid(store: Store, generator: RateSelfReturnType) -> ActionRatingTuple:
+    for rating, action in generator:
+        if action is not None and action.check_if_valid(store):
+            return rating, action
+    raise ValueError("No valid action found")

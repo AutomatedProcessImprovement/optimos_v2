@@ -45,7 +45,6 @@ class ModifyCalendarByCostAction(ModifyCalendarBaseAction, str=False):
             for day in DAYS:
                 periods = calendar.get_periods_containing_day(day)
                 for period in periods:
-                    index = calendar.time_periods.index(period)
                     period_id = period.id
                     # We need to fix the day period to not change
                     # change the times of other days
@@ -55,54 +54,22 @@ class ModifyCalendarByCostAction(ModifyCalendarBaseAction, str=False):
 
                     # Try to remove the period if it's only 1 hour long
                     if fixed_day_period.duration == 1:
-                        new_calendar = calendar.replace_time_period(
-                            index, TimePeriod.empty()
+                        yield (
+                            ModifyCalendarByCostAction.get_default_rating(store),
+                            ModifyCalendarByCostAction(
+                                params=ModifyCalendarByCostActionParamsType(
+                                    calendar_id=calendar.id,
+                                    period_id=period_id,
+                                    day=day,
+                                    remove_period=True,
+                                )
+                            ),
                         )
-                        valid = ModifyCalendarByCostAction._verify(store, new_calendar)
-                        if valid:
-                            yield (
-                                ModifyCalendarByCostAction.get_default_rating(store),
-                                ModifyCalendarByCostAction(
-                                    params=ModifyCalendarByCostActionParamsType(
-                                        calendar_id=calendar.id,
-                                        period_id=period_id,
-                                        day=day,
-                                        remove_period=True,
-                                    )
-                                ),
-                            )
                     # Try to shrink the period from start & end
                     new_period = fixed_day_period.add_hours_after(-1)
                     if new_period is not None:
                         new_period = new_period.add_hours_before(-1)
                         if new_period is not None:
-                            new_calendar = calendar.replace_time_period(
-                                index, new_period
-                            )
-                            valid = ModifyCalendarByCostAction._verify(
-                                store, new_calendar
-                            )
-                            if valid:
-                                yield (
-                                    ModifyCalendarByCostAction.get_default_rating(
-                                        store
-                                    ),
-                                    ModifyCalendarByCostAction(
-                                        params=ModifyCalendarByCostActionParamsType(
-                                            calendar_id=calendar.id,
-                                            period_id=period_id,
-                                            day=day,
-                                            add_hours_before=-1,
-                                            add_hours_after=-1,
-                                        )
-                                    ),
-                                )
-                    # Try to shrink the period from start
-                    new_period = fixed_day_period.add_hours_before(-1)
-                    if new_period is not None:
-                        new_calendar = calendar.replace_time_period(index, new_period)
-                        valid = ModifyCalendarByCostAction._verify(store, new_calendar)
-                        if valid:
                             yield (
                                 ModifyCalendarByCostAction.get_default_rating(store),
                                 ModifyCalendarByCostAction(
@@ -111,25 +78,37 @@ class ModifyCalendarByCostAction(ModifyCalendarBaseAction, str=False):
                                         period_id=period_id,
                                         day=day,
                                         add_hours_before=-1,
-                                    )
-                                ),
-                            )
-                    # Try to shrink the period from end
-                    new_period = fixed_day_period.add_hours_after(-1)
-                    if new_period is not None:
-                        new_calendar = calendar.replace_time_period(index, new_period)
-                        valid = ModifyCalendarByCostAction._verify(store, new_calendar)
-                        if valid:
-                            yield (
-                                ModifyCalendarByCostAction.get_default_rating(store),
-                                ModifyCalendarByCostAction(
-                                    params=ModifyCalendarByCostActionParamsType(
-                                        calendar_id=calendar.id,
-                                        period_id=period_id,
-                                        day=day,
                                         add_hours_after=-1,
                                     )
                                 ),
                             )
+                    # Try to shrink the period from start
+                    new_period = fixed_day_period.add_hours_before(-1)
+                    if new_period is not None:
+                        yield (
+                            ModifyCalendarByCostAction.get_default_rating(store),
+                            ModifyCalendarByCostAction(
+                                params=ModifyCalendarByCostActionParamsType(
+                                    calendar_id=calendar.id,
+                                    period_id=period_id,
+                                    day=day,
+                                    add_hours_before=-1,
+                                )
+                            ),
+                        )
+                    # Try to shrink the period from end
+                    new_period = fixed_day_period.add_hours_after(-1)
+                    if new_period is not None:
+                        yield (
+                            ModifyCalendarByCostAction.get_default_rating(store),
+                            ModifyCalendarByCostAction(
+                                params=ModifyCalendarByCostActionParamsType(
+                                    calendar_id=calendar.id,
+                                    period_id=period_id,
+                                    day=day,
+                                    add_hours_after=-1,
+                                )
+                            ),
+                        )
 
         return

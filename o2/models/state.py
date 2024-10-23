@@ -67,3 +67,7 @@ class State:
         node = self.bpmn_tree.find(f".//*[@id='{task_id}']")
         assert node is not None
         return node.attrib["name"]
+
+    def is_valid(self) -> bool:
+        """Check if the state is valid."""
+        return self.timetable.is_valid()

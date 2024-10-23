@@ -9,7 +9,11 @@ from o2.models.rule_selector import RuleSelector
 from o2.models.self_rating import RATING, SelfRatingInput
 from o2.store import Store
 from tests.fixtures.constraints_generator import ConstraintsGenerator
-from tests.fixtures.test_helpers import replace_constraints, replace_timetable
+from tests.fixtures.test_helpers import (
+    first_valid,
+    replace_constraints,
+    replace_timetable,
+)
 from tests.fixtures.timetable_generator import TimetableGenerator
 
 
@@ -72,6 +76,8 @@ def test_self_rate_simple(one_task_store: Store):
         ),
     )
     assert rating_input is not None
-    rating, action = next(AddWeekDayRuleAction.rate_self(store, rating_input))
+    rating, action = first_valid(
+        store, AddWeekDayRuleAction.rate_self(store, rating_input)
+    )
     assert rating == RATING.MEDIUM
     assert action is not None

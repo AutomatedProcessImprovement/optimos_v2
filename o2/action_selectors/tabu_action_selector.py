@@ -198,6 +198,8 @@ class TabuActionSelector(ActionSelector):
                     break
                 if store.is_tabu(action):
                     continue
+                if not action.check_if_valid(store):
+                    continue
                 if store.settings.only_allow_low_last and rating == RATING.LOW:
                     low_actions.append((rating, action))
                 else:

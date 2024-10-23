@@ -8,6 +8,7 @@ from o2.store import Store
 from tests.fixtures.constraints_generator import ConstraintsGenerator
 from tests.fixtures.test_helpers import (
     first_calendar_first_period_id,
+    first_valid,
     replace_constraints,
     replace_timetable,
 )
@@ -21,7 +22,7 @@ def test_action_creation_simple_addition(one_task_store: Store):
     )
 
     input = SelfRatingInput.from_base_solution(store.solution)
-    rating, action = next(ModifyCalendarByWTAction.rate_self(store, input))
+    _, action = first_valid(store, ModifyCalendarByWTAction.rate_self(store, input))
 
     assert action is not None
     assert "add_hours_before" in action.params
@@ -47,7 +48,7 @@ def test_action_creation_simple_shift(one_task_store: Store):
 
     input = SelfRatingInput.from_base_solution(store.solution)
 
-    rating, action = next(ModifyCalendarByWTAction.rate_self(store, input))
+    _, action = first_valid(store, ModifyCalendarByWTAction.rate_self(store, input))
 
     assert action is not None
     assert "shift_hours" in action.params

@@ -37,14 +37,10 @@ class ModifyResourceBaseAction(BaseAction, ABC):
         if "remove_resource" in self.params and self.params["remove_resource"]:
             new_timetable = state.timetable.remove_resource(self.params["resource_id"])
             return replace(state, timetable=new_timetable)
-        elif (
-            "clone_resource" in self.params
-            and self.params["clone_resource"]
-            and "task_id" in self.params
-        ):
+        elif "clone_resource" in self.params and self.params["clone_resource"]:
             new_timetable = state.timetable.clone_resource(
                 self.params["resource_id"],
-                [self.params["task_id"]],
+                [self.params["task_id"]] if "task_id" in self.params else None,
             )
             return replace(state, timetable=new_timetable)
         elif (
