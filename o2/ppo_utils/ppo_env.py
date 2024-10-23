@@ -13,12 +13,19 @@ StateType = Dict[str, Space]
 
 
 class PPOEnv(Env[StateType, int]):
+    """The Environment for the PPO algorithm.
+
+    Centered around the Store object, which contains the current state of the
+    optimization problem.
+    """
+
     def __init__(self, initial_store: Store) -> None:
         super().__init__()
 
         self.store = initial_store
 
-        self.action_space = PPOInput.action_space_from_store(self.store)
+        self.actions = PPOInput.get_actions_from_store(self.store)
+        self.action_space = PPOInput.get_action_space_from_actions(self.actions)
         self.observation_space = PPOInput.get_observation_space(self.store)
         self.state = PPOInput.state_from_store(self.store)
 
@@ -35,19 +42,24 @@ class PPOEnv(Env[StateType, int]):
         return self.state, {}
 
     def step(self, action: int) -> Tuple[StateType, float, bool, bool, dict]:
-        action_obj = self.base_action_from_index(action)
+        action_obj = self.actions[action]
+        if action_obj is None:
+            return self.state, 0, False, True, {}
 
         reward: float = 0
 
         new_solution = Solution.from_parent(self.store.solution, action_obj)
-        status, solution = self.store.try_solution(new_solution)
+        chosen_tries, not_chosen_tries = self.store.process_many_solutions(
+            [new_solution]
+        )
+
         # TODO Improve scores based on how good/bad the solution is
-        if status == FRONT_STATUS.INVALID:
+        if not_chosen_tries:
             # TODO Make sure an invalid action / exception reaches this point
             reward = -10
-        elif status == FRONT_STATUS.IN_FRONT:
+        elif chosen_tries[0][0] == FRONT_STATUS.IN_FRONT:
             reward = 1
-        elif status == FRONT_STATUS.IS_DOMINATED:
+        elif chosen_tries[0][0] == FRONT_STATUS.IS_DOMINATED:
             reward = 10
         else:
             reward = 0
@@ -56,20 +68,16 @@ class PPOEnv(Env[StateType, int]):
         truncated = False
         info = {}
 
-        self.action_space = PPOInput.action_space_from_store(self.store)
+        self.actions = PPOInput.get_actions_from_store(self.store)
+        self.action_space = PPOInput.get_action_space_from_actions(self.actions)
         self.observation_space = PPOInput.get_observation_space(self.store)
         self.state = PPOInput.state_from_store(self.store)
 
         return self.state, reward, done, truncated, info
 
-    def base_action_from_index(self, action_index: int) -> BaseAction:
-        raise NotImplementedError()
-
-    def action_masks(self):
-        # Return a mask indicating which actions are valid
-        # TODO: We can just get the validity of actions after creating them,
-        # and running the validiy check
-        pass
+    def action_masks(self) -> np.ndarray:
+        """Get the action mask for the current set of actions."""
+        return PPOInput.get_action_mask_from_actions(self.actions)
 
     def render(self, mode="human"):
         pass

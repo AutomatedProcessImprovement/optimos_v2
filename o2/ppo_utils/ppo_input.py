@@ -1,9 +1,18 @@
 from dataclasses import dataclass
+from typing import Optional
 
 import numpy as np
 from gym import Space, spaces
 from sklearn.preprocessing import MinMaxScaler
 
+from o2.actions.base_action import BaseAction
+from o2.actions.modify_calendar_base_action import (
+    ModifyCalendarBaseAction,
+    ModifyCalendarBaseActionParamsType,
+)
+from o2.actions.modify_calendar_by_cost_action import ModifyCalendarByCostAction
+from o2.actions.modify_resource_base_action import ModifyResourceBaseActionParamsType
+from o2.actions.remove_resource_by_cost_action import RemoveResourceByCostAction
 from o2.models.days import DAYS
 from o2.models.evaluation import Evaluation
 from o2.store import Store
@@ -191,14 +200,14 @@ class PPOInput:
 
         available_times = np.array(
             [
-                evaluation.resource_kpis[resource.id].available_time.total
+                evaluation.resource_kpis[resource.id].available_time
                 for resource in resources
             ]
         ).reshape(-1, 1)
 
         utilizations = np.array(
             [
-                evaluation.resource_kpis[resource.id].utilization.total
+                evaluation.resource_kpis[resource.id].utilization
                 for resource in resources
             ]
         ).reshape(-1, 1)
@@ -246,20 +255,125 @@ class PPOInput:
         }
 
     @staticmethod
-    def action_space_from_store(store: Store) -> spaces.Discrete:
-        """Get the action space based on the current state of the store."""
-        resources = store.current_timetable.get_all_resources()
-        num_days = len(DAYS)
+    def get_action_space_from_actions(
+        actions: list[Optional[BaseAction]],
+    ) -> spaces.Discrete:
+        """Get the action space based on the actions."""
+        return spaces.Discrete(len(actions))
 
-        # - Add Hour to calendar, per resource, per day
-        # - Remove Hour from calendar, per resource, per day
+    @staticmethod
+    def get_actions_from_store(store: Store) -> list[Optional[BaseAction]]:
+        """Get the action based on the index."""
+        resources = store.current_timetable.get_all_resources()
+
+        actions = []
+
+        # - Add Hour to start of calendar, per resource, per day
+        # - Add Hour to end of calendar, per resource, per day
+        # - Remove first hour from calendar, per resource, per day
+        # - Remove last hour from calendar, per resource, per day
         # - Shift Hour forward in calendar, per resource, per day
         # - Shift Hour backward in calendar, per resource, per day
         # - Clone resource, per resource
+        # - Remove resource, per resource
+        modify_calendar_action_params: list[
+            Optional[ModifyCalendarBaseActionParamsType]
+        ] = []
 
-        num_actions = (
-            len(resources) * num_days * 4  # Add, Remove, Shift Forward, Shift Backward
-            + len(resources)  # Clone resource
+        modify_resource_action_params: list[
+            Optional[ModifyResourceBaseActionParamsType]
+        ] = []
+
+        for resource in resources:
+            modify_resource_action_params.extend(
+                [
+                    # Clone resource
+                    ModifyResourceBaseActionParamsType(
+                        resource_id=resource.id,
+                        clone_resource=True,
+                    ),
+                    # Remove resource
+                    ModifyResourceBaseActionParamsType(
+                        resource_id=resource.id,
+                        remove_resource=True,
+                    ),
+                ]
+            )
+            calendar = store.current_timetable.get_calendar_for_resource(resource.id)
+            for day in DAYS:
+                if calendar is None:
+                    modify_calendar_action_params.append(None)
+                    continue
+                periods = calendar.get_periods_for_day(day)
+                if periods is None or len(periods) == 0:
+                    modify_calendar_action_params.append(None)
+                    continue
+                # Remove first hour
+                modify_calendar_action_params.extend(
+                    [
+                        # Add Hour to start of calendar
+                        ModifyCalendarBaseActionParamsType(
+                            calendar_id=calendar.id,
+                            period_id=periods[0].id,
+                            day=day,
+                            add_hours_before=1,
+                        ),
+                        # Add Hour to end of calendar
+                        ModifyCalendarBaseActionParamsType(
+                            calendar_id=calendar.id,
+                            period_id=periods[-1].id,
+                            day=day,
+                            add_hours_after=1,
+                        ),
+                        # Remove first hour
+                        ModifyCalendarBaseActionParamsType(
+                            calendar_id=calendar.id,
+                            period_id=periods[0].id,
+                            day=day,
+                            remove_period=True,
+                        ),
+                        # Remove last hour
+                        ModifyCalendarBaseActionParamsType(
+                            calendar_id=calendar.id,
+                            period_id=periods[-1].id,
+                            day=day,
+                            remove_period=True,
+                        ),
+                        # Shift Hour forward
+                        ModifyCalendarBaseActionParamsType(
+                            calendar_id=calendar.id,
+                            period_id=periods[0].id,
+                            day=day,
+                            shift_hours=1,
+                        ),
+                        # Shift Hour backward
+                        ModifyCalendarBaseActionParamsType(
+                            calendar_id=calendar.id,
+                            period_id=periods[-1].id,
+                            day=day,
+                            shift_hours=-1,
+                        ),
+                    ]
+                )
+        actions: list[Optional[BaseAction]] = [
+            # TODO: We'll use a ModifyCalendarByCostAction for now
+            ModifyCalendarByCostAction(modify_calendar_action_param)
+            if modify_calendar_action_param
+            else None
+            for modify_calendar_action_param in modify_calendar_action_params
+        ]
+        actions.extend(
+            [
+                # TODO: We'll use a RemoveResourceByCostAction for now
+                RemoveResourceByCostAction(modify_resource_action_param)
+                if modify_resource_action_param
+                else None
+                for modify_resource_action_param in modify_resource_action_params
+            ]
         )
+        return actions
 
-        return spaces.Discrete(num_actions)
+    @staticmethod
+    def get_action_mask_from_actions(actions: list[Optional[BaseAction]]) -> np.ndarray:
+        """Get the action mask based on the actions."""
+        return np.array([action is not None for action in actions])
