@@ -23,6 +23,15 @@
       "justMyCode": false
     },
     {
+      "name": "Python: Run ppo_training.py",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/ppo_training.py",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": false
+    },
+    {
       "name": "Python: Debug Tests",
       "type": "debugpy",
       "request": "launch",
