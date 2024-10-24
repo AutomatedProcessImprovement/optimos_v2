@@ -115,6 +115,17 @@ class Store:
         """Add an action and state to the store."""
         self.solution_tree.add_solution(solution)
 
+    def mark_action_as_tabu(self, action: "BaseAction") -> None:
+        """Mark an action as tabu."""
+        solution = Solution(
+            Evaluation.empty(),
+            self.solution.state,
+            self.solution.state,
+            [*self.solution.actions, action],
+        )
+
+        self.solution_tree.add_solution(solution)
+
     def process_many_solutions(
         self, solutions: list[Solution]
     ) -> tuple[list[SolutionTry], list[SolutionTry]]:
@@ -136,15 +147,21 @@ class Store:
                 chosen_tries.append((status, solution))
                 self.current_pareto_front.add(solution)
                 self._add_solution(solution, False)
-                # We choose a new base evaluation, to continue with our new front entry
-                self.choose_new_base_evaluation(reinsert_current_solution=True)
+                if not self.settings.never_select_new_base_solution:
+                    # We choose a new base evaluation, to continue with our new front entry
+                    self.choose_new_base_evaluation(reinsert_current_solution=True)
+                else:
+                    self.solution = solution
             elif status == FRONT_STATUS.IS_DOMINATED:
                 chosen_tries.append((status, solution))
                 self.pareto_fronts.append(ParetoFront())
                 self.current_pareto_front.add(solution)
                 self._add_solution(solution, False)
-                # We choose a new base evaluation, because we are in a new front
-                self.choose_new_base_evaluation(reinsert_current_solution=True)
+                if not self.settings.never_select_new_base_solution:
+                    # We choose a new base evaluation, because we are in a new front
+                    self.choose_new_base_evaluation(reinsert_current_solution=True)
+                else:
+                    self.solution = solution
             else:
                 self._add_solution(solution, True)
                 not_chosen_tries.append((status, solution))

@@ -86,3 +86,10 @@ class Settings:
     With distance being the min euclidean distance to any solution in
     the current Pareto Front.
     """
+
+    never_select_new_base_solution = False
+    """Disables the logic to automatically select a new base solution.
+
+    This is useful if you want to go greedy without backing off to a previous
+    base solution.E.g. in the PPO Training.
+    """
