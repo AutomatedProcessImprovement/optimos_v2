@@ -1,9 +1,10 @@
 # Initialize the PPO agent
-from datetime import datetime
 import json
+import warnings
+from datetime import datetime
 from xml.etree import ElementTree
 
-import gym
+import gymnasium as gym
 from sb3_contrib import MaskablePPO
 from stable_baselines3 import PPO
 
@@ -13,8 +14,14 @@ from o2.models.timetable import TimetableType
 from o2.ppo_utils.ppo_env import PPOEnv
 from o2.store import Store
 
+warnings.filterwarnings(
+    "ignore",
+    message=".*get variables from other wrappers is deprecated.*",
+    category=UserWarning,
+)
 
-def main():
+
+def main() -> None:
     timetable_path = "examples/demo_legacy/timetable.json"
     constraints_path = "examples/demo_legacy/constraints.json"
     bpmn_path = "examples/demo_legacy/model.bpmn"
@@ -40,8 +47,26 @@ def main():
         constraints,
     )
 
+    store.settings.never_select_new_base_solution = True
+
     env: gym.Env = PPOEnv(store)
-    model = MaskablePPO("MlpPolicy", env, verbose=1)  # type: ignore
+    model = MaskablePPO(
+        "MultiInputPolicy",
+        env,
+        verbose=1,
+        tensorboard_log="./logs/progress_tensorboard/",
+        clip_range=0.2,
+        # TODO make learning rate smater
+        # learning_rate=linear_schedule(3e-4),
+        n_steps=400,
+        batch_size=64,
+        gamma=1,
+    )  # type: ignore
+
+    print("Created model & environment")
+    print("Input space:", env.observation_space)
+    print("Output space:", env.action_space)
+    print("Action mask Shape:", env.action_masks().shape)  # type: ignore
 
     # Train the agent
     model.learn(total_timesteps=1000)
