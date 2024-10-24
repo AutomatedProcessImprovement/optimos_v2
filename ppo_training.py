@@ -2,11 +2,12 @@
 import json
 import warnings
 from datetime import datetime
+from math import ceil
 from xml.etree import ElementTree
 
 import gymnasium as gym
 from sb3_contrib import MaskablePPO
-from stable_baselines3 import PPO
+from stable_baselines3.common.callbacks import CheckpointCallback
 
 from o2.models.constraints import ConstraintsType
 from o2.models.state import State
@@ -49,7 +50,9 @@ def main() -> None:
 
     store.settings.never_select_new_base_solution = True
 
-    env: gym.Env = PPOEnv(store)
+    STEPS_PER_ITERATION = 50
+
+    env: gym.Env = PPOEnv(store, max_steps=STEPS_PER_ITERATION)
     model = MaskablePPO(
         "MultiInputPolicy",
         env,
@@ -58,8 +61,8 @@ def main() -> None:
         clip_range=0.2,
         # TODO make learning rate smater
         # learning_rate=linear_schedule(3e-4),
-        n_steps=400,
-        batch_size=64,
+        n_steps=1 * STEPS_PER_ITERATION,  #  Multiple of 50
+        batch_size=round(0.5 * STEPS_PER_ITERATION),  # Divsior of 50
         gamma=1,
     )  # type: ignore
 
@@ -68,8 +71,14 @@ def main() -> None:
     print("Output space:", env.action_space)
     print("Action mask Shape:", env.action_masks().shape)  # type: ignore
 
-    # Train the agent
-    model.learn(total_timesteps=1000)
+    # Train the agent, 100 Iterations
+    checkpoint_callback = CheckpointCallback(
+        save_freq=500,
+        save_path="./model_checkpoints/",
+        save_replay_buffer=True,
+        save_vecnormalize=True,
+    )
+    model.learn(total_timesteps=150 * 100, callback=checkpoint_callback)
 
     # Save the agent
     timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
