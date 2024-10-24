@@ -22,10 +22,11 @@ class PPOEnv(Env[StateType, np.int64]):
     optimization problem.
     """
 
-    def __init__(self, initial_store: Store) -> None:
+    def __init__(self, initial_store: Store, max_steps=float("inf")) -> None:
         super().__init__()
 
         self.store = initial_store
+        self.max_steps = max_steps
 
         self.actions = PPOInput.get_actions_from_store(self.store)
         self.action_space = PPOInput.get_action_space_from_actions(self.actions)
@@ -40,11 +41,10 @@ class PPOEnv(Env[StateType, np.int64]):
         seed: Optional[int] = None,
         options: Optional[dict] = None,
     ) -> Tuple[StateType, dict]:
+        super().reset(seed=seed)
         self.stepCount = 0
         self.iteration += 1
-        self.store = Store.from_state_and_constraints(
-            self.store.base_state, self.store.constraints
-        )
+        self.store = Store(self.store.base_solution, self.store.constraints)
         self.actions = PPOInput.get_actions_from_store(self.store)
         self.state = PPOInput.state_from_store(self.store)
         self.action_space = PPOInput.get_action_space_from_actions(self.actions)
@@ -99,6 +99,10 @@ class PPOEnv(Env[StateType, np.int64]):
             done = True
         else:
             print_l1(f"{action_count} actions available for next step")
+
+        if self.stepCount >= self.max_steps:
+            print_l1("Max steps reached")
+            done = True
 
         return self.state, reward, done, truncated, info
 
