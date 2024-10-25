@@ -23,8 +23,6 @@ if TYPE_CHECKING:
 
 HourlyRates = dict[str, int]
 
-# TODO: Make Evaluation Class smaller -> Precalculate all the values in the constructor
-
 
 @dataclass(frozen=True)
 class Evaluation:
@@ -36,91 +34,40 @@ class Evaluation:
 
     hourly_rates: HourlyRates
 
-    global_kpis: KPIMap
-    task_kpis: dict[str, KPIMap]
-    resource_kpis: dict[str, ResourceKPI]
-    log_info: LogInfo
+    total_cost: float
+    """Get the total cost of the simulation.
 
-    @cached_property
-    def waiting_time_canvas(self) -> pd.DataFrame:
-        """Get the waiting time canvas of the simulation."""
-        return add_waiting_times_to_event_log(self.log_info)
+    Because this is not calculated in the simulation, we need to sum up the
+    costs of all tasks.
+    """
 
-    @cached_property
-    def total_cost(self) -> float:
-        """Get the total cost of the simulation.
+    total_cost_for_available_time: float
+    """Get the total cost of the simulation.
 
-        Because this is not calculated in the simulation, we need to sum up the
-        costs of all tasks.
-        """
-        return sum(
-            map(
-                lambda task_kpi: task_kpi.cost.total,
-                self.task_kpis.values(),
-            )
-        )
+    This takes the available time and the resource cost per hour into account.
+    It will therefore give you a "realistic" of hiring the resources for the
+    duration of the simulation.
+    """
 
-    @cached_property
-    def total_cost_for_available_time(self) -> float:
-        """Get the total cost of the simulation.
+    avg_cost: float
+    """Get the average cost of the simulation."""
 
-        This takes the available time and the resource cost per hour into account.
-        It will therefore give you a "realistic" of hiring the resources for the
-        duration of the simulation.
-        """
-        return sum(
-            (resource_kpi.available_time / (60 * 60)) * self.hourly_rates[resource_id]
-            for resource_id, resource_kpi in self.resource_kpis.items()
-        )
+    avg_cycle_time: float
+    """Get the mean cycle time of the simulation."""
 
-    @cached_property
-    def avg_cost(self) -> float:
-        """Get the average cost of the simulation."""
-        return sum(
-            map(
-                lambda task_kpi: task_kpi.cost.avg,
-                self.task_kpis.values(),
-            )
-        )
+    avg_resource_utilization: float
+    """Get the average resource utilization of the simulation."""
 
-    @cached_property
-    def avg_cycle_time(self) -> float:
-        """Get the mean cycle time of the simulation."""
-        return self.global_kpis.cycle_time.avg
+    avg_waiting_time: float
+    """Get the average waiting time of the simulation."""
 
-    @cached_property
-    def avg_resource_utilization(self) -> float:
-        """Get the average resource utilization of the simulation."""
-        return reduce(lambda x, y: x + y, self.resource_utilizations.values()) / len(
-            self.resource_utilizations
-        )
+    avg_batching_waiting_time: float
+    """Get the average batching waiting time per case."""
 
-    @cached_property
-    def avg_waiting_time(self) -> float:
-        """Get the average waiting time of the simulation."""
-        return self.global_kpis.waiting_time.avg
+    waiting_time_per_resource: dict[str, float]
+    """Get the waiting time per resource."""
 
-    @cached_property
-    def avg_batching_waiting_time(self) -> float:
-        """Get the average batching waiting time per case."""
-        return (
-            self.waiting_time_canvas.groupby("case")["waiting_time_batching_seconds"]
-            .sum()
-            .mean()
-            or 0
-        )
-
-    @cached_property
-    def waiting_time_per_resource(self) -> dict[str, float]:
-        """Get the waiting time per resource."""
-        return (
-            self.waiting_time_canvas.groupby("resource")[
-                "waiting_time_batching_seconds"
-            ]
-            .sum()
-            .fillna(0)
-            .to_dict()
-        )
+    waiting_time_canvas: pd.DataFrame
 
     def avg_batching_waiting_time_by_task_id(self, task_id: str) -> float:
         """Get the average batching waiting time of a task."""
@@ -148,58 +95,32 @@ class Evaluation:
             return 0
         return result
 
-    @cached_property
-    def total_cycle_time(self) -> float:
-        """Get the total cycle time of the simulation."""
-        return self.global_kpis.cycle_time.total
+    total_cycle_time: float
+    """Get the total cycle time of the simulation."""
 
-    @cached_property
-    def total_waiting_time(self) -> float:
-        """Get the total waiting time of the simulation."""
-        return self.global_kpis.waiting_time.total
+    total_waiting_time: float
+    """Get the total waiting time of the simulation."""
 
-    @cached_property
-    def total_idle_time(self) -> float:
-        """Get the total idle time of the simulation."""
-        return self.global_kpis.idle_time.total
+    total_idle_time: float
+    """Get the total idle time of the simulation."""
 
-    @property
-    def cases(self) -> list[Trace]:
-        """Get the cases of the simulation."""
-        if self.log_info is None:
-            return []
-        return self.log_info.trace_list or []
+    resource_utilizations: dict[str, float]
+    """Get the utilization of all resources."""
 
-    @property
-    def is_empty(self) -> bool:
-        """Check if the evaluation is empty."""
-        return not self.cases
+    resource_worked_times: dict[str, float]
+    """Get the works time of all resources."""
 
-    @cached_property
-    def resource_utilizations(self) -> dict[str, float]:
-        """Get the utilization of all resources."""
-        return {
-            resource_id: resource_kpi.utilization
-            for resource_id, resource_kpi in self.resource_kpis.items()
-        }
+    resource_available_times: dict[str, float]
+    """Get the availability of all resources."""
 
-    @cached_property
-    def resource_worked_times(self) -> dict[str, float]:
-        """Get the works time of all resources."""
-        return {
-            resource_id: resource_kpi.worked_time
-            for resource_id, resource_kpi in self.resource_kpis.items()
-        }
+    is_empty: bool
 
-    @cached_property
-    def resource_available_times(self) -> dict[str, float]:
-        """Get the availability of all resources."""
-        return {
-            resource_id: resource_kpi.available_time
-            for resource_id, resource_kpi in self.resource_kpis.items()
-        }
-
-    # TODO: Think about using avg's instead of totals?
+    global_kpis: KPIMap
+    task_kpis: dict[str, KPIMap]
+    resource_kpis: dict[str, ResourceKPI]
+    task_execution_count_with_wt_or_it: dict[str, int]
+    task_execution_counts: dict[str, int]
+    enablement_weekdays: dict[str, dict[DAY, int]]
 
     def get_avg_waiting_time_of_task_id(self, task_id: str, store: "Store") -> float:
         """Get the average waiting time of a task."""
@@ -233,44 +154,51 @@ class Evaluation:
             for task_name, _ in sorted(task_idle_time, key=lambda x: x[1], reverse=True)
         ]
 
-    def _get_all_events(self) -> list[TaskEvent]:
-        """Get all task events from all traces."""
-        return [event for trace in self.cases for event in trace.event_list]
-
-    def _get_events_for_task(self, task_id: str):
-        """Get all task events for a specific task."""
-        return [event for event in self._get_all_events() if event.task_id == task_id]
-
-    def _get_events_for_resource(self, resource_id: str):
-        """Get all task events for a specific resource."""
-        return [
-            event
-            for event in self._get_all_events()
-            if event.resource_id == resource_id
-        ]
-
     def get_most_frequent_enablement_weekdays(self, task_name: str) -> list[DAY]:
         """Get a list of weekdays, on which the task was enabled.
 
         The list is sorted by the most common weekday first.
         """
-        events = self._get_events_for_task(task_name)
-        enablement_weekdays = map(
-            lambda event: event.enabled_datetime.strftime("%A")
-            if event.enabled_datetime
-            else None,
-            events,
-        )
-        counter = Counter(enablement_weekdays)
-        return [DAY[day.upper()] for day, _ in counter.most_common() if day is not None]
+        return [
+            day
+            for day, _ in sorted(
+                self.enablement_weekdays[task_name].items(),
+                key=lambda x: x[1],
+                reverse=True,
+            )
+        ]
+
+    @staticmethod
+    def get_enablement_weekdays(
+        cases: list[Trace],
+    ) -> dict[str, dict[DAY, int]]:
+        """Get the weekdays on which a task was enabled."""
+        weekdays: dict[str, dict[DAY, int]] = {}
+        for case in cases:
+            event_list: list[TaskEvent] = case.event_list
+            for event in event_list:
+                if event.task_id not in weekdays:
+                    weekdays[event.task_id] = {}
+                if event.enabled_datetime is None:
+                    continue
+                weekday = event.enabled_datetime.strftime("%A").upper()
+                weekdays[event.task_id][DAY(weekday)] = (
+                    weekdays[event.task_id].get(DAY(weekday), 0) + 1
+                )
+        return weekdays
 
     def get_most_frequent_resources(self, task_name: str) -> list[str]:
         """Get a list of resources that executed the task the most."""
-        events = self._get_events_for_task(task_name)
-        resource_names = map(lambda event: event.resource_id, events)
-        counter = Counter(resource_names)
+        return self.get_resources_sorted_by_task_execution_count(task_name)
+
+    @staticmethod
+    def _get_events_for_task(cases, task_name):
+        """Get all events for a task."""
         return [
-            resource for resource, _ in counter.most_common() if resource is not None
+            event
+            for case in cases
+            for event in case.event_list
+            if event.task_id == task_name
         ]
 
     def get_least_utilized_resources(self) -> list[str]:
@@ -282,18 +210,20 @@ class Evaluation:
             )
         ]
 
-    def get_task_execution_counts(self) -> dict[str, int]:
+    @staticmethod
+    def get_task_execution_counts(cases) -> dict[str, int]:
         """Get the count each task was executed."""
         occurrences: dict[str, int] = {}
-        for case in self.cases:
+        for case in cases:
             for event in cast(list[TaskEvent], case.event_list):
                 occurrences[event.task_id] = occurrences.get(event.task_id, 0) + 1
         return occurrences
 
-    def get_task_execution_count_with_wt_or_it(self) -> dict[str, int]:
+    @staticmethod
+    def get_task_execution_count_with_wt_or_it(cases: list[Trace]) -> dict[str, int]:
         """Get the count each task was executed with a waiting or idle time."""
         occurrences: dict[str, int] = {}
-        for case in self.cases:
+        for case in cases:
             for event in cast(list[TaskEvent], case.event_list):
                 if event.waiting_time is not None and event.waiting_time > 0:
                     occurrences[event.task_id] = occurrences.get(event.task_id, 0) + 1
@@ -307,7 +237,7 @@ class Evaluation:
         In clear words: Orders descending the tasks by the number of times
         they were executed(number of events) and had either a waiting or idle time.
         """
-        occurrences = self.get_task_execution_count_with_wt_or_it()
+        occurrences = self.task_execution_count_with_wt_or_it
         return [
             task_name
             for task_name, _ in sorted(
@@ -315,23 +245,46 @@ class Evaluation:
             )
         ]
 
+    task_execution_count_by_resource: dict[str, dict[str, int]]
+    """Get the number of times each task was executed by a given resource.
+    
+    E.g. task_execution_count_by_resource["resource_id"]["task_id"]
+    """
+
     def get_task_execution_count_by_resource(self, resource_id: str) -> dict[str, int]:
         """Get the number of times each task was executed by a given resource."""
-        events = self._get_events_for_resource(resource_id)
-        counter = Counter(map(lambda event: event.task_id, events))
-        return dict(counter)
+        return self.task_execution_count_by_resource.get(resource_id, {})
+
+    @staticmethod
+    def get_task_execution_count_by_resources(
+        cases: list[Trace],
+    ) -> dict[str, dict[str, int]]:
+        """Get the number of times each task was executed by a given resource."""
+        occurrences: dict[str, dict[str, int]] = {}
+        for case in cases:
+            event_list: list[TaskEvent] = case.event_list
+            for event in cast(list[TaskEvent], event_list):
+                occurrences[event.resource_id] = occurrences.get(event.resource_id, {})
+                occurrences[event.resource_id][event.task_id] = (
+                    occurrences[event.resource_id].get(event.task_id, 0) + 1
+                )
+        return occurrences
 
     def get_resources_sorted_by_task_execution_count(self, task_id: str) -> list[str]:
-        """Get list of resources sorted by the number of times they executed a task.
+        """Get a list of resource_ids, that executed the given task.
 
         The list is sorted by the most common resource first.
         """
-        events = self._get_events_for_task(task_id)
-        counter = Counter(map(lambda event: event.resource_id, events))
-        return [
-            resource
-            for resource, _ in sorted(counter.items(), key=lambda x: x[1], reverse=True)
-        ]
+        resource_counts = Counter(
+            {
+                resource_id: count[task_id]
+                for resource_id, count in self.task_execution_count_by_resource.items()
+                if task_id in count
+            }
+        )
+
+        # Return the resource_ids sorted by most common first
+        return [resource_id for resource_id, _ in resource_counts.most_common()]
 
     def to_tuple(self) -> tuple[float, float]:
         """Convert self to a tuple of cost for available time and total cycle time."""
@@ -348,7 +301,32 @@ class Evaluation:
     @staticmethod
     def empty():
         """Create an empty evaluation."""
-        return Evaluation({}, KPIMap(), {}, {}, None)  # type: ignore
+        return Evaluation(
+            hourly_rates={},
+            total_cycle_time=0,
+            total_waiting_time=0,
+            total_idle_time=0,
+            total_cost=0,
+            total_cost_for_available_time=0,
+            avg_cost=0,
+            avg_cycle_time=0,
+            avg_resource_utilization=0,
+            avg_waiting_time=0,
+            avg_batching_waiting_time=0,
+            waiting_time_per_resource={},
+            is_empty=True,
+            resource_utilizations={},
+            resource_worked_times={},
+            resource_available_times={},
+            global_kpis=KPIMap(),
+            task_kpis={},
+            resource_kpis={},
+            task_execution_count_with_wt_or_it={},
+            task_execution_count_by_resource={},
+            task_execution_counts={},
+            waiting_time_canvas=pd.DataFrame(),
+            enablement_weekdays={},
+        )
 
     @staticmethod
     def from_run_simulation_result(
@@ -356,7 +334,75 @@ class Evaluation:
     ) -> "Evaluation":
         """Create an evaluation from a simulation result."""
         global_kpis, task_kpis, resource_kpis, log_info = result
-        return Evaluation(hourly_rates, global_kpis, task_kpis, resource_kpis, log_info)
+        cases: list[Trace] = [] if log_info is None else log_info.trace_list
+        waiting_time_canvas = add_waiting_times_to_event_log(log_info)
+        resource_utilizations: dict[str, float] = {
+            resource_id: resource_kpi.utilization
+            for resource_id, resource_kpi in resource_kpis.items()
+        }
+
+        return Evaluation(
+            hourly_rates=hourly_rates,
+            total_cycle_time=global_kpis.cycle_time.total,
+            total_waiting_time=global_kpis.waiting_time.total,
+            total_idle_time=global_kpis.idle_time.total,
+            total_cost=sum(
+                map(
+                    lambda task_kpi: task_kpi.cost.total,
+                    task_kpis.values(),
+                )
+            ),
+            total_cost_for_available_time=sum(
+                (resource_kpi.available_time / (60 * 60)) * hourly_rates[resource_id]
+                for resource_id, resource_kpi in resource_kpis.items()
+            ),
+            avg_cost=sum(
+                map(
+                    lambda task_kpi: task_kpi.cost.avg,
+                    task_kpis.values(),
+                )
+            ),
+            avg_cycle_time=global_kpis.cycle_time.avg,
+            avg_resource_utilization=reduce(
+                lambda x, y: x + y, resource_utilizations.values()
+            )
+            / len(resource_utilizations),
+            avg_waiting_time=global_kpis.waiting_time.avg,
+            avg_batching_waiting_time=(
+                waiting_time_canvas.groupby("case")["waiting_time_batching_seconds"]
+                .sum()
+                .mean()
+                or 0
+            ),
+            waiting_time_per_resource=(
+                waiting_time_canvas.groupby("resource")["waiting_time_batching_seconds"]
+                .sum()
+                .fillna(0)
+                .to_dict()
+            ),
+            is_empty=not cases,
+            resource_utilizations=resource_utilizations,
+            resource_worked_times={
+                resource_id: resource_kpi.worked_time
+                for resource_id, resource_kpi in resource_kpis.items()
+            },
+            resource_available_times={
+                resource_id: resource_kpi.available_time
+                for resource_id, resource_kpi in resource_kpis.items()
+            },
+            global_kpis=global_kpis,
+            task_kpis=task_kpis,
+            resource_kpis=resource_kpis,
+            task_execution_count_with_wt_or_it=Evaluation.get_task_execution_count_with_wt_or_it(
+                cases
+            ),
+            task_execution_count_by_resource=Evaluation.get_task_execution_count_by_resources(
+                cases
+            ),
+            task_execution_counts=Evaluation.get_task_execution_counts(cases),
+            waiting_time_canvas=waiting_time_canvas,
+            enablement_weekdays=Evaluation.get_enablement_weekdays(cases),
+        )
 
     def __str__(self) -> str:
         return f"Cycle Time: {self.total_cycle_time}, Cost: {self.total_cost_for_available_time}, Waiting Time: {self.total_waiting_time}"

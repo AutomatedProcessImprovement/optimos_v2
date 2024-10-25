@@ -1,3 +1,4 @@
+import random
 from collections import OrderedDict
 from typing import TYPE_CHECKING, Optional, cast
 
@@ -6,7 +7,6 @@ import rtree
 from o2.models.solution import Solution
 from o2.pareto_front import ParetoFront
 from o2.util.indented_printer import print_l3
-import random
 
 if TYPE_CHECKING:
     from o2.actions.base_action import BaseAction
@@ -27,8 +27,7 @@ class SolutionTree:
 
     def __init__(self) -> None:
         self.rtree = rtree.index.Index()
-        self.discarded_solution_ids: list[int] = []
-        self.solution_lookup: OrderedDict[int, Solution] = OrderedDict()
+        self.solution_lookup: OrderedDict[int, Optional[Solution]] = OrderedDict()
 
     def add_solution(self, solution: "Solution") -> None:
         """Add a solution to the tree."""
@@ -56,6 +55,8 @@ class SolutionTree:
             if item is None:
                 continue
             solution = self.solution_lookup[item.id]
+            if solution is None:
+                continue
             distance = pareto_solution.evaluation.distance_to(solution.evaluation)
             # Early exit if we find a pareto solution.
             # Because of reversed, it will be the most recent
@@ -75,8 +76,11 @@ class SolutionTree:
         )
         if nearest_solution is not None:
             self.remove_solution(nearest_solution)
+            len_discarded_solutions = sum(
+                1 for id in self.solution_lookup if self.solution_lookup[id] is None
+            )
             print_l3(
-                f"Popped solution. {len(self.solution_lookup) - len(self.discarded_solution_ids)} solutions left. ({len(self.discarded_solution_ids)} exhausted so far)"  # noqa: E501
+                f"Popped solution. {len(self.solution_lookup) - len_discarded_solutions} solutions left. ({len_discarded_solutions} exhausted so far)"  # noqa: E501
             )
             if nearest_solution not in pareto_front.solutions:
                 print_l3("Nearest solution is NOT in pareto front.")
@@ -88,8 +92,10 @@ class SolutionTree:
         self, base_solution: "Solution", new_action: "BaseAction"
     ) -> bool:
         """Check if the given action has already been tried."""
-        new_id = Solution.hash_action_list(base_solution.actions + [new_action])
-        return new_id in self.solution_lookup or new_id in self.discarded_solution_ids
+        return (
+            Solution.hash_action_list(base_solution.actions + [new_action])
+            in self.solution_lookup
+        )
 
     def get_index_of_solution(self, solution: Solution) -> int:
         """Get the index of the solution in the tree."""
@@ -107,7 +113,11 @@ class SolutionTree:
             bounding_rect[3] + max_distance,
         )
         items = self.rtree.intersection(bounding_rect_with_distance, objects=True)
-        solutions = [self.solution_lookup[item.id] for item in items]
+        solutions = [
+            self.solution_lookup[item.id]
+            for item in items
+            if self.solution_lookup[item.id] is not None
+        ]
         if not solutions:
             return None
         print_l3(f"Found {len(solutions)} solutions near pareto front.")
@@ -117,5 +127,4 @@ class SolutionTree:
     def remove_solution(self, solution: Solution) -> None:
         """Remove a solution from the tree."""
         self.rtree.delete(solution.id, solution.point)
-        self.discarded_solution_ids.append(solution.id)
-        del self.solution_lookup[solution.id]
+        self.solution_lookup[solution.id] = None

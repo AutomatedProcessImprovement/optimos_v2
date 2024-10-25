@@ -1,6 +1,6 @@
 import traceback
 from datetime import datetime
-from typing import TYPE_CHECKING, TypeAlias
+from typing import TYPE_CHECKING, Optional, TypeAlias
 
 from bpdfr_simulation_engine.simulation_engine import run_simpy_simulation
 from bpdfr_simulation_engine.simulation_stats_calculator import (
@@ -34,9 +34,13 @@ class SimulationRunner:
 
             simulation_kpis: SimulationKPIs = result[0]  # type: ignore
             log_info = result[1]
-            global_kpis, task_kpis, resource_kpis, start_time, end_time = (
-                simulation_kpis
-            )
+            (
+                global_kpis,
+                task_kpis,
+                resource_kpis,
+                start_time,
+                end_time,
+            ) = simulation_kpis
 
             return global_kpis, task_kpis, resource_kpis, log_info
         except Exception as e:

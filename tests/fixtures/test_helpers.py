@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Optional
 from bpdfr_simulation_engine.simulation_stats_calculator import (
     KPIInfo,
     KPIMap,
+    LogInfo,
     ResourceKPI,
 )
 
@@ -68,12 +69,11 @@ def create_mock_solution(
         utilization=0,
     )
 
-    evaluation = Evaluation(
+    log_info = LogInfo(None)  # type: ignore
+
+    evaluation = Evaluation.from_run_simulation_result(
         state.timetable.get_hourly_rates(),
-        kpis,
-        {},
-        {TimetableGenerator.RESOURCE_ID: resource_kpi},
-        None,  # type: ignore
+        (kpis, {}, {TimetableGenerator.RESOURCE_ID: resource_kpi}, log_info),  # type: ignore
     )
     state = replace(state, bpmn_definition=random_string())
     return Solution(evaluation, state, None, [MockAction()])
