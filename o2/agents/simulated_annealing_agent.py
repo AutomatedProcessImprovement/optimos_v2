@@ -1,11 +1,11 @@
 from typing import Optional
 
-from o2.action_selectors.action_selector import ActionSelector
 from o2.actions.base_action import BaseAction
+from o2.agents.agent import Agent
 from o2.store import Store
 
 
-class PPOActionSelector(ActionSelector):
+class SimulatedAnnealingAgent(Agent):
     """Selects the best action to take next, based on the current state of the store."""
 
     def select_actions(self, store: Store) -> Optional[list[BaseAction]]:
@@ -16,6 +16,4 @@ class PPOActionSelector(ActionSelector):
         If the possible options for the current base evaluation are exhausted,
         it will choose a new base evaluation.
         """
-
-        # TODO: Load pretrained model, and use it to select actions
         raise NotImplementedError

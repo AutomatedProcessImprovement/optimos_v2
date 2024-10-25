@@ -52,7 +52,7 @@ ACTION_CATALOG_LEGACY = [
 ]
 
 
-class ActionSelector(ABC):
+class Agent(ABC):
     """Selects the best action to take next, based on the current state of the store."""
 
     @abstractmethod

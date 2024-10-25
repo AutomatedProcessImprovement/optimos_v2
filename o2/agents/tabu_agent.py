@@ -2,15 +2,15 @@ import concurrent.futures
 import traceback
 from typing import Optional
 
-from o2.action_selectors.action_selector import (
-    ACTION_CATALOG,
-    ACTION_CATALOG_LEGACY,
-    ActionSelector,
-)
 from o2.actions.base_action import BaseAction, RateSelfReturnType
 from o2.actions.remove_rule_action import (
     RemoveRuleAction,
     RemoveRuleActionParamsType,
+)
+from o2.agents.agent import (
+    ACTION_CATALOG,
+    ACTION_CATALOG_LEGACY,
+    Agent,
 )
 from o2.models.rule_selector import RuleSelector
 from o2.models.self_rating import RATING, SelfRatingInput
@@ -19,7 +19,7 @@ from o2.store import Store
 from o2.util.indented_printer import print_l1, print_l2
 
 
-class TabuActionSelector(ActionSelector):
+class TabuAgent(Agent):
     """Selects the best action to take next, based on the current state of the store.
 
     This Action Selector is based on the Tabu Search algorithm, and also has options to
@@ -28,7 +28,7 @@ class TabuActionSelector(ActionSelector):
 
     def select_actions(self, store: Store) -> Optional[list[BaseAction]]:  # noqa: D102
         while True:
-            evaluations = TabuActionSelector.evaluate_rules(store)
+            evaluations = TabuAgent.evaluate_rules(store)
 
             rating_input = SelfRatingInput.from_rule_solutions(store, evaluations)
             if rating_input is None:
@@ -47,9 +47,7 @@ class TabuActionSelector(ActionSelector):
 
             # Get valid actions from the generators, even multiple per generator,
             # if we don't have enough valid actions yet
-            possible_actions = TabuActionSelector._get_valid_actions(
-                store, action_generators
-            )
+            possible_actions = TabuAgent._get_valid_actions(store, action_generators)
             # Remove None values
             possible_actions = [
                 action for action in possible_actions if action is not None
