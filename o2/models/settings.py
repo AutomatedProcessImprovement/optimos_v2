@@ -28,7 +28,7 @@ class Settings:
     """The agent to use for the optimization task."""
 
     max_non_improving_actions = 1000
-    """The maximum number of actions before the application stops."""
+    """The maximum number of actions before discarding a base solution."""
     max_iterations = 1000
     """The maximum (total) number of iterations before the application stops."""
 

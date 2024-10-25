@@ -62,8 +62,13 @@ class HillClimber:
         for it in range(self.max_iter):
             try:
                 if self.max_non_improving_iter <= 0:
-                    print("Maximum non improving iterations reached")
-                    break
+                    print_l0("Maximum non improving iterations reached!")
+                    print_l1("Choosing new base solution...")
+                    self.store.solution = self.agent.select_new_base_solution()
+                    self.max_non_improving_iter = (
+                        self.store.settings.max_non_improving_actions
+                    )
+
                 print_l0(f"Iteration {it}")
 
                 actions_to_perform = self.agent.select_actions(self.store)
