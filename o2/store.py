@@ -1,5 +1,5 @@
 from dataclasses import replace
-from typing import TYPE_CHECKING, Optional, TypeAlias
+from typing import TYPE_CHECKING, Callable, Optional, TypeAlias
 
 from o2.actions.modify_calendar_base_action import ModifyCalendarBaseAction
 from o2.actions.modify_resource_base_action import ModifyResourceBaseAction
@@ -89,28 +89,6 @@ class Store:
         """Return the current state of the solution."""
         return self.solution.state
 
-    def choose_new_base_evaluation(
-        self, reinsert_current_solution: bool = False
-    ) -> Optional[Solution]:
-        """Choose a new base evaluation from the solution tree.
-
-        If reinsert_current_solution is True, the current solution will be
-        reinserted into the solution tree. This is useful if you aren't
-        sure if you exhausted all possible actions for this solution.
-        """
-        if reinsert_current_solution:
-            self.solution_tree.add_solution(self.solution)
-        new_solution = self.solution_tree.pop_nearest_solution(
-            self.current_pareto_front,
-            max_distance=self.settings.max_distance_to_new_base_solution,
-        )
-
-        if new_solution is None:
-            raise Exception("No new base solutions left in the solution tree.")
-
-        self.solution = new_solution
-        return new_solution
-
     def _add_solution(self, solution: Solution, dominated_by_front: bool) -> None:
         """Add an action and state to the store."""
         self.solution_tree.add_solution(solution)
@@ -127,7 +105,9 @@ class Store:
         self.solution_tree.add_solution(solution)
 
     def process_many_solutions(
-        self, solutions: list[Solution]
+        self,
+        solutions: list[Solution],
+        choose_new_base_evaluation_callback: Optional[Callable[[], Solution]],
     ) -> tuple[list[SolutionTry], list[SolutionTry]]:
         """Process a list of action solutions.
 
@@ -147,9 +127,9 @@ class Store:
                 chosen_tries.append((status, solution))
                 self.current_pareto_front.add(solution)
                 self._add_solution(solution, False)
-                if not self.settings.never_select_new_base_solution:
+                if choose_new_base_evaluation_callback is not None:
                     # We choose a new base evaluation, to continue with our new front entry
-                    self.choose_new_base_evaluation(reinsert_current_solution=True)
+                    self.solution = choose_new_base_evaluation_callback()
                 else:
                     self.solution = solution
             elif status == FRONT_STATUS.IS_DOMINATED:
@@ -157,9 +137,9 @@ class Store:
                 self.pareto_fronts.append(ParetoFront())
                 self.current_pareto_front.add(solution)
                 self._add_solution(solution, False)
-                if not self.settings.never_select_new_base_solution:
+                if choose_new_base_evaluation_callback is not None:
                     # We choose a new base evaluation, because we are in a new front
-                    self.choose_new_base_evaluation(reinsert_current_solution=True)
+                    self.solution = choose_new_base_evaluation_callback()
                 else:
                     self.solution = solution
             else:
@@ -176,7 +156,7 @@ class Store:
         NOTE: This will only update the store if the action is not dominated
         """
         new_solution = Solution.from_parent(self.solution, action)
-        self.process_many_solutions([new_solution])
+        self.process_many_solutions([new_solution], None)
 
     # Tries an action and returns the status of the new evaluation
     # Does NOT modify the store

@@ -47,7 +47,7 @@ class TabuAgent(Agent):
 
             # Get valid actions from the generators, even multiple per generator,
             # if we don't have enough valid actions yet
-            possible_actions = TabuAgent._get_valid_actions(store, action_generators)
+            possible_actions = TabuAgent.get_valid_actions(store, action_generators)
             # Remove None values
             possible_actions = [
                 action for action in possible_actions if action is not None
@@ -56,10 +56,12 @@ class TabuAgent(Agent):
             if len(possible_actions) == 0:
                 print_l1("No actions remaining, after removing Tabu & N/A actions.")
                 print_l2("Choosing new baseline evaluation.")
-                success = store.choose_new_base_evaluation() is not None
+                new_solution = self._select_new_base_evaluation(store)
+                success = new_solution is not None
                 if not success:
                     print_l2("No new baseline evaluation found. Stopping.")
                     return None
+                store.solution = new_solution
                 continue
 
             sorted_actions = sorted(possible_actions, key=lambda x: x[0], reverse=True)
@@ -79,6 +81,34 @@ class TabuAgent(Agent):
                     print_l2(f"{action} with rating {rating}")
 
             return [action for _, action in selected_actions]
+
+    def select_new_base_solution(self) -> Solution:
+        """Select a new base solution.
+
+        E.g from the SolutionTree
+        """
+        return self._select_new_base_evaluation(reinsert_current_solution=True)
+
+    def _select_new_base_evaluation(
+        self, reinsert_current_solution: bool = False
+    ) -> Solution:
+        """Choose a new base evaluation from the solution tree.
+
+        If reinsert_current_solution is True, the current solution will be
+        reinserted into the solution tree. This is useful if you aren't
+        sure if you exhausted all possible actions for this solution.
+        """
+        if reinsert_current_solution:
+            self.store.solution_tree.add_solution(self.store.solution)
+        new_solution = self.store.solution_tree.pop_nearest_solution(
+            self.store.current_pareto_front,
+            max_distance=self.store.settings.max_distance_to_new_base_solution,
+        )
+
+        if new_solution is None:
+            raise Exception("No new base solutions left in the solution tree.")
+
+        return new_solution
 
     # Removes every firing rule individually and evaluates the new state
     @staticmethod
@@ -168,45 +198,3 @@ class TabuAgent(Agent):
                     continue
 
         return evaluations
-
-    @staticmethod
-    def _get_valid_actions(
-        store: "Store",
-        action_generators: list[RateSelfReturnType],
-    ) -> list[tuple[RATING, BaseAction]]:
-        """Get settings.number_of_actions_to_select valid actions from the generators.
-
-        If the action is tabu, it will skip it and try the next one.
-        If the action is not applicable, it will not try more
-
-        It will take into account the `settings.only_allow_low_last` setting,
-        to first select non RATING.LOW actions first.
-        """
-        actions = []
-        low_actions = []
-        generators_queue = action_generators.copy()
-
-        while len(generators_queue) > 0:
-            action_generator = generators_queue.pop(0)
-            if isinstance(action_generator, tuple):
-                continue
-
-            for rating, action in action_generator:
-                if rating == RATING.NOT_APPLICABLE or action is None:
-                    break
-                if store.is_tabu(action):
-                    continue
-                if not action.check_if_valid(store):
-                    continue
-                if store.settings.only_allow_low_last and rating == RATING.LOW:
-                    low_actions.append((rating, action))
-                else:
-                    actions.append((rating, action))
-                if len(actions) >= store.settings.max_number_of_actions_to_select:
-                    return actions
-                else:
-                    generators_queue.append(action_generator)
-                    break
-        if len(actions) == 0:
-            return low_actions
-        return actions

@@ -2,6 +2,7 @@ from typing import Optional
 
 from o2.actions.base_action import BaseAction
 from o2.agents.agent import Agent
+from o2.models.solution import Solution
 from o2.store import Store
 
 
@@ -16,4 +17,8 @@ class SimulatedAnnealingAgent(Agent):
         If the possible options for the current base evaluation are exhausted,
         it will choose a new base evaluation.
         """
+        raise NotImplementedError
+
+    def select_new_base_solution(self) -> Solution:
+        """Select a new base solution."""
         raise NotImplementedError

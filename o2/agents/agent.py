@@ -3,7 +3,7 @@ from typing import Optional, Type
 
 from o2.actions.add_resource_action import AddResourceAction
 from o2.actions.add_week_day_rule_action import AddWeekDayRuleAction
-from o2.actions.base_action import BaseAction
+from o2.actions.base_action import BaseAction, RateSelfReturnType
 from o2.actions.modify_calendar_by_cost_action import (
     ModifyCalendarByCostAction,
 )
@@ -24,6 +24,8 @@ from o2.actions.remove_resource_by_utilization_action import (
 from o2.actions.remove_rule_action import (
     RemoveRuleAction,
 )
+from o2.models.self_rating import RATING
+from o2.models.solution import Solution
 from o2.store import Store
 
 ACTION_CATALOG: list[Type[BaseAction]] = [
@@ -55,6 +57,10 @@ ACTION_CATALOG_LEGACY = [
 class Agent(ABC):
     """Selects the best action to take next, based on the current state of the store."""
 
+    def __init__(self, store: Store) -> None:
+        super().__init__()
+        self.store = store
+
     @abstractmethod
     def select_actions(self, store: Store) -> Optional[list[BaseAction]]:
         """Select the best actions to take next.
@@ -65,3 +71,53 @@ class Agent(ABC):
         it will choose a new base evaluation.
         """
         pass
+
+    @abstractmethod
+    def select_new_base_solution(self) -> Solution:
+        """Select a new base solution.
+
+        E.g from the SolutionTree
+        """
+        pass
+
+    @staticmethod
+    def get_valid_actions(
+        store: "Store",
+        action_generators: list[RateSelfReturnType],
+    ) -> list[tuple[RATING, BaseAction]]:
+        """Get settings.number_of_actions_to_select valid actions from the generators.
+
+        If the action is tabu, it will skip it and try the next one.
+        If the action is not applicable, it will not try more
+
+        It will take into account the `settings.only_allow_low_last` setting,
+        to first select non RATING.LOW actions first.
+        """
+        actions = []
+        low_actions = []
+        generators_queue = action_generators.copy()
+
+        while len(generators_queue) > 0:
+            action_generator = generators_queue.pop(0)
+            if isinstance(action_generator, tuple):
+                continue
+
+            for rating, action in action_generator:
+                if rating == RATING.NOT_APPLICABLE or action is None:
+                    break
+                if store.is_tabu(action):
+                    continue
+                if not action.check_if_valid(store):
+                    continue
+                if store.settings.only_allow_low_last and rating == RATING.LOW:
+                    low_actions.append((rating, action))
+                else:
+                    actions.append((rating, action))
+                if len(actions) >= store.settings.max_number_of_actions_to_select:
+                    return actions
+                else:
+                    generators_queue.append(action_generator)
+                    break
+        if len(actions) == 0:
+            return low_actions
+        return actions

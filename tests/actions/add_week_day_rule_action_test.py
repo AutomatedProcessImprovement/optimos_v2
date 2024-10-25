@@ -1,4 +1,4 @@
-from o2.action_selectors.tabu_action_selector import TabuActionSelector
+from o2.agents.tabu_agent import TabuAgent
 from o2.actions.add_week_day_rule_action import (
     AddWeekDayRuleAction,
     AddWeekDayRuleActionParamsType,
@@ -66,7 +66,7 @@ def test_self_rate_simple(one_task_store: Store):
             )
         ],
     )
-    evaluations = TabuActionSelector.evaluate_rules(store)
+    evaluations = TabuAgent.evaluate_rules(store)
     rating_input = SelfRatingInput(
         store.solution,
         evaluations,

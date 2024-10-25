@@ -1,4 +1,4 @@
-from o2.action_selectors.tabu_action_selector import TabuActionSelector
+from o2.agents.tabu_agent import TabuAgent
 from o2.actions.remove_rule_action import (
     RemoveRuleAction,
     RemoveRuleActionParamsType,
@@ -134,7 +134,7 @@ def test_self_rating_optimal_rule(store: Store):
         ],
     )
 
-    evaluations = TabuActionSelector.evaluate_rules(store)
+    evaluations = TabuAgent.evaluate_rules(store)
     rating_input = SelfRatingInput.from_rule_solutions(store, evaluations)
     assert rating_input is not None
     assert_no_first_valid(store, RemoveRuleAction.rate_self(store, rating_input))
@@ -154,7 +154,7 @@ def test_self_rating_non_optimal_rule(one_task_store: Store):
         ),
     )
 
-    evaluations = TabuActionSelector.evaluate_rules(store)
+    evaluations = TabuAgent.evaluate_rules(store)
     rating_input = SelfRatingInput.from_rule_solutions(store, evaluations)
     assert rating_input is not None
     result = first_valid(store, RemoveRuleAction.rate_self(store, rating_input))

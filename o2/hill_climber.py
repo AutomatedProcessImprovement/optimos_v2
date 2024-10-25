@@ -4,8 +4,12 @@ import time
 import traceback
 from typing import Generator
 
-from o2.action_selectors.tabu_action_selector import TabuActionSelector
-from o2.actions.base_action import BaseAction
+from o2.actions.base_action import BaseAction, RateSelfReturnType
+from o2.agents.agent import Agent
+from o2.agents.ppo_agent import PPOAgent
+from o2.agents.simulated_annealing_agent import SimulatedAnnealingAgent
+from o2.agents.tabu_agent import TabuAgent
+from o2.models.settings import AgentType
 from o2.models.solution import Solution
 from o2.pareto_front import FRONT_STATUS
 from o2.store import SolutionTry, Store
@@ -24,6 +28,17 @@ class HillClimber:
             self.executor = concurrent.futures.ProcessPoolExecutor(
                 max_workers=self.store.settings.max_threads
             )
+        self.agent: Agent = self._init_agent()
+
+    def _init_agent(self):
+        """Initialize the agent for the optimization task."""
+        if self.store.settings.agent == AgentType.TABU_SEARCH:
+            return TabuAgent(self.store)
+        elif self.store.settings.agent == AgentType.PROXIMAL_POLICY_OPTIMIZATION:
+            return PPOAgent(self.store)
+        elif self.store.settings.agent == AgentType.SIMULATED_ANNEALING:
+            return SimulatedAnnealingAgent(self.store)
+        raise ValueError(f"Unknown agent type: {self.store.settings.agent}")
 
     def solve(self) -> None:
         """Run the hill climber and print the result."""
@@ -51,7 +66,7 @@ class HillClimber:
                     break
                 print_l0(f"Iteration {it}")
 
-                actions_to_perform = TabuActionSelector().select_actions(self.store)
+                actions_to_perform = self.agent.select_actions(self.store)
                 if actions_to_perform is None or len(actions_to_perform) == 0:
                     print_l1("Iteration finished, no actions to perform.")
                     break
@@ -64,7 +79,7 @@ class HillClimber:
                 print_l2(f"Simulation took {time.time() - start_time:.2f}s")
 
                 chosen_tries, not_chosen_tries = self.store.process_many_solutions(
-                    solutions
+                    solutions, self.agent.select_new_base_solution
                 )
 
                 if len(chosen_tries) == 0:
