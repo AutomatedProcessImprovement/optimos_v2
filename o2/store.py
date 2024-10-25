@@ -107,7 +107,9 @@ class Store:
     def process_many_solutions(
         self,
         solutions: list[Solution],
-        choose_new_base_evaluation_callback: Optional[Callable[[], Solution]],
+        choose_new_base_evaluation_callback: Optional[
+            Callable[[SolutionTry], Solution]
+        ],
     ) -> tuple[list[SolutionTry], list[SolutionTry]]:
         """Process a list of action solutions.
 
@@ -129,7 +131,9 @@ class Store:
                 self._add_solution(solution, False)
                 if choose_new_base_evaluation_callback is not None:
                     # We choose a new base evaluation, to continue with our new front entry
-                    self.solution = choose_new_base_evaluation_callback()
+                    self.solution = choose_new_base_evaluation_callback(
+                        (status, solution)
+                    )
                 else:
                     self.solution = solution
             elif status == FRONT_STATUS.IS_DOMINATED:
@@ -139,7 +143,9 @@ class Store:
                 self._add_solution(solution, False)
                 if choose_new_base_evaluation_callback is not None:
                     # We choose a new base evaluation, because we are in a new front
-                    self.solution = choose_new_base_evaluation_callback()
+                    self.solution = choose_new_base_evaluation_callback(
+                        (status, solution)
+                    )
                 else:
                     self.solution = solution
             else:

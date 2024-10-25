@@ -16,7 +16,7 @@ from o2.models.rule_selector import RuleSelector
 from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.solution import Solution
 from o2.store import SolutionTry, Store
-from o2.util.indented_printer import print_l1, print_l2
+from o2.util.indented_printer import print_l1, print_l2, print_l3
 
 
 class TabuAgent(Agent):
@@ -88,7 +88,15 @@ class TabuAgent(Agent):
 
         E.g from the SolutionTree
         """
-        return self._select_new_base_evaluation(reinsert_current_solution=True)
+        solution = self._select_new_base_evaluation(
+            reinsert_current_solution=True,
+        )
+        if (
+            proposed_solution_try is not None
+            and proposed_solution_try[1].id == solution.id
+        ):
+            print_l3("Continuing with same solution as before.")
+        return solution
 
     def _select_new_base_evaluation(
         self, reinsert_current_solution: bool = False

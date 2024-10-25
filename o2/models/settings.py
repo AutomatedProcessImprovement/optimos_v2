@@ -28,7 +28,11 @@ class Settings:
     """The agent to use for the optimization task."""
 
     max_non_improving_actions = 1000
-    """The maximum number of actions before discarding a base solution."""
+    """The maximum number of actions before discarding a base solution.
+
+    Non-improving actions are all actions, which solutions are not dominating the
+    current Pareto Front.
+    """
     max_iterations = 1000
     """The maximum (total) number of iterations before the application stops."""
 

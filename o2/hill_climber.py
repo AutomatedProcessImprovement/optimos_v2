@@ -83,7 +83,10 @@ class HillClimber:
                 print_l2(f"Simulation took {time.time() - start_time:.2f}s")
 
                 chosen_tries, not_chosen_tries = self.store.process_many_solutions(
-                    solutions, self.agent.select_new_base_solution
+                    solutions,
+                    self.agent.select_new_base_solution
+                    if not self.store.settings.never_select_new_base_solution
+                    else None,
                 )
 
                 if len(chosen_tries) == 0:

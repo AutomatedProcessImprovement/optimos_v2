@@ -8,6 +8,7 @@ from o2.agents.tabu_agent import TabuAgent
 from o2.models.solution import Solution
 from o2.ppo_utils.ppo_input import PPOInput
 from o2.store import SolutionTry, Store
+from o2.util.indented_printer import print_l1, print_l2
 
 
 class PPOAgent(Agent):
@@ -27,6 +28,11 @@ class PPOAgent(Agent):
         """
         state = PPOInput.get_state_from_store(store)
         actions = PPOInput.get_actions_from_store(store)
+        action_count = len([a for a in actions if a is not None])
+        if action_count == 0:
+            raise ValueError("No actions available.")
+        else:
+            print_l1(f"Choosing best action out of {action_count} possible actions.")
         action_mask = PPOInput.get_action_mask_from_actions(actions)
         action_index, _ = self.model.predict(state, action_masks=action_mask)
         if action_index is None:
