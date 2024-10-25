@@ -2,6 +2,7 @@ import json
 import xml.etree.ElementTree as ElementTree
 
 import o2.hill_climber
+from o2.models.settings import AgentType
 import o2.store
 from o2.models.constraints import ConstraintsType
 from o2.models.timetable import TimetableType
@@ -29,11 +30,8 @@ def main():
     with open(bpmn_path, "r") as f:
         bpmn_definition = f.read()
 
-    bpmn_tree = ElementTree.parse(bpmn_path)
-
     initial_state = o2.store.State(
         bpmn_definition=bpmn_definition,
-        bpmn_tree=bpmn_tree,
         timetable=timetable,
     )
     store = o2.store.Store.from_state_and_constraints(
@@ -46,7 +44,10 @@ def main():
 
     # Enable legacy mode
     store.settings.optimos_legacy_mode = True
-    store.settings.max_iterations = 1000
+    store.settings.max_iterations = 25
+    store.settings.max_non_improving_actions = 200
+    store.settings.initial_temperature = 5_000_000_000
+    store.settings.cooling_factor = 0.90
 
     hill_climber = o2.hill_climber.HillClimber(store)
     hill_climber.solve()

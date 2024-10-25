@@ -30,11 +30,8 @@ def main() -> None:
     with open(bpmn_path) as f:
         bpmn_definition = f.read()
 
-    bpmn_tree = ElementTree.parse(bpmn_path)
-
     initial_state = State(
         bpmn_definition=bpmn_definition,
-        bpmn_tree=bpmn_tree,
         timetable=timetable,
     )
     store = Store.from_state_and_constraints(

@@ -36,11 +36,8 @@ class OptimosService:
         constraints = request["constraints"]
         bpmn_definition = request["bpmn_model"]
 
-        bpmn_tree = ET.ElementTree(ET.fromstring(bpmn_definition))
-
         initial_state = State(
             bpmn_definition=bpmn_definition,
-            bpmn_tree=bpmn_tree,
             timetable=timetable,
         )
 

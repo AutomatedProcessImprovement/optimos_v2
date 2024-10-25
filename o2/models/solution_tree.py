@@ -27,8 +27,8 @@ class SolutionTree:
 
     def __init__(self) -> None:
         self.rtree = rtree.index.Index()
-        self.discarded_solutions: list[Solution] = []
-        self.solution_lookup = OrderedDict()
+        self.discarded_solution_ids: list[int] = []
+        self.solution_lookup: OrderedDict[int, Solution] = OrderedDict()
 
     def add_solution(self, solution: "Solution") -> None:
         """Add a solution to the tree."""
@@ -74,10 +74,9 @@ class SolutionTree:
             pareto_front, max_distance=max_distance
         )
         if nearest_solution is not None:
-            self.rtree.delete(nearest_solution.id, nearest_solution.point)
-            self.discarded_solutions.append(nearest_solution)
+            self.remove_solution(nearest_solution)
             print_l3(
-                f"Popped solution. {len(self.solution_lookup) - len(self.discarded_solutions)} solutions left. ({len(self.discarded_solutions)} exhausted so far)"  # noqa: E501
+                f"Popped solution. {len(self.solution_lookup) - len(self.discarded_solution_ids)} solutions left. ({len(self.discarded_solution_ids)} exhausted so far)"  # noqa: E501
             )
             if nearest_solution not in pareto_front.solutions:
                 print_l3("Nearest solution is NOT in pareto front.")
@@ -89,10 +88,8 @@ class SolutionTree:
         self, base_solution: "Solution", new_action: "BaseAction"
     ) -> bool:
         """Check if the given action has already been tried."""
-        return (
-            Solution.hash_action_list(base_solution.actions + [new_action])
-            in self.solution_lookup
-        )
+        new_id = Solution.hash_action_list(base_solution.actions + [new_action])
+        return new_id in self.solution_lookup or new_id in self.discarded_solution_ids
 
     def get_index_of_solution(self, solution: Solution) -> int:
         """Get the index of the solution in the tree."""
@@ -113,10 +110,12 @@ class SolutionTree:
         solutions = [self.solution_lookup[item.id] for item in items]
         if not solutions:
             return None
+        print_l3(f"Found {len(solutions)} solutions near pareto front.")
         random_solution = random.choice(solutions)
         return random_solution
 
     def remove_solution(self, solution: Solution) -> None:
         """Remove a solution from the tree."""
         self.rtree.delete(solution.id, solution.point)
-        self.discarded_solutions.append(solution)
+        self.discarded_solution_ids.append(solution.id)
+        del self.solution_lookup[solution.id]

@@ -19,7 +19,6 @@ def simple_state():
     bpmn_content = open(SIMPLE_LOOP_BPMN_PATH).read()
     return State(
         bpmn_definition=bpmn_content,
-        bpmn_tree=ElementTree.parse(SIMPLE_LOOP_BPMN_PATH),
         timetable=TimetableGenerator(bpmn_content).generate_simple(),
         for_testing=True,
     )
@@ -30,7 +29,6 @@ def one_task_state():
     bpmn_content = open(ONE_TASK_BPMN_PATH).read()
     return State(
         bpmn_definition=bpmn_content,
-        bpmn_tree=ElementTree.parse(ONE_TASK_BPMN_PATH),
         timetable=TimetableGenerator(bpmn_content).generate_simple(),
         for_testing=True,
     )
@@ -59,7 +57,6 @@ def two_tasks_state():
     bpmn_content = open(TWO_TASKS_BPMN_PATH).read()
     return State(
         bpmn_definition=bpmn_content,
-        bpmn_tree=ElementTree.parse(TWO_TASKS_BPMN_PATH),
         timetable=TimetableGenerator(bpmn_content).generate_simple(),
         for_testing=True,
     )
@@ -88,7 +85,6 @@ def batching_state():
     bpmn_content = open(SIMPLE_LOOP_BPMN_PATH).read()
     return State(
         bpmn_definition=bpmn_content,
-        bpmn_tree=ElementTree.parse(SIMPLE_LOOP_BPMN_PATH),
         timetable=TimetableGenerator(bpmn_content).generate_simple(
             include_batching=True
         ),

@@ -26,7 +26,6 @@ class State:
     """
 
     bpmn_definition: str
-    bpmn_tree: ET.ElementTree
 
     timetable: "TimetableType"
     # TODO: Move to setting class
@@ -64,7 +63,8 @@ class State:
 
     def get_name_of_task(self, task_id: str) -> str:
         """Get the name of a task."""
-        node = self.bpmn_tree.find(f".//*[@id='{task_id}']")
+        bpmn_tree = ET.fromstring(self.bpmn_definition)
+        node = bpmn_tree.find(f".//*[@id='{task_id}']")
         assert node is not None
         return node.attrib["name"]
 

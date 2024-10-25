@@ -12,7 +12,7 @@ def test_add_solution(one_task_state: State):
 
     tree.add_solution(solution)
     assert tree.solution_lookup[solution.id] == solution
-    assert tree.discarded_solutions == []
+    assert tree.discarded_solution_ids == []
 
 
 def test_check_if_already_done(one_task_store: Store):
@@ -145,9 +145,9 @@ def test_pop_nearest_solution(one_task_store: Store):
     assert tree.pop_nearest_solution(pareto_front) == solution3
     assert tree.pop_nearest_solution(pareto_front) is None
 
-    assert solution1 in tree.discarded_solutions
-    assert solution2 in tree.discarded_solutions
-    assert solution3 in tree.discarded_solutions
+    assert solution1.id in tree.discarded_solution_ids
+    assert solution2.id in tree.discarded_solution_ids
+    assert solution3.id in tree.discarded_solution_ids
     assert solution1.id in tree.solution_lookup
     assert solution2.id in tree.solution_lookup
     assert solution3.id in tree.solution_lookup

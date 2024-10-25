@@ -23,6 +23,8 @@ if TYPE_CHECKING:
 
 HourlyRates = dict[str, int]
 
+# TODO: Make Evaluation Class smaller -> Precalculate all the values in the constructor
+
 
 @dataclass(frozen=True)
 class Evaluation:
@@ -161,14 +163,14 @@ class Evaluation:
         """Get the total idle time of the simulation."""
         return self.global_kpis.idle_time.total
 
-    @cached_property
+    @property
     def cases(self) -> list[Trace]:
         """Get the cases of the simulation."""
         if self.log_info is None:
             return []
         return self.log_info.trace_list or []
 
-    @cached_property
+    @property
     def is_empty(self) -> bool:
         """Check if the evaluation is empty."""
         return not self.cases
