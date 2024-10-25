@@ -17,7 +17,7 @@ class SimulatedAnnealingAgent(Agent):
 
     def __init__(self, store: Store) -> None:
         super().__init__(store)
-        self.temperature = store.settings.initial_temperature
+        self.temperature = store.settings.sa_initial_temperature
 
     def select_actions(self, store: Store) -> Optional[list[BaseAction]]:
         """Select the best actions to take next.
@@ -87,7 +87,7 @@ class SimulatedAnnealingAgent(Agent):
         """Select a new base solution."""
         print_l2("Selecting new base evaluation...")
         print_l2(f"Old temperature: {self.temperature:_}")
-        self.temperature *= self.store.settings.cooling_factor
+        self.temperature *= self.store.settings.sa_cooling_factor
         print_l2(f"New temperature: {self.temperature:_}")
         if proposed_solution_try is not None:
             status, solution = proposed_solution_try

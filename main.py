@@ -46,8 +46,8 @@ def main():
     store.settings.optimos_legacy_mode = True
     store.settings.max_iterations = 25
     store.settings.max_non_improving_actions = 200
-    store.settings.initial_temperature = 5_000_000_000
-    store.settings.cooling_factor = 0.90
+    store.settings.sa_initial_temperature = 5_000_000_000
+    store.settings.sa_cooling_factor = 0.90
 
     hill_climber = o2.hill_climber.HillClimber(store)
     hill_climber.solve()

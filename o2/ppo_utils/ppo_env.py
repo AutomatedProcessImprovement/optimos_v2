@@ -31,7 +31,7 @@ class PPOEnv(Env[StateType, np.int64]):
         self.actions = PPOInput.get_actions_from_store(self.store)
         self.action_space = PPOInput.get_action_space_from_actions(self.actions)
         self.observation_space = PPOInput.get_observation_space(self.store)
-        self.state = PPOInput.state_from_store(self.store)
+        self.state = PPOInput.get_state_from_store(self.store)
         self.stepCount = 0
         self.iteration = 0
 
@@ -46,7 +46,7 @@ class PPOEnv(Env[StateType, np.int64]):
         self.iteration += 1
         self.store = Store(self.store.base_solution, self.store.constraints)
         self.actions = PPOInput.get_actions_from_store(self.store)
-        self.state = PPOInput.state_from_store(self.store)
+        self.state = PPOInput.get_state_from_store(self.store)
         self.action_space = PPOInput.get_action_space_from_actions(self.actions)
         self.observation_space = PPOInput.get_observation_space(self.store)
         return self.state, {}
@@ -90,7 +90,7 @@ class PPOEnv(Env[StateType, np.int64]):
         self.actions = PPOInput.get_actions_from_store(self.store)
         self.action_space = PPOInput.get_action_space_from_actions(self.actions)
         self.observation_space = PPOInput.get_observation_space(self.store)
-        self.state = PPOInput.state_from_store(self.store)
+        self.state = PPOInput.get_state_from_store(self.store)
 
         print_l1(f"Done. Reward: {reward}")
         action_count = len([a for a in self.actions if a is not None])

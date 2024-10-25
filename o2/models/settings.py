@@ -94,8 +94,11 @@ class Settings:
     base solution.E.g. in the PPO Training.
     """
 
-    cooling_factor = 0.90
+    sa_cooling_factor = 0.90
     """The cooling factor for the simulated annealing agent."""
 
-    initial_temperature = 10_000_000_000
+    sa_initial_temperature = 10_000_000_000
     """The initial temperature for the simulated annealing agent."""
+
+    ppo_model_path = "models/ppo_maskable-20241025-075307"
+    """The path to the PPO model to use for the PPO agent."""

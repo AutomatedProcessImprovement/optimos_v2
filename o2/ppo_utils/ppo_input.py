@@ -231,7 +231,7 @@ class PPOInput:
         }
 
     @staticmethod
-    def state_from_store(store: Store) -> dict:
+    def get_state_from_store(store: Store) -> dict:
         """Get the input for the PPO model based on the current state of the store."""
         resource_features = PPOInput._get_resource_features(store)
         task_features = PPOInput._get_task_features(store)
