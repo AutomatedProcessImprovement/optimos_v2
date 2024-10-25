@@ -230,3 +230,6 @@ lcov.info
 
 logs/
 mapping.json
+model_checkpoints
+optimos_v2.bin
+tmp/
