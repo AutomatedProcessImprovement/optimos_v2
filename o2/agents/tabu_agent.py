@@ -15,7 +15,7 @@ from o2.agents.agent import (
 from o2.models.rule_selector import RuleSelector
 from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.solution import Solution
-from o2.store import Store
+from o2.store import SolutionTry, Store
 from o2.util.indented_printer import print_l1, print_l2
 
 
@@ -56,7 +56,7 @@ class TabuAgent(Agent):
             if len(possible_actions) == 0:
                 print_l1("No actions remaining, after removing Tabu & N/A actions.")
                 print_l2("Choosing new baseline evaluation.")
-                new_solution = self._select_new_base_evaluation(store)
+                new_solution = self._select_new_base_evaluation()
                 success = new_solution is not None
                 if not success:
                     print_l2("No new baseline evaluation found. Stopping.")
@@ -82,7 +82,9 @@ class TabuAgent(Agent):
 
             return [action for _, action in selected_actions]
 
-    def select_new_base_solution(self) -> Solution:
+    def select_new_base_solution(
+        self, proposed_solution_try: Optional[SolutionTry] = None
+    ) -> Solution:
         """Select a new base solution.
 
         E.g from the SolutionTree

@@ -90,3 +90,11 @@ class ParetoFront:
     def is_dominated_by_evaluation(self, evaluation: "Evaluation") -> bool:
         """Check whether the evaluation is dominated by the current front."""
         return all(s.evaluation.is_dominated_by(evaluation) for s in self.solutions)
+
+    def get_bounding_rect(self) -> tuple[float, float, float, float]:
+        """Get the bounding rectangle of the front."""
+        min_x = min(s.evaluation.avg_cycle_time for s in self.solutions)
+        max_x = max(s.evaluation.avg_cycle_time for s in self.solutions)
+        min_y = min(s.evaluation.avg_cost for s in self.solutions)
+        max_y = max(s.evaluation.avg_cost for s in self.solutions)
+        return min_x, min_y, max_x, max_y

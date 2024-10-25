@@ -6,6 +6,7 @@ import rtree
 from o2.models.solution import Solution
 from o2.pareto_front import ParetoFront
 from o2.util.indented_printer import print_l3
+import random
 
 if TYPE_CHECKING:
     from o2.actions.base_action import BaseAction
@@ -96,3 +97,26 @@ class SolutionTree:
     def get_index_of_solution(self, solution: Solution) -> int:
         """Get the index of the solution in the tree."""
         return list(self.solution_lookup).index(solution.id)
+
+    def get_random_solution_near_to_pareto_front(
+        self, pareto_front: ParetoFront, max_distance: float = float("inf")
+    ) -> Optional["Solution"]:
+        """Get a random solution near the pareto front."""
+        bounding_rect = pareto_front.get_bounding_rect()
+        bounding_rect_with_distance = (
+            bounding_rect[0] - max_distance,
+            bounding_rect[1] - max_distance,
+            bounding_rect[2] + max_distance,
+            bounding_rect[3] + max_distance,
+        )
+        items = self.rtree.intersection(bounding_rect_with_distance, objects=True)
+        solutions = [self.solution_lookup[item.id] for item in items]
+        if not solutions:
+            return None
+        random_solution = random.choice(solutions)
+        return random_solution
+
+    def remove_solution(self, solution: Solution) -> None:
+        """Remove a solution from the tree."""
+        self.rtree.delete(solution.id, solution.point)
+        self.discarded_solutions.append(solution)

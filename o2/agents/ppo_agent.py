@@ -3,7 +3,7 @@ from typing import Optional
 from o2.actions.base_action import BaseAction
 from o2.agents.agent import Agent
 from o2.models.solution import Solution
-from o2.store import Store
+from o2.store import SolutionTry, Store
 
 
 class PPOAgent(Agent):
@@ -20,6 +20,8 @@ class PPOAgent(Agent):
         # TODO: Load pretrained model, and use it to select actions
         raise NotImplementedError
 
-    def select_new_base_solution(self) -> Solution:
+    def select_new_base_solution(
+        self, proposed_solution_try: Optional[SolutionTry] = None
+    ) -> Solution:
         """Select a new base solution."""
         raise NotImplementedError

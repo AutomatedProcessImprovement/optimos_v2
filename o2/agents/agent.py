@@ -26,7 +26,7 @@ from o2.actions.remove_rule_action import (
 )
 from o2.models.self_rating import RATING
 from o2.models.solution import Solution
-from o2.store import Store
+from o2.store import Store, SolutionTry
 
 ACTION_CATALOG: list[Type[BaseAction]] = [
     AddResourceAction,
@@ -73,7 +73,9 @@ class Agent(ABC):
         pass
 
     @abstractmethod
-    def select_new_base_solution(self) -> Solution:
+    def select_new_base_solution(
+        self, proposed_solution_try: Optional[SolutionTry] = None
+    ) -> Solution:
         """Select a new base solution.
 
         E.g from the SolutionTree

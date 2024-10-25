@@ -93,3 +93,9 @@ class Settings:
     This is useful if you want to go greedy without backing off to a previous
     base solution.E.g. in the PPO Training.
     """
+
+    cooling_factor = 0.90
+    """The cooling factor for the simulated annealing agent."""
+
+    initial_temperature = 1000
+    """The initial temperature for the simulated annealing agent."""
