@@ -106,3 +106,6 @@ class Settings:
 
     ppo_model_path = "models/ppo_maskable-20241025-075307"
     """The path to the PPO model to use for the PPO agent."""
+
+    log_to_tensor_board = True
+    """Should the evaluation be logged to TensorBoard?"""
