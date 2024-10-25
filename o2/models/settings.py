@@ -97,5 +97,5 @@ class Settings:
     cooling_factor = 0.90
     """The cooling factor for the simulated annealing agent."""
 
-    initial_temperature = 1000
+    initial_temperature = 10_000_000_000
     """The initial temperature for the simulated annealing agent."""

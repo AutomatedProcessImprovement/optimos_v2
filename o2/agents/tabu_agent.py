@@ -55,7 +55,6 @@ class TabuAgent(Agent):
 
             if len(possible_actions) == 0:
                 print_l1("No actions remaining, after removing Tabu & N/A actions.")
-                print_l2("Choosing new baseline evaluation.")
                 new_solution = self._select_new_base_evaluation()
                 success = new_solution is not None
                 if not success:
@@ -100,6 +99,7 @@ class TabuAgent(Agent):
         reinserted into the solution tree. This is useful if you aren't
         sure if you exhausted all possible actions for this solution.
         """
+        print_l2("Selecting new base evaluation...")
         if reinsert_current_solution:
             self.store.solution_tree.add_solution(self.store.solution)
         new_solution = self.store.solution_tree.pop_nearest_solution(

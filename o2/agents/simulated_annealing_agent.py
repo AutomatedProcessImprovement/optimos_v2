@@ -55,7 +55,6 @@ class SimulatedAnnealingAgent(Agent):
 
             if len(possible_actions) == 0:
                 print_l1("No actions remaining, after removing Tabu & N/A actions.")
-                print_l2("Choosing new baseline evaluation.")
                 new_solution = self._select_new_base_evaluation()
                 success = new_solution is not None
                 if not success:
@@ -86,7 +85,10 @@ class SimulatedAnnealingAgent(Agent):
         self, proposed_solution_try: Optional[SolutionTry] = None
     ) -> Solution:
         """Select a new base solution."""
+        print_l2("Selecting new base evaluation...")
+        print_l2(f"Old temperature: {self.temperature:_}")
         self.temperature *= self.store.settings.cooling_factor
+        print_l2(f"New temperature: {self.temperature:_}")
         if proposed_solution_try is not None:
             status, solution = proposed_solution_try
             # Maybe accept bad solution
@@ -95,7 +97,9 @@ class SimulatedAnnealingAgent(Agent):
                 distance = solution.evaluation.distance_to(
                     self.store.current_evaluation
                 )
+                print("Discarded solution distance:", distance)
                 if accept_worse_solution(distance, self.temperature):
+                    print("Randomly accepted discarded solution.")
                     return solution
 
         return self._select_new_base_evaluation()
@@ -103,10 +107,14 @@ class SimulatedAnnealingAgent(Agent):
     def _select_new_base_evaluation(self) -> Solution:
         """Select a new base evaluation."""
         solution = self.store.solution_tree.get_random_solution_near_to_pareto_front(
-            self.store.current_pareto_front
+            self.store.current_pareto_front,
+            max_distance=self.temperature,
         )
         if solution is None:
             raise ValueError("No new baseline evaluation found.")
+
+        distance = self.store.current_evaluation.distance_to(solution.evaluation)
+        print_l2(f"Selected new random base solution with distance: {distance:_}")
         self.store.solution_tree.remove_solution(solution)
         return solution
 

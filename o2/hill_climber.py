@@ -63,7 +63,6 @@ class HillClimber:
             try:
                 if self.max_non_improving_iter <= 0:
                     print_l0("Maximum non improving iterations reached!")
-                    print_l1("Choosing new base solution...")
                     self.store.solution = self.agent.select_new_base_solution()
                     self.max_non_improving_iter = (
                         self.store.settings.max_non_improving_actions
@@ -112,7 +111,7 @@ class HillClimber:
                                 self.store.settings.max_non_improving_actions
                             )
                             yield solution
-
+                print_l1(f"Non improving actions left: {self.max_non_improving_iter}")
             except Exception as e:
                 print_l1(f"Error in iteration: {e}")
                 print_l1(traceback.format_exc())
