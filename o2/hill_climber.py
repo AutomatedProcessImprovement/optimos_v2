@@ -14,6 +14,7 @@ from o2.models.solution import Solution
 from o2.pareto_front import FRONT_STATUS
 from o2.store import SolutionTry, Store
 from o2.util.indented_printer import print_l0, print_l1, print_l2, print_l3
+from o2.util.tensorboard_helper import TensorBoardHelper
 
 
 class HillClimber:
@@ -29,6 +30,7 @@ class HillClimber:
                 max_workers=self.store.settings.max_threads
             )
         self.agent: Agent = self._init_agent()
+        TensorBoardHelper(self.agent)
 
     def _init_agent(self):
         """Initialize the agent for the optimization task."""
@@ -43,16 +45,20 @@ class HillClimber:
     def solve(self) -> None:
         """Run the hill climber and print the result."""
         print_l1(f"Initial evaluation: {self.store.base_solution.evaluation}")
-        generator = self.get_iteration_generator()
+        generator = self.get_iteration_generator(yield_on_non_acceptance=True)
         for _ in generator:
             # Just iterate through the generator to run it
-            pass
+            TensorBoardHelper.instance.tensor_board_iteration_callback(
+                self.store.solution
+            )
 
         if not self.store.settings.disable_parallel_evaluation:
             self.executor.shutdown()
         self._print_result()
 
-    def get_iteration_generator(self) -> Generator[Solution, None, None]:
+    def get_iteration_generator(
+        self, yield_on_non_acceptance: bool = False
+    ) -> Generator[Solution, None, None]:
         """Run the hill climber and yield optimal Solution.
 
         NOTE: You usually want to use the `solve` method instead of this
@@ -94,26 +100,30 @@ class HillClimber:
                     self.max_non_improving_iter -= len(actions_to_perform)
                     for _, solution in not_chosen_tries:
                         print_l2(str(solution.last_action))
+                        if yield_on_non_acceptance:
+                            yield solution
                 else:
                     if len(not_chosen_tries) > 0:
                         print_l1("Actions NOT chosen:")
                     for _, solution in not_chosen_tries:
                         print_l2(str(solution.last_action))
                         self.max_non_improving_iter -= 1
+                        if yield_on_non_acceptance:
+                            yield solution
                     print_l1("Actions chosen:")
                     for status, solution in chosen_tries:
                         print_l2(str(solution.last_action))
                         if status == FRONT_STATUS.IN_FRONT:
                             print_l3("Pareto front CONTAINS new evaluation.")
                             print_l3(f"Evaluation: {solution.evaluation}")
-                            yield solution
+
                         elif status == FRONT_STATUS.IS_DOMINATED:
                             print_l3("Pareto front IS DOMINATED by new evaluation.")
                             print_l3(f"New best Evaluation: {solution.evaluation}")
                             self.max_non_improving_iter = (
                                 self.store.settings.max_non_improving_actions
                             )
-                            yield solution
+                        yield solution
                 print_l1(f"Non improving actions left: {self.max_non_improving_iter}")
             except Exception as e:
                 print_l1(f"Error in iteration: {e}")

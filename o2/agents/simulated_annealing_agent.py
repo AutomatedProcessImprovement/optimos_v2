@@ -113,7 +113,7 @@ class SimulatedAnnealingAgent(Agent):
         if solution is None:
             raise ValueError("No new baseline evaluation found.")
 
-        distance = self.store.current_evaluation.distance_to(solution.evaluation)
+        distance = self.store.current_pareto_front.avg_distance_to(solution.evaluation)
         print_l2(f"Selected new random base solution with distance: {distance:_}")
         self.store.solution_tree.remove_solution(solution)
         return solution

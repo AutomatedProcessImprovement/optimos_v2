@@ -89,9 +89,12 @@ class Store:
         """Return the current state of the solution."""
         return self.solution.state
 
-    def _add_solution(self, solution: Solution, dominated_by_front: bool) -> None:
+    def _add_solution(self, solution: Solution, mark_as_invalid: bool) -> None:
         """Add an action and state to the store."""
-        self.solution_tree.add_solution(solution)
+        if mark_as_invalid:
+            self.solution_tree.add_solution_as_discarded(solution)
+        else:
+            self.solution_tree.add_solution(solution)
 
     def mark_action_as_tabu(self, action: "BaseAction") -> None:
         """Mark an action as tabu."""
@@ -121,6 +124,8 @@ class Store:
         chosen_tries = []
         not_chosen_tries = []
         for solution in solutions:
+            self._add_solution(solution, False)
+
             status = self.current_pareto_front.is_in_front(solution)
             if solution.evaluation.is_empty:
                 status = FRONT_STATUS.INVALID
@@ -128,7 +133,6 @@ class Store:
             if status == FRONT_STATUS.IN_FRONT:
                 chosen_tries.append((status, solution))
                 self.current_pareto_front.add(solution)
-                self._add_solution(solution, False)
                 if choose_new_base_evaluation_callback is not None:
                     # We choose a new base evaluation, to continue with our new front entry
                     self.solution = choose_new_base_evaluation_callback(
@@ -140,7 +144,6 @@ class Store:
                 chosen_tries.append((status, solution))
                 self.pareto_fronts.append(ParetoFront())
                 self.current_pareto_front.add(solution)
-                self._add_solution(solution, False)
                 if choose_new_base_evaluation_callback is not None:
                     # We choose a new base evaluation, because we are in a new front
                     self.solution = choose_new_base_evaluation_callback(
@@ -149,7 +152,6 @@ class Store:
                 else:
                     self.solution = solution
             else:
-                self._add_solution(solution, True)
                 not_chosen_tries.append((status, solution))
         return chosen_tries, not_chosen_tries
 
