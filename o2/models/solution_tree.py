@@ -34,6 +34,10 @@ class SolutionTree:
         self.solution_lookup[solution.id] = solution
         self.rtree.insert(solution.id, solution.point)
 
+    def add_solution_as_discarded(self, solution: "Solution") -> None:
+        """Add a solution to the tree as discarded."""
+        self.solution_lookup[solution.id] = None
+
     def get_nearest_solution(
         self, pareto_front: ParetoFront, max_distance: float = float("inf")
     ) -> Optional["Solution"]:
@@ -67,6 +71,21 @@ class SolutionTree:
                 nearest_distance = distance
         return nearest_solution
 
+    @property
+    def discarded_solutions(self) -> int:
+        """Return the number of discarded / exhausted solutions."""
+        return sum(1 for id in self.solution_lookup if self.solution_lookup[id] is None)
+
+    @property
+    def solutions_left(self) -> int:
+        """Return the number of untried solutions left in the tree."""
+        return len(self.solution_lookup) - self.discarded_solutions
+
+    @property
+    def total_solutions(self) -> int:
+        """Return the total number of solutions (tried + non-tried)."""
+        return len(self.solution_lookup)
+
     def pop_nearest_solution(
         self, pareto_front: ParetoFront, max_distance: float = float("inf")
     ) -> Optional["Solution"]:
@@ -76,9 +95,7 @@ class SolutionTree:
         )
         if nearest_solution is not None:
             self.remove_solution(nearest_solution)
-            len_discarded_solutions = sum(
-                1 for id in self.solution_lookup if self.solution_lookup[id] is None
-            )
+            len_discarded_solutions = self.discarded_solutions
             print_l3(
                 f"Popped solution. {len(self.solution_lookup) - len_discarded_solutions} solutions left. ({len_discarded_solutions} exhausted so far)"  # noqa: E501
             )
@@ -101,10 +118,10 @@ class SolutionTree:
         """Get the index of the solution in the tree."""
         return list(self.solution_lookup).index(solution.id)
 
-    def get_random_solution_near_to_pareto_front(
+    def get_solutions_near_to_pareto_front(
         self, pareto_front: ParetoFront, max_distance: float = float("inf")
-    ) -> Optional["Solution"]:
-        """Get a random solution near the pareto front."""
+    ) -> list["Solution"]:
+        """Get a list of solutions near the pareto front."""
         bounding_rect = pareto_front.get_bounding_rect()
         bounding_rect_with_distance = (
             bounding_rect[0] - max_distance,
@@ -113,11 +130,21 @@ class SolutionTree:
             bounding_rect[3] + max_distance,
         )
         items = self.rtree.intersection(bounding_rect_with_distance, objects=True)
-        solutions = [
-            self.solution_lookup[item.id]
+        solutions: list["Solution"] = [
+            cast(Solution, self.solution_lookup[item.id])
             for item in items
             if self.solution_lookup[item.id] is not None
         ]
+
+        return solutions
+
+    def get_random_solution_near_to_pareto_front(
+        self, pareto_front: ParetoFront, max_distance: float = float("inf")
+    ) -> Optional["Solution"]:
+        """Get a random solution near the pareto front."""
+        solutions = self.get_solutions_near_to_pareto_front(
+            pareto_front, max_distance=max_distance
+        )
         if not solutions:
             return None
         print_l3(f"Found {len(solutions)} solutions near pareto front.")
