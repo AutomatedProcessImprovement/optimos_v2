@@ -49,51 +49,28 @@ class Evaluation:
     duration of the simulation.
     """
 
-    avg_cost: float
+    avg_cost_by_case: float
     """Get the average cost of the simulation."""
 
-    avg_cycle_time: float
+    avg_cycle_time_by_case: float
     """Get the mean cycle time of the simulation."""
 
-    avg_resource_utilization: float
+    avg_resource_utilization_by_case: float
     """Get the average resource utilization of the simulation."""
 
-    avg_waiting_time: float
+    avg_waiting_time_by_case: float
     """Get the average waiting time of the simulation."""
 
-    avg_batching_waiting_time: float
+    avg_batching_waiting_time_by_case: float
     """Get the average batching waiting time per case."""
 
-    waiting_time_per_resource: dict[str, float]
-    """Get the waiting time per resource."""
+    avg_batching_waiting_time_per_task: dict[str, float]
+    """Get the average batching waiting time per task."""
+    total_batching_waiting_time_per_task: dict[str, float]
+    """Get the total batching waiting time per task (all cases)."""
 
-    waiting_time_canvas: pd.DataFrame
-
-    def avg_batching_waiting_time_by_task_id(self, task_id: str) -> float:
-        """Get the average batching waiting time of a task."""
-        result = (
-            self.waiting_time_canvas[self.waiting_time_canvas["activity"] == task_id][
-                "waiting_time_batching_seconds"
-            ].mean()
-            or 0
-        )
-        if result is None or math.isnan(result):
-            return 0
-        return result
-
-    def total_batching_waiting_time_by_resource_id(self, resource_id: str) -> float:
-        """Get the total batching waiting time of a resource (averaged by cases)."""
-        result = (
-            self.waiting_time_canvas[
-                self.waiting_time_canvas["resource"] == resource_id
-            ]
-            .groupby("case")["waiting_time_batching_seconds"]
-            .sum()
-            .mean()
-        )
-        if result is None or math.isnan(result):
-            return 0
-        return result
+    total_batching_waiting_time: float
+    """Get the total batching waiting time of the simulation (all cases)."""
 
     total_cycle_time: float
     """Get the total cycle time of the simulation."""
@@ -113,7 +90,14 @@ class Evaluation:
     resource_available_times: dict[str, float]
     """Get the availability of all resources."""
 
+    task_execution_count_by_resource: dict[str, dict[str, int]]
+    """Get the number of times each task was executed by a given resource.
+
+    E.g. task_execution_count_by_resource["resource_id"]["task_id"]
+    """
+
     is_empty: bool
+    """Is this evaluation based on an empty simulation run?"""
 
     global_kpis: KPIMap
     task_kpis: dict[str, KPIMap]
@@ -168,38 +152,9 @@ class Evaluation:
             )
         ]
 
-    @staticmethod
-    def get_enablement_weekdays(
-        cases: list[Trace],
-    ) -> dict[str, dict[DAY, int]]:
-        """Get the weekdays on which a task was enabled."""
-        weekdays: dict[str, dict[DAY, int]] = {}
-        for case in cases:
-            event_list: list[TaskEvent] = case.event_list
-            for event in event_list:
-                if event.task_id not in weekdays:
-                    weekdays[event.task_id] = {}
-                if event.enabled_datetime is None:
-                    continue
-                weekday = event.enabled_datetime.strftime("%A").upper()
-                weekdays[event.task_id][DAY(weekday)] = (
-                    weekdays[event.task_id].get(DAY(weekday), 0) + 1
-                )
-        return weekdays
-
     def get_most_frequent_resources(self, task_name: str) -> list[str]:
         """Get a list of resources that executed the task the most."""
         return self.get_resources_sorted_by_task_execution_count(task_name)
-
-    @staticmethod
-    def _get_events_for_task(cases, task_name):
-        """Get all events for a task."""
-        return [
-            event
-            for case in cases
-            for event in case.event_list
-            if event.task_id == task_name
-        ]
 
     def get_least_utilized_resources(self) -> list[str]:
         """Get a list of resources that have the least utilization."""
@@ -209,27 +164,6 @@ class Evaluation:
                 self.resource_utilizations.items(), key=lambda x: x[1], reverse=False
             )
         ]
-
-    @staticmethod
-    def get_task_execution_counts(cases) -> dict[str, int]:
-        """Get the count each task was executed."""
-        occurrences: dict[str, int] = {}
-        for case in cases:
-            for event in cast(list[TaskEvent], case.event_list):
-                occurrences[event.task_id] = occurrences.get(event.task_id, 0) + 1
-        return occurrences
-
-    @staticmethod
-    def get_task_execution_count_with_wt_or_it(cases: list[Trace]) -> dict[str, int]:
-        """Get the count each task was executed with a waiting or idle time."""
-        occurrences: dict[str, int] = {}
-        for case in cases:
-            for event in cast(list[TaskEvent], case.event_list):
-                if event.waiting_time is not None and event.waiting_time > 0:
-                    occurrences[event.task_id] = occurrences.get(event.task_id, 0) + 1
-                if event.idle_time is not None and event.idle_time > 0:
-                    occurrences[event.task_id] = occurrences.get(event.task_id, 0) + 1
-        return occurrences
 
     def get_tasks_sorted_by_occurrences_of_wt_and_it(self) -> list[str]:
         """Get a list of task names sorted by wt & it instances.
@@ -245,30 +179,9 @@ class Evaluation:
             )
         ]
 
-    task_execution_count_by_resource: dict[str, dict[str, int]]
-    """Get the number of times each task was executed by a given resource.
-    
-    E.g. task_execution_count_by_resource["resource_id"]["task_id"]
-    """
-
     def get_task_execution_count_by_resource(self, resource_id: str) -> dict[str, int]:
         """Get the number of times each task was executed by a given resource."""
         return self.task_execution_count_by_resource.get(resource_id, {})
-
-    @staticmethod
-    def get_task_execution_count_by_resources(
-        cases: list[Trace],
-    ) -> dict[str, dict[str, int]]:
-        """Get the number of times each task was executed by a given resource."""
-        occurrences: dict[str, dict[str, int]] = {}
-        for case in cases:
-            event_list: list[TaskEvent] = case.event_list
-            for event in cast(list[TaskEvent], event_list):
-                occurrences[event.resource_id] = occurrences.get(event.resource_id, {})
-                occurrences[event.resource_id][event.task_id] = (
-                    occurrences[event.resource_id].get(event.task_id, 0) + 1
-                )
-        return occurrences
 
     def get_resources_sorted_by_task_execution_count(self, task_id: str) -> list[str]:
         """Get a list of resource_ids, that executed the given task.
@@ -298,22 +211,96 @@ class Evaluation:
             + (self.total_cycle_time - other.total_cycle_time) ** 2
         )
 
+    # Is this evaluation dominated by another evaluation?
+    # (Taking only the total cost & total cycle time into account)
+    def is_dominated_by(self, other: "Evaluation") -> bool:
+        """Check if this evaluation is dominated by another evaluation."""
+        return (
+            other.total_cost_for_available_time < self.total_cost_for_available_time
+            and other.total_cycle_time < self.total_cycle_time
+        )
+
+    def __str__(self) -> str:
+        """Return a string representation of the evaluation."""
+        return f"Cycle Time: {self.total_cycle_time}, Cost: {self.total_cost_for_available_time}, Waiting Time: {self.total_waiting_time}"  # noqa: E501
+
+    @staticmethod
+    def get_enablement_weekdays(
+        cases: list[Trace],
+    ) -> dict[str, dict[DAY, int]]:
+        """Get the weekdays on which a task was enabled."""
+        weekdays: dict[str, dict[DAY, int]] = {}
+        for case in cases:
+            event_list: list[TaskEvent] = case.event_list
+            for event in event_list:
+                if event.task_id not in weekdays:
+                    weekdays[event.task_id] = {}
+                if event.enabled_datetime is None:
+                    continue
+                weekday = event.enabled_datetime.strftime("%A").upper()
+                weekdays[event.task_id][DAY(weekday)] = (
+                    weekdays[event.task_id].get(DAY(weekday), 0) + 1
+                )
+        return weekdays
+
+    @staticmethod
+    def _get_events_for_task(cases: list[Trace], task_name: str) -> list[TaskEvent]:
+        """Get all events for a task."""
+        return [
+            event
+            for case in cases
+            for event in case.event_list
+            if event.task_id == task_name
+        ]
+
+    @staticmethod
+    def get_task_execution_counts(cases) -> dict[str, int]:
+        """Get the count each task was executed."""
+        occurrences: dict[str, int] = {}
+        for case in cases:
+            for event in cast(list[TaskEvent], case.event_list):
+                occurrences[event.task_id] = occurrences.get(event.task_id, 0) + 1
+        return occurrences
+
+    @staticmethod
+    def get_task_execution_count_with_wt_or_it(cases: list[Trace]) -> dict[str, int]:
+        """Get the count each task was executed with a waiting or idle time."""
+        occurrences: dict[str, int] = {}
+        for case in cases:
+            for event in cast(list[TaskEvent], case.event_list):
+                if event.waiting_time is not None and event.waiting_time > 0:
+                    occurrences[event.task_id] = occurrences.get(event.task_id, 0) + 1
+                if event.idle_time is not None and event.idle_time > 0:
+                    occurrences[event.task_id] = occurrences.get(event.task_id, 0) + 1
+        return occurrences
+
+    @staticmethod
+    def get_task_execution_count_by_resources(
+        cases: list[Trace],
+    ) -> dict[str, dict[str, int]]:
+        """Get the number of times each task was executed by a given resource."""
+        occurrences: dict[str, dict[str, int]] = {}
+        for case in cases:
+            event_list: list[TaskEvent] = case.event_list
+            for event in cast(list[TaskEvent], event_list):
+                occurrences[event.resource_id] = occurrences.get(event.resource_id, {})
+                occurrences[event.resource_id][event.task_id] = (
+                    occurrences[event.resource_id].get(event.task_id, 0) + 1
+                )
+        return occurrences
+
     @staticmethod
     def empty():
         """Create an empty evaluation."""
         return Evaluation(
             hourly_rates={},
             total_cycle_time=0,
-            total_waiting_time=0,
             total_idle_time=0,
             total_cost=0,
             total_cost_for_available_time=0,
-            avg_cost=0,
-            avg_cycle_time=0,
-            avg_resource_utilization=0,
-            avg_waiting_time=0,
-            avg_batching_waiting_time=0,
-            waiting_time_per_resource={},
+            avg_cost_by_case=0,
+            avg_cycle_time_by_case=0,
+            avg_resource_utilization_by_case=0,
             is_empty=True,
             resource_utilizations={},
             resource_worked_times={},
@@ -324,8 +311,13 @@ class Evaluation:
             task_execution_count_with_wt_or_it={},
             task_execution_count_by_resource={},
             task_execution_counts={},
-            waiting_time_canvas=pd.DataFrame(),
             enablement_weekdays={},
+            avg_batching_waiting_time_per_task={},
+            total_batching_waiting_time_per_task={},
+            avg_batching_waiting_time_by_case=0,
+            total_batching_waiting_time=0,
+            avg_waiting_time_by_case=0,
+            total_waiting_time=0,
         )
 
     @staticmethod
@@ -356,30 +348,18 @@ class Evaluation:
                 (resource_kpi.available_time / (60 * 60)) * hourly_rates[resource_id]
                 for resource_id, resource_kpi in resource_kpis.items()
             ),
-            avg_cost=sum(
+            avg_cost_by_case=sum(
                 map(
                     lambda task_kpi: task_kpi.cost.avg,
                     task_kpis.values(),
                 )
             ),
-            avg_cycle_time=global_kpis.cycle_time.avg,
-            avg_resource_utilization=reduce(
+            avg_cycle_time_by_case=global_kpis.cycle_time.avg,
+            avg_resource_utilization_by_case=reduce(
                 lambda x, y: x + y, resource_utilizations.values()
             )
             / len(resource_utilizations),
-            avg_waiting_time=global_kpis.waiting_time.avg,
-            avg_batching_waiting_time=(
-                waiting_time_canvas.groupby("case")["waiting_time_batching_seconds"]
-                .sum()
-                .mean()
-                or 0
-            ),
-            waiting_time_per_resource=(
-                waiting_time_canvas.groupby("resource")["waiting_time_batching_seconds"]
-                .sum()
-                .fillna(0)
-                .to_dict()
-            ),
+            avg_waiting_time_by_case=global_kpis.waiting_time.avg,
             is_empty=not cases,
             resource_utilizations=resource_utilizations,
             resource_worked_times={
@@ -400,18 +380,22 @@ class Evaluation:
                 cases
             ),
             task_execution_counts=Evaluation.get_task_execution_counts(cases),
-            waiting_time_canvas=waiting_time_canvas,
             enablement_weekdays=Evaluation.get_enablement_weekdays(cases),
-        )
-
-    def __str__(self) -> str:
-        return f"Cycle Time: {self.total_cycle_time}, Cost: {self.total_cost_for_available_time}, Waiting Time: {self.total_waiting_time}"
-
-    # Is this evaluation dominated by another evaluation?
-    # (Taking only the total cost & total cycle time into account)
-    def is_dominated_by(self, other: "Evaluation") -> bool:
-        """Check if this evaluation is dominated by another evaluation."""
-        return (
-            other.total_cost_for_available_time < self.total_cost_for_available_time
-            and other.total_cycle_time < self.total_cycle_time
+            avg_batching_waiting_time_per_task=(
+                waiting_time_canvas.groupby("task")["waiting_time_batching_seconds"]
+                .avg()
+                .to_dict()
+            ),
+            total_batching_waiting_time_per_task=(
+                waiting_time_canvas.groupby("task")["waiting_time_batching_seconds"]
+                .sum()
+                .fillna(0)
+                .to_dict()
+            ),
+            avg_batching_waiting_time_by_case=(
+                waiting_time_canvas["waiting_time_batching_seconds"].mean()
+            ),
+            total_batching_waiting_time=(
+                waiting_time_canvas["waiting_time_batching_seconds"].sum()
+            ),
         )
