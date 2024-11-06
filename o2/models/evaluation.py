@@ -34,6 +34,10 @@ class Evaluation:
 
     hourly_rates: HourlyRates
 
+    global_kpis: KPIMap
+    task_kpis: dict[str, KPIMap]
+    resource_kpis: dict[str, ResourceKPI]
+
     total_cost: float
     """Get the total cost of the simulation.
 
@@ -99,12 +103,17 @@ class Evaluation:
     is_empty: bool
     """Is this evaluation based on an empty simulation run?"""
 
-    global_kpis: KPIMap
-    task_kpis: dict[str, KPIMap]
-    resource_kpis: dict[str, ResourceKPI]
     task_execution_count_with_wt_or_it: dict[str, int]
+    """Get the count each task was executed with a waiting or idle time."""
+
     task_execution_counts: dict[str, int]
-    enablement_weekdays: dict[str, dict[DAY, int]]
+    """Get the count each task was executed"""
+
+    task_enablement_weekdays: dict[str, dict[DAY, dict[int, int]]]
+    """Get the weekdays & hours on which a task was enabled."""
+
+    task_started_weekdays: dict[str, dict[DAY, dict[int, int]]]
+    """Get the weekdays & hours on which a task was started."""
 
     def get_avg_waiting_time_of_task_id(self, task_id: str, store: "Store") -> float:
         """Get the average waiting time of a task."""
@@ -146,8 +155,8 @@ class Evaluation:
         return [
             day
             for day, _ in sorted(
-                self.enablement_weekdays[task_name].items(),
-                key=lambda x: x[1],
+                self.task_enablement_weekdays[task_name].items(),
+                key=lambda x: sum(x[1].values()),
                 reverse=True,
             )
         ]
@@ -225,11 +234,11 @@ class Evaluation:
         return f"Cycle Time: {self.total_cycle_time}, Cost: {self.total_cost_for_available_time}, Waiting Time: {self.total_waiting_time}"  # noqa: E501
 
     @staticmethod
-    def get_enablement_weekdays(
+    def get_task_enablement_weekdays(
         cases: list[Trace],
-    ) -> dict[str, dict[DAY, int]]:
-        """Get the weekdays on which a task was enabled."""
-        weekdays: dict[str, dict[DAY, int]] = {}
+    ) -> dict[str, dict[DAY, dict[int, int]]]:
+        """Get the weekdays & time of day on which a task was enabled."""
+        weekdays: dict[str, dict[DAY, dict[int, int]]] = {}
         for case in cases:
             event_list: list[TaskEvent] = case.event_list
             for event in event_list:
@@ -238,9 +247,34 @@ class Evaluation:
                 if event.enabled_datetime is None:
                     continue
                 weekday = event.enabled_datetime.strftime("%A").upper()
-                weekdays[event.task_id][DAY(weekday)] = (
-                    weekdays[event.task_id].get(DAY(weekday), 0) + 1
-                )
+                hour = event.enabled_datetime.hour
+                if weekday not in weekdays[event.task_id]:
+                    weekdays[event.task_id][DAY(weekday)] = {}
+                if hour not in weekdays[event.task_id][DAY(weekday)]:
+                    weekdays[event.task_id][DAY(weekday)][hour] = 0
+                weekdays[event.task_id][DAY(weekday)][hour] += 1
+        return weekdays
+
+    @staticmethod
+    def get_task_started_at_weekdays(
+        cases: list[Trace],
+    ) -> dict[str, dict[DAY, dict[int, int]]]:
+        """Get the weekdays & time of day on which a task was started."""
+        weekdays: dict[str, dict[DAY, dict[int, int]]] = {}
+        for case in cases:
+            event_list: list[TaskEvent] = case.event_list
+            for event in event_list:
+                if event.task_id not in weekdays:
+                    weekdays[event.task_id] = {}
+                if event.started_datetime is None:
+                    continue
+                weekday = event.started_datetime.strftime("%A").upper()
+                hour = event.started_datetime.hour
+                if weekday not in weekdays[event.task_id]:
+                    weekdays[event.task_id][DAY(weekday)] = {}
+                if hour not in weekdays[event.task_id][DAY(weekday)]:
+                    weekdays[event.task_id][DAY(weekday)][hour] = 0
+                weekdays[event.task_id][DAY(weekday)][hour] += 1
         return weekdays
 
     @staticmethod
@@ -311,7 +345,8 @@ class Evaluation:
             task_execution_count_with_wt_or_it={},
             task_execution_count_by_resource={},
             task_execution_counts={},
-            enablement_weekdays={},
+            task_enablement_weekdays={},
+            task_started_weekdays={},
             avg_batching_waiting_time_per_task={},
             total_batching_waiting_time_per_task={},
             avg_batching_waiting_time_by_case=0,
@@ -380,7 +415,8 @@ class Evaluation:
                 cases
             ),
             task_execution_counts=Evaluation.get_task_execution_counts(cases),
-            enablement_weekdays=Evaluation.get_enablement_weekdays(cases),
+            task_enablement_weekdays=Evaluation.get_task_enablement_weekdays(cases),
+            task_started_weekdays=Evaluation.get_task_started_at_weekdays(cases),
             avg_batching_waiting_time_per_task=(
                 waiting_time_canvas.groupby("task")["waiting_time_batching_seconds"]
                 .avg()
