@@ -98,7 +98,7 @@ class Settings:
     base solution.E.g. in the PPO Training.
     """
 
-    sa_cooling_factor = 0.90
+    sa_cooling_factor = 0.999
     """The cooling factor for the simulated annealing agent."""
 
     sa_initial_temperature = 10_000_000_000

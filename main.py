@@ -2,9 +2,9 @@ import json
 import xml.etree.ElementTree as ElementTree
 
 import o2.hill_climber
-from o2.models.settings import AgentType
 import o2.store
 from o2.models.constraints import ConstraintsType
+from o2.models.settings import AgentType
 from o2.models.timetable import TimetableType
 
 

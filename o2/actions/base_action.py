@@ -7,7 +7,6 @@ from typing import (
     Generator,
     Optional,
     Tuple,
-    TypeAlias,
 )
 
 from dataclass_wizard import JSONSerializable, JSONWizard
@@ -20,7 +19,7 @@ if TYPE_CHECKING:
     from o2.store import State, Store
 
 
-ActionRatingTuple: TypeAlias = Tuple["RATING", Optional["BaseAction"]]
+ActionRatingTuple = Tuple["RATING", Optional["BaseAction"]]
 RateSelfReturnType = Generator[ActionRatingTuple, bool, Optional[ActionRatingTuple]]
 
 
