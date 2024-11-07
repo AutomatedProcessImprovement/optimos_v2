@@ -256,13 +256,13 @@ class _JSONSolution(JSONWizard):
             is_base_solution=solution.is_base_solution,
             solution_no=store.solution_tree.get_index_of_solution(solution),
             global_info=_JSONGlobalInfo(
-                average_cost=evaluation.avg_cost,
-                average_time=evaluation.avg_cycle_time,
-                average_resource_utilization=evaluation.avg_resource_utilization,
+                average_cost=evaluation.avg_cost_by_case,
+                average_time=evaluation.avg_cycle_time_by_case,
+                average_resource_utilization=evaluation.avg_resource_utilization_by_case,
                 total_cost=evaluation.total_cost_for_available_time,
                 total_time=evaluation.total_cycle_time,
-                average_batching_waiting_time=evaluation.avg_batching_waiting_time,
-                average_waiting_time=evaluation.avg_waiting_time,
+                average_batching_waiting_time=evaluation.avg_batching_waiting_time_by_case,
+                average_waiting_time=evaluation.avg_waiting_time_by_case,
             ),
             resource_info={
                 resource.id: _JSONResourceInfo.from_resource(resource, solution, store)

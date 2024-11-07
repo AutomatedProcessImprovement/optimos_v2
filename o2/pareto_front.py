@@ -40,7 +40,9 @@ class ParetoFront:
     @property
     def avg_cycle_time(self) -> float:
         """Return the average cycle time of the front."""
-        return sum(s.evaluation.avg_cycle_time for s in self.solutions) / self.size
+        return (
+            sum(s.evaluation.avg_cycle_time_by_case for s in self.solutions) / self.size
+        )
 
     @property
     def avg_total_cycle_time(self) -> float:
@@ -50,7 +52,7 @@ class ParetoFront:
     @property
     def avg_cost(self) -> float:
         """Return the average cost of the front."""
-        return sum(s.evaluation.avg_cost for s in self.solutions) / self.size
+        return sum(s.evaluation.avg_cost_by_case for s in self.solutions) / self.size
 
     @property
     def avg_total_cost_for_available_time(self) -> float:
