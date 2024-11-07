@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Literal
 
@@ -16,7 +17,6 @@ from o2.models.timetable import (
     BatchingRule,
     Distribution,
     FiringRule,
-    rule_is_size,
 )
 from o2.store import Store
 
@@ -24,22 +24,22 @@ MARGIN_OF_ERROR = 0.03
 SIZE_OF_CHANGE = 1
 
 
-class ModifySizeRuleActionParamsType(BatchingRuleActionParamsType):
-    """Parameter for ModifySizeRuleAction."""
+class ModifySizeRuleBaseActionParamsType(BatchingRuleActionParamsType):
+    """Parameter for ModifySizeRuleBaseAction."""
 
     size_increment: int
     duration_fn: str
 
 
 @dataclass(frozen=True)
-class ModifySizeRuleAction(BatchingRuleAction, str=False):
-    """ModifySizeRuleAction will modify the size of a BatchingRule.
+class ModifySizeRuleBaseAction(BatchingRuleAction, ABC, str=False):
+    """ModifySizeRuleBaseAction will modify the size of a BatchingRule.
 
     This will effect the size distribution and the duration distribution of the rule,
     as well as the firing rule.
     """
 
-    params: ModifySizeRuleActionParamsType
+    params: ModifySizeRuleBaseActionParamsType
 
     def apply(self, state: State, enable_prints: bool = True) -> State:
         """Create a copy of the timetable with the rule size modified."""
@@ -114,69 +114,11 @@ class ModifySizeRuleAction(BatchingRuleAction, str=False):
         )
 
     @staticmethod
+    @abstractmethod
     def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
-        """Create a "optimal" action & it's rating."""
-        rule_selector = input.most_impactful_rule
-        evaluation = input.most_impactful_rule_evaluation
-        if rule_selector is None or evaluation is None:
-            return
+        pass
 
-        firing_rule = rule_selector.get_firing_rule_from_state(store.base_state)
-
-        if not rule_is_size(firing_rule):
-            return
-
-        # TODO Get current fastest evaluation by task
-        base_evaluation = store.current_evaluation
-
-        base_avg_waiting_time = base_evaluation.get_avg_waiting_time_of_task_id(
-            rule_selector.batching_rule_task_id, store
-        )
-        new_avg_waiting_time = evaluation.get_avg_waiting_time_of_task_id(
-            rule_selector.batching_rule_task_id, store
-        )
-
-        # This rule does reduce the waiting time, not increment it
-        if new_avg_waiting_time > base_avg_waiting_time:
-            size_increment = SIZE_OF_CHANGE
-            # If the change is only very small, we don't want to apply it
-            if 1 - (base_avg_waiting_time / new_avg_waiting_time) < MARGIN_OF_ERROR:
-                return
-        else:
-            size_increment = -1 * SIZE_OF_CHANGE
-            # If the change is only very small, we don't want to apply it
-            if 1 - (new_avg_waiting_time / base_avg_waiting_time) < MARGIN_OF_ERROR:
-                return
-
-        new_size = firing_rule.value + size_increment
-
-        if new_size < 1:
-            # We don't want to go below 1, here the remove rule action should be used
-            return
-
-        constraints = store.constraints.get_batching_size_rule_constraints(
-            rule_selector.batching_rule_task_id
-        )
-
-        max_allowed_min_size = max(
-            [constraint.min_size for constraint in constraints], default=1
-        )
-        min_allowed_max_size = min(
-            [constraint.max_size for constraint in constraints], default=1
-        )
-
-        # Decrementing the size would break the constraints
-        if new_size < max_allowed_min_size or new_size > min_allowed_max_size:
-            return
-
-        yield (
-            RATING.MEDIUM,
-            ModifySizeRuleAction(
-                ModifySizeRuleActionParamsType(
-                    size_increment=size_increment,
-                    # TODO: Don't arbitrarily choose duration fn [0]
-                    duration_fn=constraints[0].duration_fn,
-                    rule=rule_selector,
-                )
-            ),
-        )
+    @staticmethod
+    def get_default_rating(store: "Store") -> RATING:
+        """Return the default rating for this action."""
+        return RATING.MEDIUM

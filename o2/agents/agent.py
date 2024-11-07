@@ -12,9 +12,6 @@ from o2.actions.modify_calendar_by_wt_action import ModifyCalendarByWTAction
 from o2.actions.modify_daily_hour_rule_action import ModifyDailyHourRuleAction
 from o2.actions.modify_large_wt_rule_action import ModifyLargeWtRuleAction
 from o2.actions.modify_ready_wt_rule_action import ModifyReadyWtRuleAction
-from o2.actions.modify_size_rule_action import (
-    ModifySizeRuleAction,
-)
 from o2.actions.remove_resource_by_cost_action import (
     RemoveResourceByCostAction,
 )
@@ -26,7 +23,7 @@ from o2.actions.remove_rule_action import (
 )
 from o2.models.self_rating import RATING
 from o2.models.solution import Solution
-from o2.store import Store, SolutionTry
+from o2.store import SolutionTry, Store
 
 ACTION_CATALOG: list[Type[BaseAction]] = [
     AddResourceAction,
@@ -37,7 +34,6 @@ ACTION_CATALOG: list[Type[BaseAction]] = [
     ModifyDailyHourRuleAction,
     ModifyLargeWtRuleAction,
     ModifyReadyWtRuleAction,
-    ModifySizeRuleAction,
     RemoveResourceByCostAction,
     RemoveResourceByUtilizationAction,
     RemoveRuleAction,

@@ -577,9 +577,57 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
             ),
         )
 
-    def get_batching_rules_for_task(self, task_id: str) -> List[BatchingRule]:
+    def get_batching_rules_for_task(
+        self, task_id: str, batch_type: Optional[BATCH_TYPE] = None
+    ) -> List[BatchingRule]:
         """Get all batching rules for a task."""
-        return [rule for rule in self.batch_processing if rule.task_id == task_id]
+        return [
+            rule
+            for rule in self.batch_processing
+            if rule.task_id == task_id and (type is None or rule.type == batch_type)
+        ]
+
+    def get_batching_rules_for_tasks(
+        self, task_ids: List[str], batch_type: Optional[BATCH_TYPE] = None
+    ) -> List[BatchingRule]:
+        """Get all batching rules for a list of tasks."""
+        return [
+            rule
+            for rule in self.batch_processing
+            if rule.task_id in task_ids and (type is None or rule.type == batch_type)
+        ]
+
+    def get_firing_rules_for_task(
+        self,
+        task_id: str,
+        batch_type: Optional[BATCH_TYPE] = None,
+        rule_type: Optional[RULE_TYPE] = None,
+    ) -> List[FiringRule]:
+        """Get all firing rules for a task."""
+        return [
+            firing_rule
+            for batching_rule in self.get_batching_rules_for_tasks(
+                [task_id], batch_type
+            )
+            for firing_rules in batching_rule.firing_rules
+            for firing_rule in firing_rules
+            if rule_type is None or firing_rule.attribute == rule_type
+        ]
+
+    def get_firing_rules_for_tasks(
+        self,
+        task_ids: List[str],
+        batch_type: Optional[BATCH_TYPE] = None,
+        rule_type: Optional[RULE_TYPE] = None,
+    ) -> List[FiringRule]:
+        """Get all firing rules for a list of tasks."""
+        return [
+            firing_rule
+            for batching_rule in self.get_batching_rules_for_tasks(task_ids, batch_type)
+            for firing_rules in batching_rule.firing_rules
+            for firing_rule in firing_rules
+            if rule_type is None or firing_rule.attribute == rule_type
+        ]
 
     def get_resource(self, resource_name: str) -> Optional[Resource]:
         """Get resource (from resource_profiles) with the given name.

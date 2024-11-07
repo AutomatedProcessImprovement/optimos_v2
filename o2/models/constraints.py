@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from dataclasses import dataclass, field, replace
 from enum import Enum
 from typing import TYPE_CHECKING, List, Optional, TypeGuard, Union
@@ -6,6 +7,7 @@ from dataclass_wizard import JSONWizard
 
 from o2.models.days import DAY
 from o2.models.legacy_constraints import ConstraintsResourcesItem, ResourceConstraints
+from o2.models.timetable import COMPARATOR, FiringRule
 from o2.util.helper import name_is_clone_of
 
 if TYPE_CHECKING:
@@ -28,23 +30,62 @@ class RULE_TYPE(str, Enum):
 
 
 @dataclass(frozen=True)
-class BatchingConstraints(JSONWizard):
+class BatchingConstraints(JSONWizard, ABC):
     id: str
     tasks: list[str]
     batch_type: BATCH_TYPE
     rule_type: RULE_TYPE
 
+    @abstractmethod
+    def verify_timetable(self, timetable: "TimetableType") -> bool:
+        """Check if the timetable is valid against the constraints."""
+        pass
+
 
 @dataclass(frozen=True)
 class SizeRuleConstraints(BatchingConstraints, JSONWizard):
     duration_fn: str
-    min_size: int
-    max_size: int
+    min_size: Optional[int]
+    max_size: Optional[int]
 
     class _(JSONWizard.Meta):
         key_transform_with_dump = "SNAKE"
         tag = RULE_TYPE.SIZE.value
         tag_key = "rule_type"
+
+    def verify_timetable(self, timetable: "TimetableType") -> bool:
+        """Check if the timetable is valid against the constraints."""
+        rules: list[FiringRule[int]] = timetable.get_firing_rules_for_tasks(
+            self.tasks, rule_type=RULE_TYPE.SIZE, batch_type=self.batch_type
+        )
+        return all(self._verify_firing_rule(rule) for rule in rules)
+
+    def _verify_firing_rule(self, firing_rule: FiringRule[int]) -> bool:
+        """Check if the firing rule is valid against the constraints."""
+        # Special case: If the rule is a <(=) min size, it is invalid if min size is set
+        if (
+            self.min_size
+            and self.min_size > 0
+            and (
+                firing_rule.comparison == COMPARATOR.LESS_THEN
+                or firing_rule.comparison == COMPARATOR.LESS_THEN_OR_EQUAL
+            )
+        ):
+            return False
+
+        # Special case: If the rule is a >(=) max size, it is invalid if max size is set
+        if self.max_size and (
+            firing_rule.comparison == COMPARATOR.GREATER_THEN
+            or firing_rule.comparison == COMPARATOR.GREATER_THEN_OR_EQUAL
+        ):
+            return False
+
+        if (self.min_size and firing_rule.value < self.min_size) or (
+            self.max_size and firing_rule.value > self.max_size
+        ):
+            return False
+
+        return True
 
 
 @dataclass(frozen=True)
@@ -57,6 +98,40 @@ class ReadyWtRuleConstraints(BatchingConstraints, JSONWizard):
         tag = RULE_TYPE.READY_WT.value
         tag_key = "rule_type"
 
+    def verify_timetable(self, timetable: "TimetableType") -> bool:
+        """Check if the timetable is valid against the constraints."""
+        rules: list[FiringRule[int]] = timetable.get_firing_rules_for_tasks(
+            self.tasks, rule_type=RULE_TYPE.READY_WT, batch_type=self.batch_type
+        )
+        return all(self._verify_firing_rule(rule) for rule in rules)
+
+    def _verify_firing_rule(self, firing_rule: FiringRule[int]) -> bool:
+        """Check if the firing rule is valid against the constraints."""
+        # Special case: If the rule is a <(=) min wt, it is invalid if min wt is set
+        if (
+            self.min_wt
+            and self.min_wt > 0
+            and (
+                firing_rule.comparison == COMPARATOR.LESS_THEN
+                or firing_rule.comparison == COMPARATOR.LESS_THEN_OR_EQUAL
+            )
+        ):
+            return False
+
+        # Special case: If the rule is a >(=) max wt, it is invalid if max wt is set
+        if self.max_wt and (
+            firing_rule.comparison == COMPARATOR.GREATER_THEN
+            or firing_rule.comparison == COMPARATOR.GREATER_THEN_OR_EQUAL
+        ):
+            return False
+
+        if (self.min_wt and firing_rule.value < self.min_wt) or (
+            self.max_wt and firing_rule.value > self.max_wt
+        ):
+            return False
+
+        return True
+
 
 @dataclass(frozen=True)
 class LargeWtRuleConstraints(BatchingConstraints, JSONWizard):
@@ -68,6 +143,40 @@ class LargeWtRuleConstraints(BatchingConstraints, JSONWizard):
         tag = RULE_TYPE.LARGE_WT.value
         tag_key = "rule_type"
 
+    def verify_timetable(self, timetable: "TimetableType") -> bool:
+        """Check if the timetable is valid against the constraints."""
+        rules: list[FiringRule[int]] = timetable.get_firing_rules_for_tasks(
+            self.tasks, rule_type=RULE_TYPE.LARGE_WT, batch_type=self.batch_type
+        )
+        return all(self._verify_firing_rule(rule) for rule in rules)
+
+    def _verify_firing_rule(self, firing_rule: FiringRule[int]) -> bool:
+        """Check if the firing rule is valid against the constraints."""
+        # Special case: If the rule is a <(=) min wt, it is invalid if min wt is set
+        if (
+            self.min_wt
+            and self.min_wt > 0
+            and (
+                firing_rule.comparison == COMPARATOR.LESS_THEN
+                or firing_rule.comparison == COMPARATOR.LESS_THEN_OR_EQUAL
+            )
+        ):
+            return False
+
+        # Special case: If the rule is a >(=) max wt, it is invalid if max wt is set
+        if self.max_wt and (
+            firing_rule.comparison == COMPARATOR.GREATER_THEN
+            or firing_rule.comparison == COMPARATOR.GREATER_THEN_OR_EQUAL
+        ):
+            return False
+
+        if (self.min_wt and firing_rule.value < self.min_wt) or (
+            self.max_wt and firing_rule.value > self.max_wt
+        ):
+            return False
+
+        return True
+
 
 @dataclass(frozen=True)
 class WeekDayRuleConstraints(BatchingConstraints, JSONWizard):
@@ -78,15 +187,38 @@ class WeekDayRuleConstraints(BatchingConstraints, JSONWizard):
         tag = RULE_TYPE.LARGE_WT.value
         tag_key = "rule_type"
 
+    def verify_timetable(self, timetable: "TimetableType") -> bool:
+        """Check if the timetable is valid against the constraints."""
+        rules: list[FiringRule[DAY]] = timetable.get_firing_rules_for_tasks(
+            self.tasks, rule_type=RULE_TYPE.WEEK_DAY, batch_type=self.batch_type
+        )
+        return all(self._verify_firing_rule(rule) for rule in rules)
+
+    def _verify_firing_rule(self, firing_rule: FiringRule[DAY]) -> bool:
+        """Check if the firing rule is valid against the constraints."""
+        return all(day in self.allowed_days for day in firing_rule.value)
+
 
 @dataclass(frozen=True)
 class DailyHourRuleConstraints(BatchingConstraints, JSONWizard):
-    allowed_hours: list[int]
+    allowed_hours: dict[DAY, list[int]]
 
     class _(JSONWizard.Meta):
         key_transform_with_dump = "SNAKE"
         tag = RULE_TYPE.DAILY_HOUR.value
         tag_key = "rule_type"
+
+    def verify_timetable(self, timetable: "TimetableType") -> bool:
+        """Check if the timetable is valid against the constraints."""
+        rules: list[FiringRule[int]] = timetable.get_firing_rules_for_tasks(
+            self.tasks, rule_type=RULE_TYPE.DAILY_HOUR, batch_type=self.batch_type
+        )
+        return all(self._verify_firing_rule(rule) for rule in rules)
+
+    def _verify_firing_rule(self, firing_rule: FiringRule[int]) -> bool:
+        """Check if the firing rule is valid against the constraints."""
+        # TODO: Implement this
+        pass
 
 
 def is_size_constraint(val: BatchingConstraints) -> TypeGuard[SizeRuleConstraints]:
@@ -159,6 +291,16 @@ class ConstraintsType(JSONWizard):
                 resource_constraints.verify_timetable(timetable)
                 for resource_constraints in self.resources
             )
+        )
+
+    def verify_batching_constraints(self, timetable: "TimetableType") -> bool:
+        """Check if the timetable is valid against the batching constraints.
+
+        Will check batching constraints for all firing rules.
+        """
+        return all(
+            constraint.verify_timetable(timetable)
+            for constraint in self.batching_constraints
         )
 
     def get_legacy_constraints_for_resource(

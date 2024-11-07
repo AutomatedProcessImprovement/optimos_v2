@@ -47,8 +47,10 @@ class BaseAction(JSONSerializable, ABC, str=False):
     def check_if_valid(self, store: "Store") -> bool:
         """Check if the action produces a valid state."""
         new_state = self.apply(store.current_state, enable_prints=False)
-        return new_state.is_valid() and store.constraints.verify_legacy_constraints(
-            new_state.timetable
+        return (
+            new_state.is_valid()
+            and store.constraints.verify_legacy_constraints(new_state.timetable)
+            and store.constraints.verify_batching_constraints(new_state.timetable)
         )
 
     def __str__(self) -> str:
