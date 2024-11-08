@@ -1,10 +1,11 @@
 from dataclasses import dataclass
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 from dataclass_wizard import JSONWizard
 
-from o2.models.state import State
-from o2.models.timetable import BatchingRule, FiringRule
+if TYPE_CHECKING:
+    from o2.models.state import State
+    from o2.models.timetable import BatchingRule, FiringRule
 
 
 @dataclass(frozen=True)
@@ -17,7 +18,7 @@ class RuleSelector(JSONWizard):
 
     @staticmethod
     def from_batching_rule(
-        batching_rule: BatchingRule, firing_rule_index: Optional[tuple[int, int]]
+        batching_rule: "BatchingRule", firing_rule_index: Optional[tuple[int, int]]
     ):
         return RuleSelector(
             batching_rule_task_id=batching_rule.task_id,
@@ -29,7 +30,7 @@ class RuleSelector(JSONWizard):
         """Check if the selector has a firing rule."""
         return self.firing_rule_index is not None
 
-    def get_batching_rule_from_state(self, state: State) -> Optional[BatchingRule]:
+    def get_batching_rule_from_state(self, state: "State") -> Optional["BatchingRule"]:
         """Get a batching rule by rule selector."""
         return next(
             (
@@ -40,7 +41,7 @@ class RuleSelector(JSONWizard):
             None,
         )
 
-    def get_firing_rule_from_state(self, state: State) -> Optional[FiringRule]:
+    def get_firing_rule_from_state(self, state: "State") -> Optional["FiringRule"]:
         """Get a firing rule by rule selector."""
         if self.firing_rule_index is None:
             return None

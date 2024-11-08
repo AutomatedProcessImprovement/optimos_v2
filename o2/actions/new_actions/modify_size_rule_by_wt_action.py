@@ -36,7 +36,9 @@ class ModifySizeRuleByWTAction(ModifySizeRuleBaseAction):
             key=lambda x: x[1],
             reverse=True,
         )
-        for task_id, _ in sorted_tasks:
+        for task_id, waiting_time in sorted_tasks:
+            if (waiting_time) <= 0:
+                continue
             batching_rules = timetable.get_batching_rules_for_task(task_id)
             for batching_rule in batching_rules:
                 selectors = batching_rule.get_firing_rule_selectors(type=RULE_TYPE.SIZE)

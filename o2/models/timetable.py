@@ -27,8 +27,9 @@ from o2.util.bit_mask_helper import any_has_overlap, get_ranges_from_bitmask
 from o2.util.custom_dumper import CustomDumper, CustomLoader
 from o2.util.helper import CLONE_REGEX, hash_string, name_is_clone_of, random_string
 
+from o2.models.rule_selector import RuleSelector
+
 if TYPE_CHECKING:
-    from o2.models.rule_selector import RuleSelector
     from o2.models.state import State
     from o2.store import Store
 
@@ -596,7 +597,8 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
         return [
             rule
             for rule in self.batch_processing
-            if rule.task_id == task_id and (type is None or rule.type == batch_type)
+            if rule.task_id == task_id
+            and (batch_type is None or rule.type == batch_type)
         ]
 
     def get_batching_rules_for_tasks(
@@ -606,7 +608,8 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
         return [
             rule
             for rule in self.batch_processing
-            if rule.task_id in task_ids and (type is None or rule.type == batch_type)
+            if rule.task_id in task_ids
+            and (batch_type is None or rule.type == batch_type)
         ]
 
     def get_firing_rules_for_task(

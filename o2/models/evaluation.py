@@ -425,7 +425,8 @@ class Evaluation:
             task_started_weekdays=Evaluation.get_task_started_at_weekdays(cases),
             avg_batching_waiting_time_per_task=(
                 waiting_time_canvas.groupby("activity")["waiting_time_batching_seconds"]
-                .avg()
+                .mean()
+                .fillna(0)
                 .to_dict()
             ),
             total_batching_waiting_time_per_task=(

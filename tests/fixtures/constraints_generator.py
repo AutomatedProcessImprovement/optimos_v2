@@ -43,12 +43,10 @@ class ConstraintsGenerator:
         self, optimal_duration=5, optimal_duration_bonus=0.75, min_size=0, max_size=10
     ):
         self.constraints.batching_constraints.append(
-            SizeRuleConstraints(
-                id=self.SIMPLE_CONSTRAINT_ID + "_size",
-                tasks=[task.attrib["id"] for task in self.tasks],
-                batch_type=BATCH_TYPE.PARALLEL,
-                rule_type=RULE_TYPE.SIZE,
-                duration_fn=f"0.2*(size - {optimal_duration})**2 + {optimal_duration_bonus}",
+            self.size_constraint(
+                task_ids=[task.attrib["id"] for task in self.tasks],
+                optimal_duration=optimal_duration,
+                optimal_duration_bonus=optimal_duration_bonus,
                 min_size=min_size,
                 max_size=max_size,
             )
@@ -164,6 +162,24 @@ class ConstraintsGenerator:
             batch_type=BATCH_TYPE.PARALLEL,
             rule_type=RULE_TYPE.WEEK_DAY,
             allowed_days=allowed_days,
+        )
+
+    @staticmethod
+    def size_constraint(
+        task_ids: list[str],
+        optimal_duration=5,
+        optimal_duration_bonus=0.75,
+        min_size=0,
+        max_size=10,
+    ):
+        return SizeRuleConstraints(
+            id=ConstraintsGenerator.SIMPLE_CONSTRAINT_ID + "_size",
+            tasks=[task_id for task_id in task_ids],
+            batch_type=BATCH_TYPE.PARALLEL,
+            rule_type=RULE_TYPE.SIZE,
+            duration_fn=f"0.2*(size - {optimal_duration})**2 + {optimal_duration_bonus}",
+            min_size=min_size,
+            max_size=max_size,
         )
 
     def generate(self):
