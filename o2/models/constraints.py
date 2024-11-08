@@ -7,26 +7,11 @@ from dataclass_wizard import JSONWizard
 
 from o2.models.days import DAY
 from o2.models.legacy_constraints import ConstraintsResourcesItem, ResourceConstraints
-from o2.models.timetable import COMPARATOR, FiringRule
+from o2.models.timetable import BATCH_TYPE, COMPARATOR, RULE_TYPE, FiringRule
 from o2.util.helper import name_is_clone_of
 
 if TYPE_CHECKING:
     from o2.models.timetable import TimetableType
-
-
-class BATCH_TYPE(str, Enum):
-    SEQUENTIAL = "Sequential"  # one after another
-    CONCURRENT = "Concurrent"  # tasks are in progress simultaneously
-    # (executor changes the context between different tasks)
-    PARALLEL = "Parallel"  # tasks are being executed simultaneously
-
-
-class RULE_TYPE(str, Enum):
-    READY_WT = "ready_wt"
-    LARGE_WT = "large_wt"
-    DAILY_HOUR = "daily_hour"
-    WEEK_DAY = "week_day"
-    SIZE = "size"
 
 
 @dataclass(frozen=True)

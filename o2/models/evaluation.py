@@ -192,6 +192,12 @@ class Evaluation:
         """Get the number of times each task was executed by a given resource."""
         return self.task_execution_count_by_resource.get(resource_id, {})
 
+    def get_avg_cost_per_task(self) -> dict[str, float]:
+        """Get the average cost per task."""
+        return {
+            task_id: task_kpi.cost.avg for task_id, task_kpi in self.task_kpis.items()
+        }
+
     def get_resources_sorted_by_task_execution_count(self, task_id: str) -> list[str]:
         """Get a list of resource_ids, that executed the given task.
 
@@ -418,12 +424,12 @@ class Evaluation:
             task_enablement_weekdays=Evaluation.get_task_enablement_weekdays(cases),
             task_started_weekdays=Evaluation.get_task_started_at_weekdays(cases),
             avg_batching_waiting_time_per_task=(
-                waiting_time_canvas.groupby("task")["waiting_time_batching_seconds"]
+                waiting_time_canvas.groupby("activity")["waiting_time_batching_seconds"]
                 .avg()
                 .to_dict()
             ),
             total_batching_waiting_time_per_task=(
-                waiting_time_canvas.groupby("task")["waiting_time_batching_seconds"]
+                waiting_time_canvas.groupby("activity")["waiting_time_batching_seconds"]
                 .sum()
                 .fillna(0)
                 .to_dict()

@@ -8,31 +8,29 @@ from o2.models.timetable import RULE_TYPE
 from o2.store import Store
 
 
-class ModifySizeRuleByWTActionParamsType(ModifySizeRuleBaseActionParamsType):
-    """Parameter for ModifySizeRuleByWTAction."""
+class ModifySizeRuleByCostActionParamsType(ModifySizeRuleBaseActionParamsType):
+    """Parameter for ModifySizeRuleByCostAction."""
 
     pass
 
 
-class ModifySizeRuleByWTAction(ModifySizeRuleBaseAction):
-    """An Action to modify size batching rules based on waiting time.
+class ModifySizeRuleByCostAction(ModifySizeRuleBaseAction):
+    """An Action to modify size batching rules based on cost.
 
-    1. Gets the tasks with the most waiting time
+    1. Gets the tasks with the most cost
     2. Looks if theres a size rule for that task
-    3. If there is, it decrements the size by 1
+    3. If there is, it increments the size by 1
     """
 
-    params: ModifySizeRuleByWTActionParamsType
+    params: ModifySizeRuleByCostActionParamsType
 
     @staticmethod
     def rate_self(store: "Store", input: SelfRatingInput) -> RateSelfReturnType:
         """Generate a best set of parameters & self-evaluates this action."""
         timetable = store.current_timetable
-        avg_batching_waiting_time_per_task = (
-            store.current_evaluation.avg_batching_waiting_time_per_task
-        )
+
         sorted_tasks = sorted(
-            avg_batching_waiting_time_per_task.items(),
+            store.current_evaluation.get_avg_cost_per_task().items(),
             key=lambda x: x[1],
             reverse=True,
         )
@@ -47,10 +45,10 @@ class ModifySizeRuleByWTAction(ModifySizeRuleBaseAction):
                     duration_fn = "1" if not constraints else constraints[0].duration_fn
                     yield (
                         ModifySizeRuleBaseAction.get_default_rating(),
-                        ModifySizeRuleByWTAction(
-                            ModifySizeRuleByWTActionParamsType(
+                        ModifySizeRuleByCostAction(
+                            ModifySizeRuleByCostActionParamsType(
                                 rule=selector,
-                                size_increment=-1,
+                                size_increment=1,
                                 duration_fn=duration_fn,
                             )
                         ),

@@ -34,8 +34,22 @@ if TYPE_CHECKING:
 
 import operator
 
-from o2.models.constraints import BATCH_TYPE, RULE_TYPE, SizeRuleConstraints
 from o2.models.days import DAY, day_range, is_day_in_range
+
+
+class BATCH_TYPE(str, Enum):  # noqa: D101, N801
+    SEQUENTIAL = "Sequential"  # one after another
+    CONCURRENT = "Concurrent"  # tasks are in progress simultaneously
+    # (executor changes the context between different tasks)
+    PARALLEL = "Parallel"  # tasks are being executed simultaneously
+
+
+class RULE_TYPE(str, Enum):  # noqa: N801, D101
+    READY_WT = "ready_wt"
+    LARGE_WT = "large_wt"
+    DAILY_HOUR = "daily_hour"
+    WEEK_DAY = "week_day"
+    SIZE = "size"
 
 
 class COMPARATOR(str, Enum):
@@ -455,27 +469,25 @@ def rule_is_daily_hour(rule: Optional[FiringRule]) -> TypeGuard[FiringRule[int]]
 @dataclass(frozen=True)
 class BatchingRule(JSONWizard):
     task_id: str
-    type: BATCH_TYPE
+    type: "BATCH_TYPE"
     size_distrib: list[Distribution]
     duration_distrib: list[Distribution]
     firing_rules: OrRules
 
-    def can_be_modified(self, store: "Store", size_increment: int) -> bool:
-        matching_constraints = store.constraints.get_batching_constraints_for_task(
-            self.task_id
-        )
-
-        for constraint in matching_constraints:
-            if constraint is SizeRuleConstraints:
-                if constraint.min_size > int(self.size_distrib[0].key) + size_increment:
-                    return False
-                if constraint.max_size < int(self.size_distrib[0].key) + size_increment:
-                    return False
-        return True
-
     def id(self):
         # TODO Use a more performant hash function
         return hashlib.md5(str(dumps(asdict(self))).encode()).hexdigest()
+
+    def get_firing_rule_selectors(
+        self, type: Optional[RULE_TYPE] = None
+    ) -> List["RuleSelector"]:
+        """Get all firing rule selectors for the rule."""
+        return [
+            RuleSelector.from_batching_rule(self, (i, j))
+            for i, or_rules in enumerate(self.firing_rules)
+            for j, rule in enumerate(or_rules)
+            if type is None or rule.attribute == type
+        ]
 
     def get_firing_rule(self, rule_selector: "RuleSelector") -> Optional[FiringRule]:
         """Get a firing rule by rule selector."""
@@ -578,7 +590,7 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
         )
 
     def get_batching_rules_for_task(
-        self, task_id: str, batch_type: Optional[BATCH_TYPE] = None
+        self, task_id: str, batch_type: Optional["BATCH_TYPE"] = None
     ) -> List[BatchingRule]:
         """Get all batching rules for a task."""
         return [
@@ -588,7 +600,7 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
         ]
 
     def get_batching_rules_for_tasks(
-        self, task_ids: List[str], batch_type: Optional[BATCH_TYPE] = None
+        self, task_ids: List[str], batch_type: Optional["BATCH_TYPE"] = None
     ) -> List[BatchingRule]:
         """Get all batching rules for a list of tasks."""
         return [
@@ -600,7 +612,7 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
     def get_firing_rules_for_task(
         self,
         task_id: str,
-        batch_type: Optional[BATCH_TYPE] = None,
+        batch_type: Optional["BATCH_TYPE"] = None,
         rule_type: Optional[RULE_TYPE] = None,
     ) -> List[FiringRule]:
         """Get all firing rules for a task."""
@@ -617,7 +629,7 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
     def get_firing_rules_for_tasks(
         self,
         task_ids: List[str],
-        batch_type: Optional[BATCH_TYPE] = None,
+        batch_type: Optional["BATCH_TYPE"] = None,
         rule_type: Optional[RULE_TYPE] = None,
     ) -> List[FiringRule]:
         """Get all firing rules for a list of tasks."""

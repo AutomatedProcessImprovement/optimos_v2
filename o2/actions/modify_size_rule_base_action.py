@@ -119,6 +119,6 @@ class ModifySizeRuleBaseAction(BatchingRuleAction, ABC, str=False):
         pass
 
     @staticmethod
-    def get_default_rating(store: "Store") -> RATING:
+    def get_default_rating() -> RATING:
         """Return the default rating for this action."""
         return RATING.MEDIUM
