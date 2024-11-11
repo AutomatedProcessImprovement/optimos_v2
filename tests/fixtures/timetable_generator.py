@@ -69,53 +69,27 @@ class TimetableGenerator:
     def create_simple_resource_profile(self):
         """Create a simple resource profile with one resource.
         To be compatible with legacy Optimos, we we'll create one pool per task"""
-        self.timetable.resource_profiles.extend(
-            ResourcePool(
-                id=tasks.attrib["id"],
-                name="Base Resource Pool",
-                resource_list=[
-                    Resource(
-                        id=self.RESOURCE_ID,
-                        name=self.RESOURCE_ID,
-                        calendar=self.CALENDAR_ID,
-                        cost_per_hour=1,
-                        amount=1,
-                        assigned_tasks=[task.attrib["id"] for task in self.tasks],
-                    )
-                ],
-            )
-            for tasks in self.tasks
+        self.timetable = replace(
+            self.timetable,
+            resource_profiles=TimetableGenerator.resource_pools(self.task_ids),
         )
         return self
 
-    def create_simple_arrival_time_calendar(self, start=0, end=24):
-        self.timetable.arrival_time_calendar.append(
-            TimePeriod(
-                from_=DAY.MONDAY,
-                to=DAY.SUNDAY,
-                begin_time=f"{start}:00:00",
-                end_time="23:59:59" if end == 24 else f"{end}:00:00",
-            )
+    def create_simple_arrival_time_calendar(
+        self, start=0, end=23, include_end_hour=True
+    ):
+        self.timetable = replace(
+            self.timetable,
+            arrival_time_calendar=TimetableGenerator.arrival_time_calendar(
+                start, end, include_end_hour=include_end_hour
+            ),
         )
         return self
 
     def create_simple_arrival_time_distribution(self, min=60, max=60):
         self.timetable = replace(
             self.timetable,
-            arrival_time_distribution=ArrivalTimeDistribution(
-                distribution_name=DISTRIBUTION_TYPE.FIXED,
-                distribution_params=[
-                    DistributionParameter(value=min),
-                ],
-            )
-            if min == max
-            else ArrivalTimeDistribution(
-                distribution_name=DISTRIBUTION_TYPE.UNIFORM,
-                distribution_params=[
-                    DistributionParameter(value=min),
-                    DistributionParameter(value=max),
-                ],
-            ),
+            arrival_time_distribution=self.arrival_time_distribution(min, max),
         )
         return self
 
@@ -131,7 +105,7 @@ class TimetableGenerator:
     def create_simple_resource_calendars(self):
         self.timetable = replace(
             self.timetable,
-            resource_calendars=TimetableGenerator.resource_calendars(),
+            resource_calendars=TimetableGenerator.resource_calendars(0, 23, True),
         )
         return self
 
@@ -157,7 +131,7 @@ class TimetableGenerator:
         return self
 
     @staticmethod
-    def resource_calendars(begin_hour=0, end_hour=23, include_end_hour=True):
+    def resource_calendars(begin_hour=9, end_hour=17, include_end_hour=False):
         return [
             ResourceCalendar(
                 id=TimetableGenerator.CALENDAR_ID,
@@ -410,6 +384,59 @@ class TimetableGenerator:
                 ],
             )
             for task_id in task_ids
+        ]
+
+    @staticmethod
+    def resource_pools(
+        task_ids: list[str],
+        cost_per_hour: int = 1,
+    ):
+        return [
+            ResourcePool(
+                id=task_id,
+                name="Base Resource Pool",
+                resource_list=[
+                    Resource(
+                        id=TimetableGenerator.RESOURCE_ID,
+                        name=TimetableGenerator.RESOURCE_ID,
+                        calendar=TimetableGenerator.CALENDAR_ID,
+                        cost_per_hour=cost_per_hour,
+                        amount=1,
+                        assigned_tasks=[task_id for task_id in task_ids],
+                    )
+                ],
+            )
+            for task_id in task_ids
+        ]
+
+    @staticmethod
+    def arrival_time_distribution(min=60, max=60):
+        return (
+            ArrivalTimeDistribution(
+                distribution_name=DISTRIBUTION_TYPE.FIXED,
+                distribution_params=[
+                    DistributionParameter(value=min),
+                ],
+            )
+            if min == max
+            else ArrivalTimeDistribution(
+                distribution_name=DISTRIBUTION_TYPE.UNIFORM,
+                distribution_params=[
+                    DistributionParameter(value=min),
+                    DistributionParameter(value=max),
+                ],
+            )
+        )
+
+    @staticmethod
+    def arrival_time_calendar(start=9, end=17, include_end_hour=False):
+        return [
+            TimePeriod(
+                from_=DAY.MONDAY,
+                to=DAY.SUNDAY,
+                begin_time=f"{start:02}:00:00",
+                end_time=f"{end:02}:" + ("59:59" if include_end_hour else "00:00"),
+            )
         ]
 
     def generate_simple(self, include_batching=False):
