@@ -3,7 +3,12 @@ import random
 from typing import Optional
 
 from o2.actions.base_action import BaseAction
-from o2.agents.agent import ACTION_CATALOG, ACTION_CATALOG_LEGACY, Agent
+from o2.agents.agent import (
+    ACTION_CATALOG,
+    ACTION_CATALOG_BATCHING_ONLY,
+    ACTION_CATALOG_LEGACY,
+    Agent,
+)
 from o2.agents.tabu_agent import TabuAgent
 from o2.models.self_rating import SelfRatingInput
 from o2.models.solution import Solution
@@ -38,6 +43,8 @@ class SimulatedAnnealingAgent(Agent):
             catalog = (
                 ACTION_CATALOG_LEGACY
                 if store.settings.optimos_legacy_mode
+                else ACTION_CATALOG_BATCHING_ONLY
+                if store.settings.batching_only
                 else ACTION_CATALOG
             )
             # Get a list rating generators for all actions

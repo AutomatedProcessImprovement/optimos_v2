@@ -39,6 +39,9 @@ class Settings:
     optimos_legacy_mode = False
     """Should this application behave like an approximation of the original OPTIMOS?"""
 
+    batching_only = False
+    """Should only batching rules be optimized?"""
+
     only_allow_low_last = True
     """Should `low` rated Actions be tried last?
 

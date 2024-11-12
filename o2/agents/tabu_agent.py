@@ -9,6 +9,7 @@ from o2.actions.remove_rule_action import (
 )
 from o2.agents.agent import (
     ACTION_CATALOG,
+    ACTION_CATALOG_BATCHING_ONLY,
     ACTION_CATALOG_LEGACY,
     Agent,
 )
@@ -38,6 +39,8 @@ class TabuAgent(Agent):
             catalog = (
                 ACTION_CATALOG_LEGACY
                 if store.settings.optimos_legacy_mode
+                else ACTION_CATALOG_BATCHING_ONLY
+                if store.settings.batching_only
                 else ACTION_CATALOG
             )
             # Get a list rating generators for all actions
