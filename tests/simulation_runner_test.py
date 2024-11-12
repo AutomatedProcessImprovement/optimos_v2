@@ -13,10 +13,12 @@ def test_simulation_runner(simple_state: State):
     )
 
     evaluation = Evaluation.from_run_simulation_result(
-        simple_state.timetable.get_hourly_rates(), result
+        simple_state.timetable.get_hourly_rates(),
+        simple_state.timetable.get_fixed_cost_fns(),
+        result,
     )
 
     # Sanity checks
     assert evaluation.total_cycle_time > 0
-    assert evaluation.total_cost_for_available_time > 0
+    assert evaluation.total_cost > 0
     assert evaluation.total_waiting_time > 0

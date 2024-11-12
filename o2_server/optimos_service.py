@@ -41,6 +41,9 @@ class OptimosService:
             timetable=timetable,
         )
 
+        if config["num_cases"] is not None and config["num_cases"] > 0:
+            initial_state.replace_timetable(total_cases=config["num_cases"])
+
         store = Store.from_state_and_constraints(
             initial_state,
             constraints,

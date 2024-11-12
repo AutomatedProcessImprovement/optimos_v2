@@ -39,7 +39,9 @@ class State:
         """Evaluate the current state."""
         result = SimulationRunner.run_simulation(self, show_simulation_errors)
         return Evaluation.from_run_simulation_result(
-            self.timetable.get_hourly_rates(), result
+            self.timetable.get_hourly_rates(),
+            self.timetable.get_fixed_cost_fns(),
+            result,
         )
 
     def to_sim_diff_setup(self) -> SimDiffSetup:
@@ -49,7 +51,7 @@ class State:
             self.bpmn_definition,
             self.timetable,
             False,
-            1000 if not self.for_testing else 100,
+            self.timetable.total_cases,
         )
         if self.for_testing:
             # For testing we start on 03.01.2000, a Monday
