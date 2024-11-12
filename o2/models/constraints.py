@@ -75,6 +75,8 @@ class SizeRuleConstraints(BatchingConstraints, JSONWizard):
 
 @dataclass(frozen=True)
 class ReadyWtRuleConstraints(BatchingConstraints, JSONWizard):
+    """Ready waiting time rule constraints for batching."""
+
     min_wt: int
     max_wt: int
 
@@ -120,6 +122,8 @@ class ReadyWtRuleConstraints(BatchingConstraints, JSONWizard):
 
 @dataclass(frozen=True)
 class LargeWtRuleConstraints(BatchingConstraints, JSONWizard):
+    """Large waiting time rule constraints for batching."""
+
     min_wt: int
     max_wt: int
 
@@ -165,6 +169,8 @@ class LargeWtRuleConstraints(BatchingConstraints, JSONWizard):
 
 @dataclass(frozen=True)
 class WeekDayRuleConstraints(BatchingConstraints, JSONWizard):
+    """Week day rule constraints for batching."""
+
     allowed_days: list[DAY]
 
     class _(JSONWizard.Meta):
@@ -186,6 +192,8 @@ class WeekDayRuleConstraints(BatchingConstraints, JSONWizard):
 
 @dataclass(frozen=True)
 class DailyHourRuleConstraints(BatchingConstraints, JSONWizard):
+    """Daily hour rule constraints for batching."""
+
     allowed_hours: dict[DAY, list[int]]
 
     class _(JSONWizard.Meta):
@@ -203,39 +211,59 @@ class DailyHourRuleConstraints(BatchingConstraints, JSONWizard):
     def _verify_firing_rule(self, firing_rule: FiringRule[int]) -> bool:
         """Check if the firing rule is valid against the constraints."""
         # TODO: Implement this
-        pass
+        return True
+
+    @staticmethod
+    def allow_all(
+        tasks: list[str], batch_type: BATCH_TYPE = BATCH_TYPE.PARALLEL
+    ) -> "DailyHourRuleConstraints":
+        """Create a daily hour rule constraint that allows all hours."""
+        return DailyHourRuleConstraints(
+            id="allow_all",
+            tasks=tasks,
+            batch_type=BATCH_TYPE.PARALLEL,
+            rule_type=RULE_TYPE.DAILY_HOUR,
+            allowed_hours={day: list(range(24)) for day in DAY},
+        )
 
 
 def is_size_constraint(val: BatchingConstraints) -> TypeGuard[SizeRuleConstraints]:
+    """Check if the constraint is a size constraint."""
     return val.rule_type == RULE_TYPE.SIZE
 
 
 def is_ready_wt_constraint(
     val: BatchingConstraints,
 ) -> TypeGuard[ReadyWtRuleConstraints]:
+    """Check if the constraint is a ready waiting time constraint."""
     return val.rule_type == RULE_TYPE.READY_WT
 
 
 def is_large_wt_constraint(
     val: BatchingConstraints,
 ) -> TypeGuard[LargeWtRuleConstraints]:
+    """Check if the constraint is a large waiting time constraint."""
     return val.rule_type == RULE_TYPE.LARGE_WT
 
 
 def is_week_day_constraint(
     val: BatchingConstraints,
 ) -> TypeGuard[WeekDayRuleConstraints]:
+    """Check if the constraint is a week day constraint."""
     return val.rule_type == RULE_TYPE.WEEK_DAY
 
 
 def is_daily_hour_constraint(
     val: BatchingConstraints,
 ) -> TypeGuard[DailyHourRuleConstraints]:
+    """Check if the constraint is a daily hour constraint."""
     return val.rule_type == RULE_TYPE.DAILY_HOUR
 
 
 @dataclass(frozen=True)
 class ConstraintsType(JSONWizard):
+    """Global Constraints Type including resource timetable and batching constraints."""
+
     # TODO: Add more constraints here
     batching_constraints: List[
         Union[
@@ -262,6 +290,7 @@ class ConstraintsType(JSONWizard):
 
     class _(JSONWizard.Meta):
         key_transform_with_dump = "SNAKE"
+        tag_key = "rule_type"
 
     def verify_legacy_constraints(self, timetable: "TimetableType") -> bool:
         """Check if the timetable is valid against the constraints.
@@ -306,6 +335,7 @@ class ConstraintsType(JSONWizard):
         )
 
     def get_batching_constraints_for_task(self, task: str) -> list[BatchingConstraints]:
+        """Get the batching constraints for a specific task."""
         return [
             constraint
             for constraint in self.batching_constraints
@@ -315,6 +345,7 @@ class ConstraintsType(JSONWizard):
     def get_batching_size_rule_constraints(
         self, task_id: str
     ) -> list[SizeRuleConstraints]:
+        """Get the size rule constraints for a specific task."""
         return [
             constraint
             for constraint in self.batching_constraints
@@ -324,6 +355,7 @@ class ConstraintsType(JSONWizard):
     def get_batching_ready_wt_rule_constraints(
         self, task_id: str
     ) -> list[ReadyWtRuleConstraints]:
+        """Get the ready waiting time rule constraints for a specific task."""
         return [
             constraint
             for constraint in self.batching_constraints
@@ -333,6 +365,7 @@ class ConstraintsType(JSONWizard):
     def get_batching_large_wt_rule_constraints(
         self, task_id: str
     ) -> list[LargeWtRuleConstraints]:
+        """Get the large waiting time rule constraints for a specific task."""
         return [
             constraint
             for constraint in self.batching_constraints
@@ -342,6 +375,7 @@ class ConstraintsType(JSONWizard):
     def get_week_day_rule_constraints(
         self, task_id: str
     ) -> list[WeekDayRuleConstraints]:
+        """Get the week day rule constraints for a specific task."""
         return [
             constraint
             for constraint in self.batching_constraints
@@ -351,6 +385,7 @@ class ConstraintsType(JSONWizard):
     def get_daily_hour_rule_constraints(
         self, task_id: str
     ) -> list[DailyHourRuleConstraints]:
+        """Get the daily hour rule constraints for a specific task."""
         return [
             constraint
             for constraint in self.batching_constraints
