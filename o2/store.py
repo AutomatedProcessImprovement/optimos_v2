@@ -191,6 +191,9 @@ class Store:
         state: State, constraints: ConstraintsType
     ) -> "Store":
         """Create a new Store from a state and constraints."""
-        evaluation = state.evaluate()
-        solution = Solution(evaluation, state, None)
+        updated_state = replace(
+            state, timetable=state.timetable.init_fixed_cost_fns(constraints)
+        )
+        evaluation = updated_state.evaluate()
+        solution = Solution(evaluation, updated_state, None)
         return Store(solution, constraints)

@@ -45,12 +45,19 @@ def add_waiting_times_to_event_log(log: LogInfo) -> pd.DataFrame:
                 "activity": event.activity,
                 "resource": event.resource,
                 "waiting_time_batching_seconds": waiting_time_batching_seconds,
+                "batch_size": event.batch.size if event.batch is not None else 0,
             }
         )
 
     dataframe = pd.DataFrame(
         result,
-        columns=["case", "activity", "resource", "waiting_time_batching_seconds"],
+        columns=[
+            "case",
+            "activity",
+            "resource",
+            "waiting_time_batching_seconds",
+            "batch_size",
+        ],
     )
 
     return dataframe

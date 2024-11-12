@@ -92,7 +92,7 @@ class ConstraintsGenerator:
                 tasks=[task.attrib["id"] for task in self.tasks],
                 batch_type=BATCH_TYPE.PARALLEL,
                 rule_type=RULE_TYPE.DAILY_HOUR,
-                allowed_hours=list(range(24)),
+                allowed_hours={day: list(range(24)) for day in DAY},
             )
         )
         return self
@@ -178,6 +178,7 @@ class ConstraintsGenerator:
             batch_type=BATCH_TYPE.PARALLEL,
             rule_type=RULE_TYPE.SIZE,
             duration_fn=f"0.2*(size - {optimal_duration})**2 + {optimal_duration_bonus}",
+            cost_fn="10*1/size",
             min_size=min_size,
             max_size=max_size,
         )

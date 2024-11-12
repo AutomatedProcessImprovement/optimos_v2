@@ -22,16 +22,16 @@ from typing import (
 from dataclass_wizard import DumpMixin, JSONWizard
 
 from o2.models.legacy_constraints import WorkMasks
+from o2.models.rule_selector import RuleSelector
 from o2.models.time_period import TimePeriod
 from o2.util.bit_mask_helper import any_has_overlap, get_ranges_from_bitmask
 from o2.util.custom_dumper import CustomDumper, CustomLoader
 from o2.util.helper import CLONE_REGEX, hash_string, name_is_clone_of, random_string
 
-from o2.models.rule_selector import RuleSelector
-
 if TYPE_CHECKING:
     from o2.models.state import State
     from o2.store import Store
+    from o2.models.constraints import ConstraintsType
 
 import operator
 
@@ -146,6 +146,7 @@ class ResourcePool(JSONWizard):
     id: str
     name: str
     resource_list: List[Resource]
+    fixed_cost_fn: str = "0"
 
     def remove_resource(self, resource_id: str) -> "ResourcePool":
         """Remove a resource from the pool."""
@@ -574,6 +575,21 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
     class _(JSONWizard.Meta):
         key_transform_with_dump = "SNAKE"
 
+    def init_fixed_cost_fns(self, constraints: "ConstraintsType") -> "TimetableType":
+        """Initialize the fixed cost fn for all resources."""
+        return replace(
+            self,
+            resource_profiles=[
+                replace(
+                    resource_profile,
+                    fixed_cost_fn=constraints.get_fixed_cost_fn_for_task(
+                        resource_profile.id
+                    ),
+                )
+                for resource_profile in self.resource_profiles
+            ],
+        )
+
     def get_batching_rule(
         self, rule_selector: "RuleSelector"
     ) -> Union[Tuple[int, BatchingRule], Tuple[None, None]]:
@@ -725,6 +741,13 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
         """Get the cost per hour for each resource."""
         return {
             resource.id: resource.cost_per_hour for resource in self.get_all_resources()
+        }
+
+    def get_fixed_cost_fns(self) -> dict[str, str]:
+        """Get the fixed cost function for each resource pool (task)."""
+        return {
+            resource_profile.id: resource_profile.fixed_cost_fn
+            for resource_profile in self.resource_profiles
         }
 
     def get_calendar_for_resource(

@@ -4,6 +4,7 @@ from enum import Enum
 from typing import TYPE_CHECKING, List, Optional, TypeGuard, Union
 
 from dataclass_wizard import JSONWizard
+from sympy import Symbol, lambdify
 
 from o2.models.days import DAY
 from o2.models.legacy_constraints import ConstraintsResourcesItem, ResourceConstraints
@@ -16,6 +17,8 @@ if TYPE_CHECKING:
 
 @dataclass(frozen=True)
 class BatchingConstraints(JSONWizard, ABC):
+    """Base class for all batching constraints."""
+
     id: str
     tasks: list[str]
     batch_type: BATCH_TYPE
@@ -29,7 +32,10 @@ class BatchingConstraints(JSONWizard, ABC):
 
 @dataclass(frozen=True)
 class SizeRuleConstraints(BatchingConstraints, JSONWizard):
+    """Size rule constraints for batching."""
+
     duration_fn: str
+    cost_fn: str
     min_size: Optional[int]
     max_size: Optional[int]
 
@@ -392,6 +398,10 @@ class ConstraintsType(JSONWizard):
             if task_id in constraint.tasks and is_daily_hour_constraint(constraint)
         ]
 
-    class _(JSONWizard.Meta):
-        key_transform_with_dump = "SNAKE"
-        tag_key = "rule_type"
+    def get_fixed_cost_fn_for_task(self, task_id: str) -> str:
+        """Get the fixed cost function for a specific task."""
+        size_constraint = self.get_batching_size_rule_constraints(task_id)
+        if not size_constraint:
+            return "0"
+        first_constraint = size_constraint[0]
+        return first_constraint.cost_fn
