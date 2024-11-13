@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field, replace
 from enum import Enum
-from typing import TYPE_CHECKING, List, Optional, TypeGuard, Union
+from typing import TYPE_CHECKING, Callable, List, Optional, TypeGuard, Union
 
 from dataclass_wizard import JSONWizard
 from sympy import Symbol, lambdify
@@ -77,6 +77,16 @@ class SizeRuleConstraints(BatchingConstraints, JSONWizard):
             return False
 
         return True
+
+    @property
+    def cost_fn_lambda(self) -> Callable[[float], float]:
+        """Get the cost function as a lambda function."""
+        return lambdify(Symbol("x"), self.cost_fn)
+
+    @property
+    def duration_fn_lambda(self) -> Callable[[float], float]:
+        """Get the duration function as a lambda function."""
+        return lambdify(Symbol("x"), self.duration_fn)
 
 
 @dataclass(frozen=True)

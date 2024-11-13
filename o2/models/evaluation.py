@@ -268,10 +268,25 @@ class Evaluation:
         """Get the number of times each task was executed by a given resource."""
         return self.task_execution_count_by_resource.get(resource_id, {})
 
-    def get_avg_cost_per_task(self) -> dict[str, float]:
-        """Get the average cost per task."""
+    def get_avg_processing_cost_per_task(self) -> dict[str, float]:
+        """Get the average processing cost per task."""
         return {
             task_id: task_kpi.cost.avg for task_id, task_kpi in self.task_kpis.items()
+        }
+
+    def get_avg_cost_per_task(self) -> dict[str, float]:
+        """Get the average total (fixed + processing) cost per task."""
+        return {
+            task_id: task_kpi.cost.avg + self.total_fixed_cost_by_task[task_id]
+            for task_id, task_kpi in self.task_kpis.items()
+        }
+
+    def get_total_cost_per_task(self) -> dict[str, float]:
+        """Get the total (fixed + processing) cost per task."""
+        return {
+            task_id: task_kpi.cost.total
+            + task_kpi.cost.count * self.total_fixed_cost_by_task[task_id]
+            for task_id, task_kpi in self.task_kpis.items()
         }
 
     def get_resources_sorted_by_task_execution_count(self, task_id: str) -> list[str]:
