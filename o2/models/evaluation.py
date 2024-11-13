@@ -14,6 +14,7 @@ from bpdfr_simulation_engine.simulation_stats_calculator import (
 
 from o2.models.days import DAY
 from o2.simulation_runner import RunSimulationResult
+from o2.util.helper import lambdify_dict
 from o2.util.waiting_time_helper import add_waiting_times_to_event_log
 
 if TYPE_CHECKING:
@@ -38,29 +39,8 @@ class Evaluation:
     task_kpis: dict[str, KPIMap]
     resource_kpis: dict[str, ResourceKPI]
 
-    total_cost: float
-    """Get the total cost of the simulation.
-
-    Because this is not calculated in the simulation, we need to sum up the
-    costs of all tasks.
-    """
-
-    total_cost_for_available_time: float
-    """Get the total cost of the simulation.
-
-    This takes the available time and the resource cost per hour into account.
-    It will therefore give you a "realistic" of hiring the resources for the
-    duration of the simulation.
-    """
-
-    avg_cost_by_case: float
-    """Get the average cost of the simulation."""
-
     avg_cycle_time_by_case: float
     """Get the mean cycle time of the simulation."""
-
-    avg_resource_utilization_by_case: float
-    """Get the average resource utilization of the simulation."""
 
     avg_waiting_time_by_case: float
     """Get the average waiting time of the simulation."""
@@ -73,6 +53,9 @@ class Evaluation:
     total_batching_waiting_time_per_task: dict[str, float]
     """Get the total batching waiting time per task (all cases)."""
 
+    total_time: float
+    """Get the total time (idle + cycle) of the simulation."""
+
     total_batching_waiting_time: float
     """Get the total batching waiting time of the simulation (all cases)."""
 
@@ -81,18 +64,6 @@ class Evaluation:
 
     total_waiting_time: float
     """Get the total waiting time of the simulation."""
-
-    total_idle_time: float
-    """Get the total idle time of the simulation."""
-
-    resource_utilizations: dict[str, float]
-    """Get the utilization of all resources."""
-
-    resource_worked_times: dict[str, float]
-    """Get the works time of all resources."""
-
-    resource_available_times: dict[str, float]
-    """Get the availability of all resources."""
 
     task_execution_count_by_resource: dict[str, dict[str, int]]
     """Get the number of times each task was executed by a given resource.
@@ -114,6 +85,111 @@ class Evaluation:
 
     task_started_weekdays: dict[str, dict[DAY, dict[int, int]]]
     """Get the weekdays & hours on which a task was started."""
+
+    total_fixed_cost_by_task: dict[str, float]
+    """Get the total fixed cost of each task."""
+    avg_fixed_cost_per_case: float
+    """Get the average fixed cost per case."""
+    avg_fixed_cost_per_case_by_task: dict[str, float]
+    """Get the average fixed cost by task per case."""
+
+    @cached_property
+    def total_processing_cost_for_tasks(self) -> float:
+        """Get the total cost of all tasks."""
+        return sum(
+            map(
+                lambda task_kpi: task_kpi.cost.total,
+                self.task_kpis.values(),
+            )
+        )
+
+    @cached_property
+    def total_cost_for_worked_time(self) -> float:
+        """Get the total flexible cost of the simulation.
+
+        This takes the worked time and the resource cost per hour into account.
+        It will therefore give you a "realistic" of hiring the resources for the
+        duration of the simulation.
+        """
+        return sum(
+            (resource_kpi.worked_time / (60 * 60)) * self.hourly_rates[resource_id]
+            for resource_id, resource_kpi in self.resource_kpis.items()
+        )
+
+    @cached_property
+    def total_cost_for_available_time(self) -> float:
+        """Get the cost of the resources for the worked time.
+
+        Aka the cost you had if the resource calender would exactly match the
+        worked time.
+        """
+        return sum(
+            (resource_kpi.available_time / (60 * 60)) * self.hourly_rates[resource_id]
+            for resource_id, resource_kpi in self.resource_kpis.items()
+        )
+
+    @cached_property
+    def avg_cost_by_case(self) -> float:
+        """Get the average cost sum of all tasks."""
+        return sum(
+            map(
+                lambda task_kpi: task_kpi.cost.avg,
+                self.task_kpis.values(),
+            )
+        )
+
+    @cached_property
+    def avg_resource_utilization_by_case(self) -> float:
+        """Get the average resource utilization of the simulation."""
+        return reduce(lambda x, y: x + y, self.resource_utilizations.values()) / len(
+            self.resource_utilizations
+        )
+
+    @cached_property
+    def resource_worked_times(self) -> dict[str, float]:
+        """Get the worked time of all resources."""
+        return {
+            resource_id: resource_kpi.worked_time
+            for resource_id, resource_kpi in self.resource_kpis.items()
+        }
+
+    @cached_property
+    def resource_available_times(self) -> dict[str, float]:
+        """Get the availability of all resources."""
+        return {
+            resource_id: resource_kpi.available_time
+            for resource_id, resource_kpi in self.resource_kpis.items()
+        }
+
+    @cached_property
+    def resource_utilizations(self) -> dict[str, float]:
+        """Get the utilization of all resources."""
+        return {
+            resource_id: resource_kpi.utilization
+            for resource_id, resource_kpi in self.resource_kpis.items()
+        }
+
+    @cached_property
+    def total_fixed_cost(self) -> float:
+        """Get the total fixed cost of the simulation."""
+        return sum(self.total_fixed_cost_by_task.values())
+
+    @cached_property
+    def total_cost(self) -> float:
+        """Get the total cost of the simulation."""
+        return self.total_cost_for_worked_time + self.total_fixed_cost
+
+    @cached_property
+    def total_idle_time(self) -> float:
+        """Get the total resource idle time of the simulation.
+
+        This is calculated by summing up the difference worked time and available time
+        for all resources.
+        """
+        return sum(
+            resource_kpi.worked_time - resource_kpi.available_time
+            for resource_kpi in self.resource_kpis.values()
+        )
 
     def get_avg_waiting_time_of_task_id(self, task_id: str, store: "Store") -> float:
         """Get the average waiting time of a task."""
@@ -216,13 +292,12 @@ class Evaluation:
 
     def to_tuple(self) -> tuple[float, float]:
         """Convert self to a tuple of cost for available time and total cycle time."""
-        return (self.total_cost_for_available_time, self.total_cycle_time)
+        return (self.total_cost_for_worked_time, self.total_cycle_time)
 
     def distance_to(self, other: "Evaluation") -> float:
         """Calculate the euclidean distance between two evaluations."""
         return math.sqrt(
-            (self.total_cost_for_available_time - other.total_cost_for_available_time)
-            ** 2
+            (self.total_cost_for_worked_time - other.total_cost_for_worked_time) ** 2
             + (self.total_cycle_time - other.total_cycle_time) ** 2
         )
 
@@ -231,13 +306,13 @@ class Evaluation:
     def is_dominated_by(self, other: "Evaluation") -> bool:
         """Check if this evaluation is dominated by another evaluation."""
         return (
-            other.total_cost_for_available_time < self.total_cost_for_available_time
+            other.total_cost_for_worked_time < self.total_cost_for_worked_time
             and other.total_cycle_time < self.total_cycle_time
         )
 
     def __str__(self) -> str:
         """Return a string representation of the evaluation."""
-        return f"Cycle Time: {self.total_cycle_time}, Cost: {self.total_cost_for_available_time}, Waiting Time: {self.total_waiting_time}"  # noqa: E501
+        return f"Cycle Time: {self.total_cycle_time}, Cost: {self.total_cost_for_worked_time}, Waiting Time: {self.total_waiting_time}"  # noqa: E501
 
     @staticmethod
     def get_task_enablement_weekdays(
@@ -334,17 +409,10 @@ class Evaluation:
         """Create an empty evaluation."""
         return Evaluation(
             hourly_rates={},
+            total_time=0,
             total_cycle_time=0,
-            total_idle_time=0,
-            total_cost=0,
-            total_cost_for_available_time=0,
-            avg_cost_by_case=0,
             avg_cycle_time_by_case=0,
-            avg_resource_utilization_by_case=0,
             is_empty=True,
-            resource_utilizations={},
-            resource_worked_times={},
-            resource_available_times={},
             global_kpis=KPIMap(),
             task_kpis={},
             resource_kpis={},
@@ -359,58 +427,56 @@ class Evaluation:
             total_batching_waiting_time=0,
             avg_waiting_time_by_case=0,
             total_waiting_time=0,
+            total_fixed_cost_by_task={},
+            avg_fixed_cost_per_case=0,
+            avg_fixed_cost_per_case_by_task={},
         )
 
     @staticmethod
     def from_run_simulation_result(
-        hourly_rates: HourlyRates, result: RunSimulationResult
+        hourly_rates: HourlyRates,
+        fixed_cost_fns: dict[str, str],
+        result: RunSimulationResult,
     ) -> "Evaluation":
         """Create an evaluation from a simulation result."""
         global_kpis, task_kpis, resource_kpis, log_info = result
         cases: list[Trace] = [] if log_info is None else log_info.trace_list
         waiting_time_canvas = add_waiting_times_to_event_log(log_info)
-        resource_utilizations: dict[str, float] = {
-            resource_id: resource_kpi.utilization
-            for resource_id, resource_kpi in resource_kpis.items()
-        }
 
+        fixed_cost_fns_lambdas = lambdify_dict(fixed_cost_fns)
+        # waiting_time_canvas has the batch_size we need to calculate the fixed cost,
+        # so we go over each line and calculate the fixed cost for each task
+        waiting_time_canvas["fixed_cost"] = waiting_time_canvas.apply(
+            lambda x: fixed_cost_fns_lambdas[x["activity"]](x["batch_size"]), axis=1
+        )
+
+        total_fixed_cost_by_task = (
+            waiting_time_canvas.groupby("activity")["fixed_cost"]
+            .sum()
+            .fillna(0)
+            .to_dict()
+        )
+
+        avg_fixed_cost_per_case = (
+            waiting_time_canvas.groupby("case")["fixed_cost"].sum().mean()
+        )
+
+        avg_fixed_cost_per_case_by_task = (
+            waiting_time_canvas.groupby(["activity", "case"])["fixed_cost"]
+            .mean()
+            .fillna(0)
+            .to_dict()
+        )
+
+        total_time = (log_info.ended_at - log_info.started_at).total_seconds()
         return Evaluation(
             hourly_rates=hourly_rates,
+            total_time=total_time,
             total_cycle_time=global_kpis.cycle_time.total,
             total_waiting_time=global_kpis.waiting_time.total,
-            total_idle_time=global_kpis.idle_time.total,
-            total_cost=sum(
-                map(
-                    lambda task_kpi: task_kpi.cost.total,
-                    task_kpis.values(),
-                )
-            ),
-            total_cost_for_available_time=sum(
-                (resource_kpi.available_time / (60 * 60)) * hourly_rates[resource_id]
-                for resource_id, resource_kpi in resource_kpis.items()
-            ),
-            avg_cost_by_case=sum(
-                map(
-                    lambda task_kpi: task_kpi.cost.avg,
-                    task_kpis.values(),
-                )
-            ),
             avg_cycle_time_by_case=global_kpis.cycle_time.avg,
-            avg_resource_utilization_by_case=reduce(
-                lambda x, y: x + y, resource_utilizations.values()
-            )
-            / len(resource_utilizations),
             avg_waiting_time_by_case=global_kpis.waiting_time.avg,
             is_empty=not cases,
-            resource_utilizations=resource_utilizations,
-            resource_worked_times={
-                resource_id: resource_kpi.worked_time
-                for resource_id, resource_kpi in resource_kpis.items()
-            },
-            resource_available_times={
-                resource_id: resource_kpi.available_time
-                for resource_id, resource_kpi in resource_kpis.items()
-            },
             global_kpis=global_kpis,
             task_kpis=task_kpis,
             resource_kpis=resource_kpis,
@@ -441,4 +507,7 @@ class Evaluation:
             total_batching_waiting_time=(
                 waiting_time_canvas["waiting_time_batching_seconds"].sum()
             ),
+            total_fixed_cost_by_task=total_fixed_cost_by_task,
+            avg_fixed_cost_per_case=avg_fixed_cost_per_case,
+            avg_fixed_cost_per_case_by_task=avg_fixed_cost_per_case_by_task,
         )

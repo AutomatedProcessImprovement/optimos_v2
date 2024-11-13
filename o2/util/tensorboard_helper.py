@@ -55,8 +55,8 @@ class TensorBoardHelper:
                 )
 
             tf.summary.scalar(
-                "current_base/total_cost_for_available_time",
-                self.store.current_evaluation.total_cost_for_available_time,
+                "current_base/total_cost",
+                self.store.current_evaluation.total_cost,
                 step=self.step,
             )
 
@@ -73,8 +73,8 @@ class TensorBoardHelper:
             )
 
             tf.summary.scalar(
-                "front/avg_total_cost_for_available_time",
-                self.store.current_pareto_front.avg_total_cost_for_available_time,
+                "front/avg_total_cost",
+                self.store.current_pareto_front.avg_total_cost,
                 step=self.step,
             )
             tf.summary.scalar(

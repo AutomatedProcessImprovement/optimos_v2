@@ -55,17 +55,14 @@ class ParetoFront:
         return sum(s.evaluation.avg_cost_by_case for s in self.solutions) / self.size
 
     @property
-    def avg_total_cost_for_available_time(self) -> float:
-        """Return the average total cost for available time of the front."""
-        return (
-            sum(s.evaluation.total_cost_for_available_time for s in self.solutions)
-            / self.size
-        )
+    def avg_total_cost(self) -> float:
+        """Return the average total cost of the front."""
+        return sum(s.evaluation.total_cost for s in self.solutions) / self.size
 
     @property
     def avg_point(self) -> tuple[float, float]:
         """Return the average point of the front."""
-        return self.avg_total_cost_for_available_time, self.avg_total_cycle_time
+        return self.avg_total_cost, self.avg_total_cycle_time
 
     def avg_distance_to(self, evaluation: Evaluation) -> float:
         """Return the average distance to the given evaluation."""
@@ -120,8 +117,8 @@ class ParetoFront:
 
     def get_bounding_rect(self) -> tuple[float, float, float, float]:
         """Get the bounding rectangle of the front."""
-        min_x = min(s.evaluation.total_cost_for_available_time for s in self.solutions)
-        max_x = max(s.evaluation.total_cost_for_available_time for s in self.solutions)
+        min_x = min(s.evaluation.total_cost for s in self.solutions)
+        max_x = max(s.evaluation.total_cost for s in self.solutions)
         min_y = min(s.evaluation.total_cycle_time for s in self.solutions)
         max_y = max(s.evaluation.total_cycle_time for s in self.solutions)
         return min_x, min_y, max_x, max_y

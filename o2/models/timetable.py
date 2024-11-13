@@ -29,9 +29,9 @@ from o2.util.custom_dumper import CustomDumper, CustomLoader
 from o2.util.helper import CLONE_REGEX, hash_string, name_is_clone_of, random_string
 
 if TYPE_CHECKING:
+    from o2.models.constraints import ConstraintsType
     from o2.models.state import State
     from o2.store import Store
-    from o2.models.constraints import ConstraintsType
 
 import operator
 

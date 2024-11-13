@@ -1,8 +1,9 @@
 import random
 import re
 import string
-from typing import Any, Optional, TypeVar
+from typing import Any, Callable, Optional, TypeVar
 
+from sympy import Symbol, lambdify
 import xxhash
 
 CLONE_REGEX = re.compile(r"^(.*)_clone_[a-z0-9]{8}(?:timetable)?$")
@@ -42,3 +43,8 @@ def hash_int(s: object) -> int:
 def hash_string(s: object) -> str:
     """Create string hash based on the string representation of the object."""
     return xxhash.xxh32(str(s)).hexdigest()
+
+
+def lambdify_dict(d: dict[str, str]) -> dict[str, Callable[[float], float]]:
+    """Convert all lambdas in the dictionary to functions."""
+    return {k: lambdify(Symbol("size"), v) for k, v in d.items()}
