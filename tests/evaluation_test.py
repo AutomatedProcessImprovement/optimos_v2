@@ -59,7 +59,7 @@ def test_evaluation_calculation_without_batching(one_task_state: State):
     # We have 26 cases, each case takes 30min, so we have 13h of work
     # 13h * $10 = $130. (No waiting time, so we can ignore cost for idle-ing)
     assert evaluation.total_cost_for_available_time == 130
-    # # 9h * 2 days, 1.25h (0min WT + 30min PT + 15min WT + 30min PT) = 19.25h
+    # 9h * 2 days, 1.25h (0min WT + 30min PT + 15min WT + 30min PT) = 19.25h
     assert evaluation.total_cost == evaluation.total_cost_for_worked_time == 19.25 * 10
 
     assert (
@@ -78,3 +78,40 @@ def test_evaluation_calculation_without_batching(one_task_state: State):
     assert evaluation.resource_utilizations[TimetableGenerator.RESOURCE_ID] == (
         26 * 0.5
     ) / (9 * 2 + 1.25)
+
+
+def test_evaluation_without_batching_but_fixed_costs(one_task_state: State):
+    """
+    Test the evaluation calculation without batching & waiting times, but with fixed costs
+    """
+    state = one_task_state.replace_timetable(
+        # Resource has cost of $10/h
+        resource_profiles=TimetableGenerator.resource_pools(
+            [TimetableGenerator.FIRST_ACTIVITY], 10, fixed_cost_fn="15"
+        ),
+        # Working one case takes 30min
+        task_resource_distribution=TimetableGenerator.simple_task_resource_distribution(
+            [TimetableGenerator.FIRST_ACTIVITY], 30 * 60
+        ),
+        # Work from 9 to 17 (8h)
+        resource_calendars=TimetableGenerator.resource_calendars(
+            9, 18, include_end_hour=False
+        ),
+        # One Case every 45min
+        arrival_time_distribution=TimetableGenerator.arrival_time_distribution(
+            45 * 60, 45 * 60
+        ),
+        # Cases from 9:00 to 17:59 (~8h)
+        arrival_time_calendar=TimetableGenerator.arrival_time_calendar(
+            9, 17, include_end_hour=True
+        ),
+        total_cases=26,
+    )
+
+    evaluation = state.evaluate()
+
+    assert evaluation.total_fixed_cost == 26 * 15
+    # 9h * 2 days, 1.25h (0min WT + 30min PT + 15min WT + 30min PT) = 19.25h
+    assert evaluation.total_cost_for_worked_time == 19.25 * 10
+
+    assert evaluation.total_cost == 26 * 15 + 19.25 * 10

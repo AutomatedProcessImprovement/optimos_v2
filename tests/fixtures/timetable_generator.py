@@ -387,14 +387,12 @@ class TimetableGenerator:
         ]
 
     @staticmethod
-    def resource_pools(
-        task_ids: list[str],
-        cost_per_hour: int = 1,
-    ):
+    def resource_pools(task_ids: list[str], cost_per_hour: int = 1, fixed_cost_fn="0"):
         return [
             ResourcePool(
                 id=task_id,
                 name="Base Resource Pool",
+                fixed_cost_fn=fixed_cost_fn,
                 resource_list=[
                     Resource(
                         id=TimetableGenerator.RESOURCE_ID,
