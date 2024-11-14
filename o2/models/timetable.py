@@ -1,5 +1,4 @@
 import hashlib
-import re
 from dataclasses import asdict, dataclass, field, replace
 from enum import Enum
 from functools import reduce
@@ -7,8 +6,6 @@ from itertools import groupby
 from json import dumps
 from typing import (
     TYPE_CHECKING,
-    Any,
-    ClassVar,
     Generic,
     Iterator,
     List,
@@ -19,12 +16,12 @@ from typing import (
     Union,
 )
 
-from dataclass_wizard import DumpMixin, JSONWizard
+from dataclass_wizard import JSONWizard
 
 from o2.models.legacy_constraints import WorkMasks
 from o2.models.rule_selector import RuleSelector
 from o2.models.time_period import TimePeriod
-from o2.util.bit_mask_helper import any_has_overlap, get_ranges_from_bitmask
+from o2.util.bit_mask_helper import any_has_overlap
 from o2.util.custom_dumper import CustomDumper, CustomLoader
 from o2.util.helper import CLONE_REGEX, hash_string, name_is_clone_of, random_string
 
@@ -35,7 +32,7 @@ if TYPE_CHECKING:
 
 import operator
 
-from o2.models.days import DAY, day_range, is_day_in_range
+from o2.models.days import DAY, is_day_in_range
 
 
 class BATCH_TYPE(str, Enum):  # noqa: D101, N801
@@ -643,6 +640,21 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
             for firing_rules in batching_rule.firing_rules
             for firing_rule in firing_rules
             if rule_type is None or firing_rule.attribute == rule_type
+        ]
+
+    def get_firing_rule_selectors_for_task(
+        self,
+        task_id: str,
+        batch_type: Optional["BATCH_TYPE"] = None,
+        rule_type: Optional[RULE_TYPE] = None,
+    ) -> List["RuleSelector"]:
+        """Get all firing rule selectors for a task."""
+        return [
+            rule_selector
+            for batching_rule in self.get_batching_rules_for_tasks(
+                [task_id], batch_type
+            )
+            for rule_selector in batching_rule.get_firing_rule_selectors(rule_type)
         ]
 
     def get_firing_rules_for_tasks(
