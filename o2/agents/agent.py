@@ -15,6 +15,10 @@ from o2.actions.modify_ready_wt_rule_action import ModifyReadyWtRuleAction
 from o2.actions.new_actions.modify_size_rule_by_cost_action import (
     ModifySizeRuleByCostAction,
 )
+from o2.actions.new_actions.modify_size_rule_by_cost_fn import (
+    ModifySizeRuleByCostFnHighCosts,
+    ModifySizeRuleByCostFnRepetitiveTasks,
+)
 from o2.actions.new_actions.modify_size_rule_by_wt_action import (
     ModifySizeRuleByWTAction,
 )
@@ -58,6 +62,8 @@ ACTION_CATALOG_LEGACY = [
 ACTION_CATALOG_BATCHING_ONLY = [
     ModifySizeRuleByWTAction,
     ModifySizeRuleByCostAction,
+    ModifySizeRuleByCostFnHighCosts,
+    ModifySizeRuleByCostFnRepetitiveTasks,
 ]
 
 
@@ -124,9 +130,9 @@ class Agent(ABC):
                     actions.append((rating, action))
                 if len(actions) >= store.settings.max_number_of_actions_to_select:
                     return actions
-                else:
-                    generators_queue.append(action_generator)
-                    break
+
+                generators_queue.append(action_generator)
+                break
         if len(actions) == 0:
             return low_actions
         return actions

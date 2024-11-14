@@ -87,3 +87,41 @@ class ModifySizeRuleByCostFnRepetitiveTasks(ModifySizeRuleBaseAction):
         )
 
 
+class ModifySizeRuleByCostFnHighCosts(ModifySizeRuleBaseAction):
+    """An Action to modify size batching rules based on the cost fn.
+
+    If batch size increment reduces Costs => Increase Batch Size
+    - For repetitive tasks (higher frequencies first)
+    """
+
+    params: ModifySizeRuleByCostFnParamsType
+
+    @staticmethod
+    def rate_self(store: "Store", input: SelfRatingInput) -> RateSelfReturnType:
+        """Generate a best set of parameters & self-evaluates this action."""
+        evaluation = store.current_evaluation
+
+        task_costs = evaluation.get_total_cost_per_task()
+        yield from rate_self_helper_by_metric_dict(
+            store, task_costs, ModifySizeRuleByCostFnHighCosts
+        )
+
+
+class ModifySizeRuleByCostFnHighCosts(ModifySizeRuleBaseAction):
+    """An Action to modify size batching rules based on the cost fn.
+
+    If batch size increment reduces Costs => Increase Batch Size
+    - For repetitive tasks (higher frequencies first)
+    """
+
+    params: ModifySizeRuleByCostFnParamsType
+
+    @staticmethod
+    def rate_self(store: "Store", input: SelfRatingInput) -> RateSelfReturnType:
+        """Generate a best set of parameters & self-evaluates this action."""
+        evaluation = store.current_evaluation
+
+        task_costs = evaluation.get_total_cost_per_task()
+        yield from rate_self_helper_by_metric_dict(
+            store, task_costs, ModifySizeRuleByCostFnHighCosts
+        )
