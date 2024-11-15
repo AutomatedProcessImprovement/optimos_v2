@@ -1,4 +1,5 @@
 from dataclasses import replace
+import random
 from typing import Literal
 
 import numpy as np
@@ -65,9 +66,11 @@ class AddWeekDayRuleAction(BatchingRuleAction, str=False):
         new_or_rules = (
             rule.firing_rules[: or_index + 1]
             + [
-                and_rules[:and_index]
-                + [replace(firing_rule, value=day)]
-                + and_rules[and_index + 1 :]
+                (
+                    and_rules[:and_index]
+                    + [replace(firing_rule, value=day)]
+                    + and_rules[and_index + 1 :]
+                )
                 for day in add_days
             ]
             + rule.firing_rules[or_index + 1 :]
@@ -115,7 +118,7 @@ class AddWeekDayRuleAction(BatchingRuleAction, str=False):
         if len(allowed_days) == 0:
             return
 
-        random_day = np.random.choice(list(allowed_days))
+        random_day = random.choice(list(allowed_days))
 
         yield (
             RATING.MEDIUM,

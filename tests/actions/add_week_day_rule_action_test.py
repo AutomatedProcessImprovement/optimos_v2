@@ -62,7 +62,8 @@ def test_self_rate_simple(one_task_store: Store):
         store,
         batching_constraints=[
             ConstraintsGenerator.week_day_constraint(
-                [TimetableGenerator.FIRST_ACTIVITY]
+                [TimetableGenerator.FIRST_ACTIVITY],
+                allowed_days=[DAY.MONDAY, DAY.WEDNESDAY],
             )
         ],
     )

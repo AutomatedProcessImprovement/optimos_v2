@@ -203,7 +203,7 @@ class WeekDayRuleConstraints(BatchingConstraints, JSONWizard):
 
     def _verify_firing_rule(self, firing_rule: FiringRule[DAY]) -> bool:
         """Check if the firing rule is valid against the constraints."""
-        return all(day in self.allowed_days for day in firing_rule.value)
+        return firing_rule.value in self.allowed_days
 
 
 @dataclass(frozen=True)

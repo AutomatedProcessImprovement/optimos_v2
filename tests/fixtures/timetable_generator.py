@@ -265,22 +265,12 @@ class TimetableGenerator:
         include_monday=True,
         include_size=True,
     ):
-        return BatchingRule(
-            task_id=task_id,
-            type=BATCH_TYPE.PARALLEL,
-            size_distrib=[
-                # Forbid execution of the task without batching
-                Distribution(key=str(1), value=0.0),
-                Distribution(key=str(size), value=1.0),
-            ],
-            duration_distrib=[
-                Distribution(
-                    key=str(size),
-                    value=0.75,
-                )
-            ],
-            firing_rules=[
+        assert not (include_monday and not include_size)
+
+        if include_monday:
+            rules = [
                 # This is a Dummy Rule! Because we need to have at least one valid rule for the first day of simulation
+                # TODO: Speak about this with Orlenys about this
                 [
                     FiringRule(
                         attribute=RULE_TYPE.WEEK_DAY,
@@ -301,8 +291,8 @@ class TimetableGenerator:
                     ),
                 ],
             ]
-            if include_monday
-            else [
+        elif include_size:
+            rules = [
                 [
                     FiringRule(
                         attribute=RULE_TYPE.WEEK_DAY,
@@ -314,10 +304,10 @@ class TimetableGenerator:
                         comparison=COMPARATOR.EQUAL,
                         value=size,
                     ),
-                ],
+                ]
             ]
-            if include_size
-            else [
+        else:
+            rules = [
                 [
                     FiringRule(
                         attribute=RULE_TYPE.WEEK_DAY,
@@ -325,7 +315,23 @@ class TimetableGenerator:
                         value=week_day,
                     ),
                 ]
+            ]
+
+        return BatchingRule(
+            task_id=task_id,
+            type=BATCH_TYPE.PARALLEL,
+            size_distrib=[
+                # Forbid execution of the task without batching
+                Distribution(key=str(1), value=0.0),
+                Distribution(key=str(size), value=1.0),
             ],
+            duration_distrib=[
+                Distribution(
+                    key=str(size),
+                    value=0.75,
+                )
+            ],
+            firing_rules=rules,
         )
 
     @staticmethod
