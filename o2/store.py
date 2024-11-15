@@ -112,7 +112,7 @@ class Store:
         solutions: list[Solution],
         choose_new_base_evaluation_callback: Optional[
             Callable[[SolutionTry], Solution]
-        ],
+        ] = None,
     ) -> tuple[list[SolutionTry], list[SolutionTry]]:
         """Process a list of action solutions.
 

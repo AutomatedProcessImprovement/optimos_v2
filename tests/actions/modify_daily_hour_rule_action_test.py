@@ -58,6 +58,7 @@ def test_add_to_less_then(store: Store):
 
 
 def test_self_rate_simple(one_task_store: Store):
+    # TODO: Fix this test, see implementation comments
     store = replace_timetable(
         one_task_store,
         batch_processing=[
@@ -101,6 +102,7 @@ def test_self_rate_simple(one_task_store: Store):
 
 
 def test_self_rate_simple2(one_task_store: Store):
+    # TODO: Fix this test, see implementation comments
     """
     Tests for the greater then rule, being detected as the most
     impactful (most increasing ) one

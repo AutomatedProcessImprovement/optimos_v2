@@ -1,6 +1,7 @@
 from dataclasses import replace
 from typing import Literal
 
+from o2.actions.base_action import RateSelfReturnType
 from o2.actions.batching_rule_action import (
     BatchingRuleAction,
     BatchingRuleActionParamsType,
@@ -9,7 +10,6 @@ from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.state import State
 from o2.models.timetable import COMPARATOR, rule_is_daily_hour
 from o2.store import Store
-from o2.actions.base_action import RateSelfReturnType
 
 SIZE_OF_CHANGE = 1
 CLOSENESS_TO_MAX_WT = 0.01
@@ -136,6 +136,9 @@ class ModifyDailyHourRuleAction(BatchingRuleAction, str=False):
                 hour for constraint in constraints for hour in constraint.allowed_hours
             )
             if new_hour not in allowed_hours:
+                # TODO: We need to get the relevant day constraint here, or if none
+                # is applicable, we'll need to check if any day constraint forbids
+                # this hour
                 continue
             yield (
                 RATING.MEDIUM,

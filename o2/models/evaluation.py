@@ -59,6 +59,9 @@ class Evaluation:
     total_batching_waiting_time: float
     """Get the total batching waiting time of the simulation (all cases)."""
 
+    total_batching_waiting_time_per_resource: dict[str, float]
+    """Get the total batching waiting time of the simulation per resource."""
+
     total_cycle_time: float
     """Get the total cycle time of the simulation."""
 
@@ -441,6 +444,7 @@ class Evaluation:
             task_started_weekdays={},
             avg_batching_waiting_time_per_task={},
             total_batching_waiting_time_per_task={},
+            total_batching_waiting_time_per_resource={},
             avg_batching_waiting_time_by_case=0,
             total_batching_waiting_time=0,
             avg_waiting_time_by_case=0,
@@ -465,7 +469,10 @@ class Evaluation:
         # waiting_time_canvas has the batch_size we need to calculate the fixed cost,
         # so we go over each line and calculate the fixed cost for each task
         waiting_time_canvas["fixed_cost"] = waiting_time_canvas.apply(
-            lambda x: fixed_cost_fns_lambdas[x["activity"]](x["batch_size"]), axis=1
+            lambda x: fixed_cost_fns_lambdas.get(x["activity"], lambda _: 0)(
+                x["batch_size"]
+            ),
+            axis=1,
         )
 
         total_fixed_cost_by_task = (
@@ -515,6 +522,12 @@ class Evaluation:
             ),
             total_batching_waiting_time_per_task=(
                 waiting_time_canvas.groupby("activity")["waiting_time_batching_seconds"]
+                .sum()
+                .fillna(0)
+                .to_dict()
+            ),
+            total_batching_waiting_time_per_resource=(
+                waiting_time_canvas.groupby("resource")["waiting_time_batching_seconds"]
                 .sum()
                 .fillna(0)
                 .to_dict()

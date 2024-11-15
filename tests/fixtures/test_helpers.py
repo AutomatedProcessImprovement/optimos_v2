@@ -1,4 +1,5 @@
 from dataclasses import replace
+from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Optional
 
 from bpdfr_simulation_engine.simulation_stats_calculator import (
@@ -70,9 +71,12 @@ def create_mock_solution(
     )
 
     log_info = LogInfo(None)  # type: ignore
+    log_info.started_at = datetime(2000, 1, 1)
+    log_info.ended_at = datetime(2000, 1, 1) + timedelta(seconds=total_cycle_time)
 
     evaluation = Evaluation.from_run_simulation_result(
         state.timetable.get_hourly_rates(),
+        state.timetable.get_fixed_cost_fns(),
         (kpis, {}, {TimetableGenerator.RESOURCE_ID: resource_kpi}, log_info),  # type: ignore
     )
     state = replace(state, bpmn_definition=random_string())
