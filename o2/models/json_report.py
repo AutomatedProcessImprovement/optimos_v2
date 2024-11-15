@@ -260,7 +260,7 @@ class _JSONSolution(JSONWizard):
                 average_time=evaluation.avg_cycle_time_by_case,
                 average_resource_utilization=evaluation.avg_resource_utilization_by_case,
                 total_cost=evaluation.total_cost,
-                total_time=evaluation.total_cycle_time,
+                total_time=evaluation.total_duration,
                 average_batching_waiting_time=evaluation.avg_batching_waiting_time_by_case,
                 average_waiting_time=evaluation.avg_waiting_time_by_case,
             ),

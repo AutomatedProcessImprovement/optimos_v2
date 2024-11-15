@@ -131,7 +131,9 @@ class TimetableGenerator:
         return self
 
     @staticmethod
-    def resource_calendars(begin_hour=9, end_hour=17, include_end_hour=False):
+    def resource_calendars(
+        begin_hour=9, end_hour=17, include_end_hour=False, only_week_days=False
+    ):
         return [
             ResourceCalendar(
                 id=TimetableGenerator.CALENDAR_ID,
@@ -139,7 +141,7 @@ class TimetableGenerator:
                 time_periods=[
                     TimePeriod(
                         from_=DAY.MONDAY,
-                        to=DAY.SUNDAY,
+                        to=DAY.SUNDAY if not only_week_days else DAY.FRIDAY,
                         begin_time=f"{begin_hour:02}:00:00",
                         end_time=f"{end_hour:02}:"
                         + ("59:59" if include_end_hour else "00:00"),
@@ -427,11 +429,27 @@ class TimetableGenerator:
         )
 
     @staticmethod
-    def arrival_time_calendar(start=9, end=17, include_end_hour=False):
+    def arrival_time_calendar(
+        start=9,
+        end=17,
+        include_end_hour=False,
+        only_week_days=False,
+        days=None,
+    ):
+        if days is not None:
+            return [
+                TimePeriod(
+                    from_=day,
+                    to=day,
+                    begin_time=f"{start:02}:00:00",
+                    end_time=f"{end:02}:" + ("59:59" if include_end_hour else "00:00"),
+                )
+                for day in days
+            ]
         return [
             TimePeriod(
                 from_=DAY.MONDAY,
-                to=DAY.SUNDAY,
+                to=DAY.SUNDAY if not only_week_days else DAY.FRIDAY,
                 begin_time=f"{start:02}:00:00",
                 end_time=f"{end:02}:" + ("59:59" if include_end_hour else "00:00"),
             )

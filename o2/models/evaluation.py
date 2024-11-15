@@ -53,8 +53,8 @@ class Evaluation:
     total_batching_waiting_time_per_task: dict[str, float]
     """Get the total batching waiting time per task (all cases)."""
 
-    total_time: float
-    """Get the total time (idle + cycle) of the simulation."""
+    total_duration: float
+    """Get the total duration (idle + cycle) of the simulation."""
 
     total_batching_waiting_time: float
     """Get the total batching waiting time of the simulation (all cases)."""
@@ -186,9 +186,12 @@ class Evaluation:
         This is calculated by summing up the difference worked time and available time
         for all resources.
         """
-        return sum(
-            resource_kpi.worked_time - resource_kpi.available_time
-            for resource_kpi in self.resource_kpis.values()
+        return (
+            sum(
+                resource_kpi.worked_time - resource_kpi.available_time
+                for resource_kpi in self.resource_kpis.values()
+            )
+            + self.global_kpis.idle_time.total
         )
 
     def get_avg_waiting_time_of_task_id(self, task_id: str, store: "Store") -> float:
@@ -277,15 +280,15 @@ class Evaluation:
     def get_avg_cost_per_task(self) -> dict[str, float]:
         """Get the average total (fixed + processing) cost per task."""
         return {
-            task_id: task_kpi.cost.avg + self.total_fixed_cost_by_task[task_id]
+            task_id: task_kpi.cost.avg
+            + (self.total_fixed_cost_by_task[task_id] / task_kpi.cost.count)
             for task_id, task_kpi in self.task_kpis.items()
         }
 
     def get_total_cost_per_task(self) -> dict[str, float]:
         """Get the total (fixed + processing) cost per task."""
         return {
-            task_id: task_kpi.cost.total
-            + task_kpi.cost.count * self.total_fixed_cost_by_task[task_id]
+            task_id: task_kpi.cost.total + self.total_fixed_cost_by_task[task_id]
             for task_id, task_kpi in self.task_kpis.items()
         }
 
@@ -307,13 +310,13 @@ class Evaluation:
 
     def to_tuple(self) -> tuple[float, float]:
         """Convert self to a tuple of cost for available time and total cycle time."""
-        return (self.total_cost_for_worked_time, self.total_cycle_time)
+        return (self.total_cost_for_worked_time, self.total_duration)
 
     def distance_to(self, other: "Evaluation") -> float:
         """Calculate the euclidean distance between two evaluations."""
         return math.sqrt(
             (self.total_cost_for_worked_time - other.total_cost_for_worked_time) ** 2
-            + (self.total_cycle_time - other.total_cycle_time) ** 2
+            + (self.total_duration - other.total_duration) ** 2
         )
 
     # Is this evaluation dominated by another evaluation?
@@ -322,12 +325,12 @@ class Evaluation:
         """Check if this evaluation is dominated by another evaluation."""
         return (
             other.total_cost_for_worked_time < self.total_cost_for_worked_time
-            and other.total_cycle_time < self.total_cycle_time
+            and other.total_duration < self.total_duration
         )
 
     def __str__(self) -> str:
         """Return a string representation of the evaluation."""
-        return f"Cycle Time: {self.total_cycle_time}, Cost: {self.total_cost_for_worked_time}, Waiting Time: {self.total_waiting_time}"  # noqa: E501
+        return f"Duration: {self.total_duration}, Cost: {self.total_cost_for_worked_time}, Waiting Time: {self.total_waiting_time}"  # noqa: E501
 
     @staticmethod
     def get_task_enablement_weekdays(
@@ -424,7 +427,7 @@ class Evaluation:
         """Create an empty evaluation."""
         return Evaluation(
             hourly_rates={},
-            total_time=0,
+            total_duration=0,
             total_cycle_time=0,
             avg_cycle_time_by_case=0,
             is_empty=True,
@@ -486,7 +489,7 @@ class Evaluation:
         total_time = (log_info.ended_at - log_info.started_at).total_seconds()
         return Evaluation(
             hourly_rates=hourly_rates,
-            total_time=total_time,
+            total_duration=total_time,
             total_cycle_time=global_kpis.cycle_time.total,
             total_waiting_time=global_kpis.waiting_time.total,
             avg_cycle_time_by_case=global_kpis.cycle_time.avg,

@@ -1,3 +1,4 @@
+from o2.models.days import DAY
 from o2.models.state import State
 from tests.fixtures.timetable_generator import TimetableGenerator
 
@@ -40,7 +41,7 @@ def test_evaluation_calculation_without_batching(one_task_state: State):
     # => 2 days + 1 * 45min + 9h = 2d + 0,75h+ 0,5h +9h = 2d + 10,25h
     # (The first day begins at 9:00, so the first day is only 15h long)
     # 15h + 24h + 10,25h = 49,25h
-    assert evaluation.total_time == 49.25 * 60 * 60
+    assert evaluation.total_duration == 49.25 * 60 * 60
     # No waiting time, so the total time is the same as the processing time
     assert evaluation.avg_cycle_time_by_case == 30 * 60
     # Total cycle time is the same as the total time
@@ -115,3 +116,97 @@ def test_evaluation_without_batching_but_fixed_costs(one_task_state: State):
     assert evaluation.total_cost_for_worked_time == 19.25 * 10
 
     assert evaluation.total_cost == 26 * 15 + 19.25 * 10
+    assert (
+        evaluation.get_total_cost_per_task()[TimetableGenerator.FIRST_ACTIVITY]
+        == 26 * 15 + 26 * 0.5 * 10
+    )
+    assert (
+        evaluation.get_avg_cost_per_task()[TimetableGenerator.FIRST_ACTIVITY]
+        == 0.5 * 10 + 15
+    )
+
+
+def test_evaluation_with_intra_task_idling(one_task_state: State):
+    state = one_task_state.replace_timetable(
+        # Resource has cost of $10/h
+        resource_profiles=TimetableGenerator.resource_pools(
+            [TimetableGenerator.FIRST_ACTIVITY], 10, fixed_cost_fn="15"
+        ),
+        # Working one case takes 4h
+        task_resource_distribution=TimetableGenerator.simple_task_resource_distribution(
+            [TimetableGenerator.FIRST_ACTIVITY], 4 * 60 * 60
+        ),
+        # Work from 9 to 11:00 (2h)
+        resource_calendars=TimetableGenerator.resource_calendars(
+            9, 11, include_end_hour=False, only_week_days=True
+        ),
+        # One Case every 4h
+        arrival_time_distribution=TimetableGenerator.arrival_time_distribution(
+            4 * 60 * 60, 4 * 60 * 60
+        ),
+        # Cases from 9:00 to 10:59 (~2h)
+        arrival_time_calendar=TimetableGenerator.arrival_time_calendar(
+            9, 11, include_end_hour=False, only_week_days=True
+        ),
+        total_cases=4,
+    )
+
+    evaluation = state.evaluate()
+
+    # Each 2 days we finish one case, so we need 4 * 2 = 8 days
+    # We have 8 + 2 days weekend, so 10 days, minus 9 hours of the first day
+    # and 13 hours of the last day
+    assert evaluation.total_duration == (10 * 24 - 9 - 13) * 60 * 60
+
+    # We work all the time, so the utilization is 100%
+    assert evaluation.resource_utilizations[TimetableGenerator.RESOURCE_ID] == 1
+
+    # We have 7 "nights" of idling time (11:00 - 9:00, 22h)
+    # Additionally we have 48h of weekend idling time
+    assert (
+        evaluation.task_kpis[TimetableGenerator.FIRST_ACTIVITY].idle_time.total
+        == (7 * 22 + 48) * 60 * 60
+    )
+    assert evaluation.global_kpis.idle_time.total == (7 * 22 + 48) * 60 * 60
+
+
+def test_evaluation_with_waiting_times(one_task_state: State):
+    state = one_task_state.replace_timetable(
+        # Resource has cost of $10/h
+        resource_profiles=TimetableGenerator.resource_pools(
+            [TimetableGenerator.FIRST_ACTIVITY], 10, fixed_cost_fn="15"
+        ),
+        # Working one case takes 1h
+        task_resource_distribution=TimetableGenerator.simple_task_resource_distribution(
+            [TimetableGenerator.FIRST_ACTIVITY], 1 * 60 * 60
+        ),
+        # Work from 9 to 18 (9h)
+        resource_calendars=TimetableGenerator.resource_calendars(
+            9, 18, include_end_hour=False, only_week_days=True
+        ),
+        # One Case every 30min
+        arrival_time_distribution=TimetableGenerator.arrival_time_distribution(
+            30 * 60, 30 * 60
+        ),
+        # Cases from 9:00 to 16:59 (~8h)
+        arrival_time_calendar=TimetableGenerator.arrival_time_calendar(
+            9, 17, include_end_hour=False, only_week_days=True
+        ),
+        total_cases=8,
+    )
+
+    print(state.timetable.to_json())
+
+    evaluation = state.evaluate()
+
+    # 0 for the first
+    # 30min for the second
+    # 1h for the third
+    # 1h30min for the fourth
+    # ....
+    assert evaluation.total_waiting_time == sum(i * 0.5 for i in range(8)) * 60 * 60
+
+    assert evaluation.avg_waiting_time_by_case == (0.5 * (7 / 2)) * 60 * 60
+    # 1 hour processing time + 1.75h wt (on avg) times 8 cases
+    assert evaluation.total_cycle_time == 8 * (1 + (0.5 * (7 / 2))) * 60 * 60
+    assert evaluation.total_duration == 8 * 60 * 60

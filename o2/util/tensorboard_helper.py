@@ -61,8 +61,8 @@ class TensorBoardHelper:
             )
 
             tf.summary.scalar(
-                "current_base/total_cycle_time",
-                self.store.current_evaluation.total_cycle_time,
+                "current_base/total_duration",
+                self.store.current_evaluation.total_duration,
                 step=self.step,
             )
 
@@ -78,8 +78,8 @@ class TensorBoardHelper:
                 step=self.step,
             )
             tf.summary.scalar(
-                "front/avg_total_cycle_time",
-                self.store.current_pareto_front.avg_total_cycle_time,
+                "front/avg_total_duration",
+                self.store.current_pareto_front.avg_total_duration,
                 step=self.step,
             )
 

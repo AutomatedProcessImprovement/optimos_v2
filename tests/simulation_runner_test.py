@@ -19,6 +19,6 @@ def test_simulation_runner(simple_state: State):
     )
 
     # Sanity checks
-    assert evaluation.total_cycle_time > 0
+    assert evaluation.total_duration > 0
     assert evaluation.total_cost > 0
     assert evaluation.total_waiting_time > 0
