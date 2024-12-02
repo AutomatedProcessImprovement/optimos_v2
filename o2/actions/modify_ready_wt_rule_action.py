@@ -79,7 +79,7 @@ class ModifyReadyWtRuleAction(BatchingRuleAction, str=False):
             return
 
         base_max_waiting_time = base_evaluation.get_max_waiting_time_of_task_id(
-            rule_selector.batching_rule_task_id, store
+            rule_selector.batching_rule_task_id
         )
 
         # Waiting time was always smaller than the rule
