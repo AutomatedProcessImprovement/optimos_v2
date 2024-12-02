@@ -1,7 +1,8 @@
+import functools
 import hashlib
 from dataclasses import asdict, dataclass, field, replace
 from enum import Enum
-from functools import reduce
+from functools import cache, cached_property, reduce
 from itertools import groupby
 from json import dumps
 from typing import (
@@ -23,7 +24,7 @@ from o2.models.rule_selector import RuleSelector
 from o2.models.time_period import TimePeriod
 from o2.util.bit_mask_helper import any_has_overlap
 from o2.util.custom_dumper import CustomDumper, CustomLoader
-from o2.util.helper import CLONE_REGEX, hash_string, name_is_clone_of, random_string
+from o2.util.helper import CLONE_REGEX, hash_int, hash_string, name_is_clone_of, random_string
 
 if TYPE_CHECKING:
     from o2.models.constraints import ConstraintsType
@@ -335,6 +336,15 @@ class ResourceCalendar(JSONWizard, CustomLoader, CustomDumper):
         """Get the total number of shifts in the calendar."""
         return len(self.split_time_periods_by_day())
 
+    @cached_property
+    def uid(self) -> int:
+        """Get a unique identifier for the calendar."""
+        return hash_int(self.to_json())
+    
+    
+    def __hash__(self) -> int:
+        return self.uid
+
     def replace_time_period(
         self, time_period_index: int, time_period: "TimePeriod"
     ) -> "ResourceCalendar":
@@ -387,6 +397,59 @@ class ResourceCalendar(JSONWizard, CustomLoader, CustomDumper):
             + [time_period]
             + self.time_periods[time_period_index + 1 :],
         )
+    
+    @cache
+    def split_time_periods_into_chunks(self, chunk_size: int) -> set["TimePeriod"]:
+        """Split the time periods into chunks of a given size."""
+
+        flattend_timeperiods = [
+            timeperiod.split_by_day()
+            for timeperiod in self.time_periods
+        ]
+        # Flatten the nested list of time periods
+        flattened = [tp for sublist in flattend_timeperiods for tp in sublist]
+
+        # Group time periods by day and convert to bitmasks
+        day_bitmasks = {}
+        for tp in flattened:
+            if tp.from_ not in day_bitmasks:
+                day_bitmasks[tp.from_] = 0
+            day_bitmasks[tp.from_] |= tp.to_bitmask()
+
+        # Convert to list of DAY, start_hour, end_hour
+        result: set[tuple[DAY, int, int]] = set()
+        for day, bitmask in day_bitmasks.items():
+            # Convert bitmask to binary string padded to 24 bits
+            bits = format(bitmask, '024b')
+            
+            # Find contiguous blocks of 1s
+            start = -1
+            for i in range(24):
+                if bits[i] == '1' and start == -1:
+                    start = i
+                elif bits[i] == '0' and start != -1:
+                    # Found end of block
+                    if i - start >= chunk_size:
+                        # Block is long enough, add to result
+                        result.add((day, start, i))
+                    start = -1
+                    
+            # Handle case where block extends to end
+            if start != -1 and 24 - start >= chunk_size:
+                result.add((day, start, 24))
+
+            # Process each time period to add all possible subsets
+        final_result: set[tuple[DAY, int, int]] = set()
+        for day, start, end in result:
+            # Slide the window across the time period
+            for window_size in range(chunk_size, end-start+1):
+                for window_start in range(start, end-window_size+1):
+                    window_end = window_start + window_size
+                    final_result.add((day, window_start, window_end))
+                    
+        return set(TimePeriod.from_start_end(start, end, day) for day, start, end in final_result)
+    
+
 
     def __str__(self) -> str:
         """Get a string representation of the calendar."""

@@ -438,3 +438,68 @@ def test_time_period_json():
 
     assert "from_" not in time_period_json
     assert time_period == TimePeriod.model_validate_json(time_period_json)
+
+
+def test_split_timeperiods_into_chunks():
+    calendar = ResourceCalendar(
+        id="1",
+        name="Resource Calendar",
+        time_periods=[
+            TimePeriod.from_start_end(12, 15, DAY.TUESDAY),
+            TimePeriod(
+            from_=DAY.MONDAY,
+            to=DAY.TUESDAY,
+            begin_time="08:00",
+            end_time="12:00",
+            ),
+        ],
+    )
+    result = calendar.split_time_periods_into_chunks(2)
+    assert result == set([
+        # Every two hour chunk (TUESDAY)
+        TimePeriod.from_start_end(8, 10, DAY.TUESDAY),
+        TimePeriod.from_start_end(9, 11, DAY.TUESDAY),
+        TimePeriod.from_start_end(10, 12, DAY.TUESDAY),
+        TimePeriod.from_start_end(11, 13, DAY.TUESDAY),
+        TimePeriod.from_start_end(12, 14, DAY.TUESDAY),
+        TimePeriod.from_start_end(13, 15, DAY.TUESDAY),
+
+        # Every three hour chunk (TUESDAY)
+        TimePeriod.from_start_end(8, 11, DAY.TUESDAY),
+        TimePeriod.from_start_end(9, 12, DAY.TUESDAY),
+        TimePeriod.from_start_end(10, 13, DAY.TUESDAY),
+        TimePeriod.from_start_end(11, 14, DAY.TUESDAY),
+        TimePeriod.from_start_end(12, 15, DAY.TUESDAY),
+        
+
+        # Every four hour chunk (TUESDAY)
+        TimePeriod.from_start_end(8, 12, DAY.TUESDAY),
+        TimePeriod.from_start_end(9, 13, DAY.TUESDAY),
+        TimePeriod.from_start_end(10, 14, DAY.TUESDAY),
+        TimePeriod.from_start_end(11, 15, DAY.TUESDAY),
+        
+
+        # Every five hour chunk (TUESDAY)
+        TimePeriod.from_start_end(8, 13, DAY.TUESDAY),
+        TimePeriod.from_start_end(9, 14, DAY.TUESDAY),
+        TimePeriod.from_start_end(10, 15, DAY.TUESDAY),
+        
+        # Every six hour chunk (TUESDAY)    
+        TimePeriod.from_start_end(8, 14, DAY.TUESDAY),
+        TimePeriod.from_start_end(9, 15, DAY.TUESDAY),
+
+        # Every seven hour chunk
+        TimePeriod.from_start_end(8, 15, DAY.TUESDAY),
+
+        # Every two hour chunk (MONDAY)
+        TimePeriod.from_start_end(8, 10, DAY.MONDAY),
+        TimePeriod.from_start_end(9, 11, DAY.MONDAY),
+        TimePeriod.from_start_end(10, 12, DAY.MONDAY),
+
+        # Every three hour chunk (MONDAY)
+        TimePeriod.from_start_end(8, 11, DAY.MONDAY),
+        TimePeriod.from_start_end(9, 12, DAY.MONDAY),
+
+        # Every four hour chunk (MONDAY)
+        TimePeriod.from_start_end(8, 12, DAY.MONDAY),
+    ])
