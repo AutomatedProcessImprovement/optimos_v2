@@ -170,6 +170,65 @@ def test_evaluation_with_intra_task_idling(one_task_state: State):
     assert evaluation.global_kpis.idle_time.total == (7 * 22 + 48) * 60 * 60
 
 
+def test_evaluation_with_intra_task_idling_task_stats(one_task_state: State):
+    state = one_task_state.replace_timetable(
+        # Resource has cost of $10/h
+        resource_profiles=TimetableGenerator.resource_pools(
+            [TimetableGenerator.FIRST_ACTIVITY], 10, fixed_cost_fn="15"
+        ),
+        # Working one case takes 2h
+        task_resource_distribution=TimetableGenerator.simple_task_resource_distribution(
+            [TimetableGenerator.FIRST_ACTIVITY], 2 * 60 * 60
+        ),
+        # Work from 9 to 11:00 (2h)
+        resource_calendars=TimetableGenerator.resource_calendars(
+            9, 11, include_end_hour=False, only_week_days=True
+        ),
+        # One Case every 1h
+        arrival_time_distribution=TimetableGenerator.arrival_time_distribution(
+            1 * 60 * 60, 1 * 60 * 60
+        ),
+        # Cases from 10:00 to 11:00 (1h)
+        arrival_time_calendar=TimetableGenerator.arrival_time_calendar(
+            10, 14, include_end_hour=False, only_week_days=True
+        ),
+        total_cases=4,
+    )
+
+    evaluation = state.evaluate()
+
+    # Because the first task only arrives one our later, it spans over two days
+    # Processing time is 2h
+    assert (
+        evaluation.get_total_processing_time_per_task()[
+            TimetableGenerator.FIRST_ACTIVITY
+        ]
+        == 2 * 4 * 60 * 60
+    )
+    # Waiting time (due to resource contention) is 0 for the first task
+    # + 11:00 -> 10:00 (next day) + 12:00 -> 10:00 (2 days later) +
+    # 13:00 -> 10:00 (3 days later) = 0 + 24-1 + 24*2-2 + 24*3-3 = 0 + 23 + 46 + 69
+    assert (
+        evaluation.get_total_waiting_time_of_task_id(TimetableGenerator.FIRST_ACTIVITY)
+        == (0 + 23 + 46 + 69) * 60 * 60
+    )
+    # Idle time is 22h for each task (11:00 -> 09:00)
+    assert (
+        evaluation.get_total_idle_time_of_task_id(TimetableGenerator.FIRST_ACTIVITY)
+        == 22 * 4 * 60 * 60
+    )
+    # Duration is processing time + idle time
+    assert (
+        evaluation.get_total_duration_time_per_task()[TimetableGenerator.FIRST_ACTIVITY]
+        == (2 * 4 + 22 * 4) * 60 * 60
+    )
+    # Cycle time is duration + waiting time (= wt + processing + idle)
+    assert (
+        evaluation.get_total_cycle_time_of_task_id(TimetableGenerator.FIRST_ACTIVITY)
+        == (2 * 4 + 22 * 4) * 60 * 60 + (0 + 23 + 46 + 69) * 60 * 60
+    )
+
+
 def test_evaluation_with_waiting_times(one_task_state: State):
     state = one_task_state.replace_timetable(
         # Resource has cost of $10/h

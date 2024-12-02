@@ -1,4 +1,3 @@
-import functools
 import math
 from dataclasses import dataclass
 from functools import cached_property, reduce
@@ -197,11 +196,15 @@ class Evaluation:
             + self.global_kpis.idle_time.total
         )
 
-    def get_avg_waiting_time_of_task_id(self, task_id: str, store: "Store") -> float:
+    def get_avg_waiting_time_of_task_id(self, task_id: str) -> float:
         """Get the average waiting time of a task."""
         return self.task_kpis[task_id].waiting_time.avg
 
-    def get_max_waiting_time_of_task_id(self, task_id: str, store: "Store") -> float:
+    def get_total_waiting_time_of_task_id(self, task_id: str) -> float:
+        """Get the total waiting time of a task."""
+        return self.task_kpis[task_id].waiting_time.total
+
+    def get_max_waiting_time_of_task_id(self, task_id: str) -> float:
         """Get the maximum waiting time of a task."""
         return self.task_kpis[task_id].waiting_time.max
 
@@ -310,6 +313,28 @@ class Evaluation:
 
         # Return the resource_ids sorted by most common first
         return [resource_id for resource_id, _ in resource_counts.most_common()]
+
+    def get_total_processing_time_per_task(self) -> dict[str, float]:
+        """Get the total processing time per task (excl. idle times)."""
+        return {
+            task_id: task_kpi.processing_time.total
+            for task_id, task_kpi in self.task_kpis.items()
+        }
+
+    def get_total_duration_time_per_task(self) -> dict[str, float]:
+        """Get the total duration time per task (incl. idle times)."""
+        return {
+            task_id: task_kpi.idle_processing_time.total
+            for task_id, task_kpi in self.task_kpis.items()
+        }
+
+    def get_total_idle_time_of_task_id(self, task_id: str) -> float:
+        """Get the total idle time of a task."""
+        return self.task_kpis[task_id].idle_time.total
+
+    def get_total_cycle_time_of_task_id(self, task_id: str) -> float:
+        """Get the total cycle time of a task."""
+        return self.task_kpis[task_id].idle_cycle_time.total
 
     def to_tuple(self) -> tuple[float, float]:
         """Convert self to a tuple of cost for available time and total cycle time."""
@@ -494,6 +519,8 @@ class Evaluation:
         )
 
         total_time = (log_info.ended_at - log_info.started_at).total_seconds()
+
+        # print("\n".join([f"{event.started_datetime.isoformat()} -> {event.completed_datetime.isoformat()} (enabled: {event.enabled_datetime.isoformat()}) (I:{event.idle_time / 3600}, P:{event.processing_time/3600}, WT:{event.waiting_time/3600}, C:{event.cycle_time / 3600})" for trace in log_info.trace_list for event in trace.event_list]))
         return Evaluation(
             hourly_rates=hourly_rates,
             total_duration=total_time,
