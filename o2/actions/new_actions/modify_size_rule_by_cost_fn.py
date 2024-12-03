@@ -101,7 +101,26 @@ class ModifySizeRuleByCostFnHighCosts(ModifySizeRuleBaseAction):
         task_costs = evaluation.get_total_cost_per_task()
         yield from rate_self_helper_by_metric_dict(
             store, task_costs, ModifySizeRuleByCostFnHighCosts
+
+class ModifySizeRuleByCostFnLowProcessingTime(ModifySizeRuleBaseAction):
+    """An Action to modify size batching rules based on the cost fn.
+
+    If batch size increment reduces processing time => Increase Batch Size
+    - For tasks with low processing time (lower processing time first)
+    """
+
+    params: ModifySizeRuleByCostFnParamsType
+
+    @staticmethod
+    def rate_self(store: "Store", input: SelfRatingInput) -> RateSelfReturnType:
+        """Generate a best set of parameters & self-evaluates this action."""
+        evaluation = store.current_evaluation
+
+        task_processing_times = evaluation.get_avg_processing_time_per_task()
+        yield from rate_self_helper_by_metric_dict(
+            store, task_processing_times, ModifySizeRuleByCostFnLowProcessingTime
         )
+
 
 
 class ModifySizeRuleByCostFnLowCycleTimeImpact(ModifySizeRuleBaseAction):
