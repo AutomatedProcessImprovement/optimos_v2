@@ -109,3 +109,16 @@ def batching_solution(batching_state: State):
 @pytest.fixture(scope="function")
 def store(batching_solution: Solution, constraints: ConstraintsType):
     return Store(solution=batching_solution, constraints=constraints)
+
+
+@pytest.fixture(scope="function")
+def multi_resource_state(one_task_state: State):
+    return one_task_state.replace_timetable(
+        resource_calendars=TimetableGenerator.resource_calendars_multi_resource(3),
+        resource_profiles=TimetableGenerator.resource_pools_multi_resource(
+            [TimetableGenerator.FIRST_ACTIVITY], 3
+        ),
+        task_resource_distribution=TimetableGenerator.task_resource_distribution_multi_resource(
+            [TimetableGenerator.FIRST_ACTIVITY], 3
+        ),
+    )

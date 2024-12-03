@@ -96,7 +96,7 @@ class TimetableGenerator:
     def create_simple_task_resource_distribution(self, duration=60 * 60):
         self.timetable = replace(
             self.timetable,
-            task_resource_distribution=TimetableGenerator.simple_task_resource_distribution(
+            task_resource_distribution=TimetableGenerator.task_resource_distribution_simple(
                 self.task_ids, duration
             ),
         )
@@ -148,6 +148,31 @@ class TimetableGenerator:
                     )
                 ],
             )
+        ]
+
+    @staticmethod
+    def resource_calendars_multi_resource(
+        num_resources: int,
+        begin_hour=9,
+        end_hour=17,
+        include_end_hour=False,
+        only_week_days=False,
+    ):
+        return [
+            ResourceCalendar(
+                id=TimetableGenerator.CALENDAR_ID + "_" + str(i),
+                name=TimetableGenerator.CALENDAR_ID + "_" + str(i),
+                time_periods=[
+                    TimePeriod(
+                        from_=DAY.MONDAY,
+                        to=DAY.SUNDAY if not only_week_days else DAY.FRIDAY,
+                        begin_time=f"{begin_hour:02}:00:00",
+                        end_time=f"{end_hour:02}:"
+                        + ("59:59" if include_end_hour else "00:00"),
+                    )
+                ],
+            )
+            for i in range(1, num_resources + 1)
         ]
 
     @staticmethod
@@ -379,7 +404,7 @@ class TimetableGenerator:
         )
 
     @staticmethod
-    def simple_task_resource_distribution(task_ids: list[str], duration=60 * 60):
+    def task_resource_distribution_simple(task_ids: list[str], duration=60 * 60):
         return [
             TaskResourceDistributions(
                 task_id=task_id,
@@ -389,6 +414,25 @@ class TimetableGenerator:
                         distribution_name=DISTRIBUTION_TYPE.FIXED,
                         distribution_params=[DistributionParameter(value=duration)],
                     )
+                ],
+            )
+            for task_id in task_ids
+        ]
+
+    @staticmethod
+    def task_resource_distribution_multi_resource(
+        task_ids: list[str], num_resources: int, duration=60 * 60
+    ):
+        return [
+            TaskResourceDistributions(
+                task_id=task_id,
+                resources=[
+                    TaskResourceDistribution(
+                        resource_id=f"{TimetableGenerator.RESOURCE_ID}_{i}",
+                        distribution_name=DISTRIBUTION_TYPE.FIXED,
+                        distribution_params=[DistributionParameter(value=duration)],
+                    )
+                    for i in range(1, num_resources + 1)
                 ],
             )
             for task_id in task_ids
@@ -410,6 +454,33 @@ class TimetableGenerator:
                         amount=1,
                         assigned_tasks=[task_id for task_id in task_ids],
                     )
+                ],
+            )
+            for task_id in task_ids
+        ]
+
+    @staticmethod
+    def resource_pools_multi_resource(
+        task_ids: list[str],
+        num_resources: int,
+        cost_per_hour: int = 1,
+        fixed_cost_fn="0",
+    ):
+        return [
+            ResourcePool(
+                id=task_id,
+                name="Base Resource Pool",
+                fixed_cost_fn=fixed_cost_fn,
+                resource_list=[
+                    Resource(
+                        id=f"{TimetableGenerator.RESOURCE_ID}_{i}",
+                        name=f"{TimetableGenerator.RESOURCE_ID}_{i}",
+                        calendar=f"{TimetableGenerator.CALENDAR_ID}_{i}",
+                        cost_per_hour=cost_per_hour,
+                        amount=1,
+                        assigned_tasks=[task_id for task_id in task_ids],
+                    )
+                    for i in range(1, num_resources + 1)
                 ],
             )
             for task_id in task_ids
