@@ -16,9 +16,15 @@ from o2.actions.new_actions.modify_size_rule_by_cost_action import (
     ModifySizeRuleByCostAction,
 )
 from o2.actions.new_actions.modify_size_rule_by_cost_fn import (
+    ModifyBatchSizeIfNoCostImprovement,
     ModifySizeRuleByCostFnHighCosts,
     ModifySizeRuleByCostFnLowCycleTimeImpact,
+    ModifySizeRuleByCostFnLowProcessingTime,
     ModifySizeRuleByCostFnRepetitiveTasks,
+)
+from o2.actions.new_actions.modify_size_rule_by_duration_fn import (
+    ModifyBatchSizeIfNoDurationImprovement,
+    ModifySizeRuleByDurationFnCostImpact,
 )
 from o2.actions.new_actions.modify_size_rule_by_wt_action import (
     ModifySizeRuleByWTAction,
@@ -66,6 +72,10 @@ ACTION_CATALOG_BATCHING_ONLY = [
     ModifySizeRuleByCostFnHighCosts,
     ModifySizeRuleByCostFnRepetitiveTasks,
     ModifySizeRuleByCostFnLowCycleTimeImpact,
+    ModifySizeRuleByCostFnLowProcessingTime,
+    ModifyBatchSizeIfNoCostImprovement,
+    ModifySizeRuleByDurationFnCostImpact,
+    ModifyBatchSizeIfNoDurationImprovement,
 ]
 
 

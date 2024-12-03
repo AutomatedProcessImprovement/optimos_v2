@@ -6,7 +6,7 @@ from o2.actions.modify_size_rule_base_action import (
     ModifySizeRuleBaseActionParamsType,
 )
 from o2.models.rule_selector import RuleSelector
-from o2.models.self_rating import SelfRatingInput
+from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.timetable import RULE_TYPE
 from o2.store import Store
 
@@ -101,6 +101,8 @@ class ModifySizeRuleByCostFnHighCosts(ModifySizeRuleBaseAction):
         task_costs = evaluation.get_total_cost_per_task()
         yield from rate_self_helper_by_metric_dict(
             store, task_costs, ModifySizeRuleByCostFnHighCosts
+        )
+
 
 class ModifySizeRuleByCostFnLowProcessingTime(ModifySizeRuleBaseAction):
     """An Action to modify size batching rules based on the cost fn.
@@ -189,7 +191,7 @@ class ModifySizeRuleByCostFnLowCycleTimeImpact(ModifySizeRuleBaseAction):
     """An Action to modify size batching rules based on the cost fn.
 
     If batch size increment reduces Costs => Increase Batch Size
-    - For Tasks which have a low impact on the cycle time.
+    - For Tasks which have a low impact on the cycle time (looking at the duration fn)
     """
 
     params: ModifySizeRuleByCostFnParamsType
@@ -223,10 +225,12 @@ class ModifySizeRuleByCostFnLowCycleTimeImpact(ModifySizeRuleBaseAction):
 
                 new_cost = size_constraint.cost_fn_lambda(size + 1)
                 old_cost = size_constraint.cost_fn_lambda(size)
+
+                old_duration = size_constraint.duration_fn_lambda(size)
+                new_duration = size_constraint.duration_fn_lambda(size + 1)
                 if new_cost < old_cost:
                     cycle_time_impacts[firing_rule_selector] = (
-                        size_constraint.duration_fn_lambda(size)
-                        - size_constraint.duration_fn_lambda(size + 1)
+                        old_duration - new_duration
                     )
 
         sorted_cycle_time_impacts = sorted(

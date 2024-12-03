@@ -1,3 +1,21 @@
+from typing import Generator, Mapping
+
+from o2.actions.base_action import BaseAction, BaseActionParamsType, RateSelfReturnType
+from o2.actions.modify_size_rule_base_action import (
+    ModifySizeRuleBaseAction,
+    ModifySizeRuleBaseActionParamsType,
+)
+from o2.models.rule_selector import RuleSelector
+from o2.models.self_rating import RATING, SelfRatingInput
+from o2.models.timetable import RULE_TYPE
+from o2.store import Store
+
+
+class ModifySizeRuleByDurationFnParamsType(ModifySizeRuleBaseActionParamsType):
+    """Parameter for ModifySizeRuleByCostFn."""
+
+    pass
+
 
 class ModifyBatchSizeIfNoDurationImprovement(ModifySizeRuleBaseAction):
     """An Action to modify size batching rules based on the cost fn.
