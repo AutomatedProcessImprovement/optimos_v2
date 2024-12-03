@@ -53,7 +53,7 @@ def test_self_rate_simple(one_task_store: Store):
             )
         ],
         # 4 Hour Tasks
-        task_resource_distribution=TimetableGenerator.simple_task_resource_distribution(
+        task_resource_distribution=TimetableGenerator.task_resource_distribution_simple(
             [TimetableGenerator.FIRST_ACTIVITY], 4 * 60 * 60
         ),
     )

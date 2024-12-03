@@ -13,7 +13,7 @@ def test_evaluation_calculation_without_batching(one_task_state: State):
             [TimetableGenerator.FIRST_ACTIVITY], 10
         ),
         # Working one case takes 30min
-        task_resource_distribution=TimetableGenerator.simple_task_resource_distribution(
+        task_resource_distribution=TimetableGenerator.task_resource_distribution_simple(
             [TimetableGenerator.FIRST_ACTIVITY], 30 * 60
         ),
         # Work from 9 to 17 (8h)
@@ -91,7 +91,7 @@ def test_evaluation_without_batching_but_fixed_costs(one_task_state: State):
             [TimetableGenerator.FIRST_ACTIVITY], 10, fixed_cost_fn="15"
         ),
         # Working one case takes 30min
-        task_resource_distribution=TimetableGenerator.simple_task_resource_distribution(
+        task_resource_distribution=TimetableGenerator.task_resource_distribution_simple(
             [TimetableGenerator.FIRST_ACTIVITY], 30 * 60
         ),
         # Work from 9 to 17 (8h)
@@ -133,7 +133,7 @@ def test_evaluation_with_intra_task_idling(one_task_state: State):
             [TimetableGenerator.FIRST_ACTIVITY], 10, fixed_cost_fn="15"
         ),
         # Working one case takes 4h
-        task_resource_distribution=TimetableGenerator.simple_task_resource_distribution(
+        task_resource_distribution=TimetableGenerator.task_resource_distribution_simple(
             [TimetableGenerator.FIRST_ACTIVITY], 4 * 60 * 60
         ),
         # Work from 9 to 11:00 (2h)
@@ -177,7 +177,7 @@ def test_evaluation_with_intra_task_idling_task_stats(one_task_state: State):
             [TimetableGenerator.FIRST_ACTIVITY], 10, fixed_cost_fn="15"
         ),
         # Working one case takes 2h
-        task_resource_distribution=TimetableGenerator.simple_task_resource_distribution(
+        task_resource_distribution=TimetableGenerator.task_resource_distribution_simple(
             [TimetableGenerator.FIRST_ACTIVITY], 2 * 60 * 60
         ),
         # Work from 9 to 11:00 (2h)
@@ -236,7 +236,7 @@ def test_evaluation_with_waiting_times(one_task_state: State):
             [TimetableGenerator.FIRST_ACTIVITY], 10, fixed_cost_fn="15"
         ),
         # Working one case takes 1h
-        task_resource_distribution=TimetableGenerator.simple_task_resource_distribution(
+        task_resource_distribution=TimetableGenerator.task_resource_distribution_simple(
             [TimetableGenerator.FIRST_ACTIVITY], 1 * 60 * 60
         ),
         # Work from 9 to 18 (9h)

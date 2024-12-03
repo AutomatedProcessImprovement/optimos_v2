@@ -149,7 +149,7 @@ def test_self_rating_non_optimal_rule(one_task_store: Store):
                 TimetableGenerator.FIRST_ACTIVITY, 50, 1
             )
         ],
-        task_resource_distribution=TimetableGenerator.simple_task_resource_distribution(
+        task_resource_distribution=TimetableGenerator.task_resource_distribution_simple(
             TimetableGenerator(one_task_store.base_state.bpmn_definition).task_ids, 60
         ),
     )

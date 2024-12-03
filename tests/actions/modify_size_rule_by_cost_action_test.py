@@ -20,7 +20,7 @@ def test_self_rating_optimal_rule(one_task_store: Store):
         batch_processing=[
             TimetableGenerator.batching_size_rule(TimetableGenerator.FIRST_ACTIVITY, 1)
         ],
-        task_resource_distribution=TimetableGenerator.simple_task_resource_distribution(
+        task_resource_distribution=TimetableGenerator.task_resource_distribution_simple(
             [TimetableGenerator.FIRST_ACTIVITY],
             # Long duration, therefore good to batch
             60 * 60 * 2,
@@ -53,12 +53,12 @@ def test_self_rating_non_optimal_rule_decrement(two_tasks_store: Store):
     store = replace_timetable(
         two_tasks_store,
         task_resource_distribution=(
-            TimetableGenerator.simple_task_resource_distribution(
+            TimetableGenerator.task_resource_distribution_simple(
                 # Short Task
                 [TimetableGenerator.FIRST_ACTIVITY],
                 1,
             )
-            + TimetableGenerator.simple_task_resource_distribution(
+            + TimetableGenerator.task_resource_distribution_simple(
                 # Long Task
                 [TimetableGenerator.SECOND_ACTIVITY],
                 10,

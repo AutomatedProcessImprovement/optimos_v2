@@ -67,7 +67,7 @@ def test_self_rating_non_optimal_rule_decrement(one_task_store: Store):
             )
         ],
         # Very short times
-        task_resource_distribution=TimetableGenerator.simple_task_resource_distribution(
+        task_resource_distribution=TimetableGenerator.task_resource_distribution_simple(
             [TimetableGenerator.FIRST_ACTIVITY], 1
         ),
     )
