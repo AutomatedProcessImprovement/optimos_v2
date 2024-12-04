@@ -1,7 +1,9 @@
+from dataclasses import replace
 from o2.models.days import DAY
 from o2.models.legacy_constraints import WorkMasks
 from o2.models.state import State
 from o2.models.timetable import Resource, ResourceCalendar, TimePeriod
+from o2.util.bit_mask_helper import find_most_frequent_overlap, string_to_bitmask
 from o2.util.helper import name_is_clone_of
 from tests.fixtures.timetable_generator import TimetableGenerator
 
@@ -440,20 +442,28 @@ def test_time_period_json():
     assert time_period == TimePeriod.model_validate_json(time_period_json)
 
 
-def test_split_timeperiods_into_chunks():
+def test_bitmasks_by_day():
     calendar = ResourceCalendar(
         id="1",
         name="Resource Calendar",
         time_periods=[
             TimePeriod.from_start_end(12, 15, DAY.TUESDAY),
             TimePeriod(
-            from_=DAY.MONDAY,
-            to=DAY.TUESDAY,
-            begin_time="08:00",
-            end_time="12:00",
+                from_=DAY.MONDAY,
+                to=DAY.TUESDAY,
+                begin_time="08:00",
+                end_time="12:00",
             ),
         ],
     )
+
+    bitmasks_by_day = calendar.bitmasks_by_day
+    assert bitmasks_by_day == [
+        (DAY.MONDAY, string_to_bitmask("0" * 7 + "1" * 4 + "0" * 12)),
+        (DAY.TUESDAY, string_to_bitmask("0" * 12 + "1" * 3 + "0" * 9)),
+        (DAY.TUESDAY, string_to_bitmask("0" * 7 + "1" * 4 + "0" * 12)),
+    ]
+
 
 def test_find_most_frequent_overlap_empty():
     bitmasks = []
@@ -550,3 +560,106 @@ def test_find_most_frequent_overlap_min_sufficient():
     assert start == 10
     assert end == 16
 
+
+def test_get_highest_availability_time_period_no_overlap(multi_resource_state: State):
+    calendars = [
+        ResourceCalendar(
+            id=f"{TimetableGenerator.CALENDAR_ID}_1",
+            name=f"{TimetableGenerator.CALENDAR_ID}_1",
+            time_periods=[
+                TimePeriod.from_start_end(10, 11, DAY.MONDAY),
+            ],
+        ),
+        ResourceCalendar(
+            id=f"{TimetableGenerator.CALENDAR_ID}_2",
+            name=f"{TimetableGenerator.CALENDAR_ID}_2",
+            time_periods=[
+                TimePeriod.from_start_end(11, 12, DAY.MONDAY),
+            ],
+        ),
+        ResourceCalendar(
+            id=f"{TimetableGenerator.CALENDAR_ID}_3",
+            name=f"{TimetableGenerator.CALENDAR_ID}_3",
+            time_periods=[
+                TimePeriod.from_start_end(12, 13, DAY.MONDAY),
+            ],
+        ),
+    ]
+    state = multi_resource_state.replace_timetable(
+        resource_calendars=calendars,
+    )
+    timetable = state.timetable
+
+    assert timetable.get_highest_availability_time_period(
+        TimetableGenerator.FIRST_ACTIVITY, 2
+    ) == TimePeriod.from_start_end(10, 13, DAY.MONDAY)
+
+
+def test_get_highest_availability_time_period_overlap(multi_resource_state: State):
+    calendars = [
+        ResourceCalendar(
+            id=f"{TimetableGenerator.CALENDAR_ID}_1",
+            name=f"{TimetableGenerator.CALENDAR_ID}_1",
+            time_periods=[
+                TimePeriod.from_start_end(10, 14, DAY.MONDAY),
+            ],
+        ),
+        ResourceCalendar(
+            id=f"{TimetableGenerator.CALENDAR_ID}_2",
+            name=f"{TimetableGenerator.CALENDAR_ID}_2",
+            time_periods=[
+                TimePeriod.from_start_end(11, 15, DAY.MONDAY),
+            ],
+        ),
+        ResourceCalendar(
+            id=f"{TimetableGenerator.CALENDAR_ID}_3",
+            name=f"{TimetableGenerator.CALENDAR_ID}_3",
+            time_periods=[
+                TimePeriod.from_start_end(12, 16, DAY.MONDAY),
+            ],
+        ),
+    ]
+    state = multi_resource_state.replace_timetable(
+        resource_calendars=calendars,
+    )
+    timetable = state.timetable
+
+    assert timetable.get_highest_availability_time_period(
+        TimetableGenerator.FIRST_ACTIVITY, 2
+    ) == TimePeriod.from_start_end(12, 14, DAY.MONDAY)
+
+
+def test_get_highest_availability_time_period_overlap_too_small(
+    multi_resource_state: State,
+):
+    calendars = [
+        ResourceCalendar(
+            id=f"{TimetableGenerator.CALENDAR_ID}_1",
+            name=f"{TimetableGenerator.CALENDAR_ID}_1",
+            time_periods=[
+                TimePeriod.from_start_end(10, 14, DAY.MONDAY),
+            ],
+        ),
+        ResourceCalendar(
+            id=f"{TimetableGenerator.CALENDAR_ID}_2",
+            name=f"{TimetableGenerator.CALENDAR_ID}_2",
+            time_periods=[
+                TimePeriod.from_start_end(11, 15, DAY.MONDAY),
+            ],
+        ),
+        ResourceCalendar(
+            id=f"{TimetableGenerator.CALENDAR_ID}_3",
+            name=f"{TimetableGenerator.CALENDAR_ID}_3",
+            time_periods=[
+                TimePeriod.from_start_end(12, 16, DAY.MONDAY),
+            ],
+        ),
+    ]
+    state = multi_resource_state.replace_timetable(
+        resource_calendars=calendars,
+    )
+    timetable = state.timetable
+
+    assert timetable.get_highest_availability_time_period(
+        TimetableGenerator.FIRST_ACTIVITY, 3
+    ) == TimePeriod.from_start_end(10, 16, DAY.MONDAY)
