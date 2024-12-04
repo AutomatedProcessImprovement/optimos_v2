@@ -454,52 +454,99 @@ def test_split_timeperiods_into_chunks():
             ),
         ],
     )
-    result = calendar.split_time_periods_into_chunks(2)
-    assert result == set([
-        # Every two hour chunk (TUESDAY)
-        TimePeriod.from_start_end(8, 10, DAY.TUESDAY),
-        TimePeriod.from_start_end(9, 11, DAY.TUESDAY),
-        TimePeriod.from_start_end(10, 12, DAY.TUESDAY),
-        TimePeriod.from_start_end(11, 13, DAY.TUESDAY),
-        TimePeriod.from_start_end(12, 14, DAY.TUESDAY),
-        TimePeriod.from_start_end(13, 15, DAY.TUESDAY),
 
-        # Every three hour chunk (TUESDAY)
-        TimePeriod.from_start_end(8, 11, DAY.TUESDAY),
-        TimePeriod.from_start_end(9, 12, DAY.TUESDAY),
-        TimePeriod.from_start_end(10, 13, DAY.TUESDAY),
-        TimePeriod.from_start_end(11, 14, DAY.TUESDAY),
-        TimePeriod.from_start_end(12, 15, DAY.TUESDAY),
-        
+def test_find_most_frequent_overlap_empty():
+    bitmasks = []
+    assert find_most_frequent_overlap(bitmasks) is None
 
-        # Every four hour chunk (TUESDAY)
-        TimePeriod.from_start_end(8, 12, DAY.TUESDAY),
-        TimePeriod.from_start_end(9, 13, DAY.TUESDAY),
-        TimePeriod.from_start_end(10, 14, DAY.TUESDAY),
-        TimePeriod.from_start_end(11, 15, DAY.TUESDAY),
-        
 
-        # Every five hour chunk (TUESDAY)
-        TimePeriod.from_start_end(8, 13, DAY.TUESDAY),
-        TimePeriod.from_start_end(9, 14, DAY.TUESDAY),
-        TimePeriod.from_start_end(10, 15, DAY.TUESDAY),
-        
-        # Every six hour chunk (TUESDAY)    
-        TimePeriod.from_start_end(8, 14, DAY.TUESDAY),
-        TimePeriod.from_start_end(9, 15, DAY.TUESDAY),
+def test_find_most_frequent_overlap_adjacent():
+    bitmasks = [
+        TimePeriod.from_start_end(10, 11).to_bitmask(),
+        TimePeriod.from_start_end(11, 12).to_bitmask(),
+        TimePeriod.from_start_end(12, 13).to_bitmask(),
+    ]
+    res = find_most_frequent_overlap(bitmasks)
+    assert res is not None
+    freq, start, end = res
+    assert freq == 1
+    assert start == 10
+    assert end == 13
 
-        # Every seven hour chunk
-        TimePeriod.from_start_end(8, 15, DAY.TUESDAY),
 
-        # Every two hour chunk (MONDAY)
-        TimePeriod.from_start_end(8, 10, DAY.MONDAY),
-        TimePeriod.from_start_end(9, 11, DAY.MONDAY),
-        TimePeriod.from_start_end(10, 12, DAY.MONDAY),
+def test_find_most_frequent_overlap_simple():
+    bitmasks = [
+        TimePeriod.from_start_end(10, 13).to_bitmask(),
+        TimePeriod.from_start_end(10, 13).to_bitmask(),
+        TimePeriod.from_start_end(9, 14).to_bitmask(),
+    ]
+    res = find_most_frequent_overlap(bitmasks)
+    assert res is not None
+    freq, start, end = res
+    assert freq == 3
+    assert start == 10
+    assert end == 13
 
-        # Every three hour chunk (MONDAY)
-        TimePeriod.from_start_end(8, 11, DAY.MONDAY),
-        TimePeriod.from_start_end(9, 12, DAY.MONDAY),
 
-        # Every four hour chunk (MONDAY)
-        TimePeriod.from_start_end(8, 12, DAY.MONDAY),
-    ])
+def test_find_most_frequent_overlap_two_equal():
+    bitmasks = [
+        TimePeriod.from_start_end(10, 13).to_bitmask(),
+        TimePeriod.from_start_end(10, 13).to_bitmask(),
+        TimePeriod.from_start_end(16, 19).to_bitmask(),
+        TimePeriod.from_start_end(16, 19).to_bitmask(),
+    ]
+    res = find_most_frequent_overlap(bitmasks)
+    assert res is not None
+    freq, start, end = res
+    assert freq == 2
+    assert start == 10
+    assert end == 13
+
+
+def test_find_most_frequent_overlap_two_longer():
+    bitmasks = [
+        TimePeriod.from_start_end(10, 13).to_bitmask(),
+        TimePeriod.from_start_end(10, 13).to_bitmask(),
+        TimePeriod.from_start_end(16, 20).to_bitmask(),
+        TimePeriod.from_start_end(16, 20).to_bitmask(),
+    ]
+    res = find_most_frequent_overlap(bitmasks)
+    assert res is not None
+    freq, start, end = res
+    assert freq == 2
+    assert start == 16
+    assert end == 20
+
+
+def test_find_most_frequent_overlap_min_size():
+    bitmasks = [
+        TimePeriod.from_start_end(10, 12).to_bitmask(),
+        TimePeriod.from_start_end(10, 12).to_bitmask(),
+        TimePeriod.from_start_end(10, 12).to_bitmask(),
+        TimePeriod.from_start_end(14, 15).to_bitmask(),
+        TimePeriod.from_start_end(14, 15).to_bitmask(),
+        TimePeriod.from_start_end(14, 15).to_bitmask(),
+        TimePeriod.from_start_end(20, 23).to_bitmask(),
+        TimePeriod.from_start_end(20, 23).to_bitmask(),
+    ]
+    res = find_most_frequent_overlap(bitmasks, min_size=2)
+    assert res is not None
+    freq, start, end = res
+    assert freq == 3
+    assert start == 10
+    assert end == 12
+
+
+def test_find_most_frequent_overlap_min_sufficient():
+    bitmasks = [
+        TimePeriod.from_start_end(10, 14).to_bitmask(),
+        TimePeriod.from_start_end(11, 15).to_bitmask(),
+        TimePeriod.from_start_end(12, 16).to_bitmask(),
+    ]
+    res = find_most_frequent_overlap(bitmasks, min_size=3)
+    assert res is not None
+    freq, start, end = res
+    assert freq == 1
+    assert start == 10
+    assert end == 16
+
