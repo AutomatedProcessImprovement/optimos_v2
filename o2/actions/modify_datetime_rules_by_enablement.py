@@ -3,6 +3,10 @@ from datetime import datetime
 
 from bpdfr_simulation_engine.execution_info import TaskEvent
 
+from o2.actions.base_actions.add_datetime_rule_base_action import (
+    AddDateTimeRuleBaseAction,
+    AddDateTimeRuleBaseActionParamsType,
+)
 from o2.actions.base_actions.base_action import (
     BaseAction,
     BaseActionParamsType,
@@ -13,6 +17,7 @@ from o2.models.days import DAY
 from o2.models.legacy_constraints import WorkMasks
 from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.state import State
+from o2.models.time_period import TimePeriod
 from o2.models.timetable import (
     COMPARATOR,
     FiringRule,
@@ -25,18 +30,15 @@ SIZE_OF_CHANGE = 1
 CLOSENESS_TO_MAX_WT = 0.01
 
 
-class ModifyDateTimeRulesByEnablementActionParamsType(BaseActionParamsType):
-    """Parameter for ModifyDateTimeRulesByEnablementAction.
+class ModifyDateTimeRulesByEnablementActionParamsType(
+    AddDateTimeRuleBaseActionParamsType
+):
+    """Parameter for ModifyDateTimeRulesByEnablementAction."""
 
-    hour_increment may also be negative to remove hours.
-    """
-
-    new_hour: int
-    new_day: DAY
-    task_id: str
+    pass
 
 
-class ModifyDateTimeRulesByEnablementAction(BaseAction):
+class ModifyDateTimeRulesByEnablementAction(AddDateTimeRuleBaseAction):
     """ModifyDateTimeRulesByEnablementAction will modify DAILY_HOUR & WEEK_DAY rules.
 
     It's main metric is enablement. It looks at the enablement times of all rules, finds
@@ -46,52 +48,6 @@ class ModifyDateTimeRulesByEnablementAction(BaseAction):
     """
 
     params: ModifyDateTimeRulesByEnablementActionParamsType
-
-    def apply(self, state: State, enable_prints: bool = True) -> State:
-        """Apply the action to the state."""
-        timetable = state.timetable
-        task_id = self.params["task_id"]
-        new_hour = self.params["new_hour"]
-        next_hour = new_hour + 1 if new_hour < 24 else 0
-        new_day = self.params["new_day"]
-
-        existing_task_rules = timetable.get_batching_rules_for_task(task_id)
-
-        if not existing_task_rules:
-            # TODO Also allow adding new rules
-            return state
-
-        # Find the rule to modify
-        rule = existing_task_rules[0]
-        index = timetable.batch_processing.index(rule)
-
-        new_or_rule = [
-            FiringRule(
-                attribute=RULE_TYPE.WEEK_DAY,
-                comparison=COMPARATOR.EQUAL,
-                value=new_day,
-            ),
-            FiringRule(
-                attribute=RULE_TYPE.DAILY_HOUR,
-                comparison=COMPARATOR.GREATER_THEN_OR_EQUAL,
-                value=new_hour,
-            ),
-            FiringRule(
-                attribute=RULE_TYPE.DAILY_HOUR,
-                comparison=COMPARATOR.LESS_THEN,
-                value=next_hour,
-            ),
-        ]
-        updated_rule = replace(
-            rule,
-            firing_rules=rule.firing_rules + [new_or_rule],
-        )
-
-        return state.replace_timetable(
-            batch_processing=timetable.batch_processing[:index]
-            + [updated_rule]
-            + timetable.batch_processing[index + 1 :],
-        )
 
     @staticmethod
     def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
@@ -182,7 +138,7 @@ class ModifyDateTimeRulesByEnablementAction(BaseAction):
                         for day in day_constraint.allowed_days
                     )
                     for day in allowed_days:
-                        for allowed_hour in constraint.allowed_hours:
+                        for allowed_hour in constraint.allowed_hours[day]:
                             task_batch_enablement[task_id] = task_batch_enablement[
                                 task_id
                             ].set_hour_for_day(day, allowed_hour)
@@ -190,6 +146,7 @@ class ModifyDateTimeRulesByEnablementAction(BaseAction):
         # Now we iterate of over all enablement times in the event log, and add it to
         # a second dict (if it's not already in the first)
         enablement_counter: dict[tuple[str, DAY, int], int] = {}
+        # TODO: Fix this
         for trace in input.parent_evaluation.cases:
             events: list[TaskEvent] = trace.event_list
             for event in events:
@@ -218,7 +175,8 @@ class ModifyDateTimeRulesByEnablementAction(BaseAction):
             RATING.HIGH,
             ModifyDateTimeRulesByEnablementAction(
                 ModifyDateTimeRulesByEnablementActionParamsType(
-                    task_id=task_id, new_day=day, new_hour=hour
+                    task_id=task_id,
+                    time_period=TimePeriod.from_start_end(hour, hour + 1, day),
                 )
             ),
         )
