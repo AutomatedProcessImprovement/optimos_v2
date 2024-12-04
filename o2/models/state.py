@@ -41,6 +41,7 @@ class State:
         return Evaluation.from_run_simulation_result(
             self.timetable.get_hourly_rates(),
             self.timetable.get_fixed_cost_fns(),
+            self.timetable.batching_rules_exist,
             result,
         )
 

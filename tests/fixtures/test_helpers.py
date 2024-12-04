@@ -77,6 +77,7 @@ def create_mock_solution(
     evaluation = Evaluation.from_run_simulation_result(
         state.timetable.get_hourly_rates(),
         state.timetable.get_fixed_cost_fns(),
+        state.timetable.batching_rules_exist,
         (kpis, {}, {TimetableGenerator.RESOURCE_ID: resource_kpi}, log_info),  # type: ignore
     )
     state = replace(state, bpmn_definition=random_string())

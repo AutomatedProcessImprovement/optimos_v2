@@ -14,7 +14,9 @@ from intervaltree import Interval, IntervalTree
 from o2.util.indented_printer import print_l2
 
 
-def add_waiting_times_to_event_log(log: LogInfo) -> pd.DataFrame:
+def add_waiting_times_to_event_log(
+    log: LogInfo, batching_rules_exist=True
+) -> pd.DataFrame:
     """Convert the log to a DataFrame and add waiting times."""
     start = time.time()
     events: Log = tuple(
@@ -27,7 +29,7 @@ def add_waiting_times_to_event_log(log: LogInfo) -> pd.DataFrame:
     result = []
 
     for event in events:
-        if event.batch is not None:
+        if event.batch is not None and batching_rules_exist:
             waiting_time_batching_seconds = TimeInterval(
                 intervals=[
                     # The batching time for an event is the interval between it has been enabled and the batch accumulation is done

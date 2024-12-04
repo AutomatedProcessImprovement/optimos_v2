@@ -1066,6 +1066,11 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
             for resource_calendar in self.resource_calendars
         )
 
+    @property
+    def batching_rules_exist(self) -> bool:
+        """Check if any batching rules exist."""
+        return len(self.batch_processing) > 0
+
     def _clone_resource_calendars(
         self, original: Resource, clone: Resource, _: list[str]
     ):

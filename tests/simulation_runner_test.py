@@ -15,6 +15,7 @@ def test_simulation_runner(simple_state: State):
     evaluation = Evaluation.from_run_simulation_result(
         simple_state.timetable.get_hourly_rates(),
         simple_state.timetable.get_fixed_cost_fns(),
+        simple_state.timetable.batching_rules_exist,
         result,
     )
 

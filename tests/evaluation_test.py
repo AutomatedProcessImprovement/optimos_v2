@@ -269,3 +269,26 @@ def test_evaluation_with_waiting_times(one_task_state: State):
     # 1 hour processing time + 1.75h wt (on avg) times 8 cases
     assert evaluation.total_cycle_time == 8 * (1 + (0.5 * (7 / 2))) * 60 * 60
     assert evaluation.total_duration == 8 * 60 * 60
+
+    assert (
+        evaluation.get_average_processing_time_per_task()[
+            TimetableGenerator.FIRST_ACTIVITY
+        ]
+        == 1 * 60 * 60
+    )
+    assert (
+        evaluation.avg_batching_waiting_time_per_task[TimetableGenerator.FIRST_ACTIVITY]
+        == 0
+    )
+    assert (
+        evaluation.get_avg_waiting_time_of_task_id(TimetableGenerator.FIRST_ACTIVITY)
+        == (0.5 * (7 / 2)) * 60 * 60
+    )
+    assert (
+        evaluation.get_avg_duration_time_per_task()[TimetableGenerator.FIRST_ACTIVITY]
+        == (1 + (0.5 * (7 / 2))) * 60 * 60
+    )
+    assert (
+        evaluation.get_total_duration_time_per_task()[TimetableGenerator.FIRST_ACTIVITY]
+        == (8 * (1 + (0.5 * (7 / 2)))) * 60 * 60
+    )

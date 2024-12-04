@@ -321,10 +321,24 @@ class Evaluation:
             for task_id, task_kpi in self.task_kpis.items()
         }
 
-    def get_total_duration_time_per_task(self) -> dict[str, float]:
-        """Get the total duration time per task (incl. idle times)."""
+    def get_average_processing_time_per_task(self) -> dict[str, float]:
+        """Get the average processing time per task (excl. idle times)."""
         return {
-            task_id: task_kpi.idle_processing_time.total
+            task_id: task_kpi.processing_time.avg
+            for task_id, task_kpi in self.task_kpis.items()
+        }
+
+    def get_total_duration_time_per_task(self) -> dict[str, float]:
+        """Get the total duration time per task (incl. idle times & wt)."""
+        return {
+            task_id: task_kpi.idle_processing_time.total + task_kpi.waiting_time.total
+            for task_id, task_kpi in self.task_kpis.items()
+        }
+
+    def get_avg_duration_time_per_task(self) -> dict[str, float]:
+        """Get the average duration time per task (incl. idle times & wt)."""
+        return {
+            task_id: task_kpi.idle_processing_time.avg + task_kpi.waiting_time.avg
             for task_id, task_kpi in self.task_kpis.items()
         }
 
@@ -483,12 +497,15 @@ class Evaluation:
     def from_run_simulation_result(
         hourly_rates: HourlyRates,
         fixed_cost_fns: dict[str, str],
+        batching_rules_exist: bool,
         result: RunSimulationResult,
     ) -> "Evaluation":
         """Create an evaluation from a simulation result."""
         global_kpis, task_kpis, resource_kpis, log_info = result
         cases: list[Trace] = [] if log_info is None else log_info.trace_list
-        waiting_time_canvas = add_waiting_times_to_event_log(log_info)
+        waiting_time_canvas = add_waiting_times_to_event_log(
+            log_info, batching_rules_exist
+        )
 
         fixed_cost_fns_lambdas = lambdify_dict(fixed_cost_fns)
         # waiting_time_canvas has the batch_size we need to calculate the fixed cost,
