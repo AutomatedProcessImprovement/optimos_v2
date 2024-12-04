@@ -2,7 +2,7 @@ import math
 import random
 from typing import Optional
 
-from o2.actions.base_action import BaseAction
+from o2.actions.base_actions.base_action import BaseAction
 from o2.agents.agent import (
     ACTION_CATALOG,
     ACTION_CATALOG_BATCHING_ONLY,

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Literal
 
-from o2.actions.base_action import RateSelfReturnType
+from o2.actions.base_actions.base_action import RateSelfReturnType
 from o2.actions.batching_rule_action import (
     BatchingRuleAction,
     BatchingRuleActionParamsType,

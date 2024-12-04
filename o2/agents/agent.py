@@ -3,7 +3,7 @@ from typing import Optional, Type
 
 from o2.actions.add_resource_action import AddResourceAction
 from o2.actions.add_week_day_rule_action import AddWeekDayRuleAction
-from o2.actions.base_action import BaseAction, RateSelfReturnType
+from o2.actions.base_actions.base_action import BaseAction, RateSelfReturnType
 from o2.actions.modify_calendar_by_cost_action import (
     ModifyCalendarByCostAction,
 )

@@ -9,7 +9,10 @@ from bpdfr_simulation_engine.simulation_stats_calculator import (
     ResourceKPI,
 )
 
-from o2.actions.base_action import ActionRatingTuple, BaseAction, RateSelfReturnType
+from o2.actions.base_actions.base_action import (
+    ActionRatingTuple,
+    RateSelfReturnType,
+)
 from o2.models.evaluation import Evaluation
 from o2.models.solution import Solution
 from o2.store import Store

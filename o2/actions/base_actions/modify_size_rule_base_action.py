@@ -4,7 +4,11 @@ from typing import Literal
 
 from sympy import Symbol, lambdify
 
-from o2.actions.base_action import BaseAction, BaseActionParamsType, RateSelfReturnType
+from o2.actions.base_actions.base_action import (
+    BaseAction,
+    BaseActionParamsType,
+    RateSelfReturnType,
+)
 from o2.actions.batching_rule_action import (
     BatchingRuleAction,
     BatchingRuleActionParamsType,

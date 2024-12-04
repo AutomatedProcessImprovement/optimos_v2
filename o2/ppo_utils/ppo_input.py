@@ -5,13 +5,15 @@ import numpy as np
 from gymnasium import spaces
 from sklearn.preprocessing import MinMaxScaler
 
-from o2.actions.base_action import BaseAction
-from o2.actions.modify_calendar_base_action import (
+from o2.actions.base_actions.base_action import BaseAction
+from o2.actions.base_actions.modify_calendar_base_action import (
     ModifyCalendarBaseAction,
     ModifyCalendarBaseActionParamsType,
 )
+from o2.actions.base_actions.modify_resource_base_action import (
+    ModifyResourceBaseActionParamsType,
+)
 from o2.actions.modify_calendar_by_cost_action import ModifyCalendarByCostAction
-from o2.actions.modify_resource_base_action import ModifyResourceBaseActionParamsType
 from o2.actions.remove_resource_by_cost_action import RemoveResourceByCostAction
 from o2.models.days import DAYS
 from o2.models.evaluation import Evaluation

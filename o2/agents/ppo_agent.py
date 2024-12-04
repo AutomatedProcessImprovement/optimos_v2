@@ -2,7 +2,7 @@ from typing import Optional
 
 from sb3_contrib import MaskablePPO
 
-from o2.actions.base_action import BaseAction
+from o2.actions.base_actions.base_action import BaseAction
 from o2.agents.agent import Agent
 from o2.agents.tabu_agent import TabuAgent
 from o2.models.solution import Solution

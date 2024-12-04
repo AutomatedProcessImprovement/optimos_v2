@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 from json import dumps
 from typing import Optional
 
-from o2.actions.base_action import BaseAction
+from o2.actions.base_actions.base_action import BaseAction
 from o2.models.evaluation import Evaluation
 from o2.models.state import State
 from o2.util.helper import hash_int

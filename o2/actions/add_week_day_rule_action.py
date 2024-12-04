@@ -4,7 +4,11 @@ from typing import Literal
 
 import numpy as np
 
-from o2.actions.base_action import BaseAction, BaseActionParamsType, RateSelfReturnType
+from o2.actions.base_actions.base_action import (
+    BaseAction,
+    BaseActionParamsType,
+    RateSelfReturnType,
+)
 from o2.actions.batching_rule_action import (
     BatchingRuleAction,
     BatchingRuleActionParamsType,

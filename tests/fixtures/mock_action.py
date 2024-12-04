@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 
-from o2.actions.base_action import BaseAction, BaseActionParamsType
+from o2.actions.base_actions.base_action import BaseAction, BaseActionParamsType
 from o2.models.self_rating import RATING
 from o2.util.helper import random_string
 

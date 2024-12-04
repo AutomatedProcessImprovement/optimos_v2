@@ -4,9 +4,9 @@ from typing import Any, Optional
 
 from dataclass_wizard import JSONWizard
 
-from o2.actions.base_action import BaseAction
-from o2.actions.modify_calendar_base_action import ModifyCalendarBaseAction
-from o2.actions.modify_resource_base_action import ModifyResourceBaseAction
+from o2.actions.base_actions.base_action import BaseAction
+from o2.actions.base_actions.modify_calendar_base_action import ModifyCalendarBaseAction
+from o2.actions.base_actions.modify_resource_base_action import ModifyResourceBaseAction
 from o2.models.constraints import ConstraintsType
 from o2.models.legacy_constraints import WorkMasks
 from o2.models.solution import Solution

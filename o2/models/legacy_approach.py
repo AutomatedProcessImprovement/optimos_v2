@@ -2,7 +2,7 @@ from enum import Enum
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from o2.actions.base_action import BaseAction
+    from o2.actions.base_actions.base_action import BaseAction
 
 
 class LegacyApproach(str, Enum):

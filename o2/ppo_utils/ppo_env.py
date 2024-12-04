@@ -4,7 +4,7 @@ from typing import Any, Dict, Optional, Tuple
 import numpy as np
 from gymnasium import Env, Space
 
-from o2.actions.base_action import BaseAction
+from o2.actions.base_actions.base_action import BaseAction
 from o2.models.evaluation import Evaluation
 from o2.models.solution import Solution
 from o2.pareto_front import FRONT_STATUS

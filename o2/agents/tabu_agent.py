@@ -2,7 +2,7 @@ import concurrent.futures
 import traceback
 from typing import Optional
 
-from o2.actions.base_action import BaseAction, RateSelfReturnType
+from o2.actions.base_actions.base_action import BaseAction, RateSelfReturnType
 from o2.actions.remove_rule_action import (
     RemoveRuleAction,
     RemoveRuleActionParamsType,

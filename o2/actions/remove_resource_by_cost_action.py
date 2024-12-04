@@ -1,13 +1,13 @@
 from dataclasses import dataclass
 from typing import Literal
 
-from o2.actions.modify_resource_base_action import (
+from o2.actions.base_actions.modify_resource_base_action import (
     ModifyResourceBaseAction,
     ModifyResourceBaseActionParamsType,
 )
 from o2.models.self_rating import RATING, SelfRatingInput
 from o2.store import Store
-from o2.actions.base_action import RateSelfReturnType
+from o2.actions.base_actions.base_action import RateSelfReturnType
 
 
 class RemoveResourceByCostActionParamsType(ModifyResourceBaseActionParamsType):

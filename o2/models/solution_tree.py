@@ -9,7 +9,7 @@ from o2.pareto_front import ParetoFront
 from o2.util.indented_printer import print_l3
 
 if TYPE_CHECKING:
-    from o2.actions.base_action import BaseAction
+    from o2.actions.base_actions.base_action import BaseAction
 
 
 class SolutionTree:

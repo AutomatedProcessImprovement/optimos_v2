@@ -4,7 +4,11 @@ from typing import TYPE_CHECKING
 
 from typing_extensions import NotRequired
 
-from o2.actions.base_action import BaseAction, BaseActionParamsType, RateSelfReturnType
+from o2.actions.base_actions.base_action import (
+    BaseAction,
+    BaseActionParamsType,
+    RateSelfReturnType,
+)
 from o2.models.legacy_approach import LegacyApproach
 from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.state import State

@@ -1,8 +1,8 @@
 from dataclasses import replace
 from typing import TYPE_CHECKING, Callable, Optional, TypeAlias
 
-from o2.actions.modify_calendar_base_action import ModifyCalendarBaseAction
-from o2.actions.modify_resource_base_action import ModifyResourceBaseAction
+from o2.actions.base_actions.modify_calendar_base_action import ModifyCalendarBaseAction
+from o2.actions.base_actions.modify_resource_base_action import ModifyResourceBaseAction
 from o2.models.constraints import ConstraintsType
 from o2.models.evaluation import Evaluation
 from o2.models.settings import Settings
@@ -12,7 +12,7 @@ from o2.models.state import State
 from o2.pareto_front import FRONT_STATUS, ParetoFront
 
 if TYPE_CHECKING:
-    from o2.actions.base_action import BaseAction
+    from o2.actions.base_actions.base_action import BaseAction
     from o2.models.timetable import TimetableType
 
 SolutionTry: TypeAlias = tuple[FRONT_STATUS, Solution]
