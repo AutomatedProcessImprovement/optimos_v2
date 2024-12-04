@@ -26,9 +26,6 @@ from o2.models.timetable import (
 )
 from o2.store import Store
 
-MARGIN_OF_ERROR = 0.03
-SIZE_OF_CHANGE = 1
-
 
 class AddDateTimeRuleBaseActionParamsType(BaseActionParamsType):
     """Parameter for AddDateTimeRuleBaseAction."""
@@ -54,6 +51,7 @@ class AddDateTimeRuleBaseAction(BatchingRuleAction, ABC, str=False):
 
         if not existing_task_rules:
             # TODO Also allow adding new rules
+            # TODO 2: Allow combining rules, e.g. extending date range
             return state
 
         # Find the rule to modify
@@ -91,13 +89,6 @@ class AddDateTimeRuleBaseAction(BatchingRuleAction, ABC, str=False):
             batch_processing=timetable.batch_processing[:index]
             + [updated_rule]
             + timetable.batch_processing[index + 1 :],
-        )
-
-    def get_dominant_distribution(self, old_rule: BatchingRule) -> Distribution:
-        """Find the size distribution with the highest probability."""
-        return max(
-            old_rule.size_distrib,
-            key=lambda distribution: distribution.value,
         )
 
     @staticmethod

@@ -229,6 +229,10 @@ class DailyHourRuleConstraints(BatchingConstraints, JSONWizard):
         # TODO: Implement this
         return True
 
+    def allowed_hours_for_day(self, day: DAY) -> list[int]:
+        """Get the allowed hours for a specific day."""
+        return self.allowed_hours.get(day, [])
+
     @staticmethod
     def allow_all(
         tasks: list[str], batch_type: BATCH_TYPE = BATCH_TYPE.PARALLEL
