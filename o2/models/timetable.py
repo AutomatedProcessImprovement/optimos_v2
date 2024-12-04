@@ -5,6 +5,7 @@ from enum import Enum
 from functools import cache, cached_property, reduce
 from itertools import groupby
 from json import dumps
+from operator import itemgetter
 from typing import (
     TYPE_CHECKING,
     Generic,
@@ -22,9 +23,15 @@ from dataclass_wizard import JSONWizard
 from o2.models.legacy_constraints import WorkMasks
 from o2.models.rule_selector import RuleSelector
 from o2.models.time_period import TimePeriod
-from o2.util.bit_mask_helper import any_has_overlap
+from o2.util.bit_mask_helper import any_has_overlap, find_most_frequent_overlap
 from o2.util.custom_dumper import CustomDumper, CustomLoader
-from o2.util.helper import CLONE_REGEX, hash_int, hash_string, name_is_clone_of, random_string
+from o2.util.helper import (
+    CLONE_REGEX,
+    hash_int,
+    hash_string,
+    name_is_clone_of,
+    random_string,
+)
 
 if TYPE_CHECKING:
     from o2.models.constraints import ConstraintsType
@@ -244,6 +251,52 @@ class TaskResourceDistributions(JSONWizard):
         new_resource = replace(original_distribution, resource_id=new_resource_id)
         return self.add_resource(new_resource)
 
+    def get_highest_availability_time_period(
+        self, timetable: "TimetableType", min_hours: int
+    ) -> Optional[TimePeriod]:
+        """Get the highest availability time period for the task.
+
+        The highest availability time period is the time period with the highest
+        frequency of availability.
+        If no overlapping time periods is found, it will return the longest non-overlapping
+        time period.
+        """
+        resources_assigned_to_task = timetable.get_resources_assigned_to_task(
+            self.task_id
+        )
+        calendars = [
+            timetable.get_calendar_for_resource(resource)
+            for resource in resources_assigned_to_task
+        ]
+        bitmasks_by_day = [
+            bitmask
+            for calendar in calendars
+            if calendar is not None
+            for bitmask in calendar.bitmasks_by_day
+        ]
+        if len(bitmasks_by_day) == 0:
+            return None
+
+        bitmasks_sorted_by_day = sorted(bitmasks_by_day, key=itemgetter(0))
+        bitmasks_grouped_by_day = groupby(bitmasks_sorted_by_day, key=itemgetter(0))
+        max_frequency = 0
+        max_size = 0
+        result = None
+        for day, bitmask_pairs in bitmasks_grouped_by_day:
+            bitmasks = [pair[1] for pair in bitmask_pairs]
+            overlap = find_most_frequent_overlap(bitmasks, min_size=min_hours)
+            if overlap is None:
+                continue
+            frequency, start, stop = overlap
+
+            size = stop - start
+            if frequency > max_frequency and size > max_size:
+                max_frequency = frequency
+                max_size = size
+                result = TimePeriod.from_start_end(start, stop, day)
+
+        return result
+
 
 @dataclass(frozen=True)
 class ResourceCalendar(JSONWizard, CustomLoader, CustomDumper):
@@ -340,8 +393,7 @@ class ResourceCalendar(JSONWizard, CustomLoader, CustomDumper):
     def uid(self) -> int:
         """Get a unique identifier for the calendar."""
         return hash_int(self.to_json())
-    
-    
+
     def __hash__(self) -> int:
         return self.uid
 
@@ -397,59 +449,14 @@ class ResourceCalendar(JSONWizard, CustomLoader, CustomDumper):
             + [time_period]
             + self.time_periods[time_period_index + 1 :],
         )
-    
-    @cache
-    def split_time_periods_into_chunks(self, chunk_size: int) -> set["TimePeriod"]:
-        """Split the time periods into chunks of a given size."""
 
-        flattend_timeperiods = [
-            timeperiod.split_by_day()
-            for timeperiod in self.time_periods
-        ]
-        # Flatten the nested list of time periods
-        flattened = [tp for sublist in flattend_timeperiods for tp in sublist]
+    @cached_property
+    def bitmasks_by_day(self) -> list[tuple[DAY, int]]:
+        """Split the time periods by day and convert them to bitmasks.
 
-        # Group time periods by day and convert to bitmasks
-        day_bitmasks = {}
-        for tp in flattened:
-            if tp.from_ not in day_bitmasks:
-                day_bitmasks[tp.from_] = 0
-            day_bitmasks[tp.from_] |= tp.to_bitmask()
-
-        # Convert to list of DAY, start_hour, end_hour
-        result: set[tuple[DAY, int, int]] = set()
-        for day, bitmask in day_bitmasks.items():
-            # Convert bitmask to binary string padded to 24 bits
-            bits = format(bitmask, '024b')
-            
-            # Find contiguous blocks of 1s
-            start = -1
-            for i in range(24):
-                if bits[i] == '1' and start == -1:
-                    start = i
-                elif bits[i] == '0' and start != -1:
-                    # Found end of block
-                    if i - start >= chunk_size:
-                        # Block is long enough, add to result
-                        result.add((day, start, i))
-                    start = -1
-                    
-            # Handle case where block extends to end
-            if start != -1 and 24 - start >= chunk_size:
-                result.add((day, start, 24))
-
-            # Process each time period to add all possible subsets
-        final_result: set[tuple[DAY, int, int]] = set()
-        for day, start, end in result:
-            # Slide the window across the time period
-            for window_size in range(chunk_size, end-start+1):
-                for window_start in range(start, end-window_size+1):
-                    window_end = window_start + window_size
-                    final_result.add((day, window_start, window_end))
-                    
-        return set(TimePeriod.from_start_end(start, end, day) for day, start, end in final_result)
-    
-
+        NOTE: This does not join overlapping/adjacent time periods.
+        """
+        return [(tp.from_, tp.to_bitmask()) for tp in self.split_time_periods_by_day()]
 
     def __str__(self) -> str:
         """Get a string representation of the calendar."""
@@ -1021,6 +1028,19 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
     def get_task_ids(self) -> List[str]:
         """Get all task ids."""
         return [task.task_id for task in self.task_resource_distribution]
+
+    def get_highest_availability_time_period(
+        self, task_id: str, min_hours: int
+    ) -> Optional[TimePeriod]:
+        """Get the highest availability time period for the task.
+
+        The highest availability time period is the time period with the highest
+        frequency of availability.
+        """
+        task_distribution = self.get_task_resource_distribution(task_id)
+        if task_distribution is None:
+            return None
+        return task_distribution.get_highest_availability_time_period(self, min_hours)
 
     @property
     def max_total_hours_per_resource(self) -> int:
