@@ -11,15 +11,15 @@ from o2.models.self_rating import SelfRatingInput
 from o2.store import Store
 
 
-class ModifyDailyRuleByAvailabilityActionParamsType(
+class AddDateTimeRuleByAvailabilityActionParamsType(
     AddDateTimeRuleBaseActionParamsType
 ):
-    """Parameter for ModifyDailyRuleByAvailabilityAction."""
+    """Parameter for AddDateTimeRuleByAvailabilityAction."""
 
     pass
 
 
-class ModifyDailyRuleByAvailabilityAction(AddDateTimeRuleBaseAction):
+class AddDateTimeRuleByAvailabilityAction(AddDateTimeRuleBaseAction):
     """An Action to add daily_hour / weekday batching rules based on availability.
 
     This action will add a new daily_hour / weekday rule based on the availability of the task.
@@ -30,7 +30,7 @@ class ModifyDailyRuleByAvailabilityAction(AddDateTimeRuleBaseAction):
     4. Add a new daily_hour / weekday rule for the task based on the availability.
     """
 
-    params: ModifyDailyRuleByAvailabilityActionParamsType
+    params: AddDateTimeRuleByAvailabilityActionParamsType
 
     @staticmethod
     def rate_self(store: "Store", input: SelfRatingInput) -> RateSelfReturnType:
@@ -56,8 +56,8 @@ class ModifyDailyRuleByAvailabilityAction(AddDateTimeRuleBaseAction):
                 continue
             yield (
                 AddDateTimeRuleBaseAction.get_default_rating(),
-                ModifyDailyRuleByAvailabilityAction(
-                    ModifyDailyRuleByAvailabilityActionParamsType(
+                AddDateTimeRuleByAvailabilityAction(
+                    AddDateTimeRuleByAvailabilityActionParamsType(
                         task_id=task_id, time_period=best_time_period
                     )
                 ),
