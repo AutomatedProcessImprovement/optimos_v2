@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, replace
 from typing import Literal
 
+from sqlalchemy import union
 from sympy import Symbol, lambdify
 
 from o2.actions.base_actions.base_action import (
@@ -27,18 +28,19 @@ from o2.models.timetable import (
 from o2.store import Store
 
 
-class AddLargeWTRuleBaseActionParamsType(BaseActionParamsType):
-    """Parameter for AddLargeWTRuleBaseAction."""
+class AddReadyLargeWTRuleBaseActionParamsType(BaseActionParamsType):
+    """Parameter for AddReadyLargeWTRuleBaseAction."""
 
     task_id: str
     waiting_time: int
+    type: Literal[RULE_TYPE.LARGE_WT, RULE_TYPE.READY_WT]
 
 
 @dataclass(frozen=True)
-class AddLargeWTRuleBaseAction(BatchingRuleAction, ABC, str=False):
-    """AddLargeWTRuleBaseAction will add a new day of week and time of day rule."""
+class AddReadyLargeWTRuleBaseAction(BatchingRuleAction, ABC, str=False):
+    """AddReadyLargeWTRuleBaseAction will add a new day of week and time of day rule."""
 
-    params: AddLargeWTRuleBaseActionParamsType
+    params: AddReadyLargeWTRuleBaseActionParamsType
 
     def apply(self, state: State, enable_prints: bool = True) -> State:
         """Create a copy of the timetable with the rule size modified."""
@@ -46,6 +48,7 @@ class AddLargeWTRuleBaseAction(BatchingRuleAction, ABC, str=False):
         timetable = state.timetable
         task_id = self.params["task_id"]
         waiting_time = self.params["waiting_time"]
+        type = self.params["type"]
 
         existing_task_rules = timetable.get_batching_rules_for_task(task_id)
 
@@ -60,7 +63,7 @@ class AddLargeWTRuleBaseAction(BatchingRuleAction, ABC, str=False):
 
         new_or_rule = [
             FiringRule(
-                attribute=RULE_TYPE.LARGE_WT,
+                attribute=type,
                 comparison=COMPARATOR.GREATER_THEN_OR_EQUAL,
                 value=waiting_time,
             ),
