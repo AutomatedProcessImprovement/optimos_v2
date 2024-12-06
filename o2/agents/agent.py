@@ -12,6 +12,21 @@ from o2.actions.modify_calendar_by_wt_action import ModifyCalendarByWTAction
 from o2.actions.modify_daily_hour_rule_action import ModifyDailyHourRuleAction
 from o2.actions.modify_large_wt_rule_action import ModifyLargeWtRuleAction
 from o2.actions.modify_ready_wt_rule_action import ModifyReadyWtRuleAction
+from o2.actions.new_actions.add_date_time_rule_by_availability import (
+    AddDateTimeRuleByAvailabilityAction,
+)
+from o2.actions.new_actions.add_date_time_rule_by_enablement import (
+    AddDateTimeRuleByEnablementAction,
+)
+from o2.actions.new_actions.add_date_time_rule_by_start import (
+    AddDateTimeRuleByStartAction,
+)
+from o2.actions.new_actions.add_large_wt_rule_by_wt import AddLargeWTRuleByWTAction
+from o2.actions.new_actions.add_ready_wt_rule_by_wt import AddReadyWTRuleByWTAction
+from o2.actions.new_actions.modify_size_rule_by_allocation import (
+    ModifySizeRuleByHighAllocationAction,
+    ModifySizeRuleByLowAllocationAction,
+)
 from o2.actions.new_actions.modify_size_rule_by_cost_action import (
     ModifySizeRuleByCostAction,
 )
@@ -25,6 +40,10 @@ from o2.actions.new_actions.modify_size_rule_by_cost_fn import (
 from o2.actions.new_actions.modify_size_rule_by_duration_fn import (
     ModifyBatchSizeIfNoDurationImprovement,
     ModifySizeRuleByDurationFnCostImpact,
+)
+from o2.actions.new_actions.modify_size_rule_by_utilization import (
+    ModifySizeRuleByHighUtilizationAction,
+    ModifySizeRuleByLowUtilizationAction,
 )
 from o2.actions.new_actions.modify_size_rule_by_wt_action import (
     ModifySizeRuleByWTAction,
@@ -67,15 +86,24 @@ ACTION_CATALOG_LEGACY = [
 ]
 
 ACTION_CATALOG_BATCHING_ONLY = [
-    ModifySizeRuleByWTAction,
+    AddDateTimeRuleByAvailabilityAction,
+    AddDateTimeRuleByEnablementAction,
+    AddDateTimeRuleByStartAction,
+    AddLargeWTRuleByWTAction,
+    AddReadyWTRuleByWTAction,
+    ModifyBatchSizeIfNoCostImprovement,
+    ModifyBatchSizeIfNoDurationImprovement,
     ModifySizeRuleByCostAction,
     ModifySizeRuleByCostFnHighCosts,
-    ModifySizeRuleByCostFnRepetitiveTasks,
     ModifySizeRuleByCostFnLowCycleTimeImpact,
     ModifySizeRuleByCostFnLowProcessingTime,
-    ModifyBatchSizeIfNoCostImprovement,
+    ModifySizeRuleByCostFnRepetitiveTasks,
     ModifySizeRuleByDurationFnCostImpact,
-    ModifyBatchSizeIfNoDurationImprovement,
+    ModifySizeRuleByHighAllocationAction,
+    ModifySizeRuleByHighUtilizationAction,
+    ModifySizeRuleByLowAllocationAction,
+    ModifySizeRuleByLowUtilizationAction,
+    ModifySizeRuleByWTAction,
 ]
 
 
