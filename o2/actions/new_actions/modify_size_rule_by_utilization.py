@@ -72,3 +72,55 @@ class ModifySizeRuleByLowUtilizationAction(ModifySizeRuleBaseAction):
                         )
 
 
+class ModifySizeRuleByHighUtilizationAction(ModifySizeRuleBaseAction):
+    """An Action to modify size batching rules based on utilization.
+
+    1. Gets most utilized resources
+    2. Looks at all resources with utilization > 0.8, largest utilization first
+    3. Gets a task (with batching enabled) that uses the resource
+    4. Reduces the size rule by 1
+    """
+
+    params: ModifySizeRuleByUtilizationActionParamsType
+
+    @staticmethod
+    def rate_self(store: "Store", input: SelfRatingInput) -> RateSelfReturnType:
+        """Generate a best set of parameters & self-evaluates this action."""
+        timetable = store.current_timetable
+        evaluation = store.current_evaluation
+
+        resource_utilizations = evaluation.resource_utilizations
+        resources_by_utilization = sorted(
+            resource_utilizations.items(), key=lambda x: x[1], reverse=True
+        )
+
+        for resource_id, utilization in resources_by_utilization:
+            if utilization < 0.8:
+                continue
+
+            tasks = timetable.get_task_ids_assigned_to_resource(resource_id)
+            for task_id in tasks:
+                batching_rules = timetable.get_batching_rules_for_task(task_id)
+                for batching_rule in batching_rules:
+                    selectors = batching_rule.get_firing_rule_selectors(
+                        type=RULE_TYPE.SIZE
+                    )
+                    for selector in selectors:
+                        constraints = (
+                            store.constraints.get_batching_size_rule_constraints(
+                                task_id
+                            )
+                        )
+                        duration_fn = (
+                            "1" if not constraints else constraints[0].duration_fn
+                        )
+                        yield (
+                            ModifySizeRuleBaseAction.get_default_rating(),
+                            ModifySizeRuleByLowUtilizationAction(
+                                ModifySizeRuleByUtilizationActionParamsType(
+                                    rule=selector,
+                                    size_increment=-1,
+                                    duration_fn=duration_fn,
+                                )
+                            ),
+                        )
