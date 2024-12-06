@@ -297,6 +297,11 @@ class TaskResourceDistributions(JSONWizard):
 
         return result
 
+    @cached_property
+    def resource_ids(self) -> List[str]:
+        """Get the resource ids in the distribution."""
+        return [resource.resource_id for resource in self.resources]
+
 
 @dataclass(frozen=True)
 class ResourceCalendar(JSONWizard, CustomLoader, CustomDumper):
@@ -783,6 +788,14 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
             return []
         return [
             resource.resource_id for resource in task_resource_distribution.resources
+        ]
+
+    def get_task_ids_assigned_to_resource(self, resource_id: str) -> List[str]:
+        """Get all tasks assigned to a resource."""
+        return [
+            task_resource_distribution.task_id
+            for task_resource_distribution in self.task_resource_distribution
+            if resource_id in task_resource_distribution.resource_ids
         ]
 
     def get_resource_profiles_containing_resource(

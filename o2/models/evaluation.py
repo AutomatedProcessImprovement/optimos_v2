@@ -88,6 +88,12 @@ class Evaluation:
     task_started_weekdays: dict[str, dict[DAY, dict[int, int]]]
     """Get the weekdays & hours on which a task was started."""
 
+    resource_task_started_weekdays: dict[str, dict[str, dict[DAY, dict[int, int]]]]
+    """Get the weekdays & hours on which a task was started by a resource."""
+
+    resource_allocation_ratio_task: dict[str, float]
+    """Get the allocation ratio of each task."""
+
     total_fixed_cost_by_task: dict[str, float]
     """Get the total fixed cost of each task."""
     avg_fixed_cost_per_case: float
@@ -195,6 +201,18 @@ class Evaluation:
             )
             + self.global_kpis.idle_time.total
         )
+
+    @cached_property
+    def resource_started_weekdays(self) -> dict[str, dict[DAY, dict[int, int]]]:
+        """Get the weekdays & time of day on which a resource started a(/any) task."""
+        return {
+            resource_id: {
+                DAY(weekday): {hour: count for hour, count in task_start_times.items()}
+                for _, resource_start_times in task_start_times_by_day.items()
+                for weekday, task_start_times in resource_start_times.items()
+            }
+            for resource_id, task_start_times_by_day in self.resource_task_started_weekdays.items()
+        }
 
     def get_avg_waiting_time_of_task_id(self, task_id: str) -> float:
         """Get the average waiting time of a task."""
@@ -465,6 +483,55 @@ class Evaluation:
         return occurrences
 
     @staticmethod
+    def get_resource_task_started_weekdays(
+        cases: list[Trace],
+    ) -> dict[str, dict[str, dict[DAY, dict[int, int]]]]:
+        """Get the weekdays & time of day on which a task was started by a resource."""
+        weekdays: dict[str, dict[str, dict[DAY, dict[int, int]]]] = {}
+        for case in cases:
+            event_list: list[TaskEvent] = case.event_list
+            for event in event_list:
+                if event.resource_id not in weekdays:
+                    weekdays[event.resource_id] = {}
+                if event.task_id not in weekdays[event.resource_id]:
+                    weekdays[event.resource_id][event.task_id] = {}
+                if event.started_datetime is None:
+                    continue
+                weekday = event.started_datetime.strftime("%A").upper()
+                hour = event.started_datetime.hour
+                if weekday not in weekdays[event.resource_id][event.task_id]:
+                    weekdays[event.resource_id][event.task_id][DAY(weekday)] = {}
+                if hour not in weekdays[event.resource_id][event.task_id][DAY(weekday)]:
+                    weekdays[event.resource_id][event.task_id][DAY(weekday)][hour] = 0
+                weekdays[event.resource_id][event.task_id][DAY(weekday)][hour] += 1
+        return weekdays
+
+    @staticmethod
+    def get_resource_allocation_ratio(
+        cases: list[Trace],
+    ) -> dict[str, float]:
+        """Get the allocation ratio of each task.
+
+        The allocation ratio is calculated =
+        (number of unique resources that executed the task) / (total number of resources)
+        """
+        resources_total = set()
+        resources_per_task: dict[str, set[str]] = {}
+        for case in cases:
+            event_list: list[TaskEvent] = case.event_list
+            for event in event_list:
+                resources_per_task[event.task_id] = resources_per_task.get(
+                    event.task_id, set()
+                )
+                resources_per_task[event.task_id].add(event.resource_id)
+                resources_total.add(event.resource_id)
+
+        return {
+            task_id: len(resources) / len(resources_total)
+            for task_id, resources in resources_per_task.items()
+        }
+
+    @staticmethod
     def empty():
         """Create an empty evaluation."""
         return Evaluation(
@@ -491,6 +558,8 @@ class Evaluation:
             total_fixed_cost_by_task={},
             avg_fixed_cost_per_case=0,
             avg_fixed_cost_per_case_by_task={},
+            resource_task_started_weekdays={},
+            resource_allocation_ratio_task={},
         )
 
     @staticmethod
@@ -558,6 +627,12 @@ class Evaluation:
             task_execution_counts=Evaluation.get_task_execution_counts(cases),
             task_enablement_weekdays=Evaluation.get_task_enablement_weekdays(cases),
             task_started_weekdays=Evaluation.get_task_started_at_weekdays(cases),
+            resource_task_started_weekdays=Evaluation.get_resource_task_started_weekdays(
+                cases
+            ),
+            resource_allocation_ratio_task=Evaluation.get_resource_allocation_ratio(
+                cases
+            ),
             avg_batching_waiting_time_per_task=(
                 waiting_time_canvas.groupby("activity")["waiting_time_batching_seconds"]
                 .mean()
