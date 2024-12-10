@@ -132,7 +132,11 @@ class TimetableGenerator:
 
     @staticmethod
     def resource_calendars(
-        begin_hour=9, end_hour=17, include_end_hour=False, only_week_days=False
+        begin_hour=9,
+        end_hour=17,
+        include_end_hour=False,
+        only_week_days=False,
+        include_extra_minute=False,
     ):
         return [
             ResourceCalendar(
@@ -144,7 +148,13 @@ class TimetableGenerator:
                         to=DAY.SUNDAY if not only_week_days else DAY.FRIDAY,
                         begin_time=f"{begin_hour:02}:00:00",
                         end_time=f"{end_hour:02}:"
-                        + ("59:59" if include_end_hour else "00:00"),
+                        + (
+                            "59:59"
+                            if include_end_hour
+                            else "00:00"
+                            if not include_extra_minute
+                            else "00:01"
+                        ),
                     )
                 ],
             )
@@ -510,6 +520,7 @@ class TimetableGenerator:
         start=9,
         end=17,
         include_end_hour=False,
+        include_extra_minute=False,
         only_week_days=False,
         days=None,
     ):
@@ -528,7 +539,14 @@ class TimetableGenerator:
                 from_=DAY.MONDAY,
                 to=DAY.SUNDAY if not only_week_days else DAY.FRIDAY,
                 begin_time=f"{start:02}:00:00",
-                end_time=f"{end:02}:" + ("59:59" if include_end_hour else "00:00"),
+                end_time=f"{end:02}:"
+                + (
+                    "59:59"
+                    if include_end_hour
+                    else "00:00"
+                    if not include_extra_minute
+                    else "00:01"
+                ),
             )
         ]
 
