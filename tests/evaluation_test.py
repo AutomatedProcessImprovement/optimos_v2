@@ -172,7 +172,7 @@ def test_evaluation_with_intra_task_idling(one_task_state: State):
 
 def test_evaluation_with_intra_task_idling_task_stats(one_task_state: State):
     state = one_task_state.replace_timetable(
-        # Resource has cost of $10/h
+        # Resource has cost of $10/h + $15 fixed cost
         resource_profiles=TimetableGenerator.resource_pools(
             [TimetableGenerator.FIRST_ACTIVITY], 10, fixed_cost_fn="15"
         ),
@@ -220,12 +220,12 @@ def test_evaluation_with_intra_task_idling_task_stats(one_task_state: State):
     # Duration is processing time + idle time
     assert (
         evaluation.get_total_duration_time_per_task()[TimetableGenerator.FIRST_ACTIVITY]
-        == (2 * 4 + 22 * 4) * 60 * 60
+        == (2 * 4 + 22 * 4 + 0 + 23 + 46 + 69) * 60 * 60
     )
     # Cycle time is duration + waiting time (= wt + processing + idle)
     assert (
         evaluation.get_total_cycle_time_of_task_id(TimetableGenerator.FIRST_ACTIVITY)
-        == (2 * 4 + 22 * 4) * 60 * 60 + (0 + 23 + 46 + 69) * 60 * 60
+        == (2 * 4 + 22 * 4 + 0 + 23 + 46 + 69) * 60 * 60
     )
 
 
@@ -253,8 +253,6 @@ def test_evaluation_with_waiting_times(one_task_state: State):
         ),
         total_cases=8,
     )
-
-    print(state.timetable.to_json())
 
     evaluation = state.evaluate()
 
@@ -291,4 +289,51 @@ def test_evaluation_with_waiting_times(one_task_state: State):
     assert (
         evaluation.get_total_duration_time_per_task()[TimetableGenerator.FIRST_ACTIVITY]
         == (8 * (1 + (0.5 * (7 / 2)))) * 60 * 60
+    )
+
+
+def test_evaluation_with_wt_and_idle_batching(one_task_state: State):
+    state = one_task_state.replace_timetable(
+        # Resource has cost of $10/h
+        resource_profiles=TimetableGenerator.resource_pools(
+            [TimetableGenerator.FIRST_ACTIVITY], 10, fixed_cost_fn="15"
+        ),
+        # Working one case takes 1h
+        task_resource_distribution=TimetableGenerator.task_resource_distribution_simple(
+            [TimetableGenerator.FIRST_ACTIVITY], 1 * 60 * 60
+        ),
+        # Work from 9 to 18 (9h)
+        resource_calendars=TimetableGenerator.resource_calendars(
+            9, 18, include_end_hour=False, only_week_days=True
+        ),
+        # One Case every 24h
+        arrival_time_distribution=TimetableGenerator.arrival_time_distribution(
+            24 * 60 * 60,
+            24 * 60 * 60,
+        ),
+        # Cases from 9:00 to 10:00
+        arrival_time_calendar=TimetableGenerator.arrival_time_calendar(
+            9, 10, include_end_hour=False, only_week_days=False
+        ),
+        # Batch Size of 4 (Meaning 4 days are needed to for a single batch)
+        # Will work twice as fast, e.g. only needed 2 hours for 4 tasks
+        batch_processing=[
+            TimetableGenerator.batching_size_rule(
+                TimetableGenerator.FIRST_ACTIVITY, 4, duration_distribution=0.5
+            )
+        ],
+        total_cases=8,
+    )
+
+    evaluation = state.evaluate()
+
+    # First case in batch waits 3*24h, 2nd 2*24h, 3rd 24h, 4th 0h
+    assert evaluation.total_waiting_time == (3 * 24 + 2 * 24 + 1 * 24) * 2 * 60 * 60
+
+    # Due to batching the processing time is increased, but still less than 4 * 1h
+    assert (
+        evaluation.get_average_processing_time_per_task()[
+            TimetableGenerator.FIRST_ACTIVITY
+        ]
+        == 2 * 60 * 60
     )
