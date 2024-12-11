@@ -188,19 +188,21 @@ class Evaluation:
         return self.total_cost_for_worked_time + self.total_fixed_cost
 
     @cached_property
-    def total_idle_time(self) -> float:
+    def total_resource_idle_time(self) -> float:
         """Get the total resource idle time of the simulation.
 
         This is calculated by summing up the difference worked time and available time
         for all resources.
         """
-        return (
-            sum(
-                resource_kpi.worked_time - resource_kpi.available_time
-                for resource_kpi in self.resource_kpis.values()
-            )
-            + self.global_kpis.idle_time.total
+        return sum(
+            resource_kpi.worked_time - resource_kpi.available_time
+            for resource_kpi in self.resource_kpis.values()
         )
+
+    @cached_property
+    def total_task_idle_time(self) -> float:
+        """Get the total task idle time of the simulation."""
+        return sum(task_kpi.idle_time.total for task_kpi in self.task_kpis.values())
 
     @cached_property
     def resource_started_weekdays(self) -> dict[str, dict[DAY, dict[int, int]]]:
