@@ -14,7 +14,11 @@ from bpdfr_simulation_engine.simulation_stats_calculator import (
 from o2.models.days import DAY
 from o2.simulation_runner import RunSimulationResult
 from o2.util.helper import lambdify_dict
-from o2.util.waiting_time_helper import add_waiting_times_to_event_log
+from o2.util.waiting_time_helper import (
+    BatchInfo,
+    BatchInfoKey,
+    get_batches_from_event_log,
+)
 
 if TYPE_CHECKING:
     from o2.models.timetable import TimetableType
@@ -100,6 +104,9 @@ class Evaluation:
     """Get the average fixed cost per case."""
     avg_fixed_cost_per_case_by_task: dict[str, float]
     """Get the average fixed cost by task per case."""
+
+    batches: dict[BatchInfoKey, BatchInfo]
+    """The batches of the simulation."""
 
     @cached_property
     def total_processing_cost_for_tasks(self) -> float:
@@ -562,6 +569,7 @@ class Evaluation:
             avg_fixed_cost_per_case_by_task={},
             resource_task_started_weekdays={},
             resource_allocation_ratio_task={},
+            batches={},
         )
 
     @staticmethod
@@ -574,8 +582,27 @@ class Evaluation:
         """Create an evaluation from a simulation result."""
         global_kpis, task_kpis, resource_kpis, log_info = result
         cases: list[Trace] = [] if log_info is None else log_info.trace_list
-        waiting_time_canvas = add_waiting_times_to_event_log(
-            log_info, batching_rules_exist
+
+        batches = get_batches_from_event_log(log_info, batching_rules_exist)
+
+        waiting_time_canvas = pd.DataFrame(
+            (
+                {
+                    "activity": batch["activity"],
+                    "case": batch["case"],
+                    "resource": batch["resource"],
+                    "batch_size": batch["size"],
+                    "batch_waiting_time_seconds": batch["wt_batching"],
+                }
+                for batch in batches.values()
+            ),
+            columns=[
+                "activity",
+                "case",
+                "resource",
+                "batch_size",
+                "batch_waiting_time_seconds",
+            ],
         )
 
         fixed_cost_fns_lambdas = lambdify_dict(fixed_cost_fns)
@@ -606,12 +633,26 @@ class Evaluation:
             .to_dict()
         )
 
-        total_time = (log_info.ended_at - log_info.started_at).total_seconds()
+        first_enablement = min(
+            [
+                event.enabled_datetime
+                for trace in log_info.trace_list
+                for event in trace.event_list
+            ]
+        )
+        last_completion = max(
+            [
+                event.completed_datetime
+                for trace in log_info.trace_list
+                for event in trace.event_list
+            ]
+        )
+        total_duration = (last_completion - first_enablement).total_seconds()
 
         # print("\n".join([f"{event.started_datetime.isoformat()} -> {event.completed_datetime.isoformat()} (enabled: {event.enabled_datetime.isoformat()}) (I:{event.idle_time / 3600}, P:{event.processing_time/3600}, WT:{event.waiting_time/3600}, C:{event.cycle_time / 3600})" for trace in log_info.trace_list for event in trace.event_list]))
         return Evaluation(
             hourly_rates=hourly_rates,
-            total_duration=total_time,
+            total_duration=total_duration,
             total_cycle_time=global_kpis.cycle_time.total,
             total_waiting_time=global_kpis.waiting_time.total,
             avg_cycle_time_by_case=global_kpis.cycle_time.avg,
@@ -636,30 +677,31 @@ class Evaluation:
                 cases
             ),
             avg_batching_waiting_time_per_task=(
-                waiting_time_canvas.groupby("activity")["waiting_time_batching_seconds"]
+                waiting_time_canvas.groupby("activity")["batch_waiting_time_seconds"]
                 .mean()
                 .fillna(0)
                 .to_dict()
             ),
             total_batching_waiting_time_per_task=(
-                waiting_time_canvas.groupby("activity")["waiting_time_batching_seconds"]
+                waiting_time_canvas.groupby("activity")["batch_waiting_time_seconds"]
                 .sum()
                 .fillna(0)
                 .to_dict()
             ),
             total_batching_waiting_time_per_resource=(
-                waiting_time_canvas.groupby("resource")["waiting_time_batching_seconds"]
+                waiting_time_canvas.groupby("resource")["batch_waiting_time_seconds"]
                 .sum()
                 .fillna(0)
                 .to_dict()
             ),
             avg_batching_waiting_time_by_case=(
-                waiting_time_canvas["waiting_time_batching_seconds"].mean()
+                waiting_time_canvas["batch_waiting_time_seconds"].mean()
             ),
             total_batching_waiting_time=(
-                waiting_time_canvas["waiting_time_batching_seconds"].sum()
+                waiting_time_canvas["batch_waiting_time_seconds"].sum()
             ),
             total_fixed_cost_by_task=total_fixed_cost_by_task,
             avg_fixed_cost_per_case=avg_fixed_cost_per_case,
             avg_fixed_cost_per_case_by_task=avg_fixed_cost_per_case_by_task,
+            batches=batches,
         )
