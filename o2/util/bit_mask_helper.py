@@ -68,6 +68,8 @@ def find_most_frequent_overlap(
     returns frequency of overlap, start, end; With [start, end) being the range of the overlap.
     If no overlap is found, returns the longest range of 1s >= min_size (if any).
     """
+    if len(bitmasks) == 0:
+        return None
     bitarrays = [bitmask_to_array(bitmask) for bitmask in bitmasks]
     summed_bitarray = reduce(lambda a, b: [x + y for x, y in zip(a, b)], bitarrays)
 

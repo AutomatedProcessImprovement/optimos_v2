@@ -638,14 +638,16 @@ class Evaluation:
                 event.enabled_datetime
                 for trace in log_info.trace_list
                 for event in trace.event_list
-            ]
+            ],
+            default=log_info.started_at,
         )
         last_completion = max(
             [
                 event.completed_datetime
                 for trace in log_info.trace_list
                 for event in trace.event_list
-            ]
+            ],
+            default=log_info.ended_at,
         )
         total_duration = (last_completion - first_enablement).total_seconds()
 
