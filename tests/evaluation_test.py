@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from o2.models.days import DAY
 from o2.models.state import State
 from tests.fixtures.timetable_generator import TimetableGenerator
@@ -52,7 +54,7 @@ def test_evaluation_calculation_without_batching(one_task_state: State):
     # So we have 23 cases with 15min waiting time
     # (45min arrival time - 30min processing time)
     # Also for the first two days we have 15min idle time at the end of the day
-    assert evaluation.total_idle_time == (23 * 15 + 2 * 15) * 60
+    assert evaluation.total_resource_idle_time == (23 * 15 + 2 * 15) * 60
 
     # We have no fixed costs setup
     assert evaluation.total_fixed_cost == 0
@@ -327,7 +329,7 @@ def test_evaluation_with_wt_and_idle_batching(one_task_state: State):
 
     evaluation = state.evaluate()
 
-    # First case in batch waits 3*24h, 2nd 2*24h, 3rd 24h, 4th 0h
+    # 1st case in batch waits 3*24h, 2nd 2*24h, 3rd 24h, 4th 0h
     assert evaluation.total_waiting_time == (3 * 24 + 2 * 24 + 1 * 24) * 2 * 60 * 60
 
     # Due to batching the processing time is increased, but still less than 4 * 1h
@@ -337,3 +339,82 @@ def test_evaluation_with_wt_and_idle_batching(one_task_state: State):
         ]
         == 2 * 60 * 60
     )
+
+
+def test_batch_detection(one_task_state: State):
+    state = one_task_state.replace_timetable(
+        # Resource has cost of $10/h
+        resource_profiles=TimetableGenerator.resource_pools(
+            [TimetableGenerator.FIRST_ACTIVITY], 10, fixed_cost_fn="15"
+        ),
+        # Working one case takes 2h
+        task_resource_distribution=TimetableGenerator.task_resource_distribution_simple(
+            [TimetableGenerator.FIRST_ACTIVITY], 2 * 60 * 60
+        ),
+        # Work from 9 to 17 (8h)
+        resource_calendars=TimetableGenerator.resource_calendars(
+            9,
+            17,
+            include_end_hour=False,
+            only_week_days=True,
+        ),
+        # One Case every 1h
+        arrival_time_distribution=TimetableGenerator.arrival_time_distribution(
+            1 * 60 * 60,
+            1 * 60 * 60,
+        ),
+        # Cases from 9:00 to 17:00
+        arrival_time_calendar=TimetableGenerator.arrival_time_calendar(
+            9,
+            17,
+            include_end_hour=False,
+            only_week_days=False,
+        ),
+        # Batch Size of 4 (Meaning 4 are needed to for a single batch)
+        # All together will then take 1h
+        batch_processing=[
+            TimetableGenerator.batching_size_rule(
+                TimetableGenerator.FIRST_ACTIVITY, 4, duration_distribution=1 / 4
+            )
+        ],
+        total_cases=16,
+    )
+
+    evaluation = state.evaluate()
+
+    # sanity checks
+    # first day (9:00 -> 17:00 = 8h) + night time (17:00 -> 9:00 = 16h)
+    # + another day (9:00 -> 17:00 = 8h) + night time (17:00 -> 9:00 = 16h)
+    # + 1h for the last case = 2*8 + 2*16 + 1 = 49h
+    assert evaluation.total_duration == 49 * 60 * 60
+    # 16 cases * 1.5h avg waiting time (0-3h)
+    assert evaluation.total_waiting_time == (16 * 1.5) * 60 * 60
+    # 2 * 4 cases idle over night (17:00 -> 9:00 = 16h)
+    assert evaluation.total_task_idle_time == (2 * 4 * 16) * 60 * 60
+    # The resource is only working 4*2h, but is available for 8h for the first two days
+    # and 1h for the last day
+    # TODO: This stat ignores the initial 3h of working time, due to it thinking "the process hasn't really started"
+    assert evaluation.total_resource_idle_time == ((8 * 2 + 1 - 3) - 4 * 2) * 60 * 60
+
+    # Check Calculated batches
+    assert evaluation.batches is not None
+    assert len(evaluation.batches) == 4
+    snd_batch_key = list(evaluation.batches.keys())[1]
+    assert snd_batch_key == (
+        TimetableGenerator.FIRST_ACTIVITY,
+        TimetableGenerator.RESOURCE_ID,
+        datetime(2000, 1, 3, 16, 0, tzinfo=timezone.utc),
+    )
+    snd_batch = evaluation.batches[snd_batch_key]
+    assert snd_batch["activity"] == TimetableGenerator.FIRST_ACTIVITY
+    assert snd_batch["resource"] == TimetableGenerator.RESOURCE_ID
+    assert snd_batch["start"] == datetime(2000, 1, 3, 16, 0, tzinfo=timezone.utc)
+    assert snd_batch["size"] == 4
+    # The first case in the batch is the 1st case, so it needs to wait 3h
+    assert snd_batch["wt_first"] == 3 * 60 * 60
+    # The last case in the batch is the 4th case, so it has no waiting time
+    assert snd_batch["wt_last"] == 0
+    # 2h + 16h idle
+    assert snd_batch["real_proc"] == (2 + 16) * 60 * 60
+    # 2h
+    assert snd_batch["ideal_proc"] == 2 * 60 * 60
