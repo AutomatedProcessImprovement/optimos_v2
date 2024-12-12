@@ -393,7 +393,8 @@ def test_batch_detection(one_task_state: State):
     assert evaluation.total_task_idle_time == (2 * 4 * 16) * 60 * 60
     # The resource is only working 4*2h, but is available for 8h for the first two days
     # and 1h for the last day
-    # TODO: This stat ignores the initial 3h of working time, due to it thinking "the process hasn't really started"
+    # TODO: This stat ignores the initial 3h of working time, due
+    # to it thinking "the process hasn't really started"
     assert evaluation.total_resource_idle_time == ((8 * 2 + 1 - 3) - 4 * 2) * 60 * 60
 
     # Check Calculated batches
