@@ -106,7 +106,10 @@ class Evaluation:
     """Get the average fixed cost by task per case."""
 
     batches: dict[BatchInfoKey, BatchInfo]
-    """The batches of the simulation."""
+    """The batches of the simulation.
+
+    NOTE: This only includes size > 1 batches.
+    """
 
     @cached_property
     def total_processing_cost_for_tasks(self) -> float:
@@ -705,5 +708,9 @@ class Evaluation:
             total_fixed_cost_by_task=total_fixed_cost_by_task,
             avg_fixed_cost_per_case=avg_fixed_cost_per_case,
             avg_fixed_cost_per_case_by_task=avg_fixed_cost_per_case_by_task,
-            batches=batches,
+            batches={
+                batch_key: batch
+                for batch_key, batch in batches.items()
+                if batch["size"] > 1
+            },
         )
