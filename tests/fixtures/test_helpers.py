@@ -100,3 +100,38 @@ def first_valid(store: Store, generator: RateSelfReturnType) -> ActionRatingTupl
         if action is not None and action.check_if_valid(store):
             return rating, action
     raise ValueError("No valid action found")
+
+
+def generate_ranges(start, max_value, min_length):
+    """
+    Generate all possible ranges of numbers given a start, max, and a minimum length.
+
+    :param start: The starting number of the range.
+    :param max_value: The maximum number (inclusive).
+    :param min_length: The minimum length of the range.
+    :return: A list of tuples representing the ranges.
+    """
+    ranges = []
+
+    # Iterate over all possible starting points
+    for i in range(start, max_value + 1):
+        # Iterate over all possible ending points, ensuring minimum length
+        for j in range(i + min_length - 1, max_value + 1):
+            ranges.append((i, j))
+
+    return ranges
+
+
+def count_occurrences(strA: str, strB: str) -> int:
+    """
+    Count the number of occurrences of strB in strA.
+
+    :param strA: The string to search in.
+    :param strB: The string to search for.
+    :return: The number of occurrences of strB in strA.
+    """
+    count = 0
+    for i in range(len(strA) - len(strB) + 1):
+        if strA[i : i + len(strB)] == strB:
+            count += 1
+    return count
