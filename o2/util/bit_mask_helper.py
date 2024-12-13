@@ -148,3 +148,60 @@ def find_most_frequent_overlap(
         return 1, max_sufficient_start, max_sufficient_end
     else:
         return None
+
+
+def find_mixed_ranges_in_bitmask(
+    bitmask: int,
+    length: int,
+    start_index: int,
+    max_start_index: int,
+    pad_left: int = 24,
+) -> list[tuple[int, int]]:
+    """In the given bitmask, find all (incl. overlapping) ranges of 1s and 0s.
+
+    The ranges need to be between start_index and max_start_index and contain
+    exactly `length` 1s. The 1s do NOT need to be consecutive. Meaning the sequence
+    will be at least length long, but due to intermediate 0s may be as long
+    as max_start_index-start_index.
+
+    NOTE: The returned range starts on the left, e.g., the left-most bit is 0.
+    The ranges are non-inclusive for the end index.
+
+    Args:
+    ----
+        bitmask (int): The input bitmask, treated as a binary sequence.
+        length (int): Exact number of `1`s required in the range.
+        start_index (int): The starting index of the search.
+        max_start_index (int): The maximum starting index of the search.
+        pad_left (int): The number of bits in the bitmask. Defaults to 24.
+
+    Returns:
+    -------
+        list[tuple[int, int]]: List of tuples where each tuple represents the start (inclusive) and end (non-inclusive) indices of a valid range.
+
+    """
+    result = []
+    bitmask_length = pad_left
+
+    for i in range(start_index, min(max_start_index, bitmask_length) + 1):
+        ones = 0
+        range_start = i
+
+        # Skip starting bits that are 0 -> we don't get 0-prefixed ranges
+        if not bitmask & (
+            1 << (bitmask_length - i - 1)
+        ):  # -1, because it's inclusive & 0-indexed
+            continue
+
+        for j in range(i, bitmask_length):
+            if bitmask & (1 << (bitmask_length - j - 1)):  # Check if the bit is 1
+                ones += 1
+
+            if ones == length:
+                result.append((range_start, j + 1))
+                break
+
+            if ones > length:
+                break
+
+    return result
