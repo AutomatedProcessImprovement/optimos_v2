@@ -1,10 +1,17 @@
+from collections import Counter
 from dataclasses import replace
+
 from o2.models.days import DAY
 from o2.models.legacy_constraints import WorkMasks
 from o2.models.state import State
 from o2.models.timetable import Resource, ResourceCalendar, TimePeriod
-from o2.util.bit_mask_helper import find_most_frequent_overlap, string_to_bitmask
+from o2.util.bit_mask_helper import (
+    find_mixed_ranges_in_bitmask,
+    find_most_frequent_overlap,
+    string_to_bitmask,
+)
 from o2.util.helper import name_is_clone_of
+from tests.fixtures.test_helpers import count_occurrences, generate_ranges
 from tests.fixtures.timetable_generator import TimetableGenerator
 
 
@@ -663,3 +670,25 @@ def test_get_highest_availability_time_period_overlap_too_small(
     assert timetable.get_highest_availability_time_period(
         TimetableGenerator.FIRST_ACTIVITY, 3
     ) == TimePeriod.from_start_end(10, 16, DAY.MONDAY)
+
+
+def test_find_mixed_ranges_in_bitmask_simple():
+    bit_length = 24
+    bitmask = 0b1101011
+    start = 0
+    max_start = bit_length - 1
+    min_length = 3
+
+    expected_ranges = [
+        # 1101
+        (17, 21),
+        # 10101
+        (18, 23),
+        # 1011
+        (20, 24),
+    ]
+
+    result = find_mixed_ranges_in_bitmask(bitmask, min_length, start, max_start)
+
+    assert result == expected_ranges
+
