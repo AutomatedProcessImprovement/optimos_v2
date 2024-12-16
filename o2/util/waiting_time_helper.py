@@ -18,7 +18,13 @@ class BatchInfo(TypedDict):
     resource: str
     case: int
     start: datetime
+    """Starting time of the batch execution"""
     end: datetime
+    """Ending time of the batch execution"""
+    accumulation_begin: datetime
+    """Time when the first task in the batch was enabled"""
+    accumulation_end: datetime
+    """Time when the last task in the batch was enabled"""
     wt_first: float
     """Time difference between enablement time of the first task in the batch to the
       starting time of the batch."""
@@ -31,6 +37,8 @@ class BatchInfo(TypedDict):
     wt_batching: float
     """Sum of the difference between enablement of each task and the last enablement of
       the batch."""
+    idle_time: float
+    """Idle time of the batch"""
     real_proc: float
     """Real processing time of the batch, i.e., processing + idle time"""
     ideal_proc: float
@@ -154,10 +162,13 @@ def get_batches_from_event_log(
             "resource": resource,
             "start": execution_start,
             "end": execution_end,
+            "accumulation_begin": accumulation_begin,
+            "accumulation_end": accumulation_end,
             "wt_first": (execution_start - accumulation_begin).seconds,
             "wt_last": (execution_start - accumulation_end).seconds,
             "wt_total": wt_total,
             "wt_batching": wt_batching,
+            "idle_time": batch_idle_time,
             "real_proc": processing_time,
             "ideal_proc": ideal_processing_time,
             "size": len(batch),
