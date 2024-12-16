@@ -692,3 +692,27 @@ def test_find_mixed_ranges_in_bitmask_simple():
 
     assert result == expected_ranges
 
+
+def test_find_mixed_ranges_in_bitmask_complex():
+    bit_length = 24
+    bitmask = 0b110101110110111
+    bitstring = bin(bitmask)[2:].zfill(bit_length)
+    start = 9
+    max_start = start + 10
+    min_length = 3
+
+    all_ranges = generate_ranges(0, len(bitstring), min_length)
+    valid_ranges = [
+        r
+        for r in all_ranges
+        if r[0] <= max_start
+        and r[0] >= start
+        and count_occurrences(bitstring[r[0] : r[1]], "1") == min_length
+        # Assure no leading/trailing zeros
+        and bitstring[r[0] : r[1]].removeprefix("0").removesuffix("0")
+        == bitstring[r[0] : r[1]]
+    ]
+
+    result = find_mixed_ranges_in_bitmask(bitmask, min_length, start, max_start)
+
+    assert Counter(valid_ranges) == Counter(result)
