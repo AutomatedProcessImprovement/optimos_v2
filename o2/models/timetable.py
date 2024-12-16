@@ -23,7 +23,11 @@ from dataclass_wizard import JSONWizard
 from o2.models.legacy_constraints import WorkMasks
 from o2.models.rule_selector import RuleSelector
 from o2.models.time_period import TimePeriod
-from o2.util.bit_mask_helper import any_has_overlap, find_most_frequent_overlap
+from o2.util.bit_mask_helper import (
+    any_has_overlap,
+    find_mixed_ranges_in_bitmask,
+    find_most_frequent_overlap,
+)
 from o2.util.custom_dumper import CustomDumper, CustomLoader
 from o2.util.helper import (
     CLONE_REGEX,
@@ -470,6 +474,39 @@ class ResourceCalendar(JSONWizard, CustomLoader, CustomDumper):
             + ",\t\n".join(map(str, self.time_periods))
             + "\t\n)"
         )
+
+    def get_time_periods_of_length_excl_idle(
+        self,
+        day: DAY,
+        length: int,
+        start_time: int,
+        last_start_time: int,
+    ) -> list["TimePeriod"]:
+        """Get all time periods of a specific length.
+
+        The time-periods will ignore any idle time.
+        The result will be sorted by length, with shortest first,
+        thereby sorting it by least idle time first.
+        """
+        bitmask = self.work_masks.get(day) or 0
+
+        # # TODO Think about this
+        # if last_start_time + length > 24:
+        #     bitmask_tomorrow = bitmask_by_day.get(day.next_day()) or 0
+        #     bitmask = bitmask << 24 | bitmask_tomorrow
+
+        if bitmask == 0:
+            return []
+
+        ranges = find_mixed_ranges_in_bitmask(
+            bitmask, length, start_time, last_start_time
+        )
+
+        ranges_sorted = sorted(ranges, key=lambda r: r[1] - r[0])
+
+        return [
+            TimePeriod.from_start_end(start, end, day) for start, end in ranges_sorted
+        ]
 
 
 @dataclass(frozen=True)
