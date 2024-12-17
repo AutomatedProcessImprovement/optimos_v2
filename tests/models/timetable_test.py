@@ -734,3 +734,19 @@ def test_get_time_periods_of_length_excl_idle_simple():
         TimePeriod.from_start_end(13, 17, DAY.MONDAY),
         TimePeriod.from_start_end(11, 16, DAY.MONDAY),
     ]
+
+    assert calendar.get_time_periods_of_length_excl_idle(DAY.MONDAY, 3, 0, 12) == [
+        TimePeriod.from_start_end(10, 14, DAY.MONDAY),
+        TimePeriod.from_start_end(11, 16, DAY.MONDAY),
+    ]
+
+    assert calendar.get_time_periods_of_length_excl_idle(DAY.MONDAY, 3, 11, 23) == [
+        TimePeriod.from_start_end(13, 17, DAY.MONDAY),
+        TimePeriod.from_start_end(11, 16, DAY.MONDAY),
+    ]
+
+    assert calendar.get_time_periods_of_length_excl_idle(DAY.MONDAY, 5, 0, 23) == [
+        TimePeriod.from_start_end(10, 17, DAY.MONDAY),
+    ]
+
+    assert calendar.get_time_periods_of_length_excl_idle(DAY.MONDAY, 6, 0, 23) == []
