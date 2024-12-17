@@ -716,3 +716,21 @@ def test_find_mixed_ranges_in_bitmask_complex():
     result = find_mixed_ranges_in_bitmask(bitmask, min_length, start, max_start)
 
     assert Counter(valid_ranges) == Counter(result)
+
+
+def test_get_time_periods_of_length_excl_idle_simple():
+    calendar = ResourceCalendar(
+        id=TimetableGenerator.CALENDAR_ID,
+        name=TimetableGenerator.CALENDAR_ID,
+        time_periods=[
+            TimePeriod.from_start_end(10, 12, DAY.MONDAY),
+            TimePeriod.from_start_end(13, 14, DAY.MONDAY),
+            TimePeriod.from_start_end(15, 17, DAY.MONDAY),
+        ],
+    )
+
+    assert calendar.get_time_periods_of_length_excl_idle(DAY.MONDAY, 3, 0, 23) == [
+        TimePeriod.from_start_end(10, 14, DAY.MONDAY),
+        TimePeriod.from_start_end(13, 17, DAY.MONDAY),
+        TimePeriod.from_start_end(11, 16, DAY.MONDAY),
+    ]
