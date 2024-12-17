@@ -12,6 +12,16 @@ class DAY(str, Enum):
     SATURDAY = "SATURDAY"
     SUNDAY = "SUNDAY"
 
+    def next_day(self) -> "DAY":
+        """Get the next day."""
+        index = DAYS.index(self)
+        return DAYS[(index + 1) % len(DAYS)]
+
+    def previous_day(self) -> "DAY":
+        """Get the previous day."""
+        index = DAYS.index(self)
+        return DAYS[(index - 1) % len(DAYS)]
+
 
 DAYS = [
     DAY.MONDAY,
