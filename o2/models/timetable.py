@@ -350,7 +350,8 @@ class ResourceCalendar(JSONWizard, CustomLoader, CustomDumper):
         """Get the time periods that contain a specific day."""
         return [tp for tp in self.time_periods if is_day_in_range(day, tp.from_, tp.to)]
 
-    def to_work_masks(self) -> WorkMasks:
+    @cached_property
+    def work_masks(self) -> WorkMasks:
         """Convert the calendar to work masks."""
         days = {
             f"{day.name.lower()}": reduce(
