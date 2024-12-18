@@ -11,9 +11,11 @@ from o2.actions.base_actions.add_ready_large_wt_rule_base_action import (
 from o2.actions.base_actions.base_action import (
     RateSelfReturnType,
 )
+from o2.models.days import DAY
 from o2.models.self_rating import SelfRatingInput
 from o2.models.timetable import RULE_TYPE
 from o2.store import Store
+from o2.util.waiting_time_helper import BatchInfo
 
 
 class AddLargeWTRuleByIdleActionParamsType(AddReadyLargeWTRuleBaseActionParamsType):
@@ -52,7 +54,7 @@ class AddLargeWTRuleByIdleAction(AddReadyLargeWTRuleBaseAction):
         state = store.current_state
 
         # Group all batches by activity
-        batches_by_activity = {}
+        batches_by_activity: dict[str, list[BatchInfo]] = {}
         for batch in store.current_evaluation.batches.values():
             activity = batch["activity"]
             if activity not in batches_by_activity:
@@ -60,32 +62,48 @@ class AddLargeWTRuleByIdleAction(AddReadyLargeWTRuleBaseAction):
             batches_by_activity[activity].append(batch)
 
         for activity, batch_group in batches_by_activity.items():
-            # Calculate the average ideal_proc
-            ideal_proc = sum([batch["ideal_proc"] for batch in batch_group]) / len(
-                batch_group
-            )
             # For each activity, look at all resources, which could also
             # do that batch (incl. the one which originally did it)
+
+            required_large_wts: list[int] = []
             resources = timetable.get_resources_assigned_to_task(activity)
             for resource in resources:
                 # For each resource, find all time intervals/periods, that are are at
                 # least avg_ideal_proc long (only work-time, skipping idle time),
                 # and start after accumulation_begin. Up to a time after the actual
                 # batch start, that is at least avg_ideal_proc long.
-                periods = []
+                calendar = timetable.get_calendar_for_resource(resource)
+                if calendar is None:
+                    continue
                 for batch in batch_group:
-                    if batch["resource"] == resource:
-                        # Find all time intervals/periods
-                        # that are at least avg_ideal_proc long
-                        # (only work-time, skipping idle time)
-                        # and start after accumulation_begin
-                        # Up to a time after the actual batch start,
-                        # that is at least avg_ideal_proc long
-                        pass
-                # Get the shortest of these periods
-                # remember the difference between the start of the period
-                # and the first enabled time of the batch
-                # Average over all these differences for all resources
-                pass
-            # Create a new LargeWT rule for that average
-            pass
+                    first_enablement_weekday = DAY(
+                        batch["accumulation_begin"].strftime("%A").upper()
+                    )
+                    required_processing_time = ceil(batch["ideal_proc"])
+
+                    time_periods = calendar.get_time_periods_of_length_excl_idle(
+                        first_enablement_weekday,
+                        required_processing_time,
+                        start_time=batch["accumulation_begin"].hour,
+                        last_start_time=batch["start"].hour + required_processing_time,
+                    )
+
+                    shortest_period = time_periods[0]
+                    required_large_wt = (
+                        shortest_period.begin_time_hour
+                        - batch["accumulation_begin"].hour
+                    )
+                    required_large_wts.append(required_large_wt)
+            if required_large_wts:
+                yield (
+                    AddDateTimeRuleBaseAction.get_default_rating(),
+                    AddLargeWTRuleByIdleAction(
+                        AddLargeWTRuleByIdleActionParamsType(
+                            task_id=activity,
+                            waiting_time=ceil(
+                                sum(required_large_wts) / len(required_large_wts)
+                            ),
+                            type=RULE_TYPE.LARGE_WT,
+                        )
+                    ),
+                )
