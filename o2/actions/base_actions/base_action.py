@@ -10,7 +10,7 @@ from typing import (
     TypeVar,
 )
 
-from dataclass_wizard import JSONSerializable, JSONWizard
+from dataclass_wizard import JSONSerializable
 from typing_extensions import TypedDict
 
 from o2.util.helper import hash_string
@@ -24,7 +24,9 @@ ActionT = TypeVar("ActionT", bound="BaseAction")
 
 ActionRatingTuple = Tuple["RATING", Optional["ActionT"]]
 
-RateSelfReturnType = Generator[ActionRatingTuple, bool, Optional[ActionRatingTuple]]
+RateSelfReturnType = Generator[
+    ActionRatingTuple, bool, Optional[ActionRatingTuple[ActionT]]
+]
 
 
 class BaseActionParamsType(TypedDict):

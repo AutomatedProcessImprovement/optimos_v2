@@ -84,7 +84,10 @@ class ModifyCalendarBaseAction(BaseAction, ABC):
 
     @staticmethod
     @abstractmethod
-    def rate_self(store: "Store", input: SelfRatingInput) -> RateSelfReturnType:
+    def rate_self(
+        store: "Store", input: SelfRatingInput
+    ) -> RateSelfReturnType["ModifyCalendarBaseAction"]:
+        """Generate a best set of parameters & self-evaluates this action."""
         pass
 
     def __str__(self) -> str:

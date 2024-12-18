@@ -33,7 +33,9 @@ class AddDateTimeRuleByAvailabilityAction(AddDateTimeRuleBaseAction):
     params: AddDateTimeRuleByAvailabilityActionParamsType
 
     @staticmethod
-    def rate_self(store: "Store", input: SelfRatingInput) -> RateSelfReturnType:
+    def rate_self(
+        store: "Store", input: SelfRatingInput
+    ) -> RateSelfReturnType["AddDateTimeRuleByAvailabilityAction"]:
         """Generate a best set of parameters & self-evaluates this action."""
         timetable = store.current_timetable
 

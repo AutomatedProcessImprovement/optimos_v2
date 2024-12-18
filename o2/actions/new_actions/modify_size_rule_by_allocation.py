@@ -31,7 +31,9 @@ class ModifySizeRuleByLowAllocationAction(ModifySizeRuleBaseAction):
     params: ModifySizeRuleByAllocationActionParamsType
 
     @staticmethod
-    def rate_self(store: "Store", input: SelfRatingInput) -> RateSelfReturnType:
+    def rate_self(
+        store: "Store", input: SelfRatingInput
+    ) -> RateSelfReturnType["ModifySizeRuleByLowAllocationAction"]:
         """Generate a best set of parameters & self-evaluates this action."""
         timetable = store.current_timetable
         evaluation = store.current_evaluation
@@ -75,7 +77,9 @@ class ModifySizeRuleByHighAllocationAction(ModifySizeRuleBaseAction):
     params: ModifySizeRuleByAllocationActionParamsType
 
     @staticmethod
-    def rate_self(store: "Store", input: SelfRatingInput) -> RateSelfReturnType:
+    def rate_self(
+        store: "Store", input: SelfRatingInput
+    ) -> RateSelfReturnType["ModifySizeRuleByHighAllocationAction"]:
         """Generate a best set of parameters & self-evaluates this action."""
         timetable = store.current_timetable
         evaluation = store.current_evaluation

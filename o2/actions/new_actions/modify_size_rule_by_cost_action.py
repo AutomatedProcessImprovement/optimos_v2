@@ -29,7 +29,9 @@ class ModifySizeRuleByCostAction(ModifySizeRuleBaseAction):
     params: ModifySizeRuleByCostActionParamsType
 
     @staticmethod
-    def rate_self(store: "Store", input: SelfRatingInput) -> RateSelfReturnType:
+    def rate_self(
+        store: "Store", input: SelfRatingInput
+    ) -> RateSelfReturnType["ModifySizeRuleByCostAction"]:
         """Generate a best set of parameters & self-evaluates this action."""
         timetable = store.current_timetable
 

@@ -29,7 +29,9 @@ class ModifySizeRuleByWTAction(ModifySizeRuleBaseAction):
     params: ModifySizeRuleByWTActionParamsType
 
     @staticmethod
-    def rate_self(store: "Store", input: SelfRatingInput) -> RateSelfReturnType:
+    def rate_self(
+        store: "Store", input: SelfRatingInput
+    ) -> RateSelfReturnType["ModifySizeRuleByWTAction"]:
         """Generate a best set of parameters & self-evaluates this action."""
         timetable = store.current_timetable
         avg_batching_waiting_time_per_task = (

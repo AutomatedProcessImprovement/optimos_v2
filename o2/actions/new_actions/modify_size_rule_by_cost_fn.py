@@ -78,7 +78,9 @@ class ModifySizeRuleByCostFnRepetitiveTasks(ModifySizeRuleBaseAction):
     params: ModifySizeRuleByCostFnParamsType
 
     @staticmethod
-    def rate_self(store: "Store", input: SelfRatingInput) -> RateSelfReturnType:
+    def rate_self(
+        store: "Store", input: SelfRatingInput
+    ) -> RateSelfReturnType["ModifySizeRuleByCostFnRepetitiveTasks"]:
         """Generate a best set of parameters & self-evaluates this action."""
         evaluation = store.current_evaluation
 
@@ -98,7 +100,9 @@ class ModifySizeRuleByCostFnHighCosts(ModifySizeRuleBaseAction):
     params: ModifySizeRuleByCostFnParamsType
 
     @staticmethod
-    def rate_self(store: "Store", input: SelfRatingInput) -> RateSelfReturnType:
+    def rate_self(
+        store: "Store", input: SelfRatingInput
+    ) -> RateSelfReturnType["ModifySizeRuleByCostFnHighCosts"]:
         """Generate a best set of parameters & self-evaluates this action."""
         evaluation = store.current_evaluation
 
@@ -118,11 +122,13 @@ class ModifySizeRuleByCostFnLowProcessingTime(ModifySizeRuleBaseAction):
     params: ModifySizeRuleByCostFnParamsType
 
     @staticmethod
-    def rate_self(store: "Store", input: SelfRatingInput) -> RateSelfReturnType:
+    def rate_self(
+        store: "Store", input: SelfRatingInput
+    ) -> RateSelfReturnType["ModifySizeRuleByCostFnLowProcessingTime"]:
         """Generate a best set of parameters & self-evaluates this action."""
         evaluation = store.current_evaluation
 
-        task_processing_times = evaluation.get_avg_processing_time_per_task()
+        task_processing_times = evaluation.get_average_processing_time_per_task()
         yield from rate_self_helper_by_metric_dict(
             store, task_processing_times, ModifySizeRuleByCostFnLowProcessingTime
         )
@@ -137,7 +143,9 @@ class ModifyBatchSizeIfNoCostImprovement(ModifySizeRuleBaseAction):
     params: ModifySizeRuleByCostFnParamsType
 
     @staticmethod
-    def rate_self(store: "Store", input: SelfRatingInput) -> RateSelfReturnType:
+    def rate_self(
+        store: "Store", input: SelfRatingInput
+    ) -> RateSelfReturnType["ModifyBatchSizeIfNoCostImprovement"]:
         """Generate a best set of parameters & self-evaluates this action."""
         timetable = store.current_timetable
         constraints = store.constraints
@@ -201,7 +209,9 @@ class ModifySizeRuleByCostFnLowCycleTimeImpact(ModifySizeRuleBaseAction):
     params: ModifySizeRuleByCostFnParamsType
 
     @staticmethod
-    def rate_self(store: "Store", input: SelfRatingInput) -> RateSelfReturnType:
+    def rate_self(
+        store: "Store", input: SelfRatingInput
+    ) -> RateSelfReturnType["ModifySizeRuleByCostFnLowCycleTimeImpact"]:
         """Generate a best set of parameters & self-evaluates this action."""
         timetable = store.current_timetable
         constraints = store.constraints

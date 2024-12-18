@@ -30,7 +30,9 @@ class ModifyBatchSizeIfNoDurationImprovement(ModifySizeRuleBaseAction):
     params: ModifySizeRuleByDurationFnParamsType
 
     @staticmethod
-    def rate_self(store: "Store", input: SelfRatingInput) -> RateSelfReturnType:
+    def rate_self(
+        store: "Store", input: SelfRatingInput
+    ) -> RateSelfReturnType["ModifyBatchSizeIfNoDurationImprovement"]:
         """Generate a best set of parameters & self-evaluates this action."""
         timetable = store.current_timetable
         constraints = store.constraints
@@ -94,7 +96,9 @@ class ModifySizeRuleByDurationFnCostImpact(ModifySizeRuleBaseAction):
     params: ModifySizeRuleByDurationFnParamsType
 
     @staticmethod
-    def rate_self(store: "Store", input: SelfRatingInput) -> RateSelfReturnType:
+    def rate_self(
+        store: "Store", input: SelfRatingInput
+    ) -> RateSelfReturnType["ModifySizeRuleByDurationFnCostImpact"]:
         """Generate a best set of parameters & self-evaluates this action."""
         timetable = store.current_timetable
         constraints = store.constraints

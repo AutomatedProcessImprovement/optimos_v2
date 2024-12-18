@@ -11,6 +11,7 @@ from bpdfr_simulation_engine.simulation_stats_calculator import (
 
 from o2.actions.base_actions.base_action import (
     ActionRatingTuple,
+    ActionT,
     RateSelfReturnType,
 )
 from o2.models.evaluation import Evaluation
@@ -95,7 +96,9 @@ def assert_no_first_valid(
             raise ValueError("Found valid action")
 
 
-def first_valid(store: Store, generator: RateSelfReturnType) -> ActionRatingTuple:
+def first_valid(
+    store: Store, generator: RateSelfReturnType[ActionT]
+) -> ActionRatingTuple[ActionT]:
     for rating, action in generator:
         if action is not None and action.check_if_valid(store):
             return rating, action

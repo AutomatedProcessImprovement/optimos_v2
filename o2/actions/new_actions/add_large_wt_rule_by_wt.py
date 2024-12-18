@@ -34,7 +34,9 @@ class AddLargeWTRuleByWTAction(AddReadyLargeWTRuleBaseAction):
     params: AddLargeWTRuleByWTActionParamsType
 
     @staticmethod
-    def rate_self(store: "Store", input: SelfRatingInput) -> RateSelfReturnType:
+    def rate_self(
+        store: "Store", input: SelfRatingInput
+    ) -> RateSelfReturnType["AddLargeWTRuleByWTAction"]:
         """Generate a best set of parameters & self-evaluates this action."""
         sorted_tasks = sorted(
             store.current_evaluation.total_batching_waiting_time_per_task.items(),
