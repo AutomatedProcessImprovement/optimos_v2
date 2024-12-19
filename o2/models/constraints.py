@@ -110,28 +110,29 @@ class ReadyWtRuleConstraints(BatchingConstraints, JSONWizard):
 
     def _verify_firing_rule(self, firing_rule: FiringRule[int]) -> bool:
         """Check if the firing rule is valid against the constraints."""
-        # Special case: If the rule is a <(=) min wt, it is invalid if min wt is set
-        if (
-            self.min_wt
-            and self.min_wt > 0
-            and (
-                firing_rule.comparison == COMPARATOR.LESS_THEN
-                or firing_rule.comparison == COMPARATOR.LESS_THEN_OR_EQUAL
-            )
-        ):
-            return False
+        # TODO:  We need to do checking in firing_rule pairs
+        # # Special case: If the rule is a <(=) min wt, it is invalid if min wt is set
+        # if (
+        #     self.min_wt
+        #     and self.min_wt > 0
+        #     and (
+        #         firing_rule.comparison == COMPARATOR.LESS_THEN
+        #         or firing_rule.comparison == COMPARATOR.LESS_THEN_OR_EQUAL
+        #     )
+        # ):
+        #     return False
 
-        # Special case: If the rule is a >(=) max wt, it is invalid if max wt is set
-        if self.max_wt and (
-            firing_rule.comparison == COMPARATOR.GREATER_THEN
-            or firing_rule.comparison == COMPARATOR.GREATER_THEN_OR_EQUAL
-        ):
-            return False
+        # # Special case: If the rule is a >(=) max wt, it is invalid if max wt is set
+        # if self.max_wt and (
+        #     firing_rule.comparison == COMPARATOR.GREATER_THEN
+        #     or firing_rule.comparison == COMPARATOR.GREATER_THEN_OR_EQUAL
+        # ):
+        #     return False
 
-        if (self.min_wt and firing_rule.value < self.min_wt) or (
-            self.max_wt and firing_rule.value > self.max_wt
-        ):
-            return False
+        # if (self.min_wt and firing_rule.value < self.min_wt) or (
+        #     self.max_wt and firing_rule.value > self.max_wt
+        # ):
+        #     return False
 
         return True
 
@@ -140,8 +141,8 @@ class ReadyWtRuleConstraints(BatchingConstraints, JSONWizard):
 class LargeWtRuleConstraints(BatchingConstraints, JSONWizard):
     """Large waiting time rule constraints for batching."""
 
-    min_wt: int
-    max_wt: int
+    min_wt: Optional[int]
+    max_wt: Optional[int]
 
     class _(JSONWizard.Meta):
         key_transform_with_dump = "SNAKE"
@@ -157,23 +158,25 @@ class LargeWtRuleConstraints(BatchingConstraints, JSONWizard):
 
     def _verify_firing_rule(self, firing_rule: FiringRule[int]) -> bool:
         """Check if the firing rule is valid against the constraints."""
-        # Special case: If the rule is a <(=) min wt, it is invalid if min wt is set
-        if (
-            self.min_wt
-            and self.min_wt > 0
-            and (
-                firing_rule.comparison == COMPARATOR.LESS_THEN
-                or firing_rule.comparison == COMPARATOR.LESS_THEN_OR_EQUAL
-            )
-        ):
-            return False
+        # TODO: We need to do checking in firing_rule pairs
 
-        # Special case: If the rule is a >(=) max wt, it is invalid if max wt is set
-        if self.max_wt and (
-            firing_rule.comparison == COMPARATOR.GREATER_THEN
-            or firing_rule.comparison == COMPARATOR.GREATER_THEN_OR_EQUAL
-        ):
-            return False
+        # # Special case: If the rule is a <(=) min wt, it is invalid if min wt is set
+        # if (
+        #     self.min_wt
+        #     and self.min_wt > 0
+        #     and (
+        #         firing_rule.comparison == COMPARATOR.LESS_THEN
+        #         or firing_rule.comparison == COMPARATOR.LESS_THEN_OR_EQUAL
+        #     )
+        # ):
+        #     return False
+
+        # # Special case: If the rule is a >(=) max wt, it is invalid if max wt is set
+        # if self.max_wt and (
+        #     firing_rule.comparison == COMPARATOR.GREATER_THEN
+        #     or firing_rule.comparison == COMPARATOR.GREATER_THEN_OR_EQUAL
+        # ):
+        #     return False
 
         if (self.min_wt and firing_rule.value < self.min_wt) or (
             self.max_wt and firing_rule.value > self.max_wt
