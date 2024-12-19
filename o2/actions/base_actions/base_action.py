@@ -22,10 +22,10 @@ if TYPE_CHECKING:
 
 ActionT = TypeVar("ActionT", bound="BaseAction")
 
-ActionRatingTuple = Tuple["RATING", Optional["ActionT"]]
+ActionRatingTuple = Tuple["RATING", Optional[ActionT]]
 
 RateSelfReturnType = Generator[
-    ActionRatingTuple, bool, Optional[ActionRatingTuple[ActionT]]
+    ActionRatingTuple[ActionT], bool, Optional[ActionRatingTuple[ActionT]]
 ]
 
 
@@ -46,7 +46,9 @@ class BaseAction(JSONSerializable, ABC, str=False):
 
     @staticmethod
     @abstractmethod
-    def rate_self(store: "Store", input: "SelfRatingInput") -> RateSelfReturnType:
+    def rate_self(
+        store: "Store", input: "SelfRatingInput"
+    ) -> RateSelfReturnType[ActionT]:
         """Generate a best set of parameters & self-evaluates this action."""
         pass
 

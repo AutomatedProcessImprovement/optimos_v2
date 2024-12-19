@@ -84,7 +84,9 @@ class AddReadyLargeWTRuleBaseAction(BatchingRuleAction, ABC, str=False):
 
     @staticmethod
     @abstractmethod
-    def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
+    def rate_self(
+        store: Store, input: SelfRatingInput
+    ) -> RateSelfReturnType["AddReadyLargeWTRuleBaseAction"]:
         pass
 
     @staticmethod
