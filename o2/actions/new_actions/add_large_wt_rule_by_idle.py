@@ -2,7 +2,6 @@ from math import ceil
 
 from o2.actions.base_actions.add_datetime_rule_base_action import (
     AddDateTimeRuleBaseAction,
-    AddDateTimeRuleBaseActionParamsType,
 )
 from o2.actions.base_actions.add_ready_large_wt_rule_base_action import (
     AddReadyLargeWTRuleBaseAction,
@@ -37,26 +36,26 @@ class AddLargeWTRuleByIdleAction(AddReadyLargeWTRuleBaseAction):
        least avg_ideal_proc long (only work-time, skipping idle time),
        and start after accumulation_begin. Up to a time after the actual
        batch start, that is at least avg_ideal_proc long.
-    5. Get the shortest of these periods, remember the difference between the
-       start of the period and the first enabled time of the batch.
-    6. Average over all these differences for all resources.
-    7. Create a new LargeWT rule for that average.
+    7. Create a new LargeWT rule for every of those periods
+
+    TODO: Use average and do not create for every single one
     """
 
     params: AddLargeWTRuleByIdleActionParamsType
 
     @staticmethod
-    def rate_self(store: "Store", input: SelfRatingInput) -> RateSelfReturnType:
+    def rate_self(
+        store: "Store", input: SelfRatingInput
+    ) -> RateSelfReturnType["AddLargeWTRuleByIdleAction"]:
         """Generate a best set of parameters & self-evaluates this action."""
-
-        evaluation = store.current_evaluation
         timetable = store.current_timetable
-        state = store.current_state
 
-        # Group all batches by activity
+        # Group all batches by activity, only include those with idle time
         batches_by_activity: dict[str, list[BatchInfo]] = {}
         for batch in store.current_evaluation.batches.values():
             activity = batch["activity"]
+            if batch["idle_time"] == 0:
+                continue
             if activity not in batches_by_activity:
                 batches_by_activity[activity] = []
             batches_by_activity[activity].append(batch)
@@ -65,7 +64,6 @@ class AddLargeWTRuleByIdleAction(AddReadyLargeWTRuleBaseAction):
             # For each activity, look at all resources, which could also
             # do that batch (incl. the one which originally did it)
 
-            required_large_wts: list[int] = []
             resources = timetable.get_resources_assigned_to_task(activity)
             for resource in resources:
                 # For each resource, find all time intervals/periods, that are are at
@@ -79,7 +77,7 @@ class AddLargeWTRuleByIdleAction(AddReadyLargeWTRuleBaseAction):
                     first_enablement_weekday = DAY(
                         batch["accumulation_begin"].strftime("%A").upper()
                     )
-                    required_processing_time = ceil(batch["ideal_proc"])
+                    required_processing_time = ceil(batch["ideal_proc"] / 3600)
 
                     time_periods = calendar.get_time_periods_of_length_excl_idle(
                         first_enablement_weekday,
@@ -88,22 +86,18 @@ class AddLargeWTRuleByIdleAction(AddReadyLargeWTRuleBaseAction):
                         last_start_time=batch["start"].hour + required_processing_time,
                     )
 
-                    shortest_period = time_periods[0]
-                    required_large_wt = (
-                        shortest_period.begin_time_hour
-                        - batch["accumulation_begin"].hour
-                    )
-                    required_large_wts.append(required_large_wt)
-            if required_large_wts:
-                yield (
-                    AddDateTimeRuleBaseAction.get_default_rating(),
-                    AddLargeWTRuleByIdleAction(
-                        AddLargeWTRuleByIdleActionParamsType(
-                            task_id=activity,
-                            waiting_time=ceil(
-                                sum(required_large_wts) / len(required_large_wts)
-                            ),
-                            type=RULE_TYPE.LARGE_WT,
+                    for period in time_periods:
+                        required_large_wt = (
+                            period.begin_time_hour - batch["accumulation_begin"].hour
                         )
-                    ),
-                )
+
+                        yield (
+                            AddDateTimeRuleBaseAction.get_default_rating(),
+                            AddLargeWTRuleByIdleAction(
+                                AddLargeWTRuleByIdleActionParamsType(
+                                    task_id=activity,
+                                    waiting_time=ceil(required_large_wt) * 3600,
+                                    type=RULE_TYPE.LARGE_WT,
+                                )
+                            ),
+                        )
