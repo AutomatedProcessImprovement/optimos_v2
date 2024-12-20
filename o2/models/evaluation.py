@@ -12,6 +12,7 @@ from bpdfr_simulation_engine.simulation_stats_calculator import (
 )
 
 from o2.models.days import DAY
+from o2.models.settings import CostType, Settings
 from o2.simulation_runner import RunSimulationResult
 from o2.util.helper import lambdify_dict
 from o2.util.waiting_time_helper import (
@@ -226,6 +227,28 @@ class Evaluation:
             for resource_id, task_start_times_by_day in self.resource_task_started_weekdays.items()
         }
 
+    @property
+    def pareto_cost(self) -> float:
+        """Get the cost used for positioning the evaluation in the pareto front.
+
+        NOTE: This is depended on the global, static setting found in `Settings.COST_TYPE`
+        """
+        if Settings.COST_TYPE == CostType.FIXED_COST:
+            return self.total_fixed_cost
+        elif Settings.COST_TYPE == CostType.RESOURCE_COST:
+            return self.total_cost_for_available_time
+        elif Settings.COST_TYPE == CostType.TOTAL_COST:
+            return self.total_cost_for_worked_time
+        raise ValueError(f"Unknown cost type: {Settings.COST_TYPE}")
+
+    @property
+    def pareto_duration(self) -> float:
+        """Get the duration used for positioning the evaluation in the pareto front.
+
+        NOTE: This is currently NOT depended on your settings
+        """
+        return self.total_duration
+
     def get_avg_waiting_time_of_task_id(self, task_id: str) -> float:
         """Get the average waiting time of a task."""
         return self.task_kpis[task_id].waiting_time.avg
@@ -382,13 +405,13 @@ class Evaluation:
 
     def to_tuple(self) -> tuple[float, float]:
         """Convert self to a tuple of cost for available time and total cycle time."""
-        return (self.total_cost_for_worked_time, self.total_duration)
+        return (self.pareto_cost, self.pareto_duration)
 
     def distance_to(self, other: "Evaluation") -> float:
         """Calculate the euclidean distance between two evaluations."""
         return math.sqrt(
-            (self.total_cost_for_worked_time - other.total_cost_for_worked_time) ** 2
-            + (self.total_duration - other.total_duration) ** 2
+            (self.pareto_cost - other.pareto_cost) ** 2
+            + (self.pareto_duration - other.pareto_duration) ** 2
         )
 
     # Is this evaluation dominated by another evaluation?
@@ -396,13 +419,13 @@ class Evaluation:
     def is_dominated_by(self, other: "Evaluation") -> bool:
         """Check if this evaluation is dominated by another evaluation."""
         return (
-            other.total_cost_for_worked_time < self.total_cost_for_worked_time
-            and other.total_duration < self.total_duration
+            other.pareto_cost < self.pareto_cost
+            and other.pareto_duration < self.pareto_duration
         )
 
     def __str__(self) -> str:
         """Return a string representation of the evaluation."""
-        return f"Duration: {self.total_duration}, Cost: {self.total_cost_for_worked_time}, Waiting Time: {self.total_waiting_time}"  # noqa: E501
+        return f"Duration: {self.pareto_duration}, Cost: {self.pareto_cost}, Waiting Time: {self.total_waiting_time}"  # noqa: E501
 
     @staticmethod
     def get_task_enablement_weekdays(

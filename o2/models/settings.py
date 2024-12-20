@@ -1,6 +1,7 @@
 import os
 from dataclasses import dataclass
 from enum import Enum
+from typing import ClassVar
 
 from o2.models.legacy_approach import LegacyApproach
 
@@ -11,6 +12,20 @@ class AgentType(Enum):
     TABU_SEARCH = "tabu_search"
     SIMULATED_ANNEALING = "simulated_annealing"
     PROXIMAL_POLICY_OPTIMIZATION = "proximal_policy_optimization"
+
+
+class CostType(Enum):
+    """The type of cost to use for the optimization task."""
+
+    TOTAL_COST = "total_cost"
+    """The total cost, including fixed costs per task / batch
+    and resource costs (e.g. hourly wages)."""
+
+    RESOURCE_COST = "resource_cost"
+    """The resource cost, excluding fixed costs per task / batch."""
+
+    FIXED_COST = "fixed_cost"
+    """The fixed cost per task / batch. No resource costs."""
 
 
 @dataclass()
@@ -33,6 +48,7 @@ class Settings:
     Non-improving actions are all actions, which solutions are not dominating the
     current Pareto Front.
     """
+
     max_iterations = 1000
     """The maximum (total) number of iterations before the application stops."""
 
@@ -112,3 +128,9 @@ class Settings:
 
     log_to_tensor_board = True
     """Should the evaluation be logged to TensorBoard?"""
+
+    COST_TYPE: ClassVar[CostType] = CostType.FIXED_COST
+    """The type of cost to use for the optimization task.
+
+    Because this won't differ during the optimization, it's a class variable.
+    """
