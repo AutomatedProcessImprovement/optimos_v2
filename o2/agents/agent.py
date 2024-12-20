@@ -21,6 +21,7 @@ from o2.actions.new_actions.add_date_time_rule_by_enablement import (
 from o2.actions.new_actions.add_date_time_rule_by_start import (
     AddDateTimeRuleByStartAction,
 )
+from o2.actions.new_actions.add_large_wt_rule_by_idle import AddLargeWTRuleByIdleAction
 from o2.actions.new_actions.add_large_wt_rule_by_wt import AddLargeWTRuleByWTAction
 from o2.actions.new_actions.add_ready_wt_rule_by_wt import AddReadyWTRuleByWTAction
 from o2.actions.new_actions.modify_size_rule_by_allocation import (
@@ -89,6 +90,7 @@ ACTION_CATALOG_BATCHING_ONLY = [
     AddDateTimeRuleByAvailabilityAction,
     AddDateTimeRuleByEnablementAction,
     AddDateTimeRuleByStartAction,
+    AddLargeWTRuleByIdleAction,
     AddLargeWTRuleByWTAction,
     AddReadyWTRuleByWTAction,
     ModifyBatchSizeIfNoCostImprovement,
