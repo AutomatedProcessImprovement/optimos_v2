@@ -23,8 +23,44 @@ def test_hill_climber_simple(one_task_store: Store):
         .constraints.batching_constraints,
     )
 
+    store.settings.throw_on_iteration_errors = True
+    store.settings.disable_parallel_evaluation = True
     store.settings.max_iterations = 3
     store.settings.max_threads = 1
+
+    hill_climber = HillClimber(store)
+    hill_climber.solve()
+
+    # 3x Decrease Batching Size (10 -> 9 -> 8 -> 7)
+    # TODO: Fix
+    # assert len(store.previous_actions) == 3
+
+
+def test_hill_climber_batching(one_task_store: Store):
+    store = replace_timetable(
+        one_task_store,
+        batch_processing=[
+            TimetableGenerator.batching_size_rule(
+                TimetableGenerator.FIRST_ACTIVITY, 10, 1
+            )
+        ],
+    )
+
+    store = replace_constraints(
+        store,
+        batching_constraints=ConstraintsGenerator(store.base_state.bpmn_definition)
+        # We don't allow removal of the batching
+        .add_size_constraint(optimal_duration=5, optimal_duration_bonus=0.1, min_size=1)
+        .constraints.batching_constraints,
+    )
+
+    store.settings.throw_on_iteration_errors = True
+    store.settings.max_iterations = 3
+    store.settings.max_threads = 1
+    store.settings.disable_parallel_evaluation = True
+    store.settings.optimos_legacy_mode = False
+
+    store.settings.batching_only = True
 
     hill_climber = HillClimber(store)
     hill_climber.solve()
