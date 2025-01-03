@@ -10,6 +10,7 @@ from o2.models.solution import Solution
 from o2.models.solution_tree import SolutionTree
 from o2.models.state import State
 from o2.pareto_front import FRONT_STATUS, ParetoFront
+from o2.util.indented_printer import print_l2
 
 if TYPE_CHECKING:
     from o2.actions.base_actions.base_action import BaseAction
@@ -134,7 +135,11 @@ class Store:
                 chosen_tries.append((status, solution))
                 self.current_pareto_front.add(solution)
                 if choose_new_base_evaluation_callback is not None:
-                    # We choose a new base evaluation, to continue with our new front entry
+                    # We choose a new base evaluation, to continue with
+                    # our new front entry
+                    print_l2(
+                        "New Solution is part of front, choosing new base evaluation."
+                    )
                     self.solution = choose_new_base_evaluation_callback(
                         (status, solution)
                     )
@@ -146,6 +151,9 @@ class Store:
                 self.current_pareto_front.add(solution)
                 if choose_new_base_evaluation_callback is not None:
                     # We choose a new base evaluation, because we are in a new front
+                    print_l2(
+                        "Current front was dominated by new solution, choosing new base evaluation."  # noqa: E501
+                    )
                     self.solution = choose_new_base_evaluation_callback(
                         (status, solution)
                     )

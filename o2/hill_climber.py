@@ -5,7 +5,7 @@ import traceback
 from typing import Generator
 
 from o2.actions.base_actions.base_action import BaseAction, RateSelfReturnType
-from o2.agents.agent import Agent
+from o2.agents.agent import Agent, NoNewBaseSolutionFoundError
 from o2.agents.ppo_agent import PPOAgent
 from o2.agents.simulated_annealing_agent import SimulatedAnnealingAgent
 from o2.agents.tabu_agent import TabuAgent
@@ -30,7 +30,8 @@ class HillClimber:
                 max_workers=self.store.settings.max_threads
             )
         self.agent: Agent = self._init_agent()
-        TensorBoardHelper(self.agent)
+        if self.store.settings.log_to_tensor_board:
+            TensorBoardHelper(self.agent)
 
     def _init_agent(self):
         """Initialize the agent for the optimization task."""
@@ -47,10 +48,11 @@ class HillClimber:
         print_l1(f"Initial evaluation: {self.store.base_solution.evaluation}")
         generator = self.get_iteration_generator(yield_on_non_acceptance=True)
         for _ in generator:
-            # Just iterate through the generator to run it
-            TensorBoardHelper.instance.tensor_board_iteration_callback(
-                self.store.solution
-            )
+            if self.store.settings.log_to_tensor_board:
+                # Just iterate through the generator to run it
+                TensorBoardHelper.instance.tensor_board_iteration_callback(
+                    self.store.solution
+                )
 
         if not self.store.settings.disable_parallel_evaluation:
             self.executor.shutdown()
@@ -74,7 +76,9 @@ class HillClimber:
                         self.store.settings.max_non_improving_actions
                     )
 
-                print_l0(f"Iteration {it}")
+                print_l0(
+                    f"{self.store.settings.agent} - Iteration {it}/{self.max_iter}"
+                )
 
                 actions_to_perform = self.agent.select_actions(self.store)
                 if actions_to_perform is None or len(actions_to_perform) == 0:
@@ -99,20 +103,20 @@ class HillClimber:
                     print_l1("No action improved the evaluation")
                     self.max_non_improving_iter -= len(actions_to_perform)
                     for _, solution in not_chosen_tries:
-                        print_l2(str(solution.last_action))
+                        print_l2(repr(solution.last_action))
                         if yield_on_non_acceptance:
                             yield solution
                 else:
                     if len(not_chosen_tries) > 0:
                         print_l1("Actions NOT chosen:")
                     for _, solution in not_chosen_tries:
-                        print_l2(str(solution.last_action))
+                        print_l2(repr(solution.last_action))
                         self.max_non_improving_iter -= 1
                         if yield_on_non_acceptance:
                             yield solution
                     print_l1("Actions chosen:")
                     for status, solution in chosen_tries:
-                        print_l2(str(solution.last_action))
+                        print_l2(repr(solution.last_action))
                         if status == FRONT_STATUS.IN_FRONT:
                             print_l3("Pareto front CONTAINS new evaluation.")
                             print_l3(f"Evaluation: {solution.evaluation}")
@@ -125,9 +129,15 @@ class HillClimber:
                             )
                         yield solution
                 print_l1(f"Non improving actions left: {self.max_non_improving_iter}")
+            except NoNewBaseSolutionFoundError:
+                print_l1("No new base solution found.")
+                break
             except Exception as e:
                 print_l1(f"Error in iteration: {e}")
                 print_l1(traceback.format_exc())
+                if self.store.settings.throw_on_iteration_errors:
+                    # re-raising the exception to stop the optimization
+                    raise
                 continue
 
     def _print_result(self):
@@ -136,7 +146,7 @@ class HillClimber:
         print_l1(f"Base evaluation: \t{self.store.base_evaluation}")
         print_l1("Modifications:")
         for action in self.store.base_solution.actions:
-            print_l2(str(action))
+            print_l2(repr(action))
 
     def _execute_actions_parallel(
         self, store: Store, actions_to_perform: list[BaseAction]
