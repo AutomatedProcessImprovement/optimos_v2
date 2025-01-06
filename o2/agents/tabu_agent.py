@@ -147,8 +147,8 @@ class TabuAgent(Agent):
         #     if rule.can_be_modified(store, -1) and rule.id() not in tabu_indices
         # ]
 
-        if store.settings.optimos_legacy_mode:
-            # Disable rule evaluation in legacy mode
+        if store.settings.optimos_legacy_mode or store.settings.batching_only:
+            # Disable rule evaluation in legacy mode or batching only mode
             return {}
 
         firing_rule_selectors = [
