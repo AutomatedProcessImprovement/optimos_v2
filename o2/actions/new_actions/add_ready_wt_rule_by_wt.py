@@ -44,10 +44,10 @@ class AddReadyWTRuleByWTAction(AddReadyLargeWTRuleBaseAction):
             reverse=True,
         )
         for task_id, _ in sorted_tasks:
-            waiting_time = (
-                store.current_evaluation.total_batching_waiting_time_per_task[task_id]
-            )
-            new_large_wt = ceil(waiting_time * 0.9)
+            waiting_time = store.current_evaluation.avg_batching_waiting_time_per_task[
+                task_id
+            ]
+            new_large_wt = min(ceil(waiting_time * 0.9), 24 * 60 * 60)
             yield (
                 AddDateTimeRuleBaseAction.get_default_rating(),
                 AddReadyWTRuleByWTAction(

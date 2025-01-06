@@ -50,6 +50,8 @@ class AddReadyLargeWTRuleBaseAction(BatchingRuleAction, ABC, str=False):
         waiting_time = self.params["waiting_time"]
         type = self.params["type"]
 
+        assert waiting_time <= 24 * 60 * 60, "Waiting time must be less than 24 hours"
+
         existing_task_rules = timetable.get_batching_rules_for_task(task_id)
 
         if not existing_task_rules:
@@ -66,6 +68,12 @@ class AddReadyLargeWTRuleBaseAction(BatchingRuleAction, ABC, str=False):
                 attribute=type,
                 comparison=COMPARATOR.GREATER_THEN_OR_EQUAL,
                 value=waiting_time,
+            ),
+            # This is needed, or else we get an error
+            FiringRule(
+                attribute=type,
+                comparison=COMPARATOR.LESS_THEN_OR_EQUAL,
+                value=24 * 60 * 60,
             ),
         ]
         updated_rule = replace(
