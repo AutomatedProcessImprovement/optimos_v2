@@ -8,6 +8,7 @@ from o2.agents.agent import (
     ACTION_CATALOG_BATCHING_ONLY,
     ACTION_CATALOG_LEGACY,
     Agent,
+    NoNewBaseSolutionFoundError,
 )
 from o2.agents.tabu_agent import TabuAgent
 from o2.models.self_rating import SelfRatingInput
@@ -118,7 +119,7 @@ class SimulatedAnnealingAgent(Agent):
             max_distance=self.temperature,
         )
         if solution is None:
-            raise ValueError("No new baseline evaluation found.")
+            raise NoNewBaseSolutionFoundError("No new baseline evaluation found.")
 
         distance = self.store.current_pareto_front.avg_distance_to(solution.evaluation)
         print_l2(f"Selected new random base solution with distance: {distance:_}")

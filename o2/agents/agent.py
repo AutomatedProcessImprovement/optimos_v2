@@ -109,6 +109,12 @@ ACTION_CATALOG_BATCHING_ONLY = [
 ]
 
 
+class NoNewBaseSolutionFoundError(Exception):
+    """Exception raised when no new base solution is found."""
+
+    pass
+
+
 class Agent(ABC):
     """Selects the best action to take next, based on the current state of the store."""
 
