@@ -183,7 +183,7 @@ def find_mixed_ranges_in_bitmask(
     result = []
     bitmask_length = pad_left
 
-    for i in range(start_index, min(max_start_index, bitmask_length) + 1):
+    for i in range(start_index, min(max_start_index, bitmask_length - 1) + 1):
         ones = 0
         range_start = i
 
