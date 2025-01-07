@@ -128,6 +128,11 @@ class Settings:
 
     log_to_tensor_board = True
     """Should the evaluation be logged to TensorBoard?"""
+    DO_NOT_DISCARD_SOLUTIONS: ClassVar[bool] = False
+    """Should the solutions be discarded after they have been dominated?
+
+    This should only be activated for evaluation, as it will draw a lot of memory!
+    """
 
     COST_TYPE: ClassVar[CostType] = CostType.FIXED_COST
     """The type of cost to use for the optimization task.
