@@ -213,6 +213,8 @@ class TimePeriod(BaseModel):
 
     @staticmethod
     def from_start_end(start: int, end: int, day: "DAY" = DAY.MONDAY) -> "TimePeriod":
+        if end == 24:
+            end = 0
         return TimePeriod(
             from_=day,
             to=day,
