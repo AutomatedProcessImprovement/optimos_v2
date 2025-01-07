@@ -76,7 +76,7 @@ class Settings:
     state, which will just result in the action not being chosen.
     """
 
-    legacy_approach = LegacyApproach.CALENDAR_FIRST
+    legacy_approach: LegacyApproach = LegacyApproach.CALENDAR_FIRST
     """
     This Setting is used to simulate different approaches used by legacy optimos.
 
@@ -126,8 +126,15 @@ class Settings:
     ppo_model_path = "models/ppo_maskable-20241025-075307"
     """The path to the PPO model to use for the PPO agent."""
 
-    log_to_tensor_board = True
+    log_to_tensor_board = False
     """Should the evaluation be logged to TensorBoard?"""
+
+    throw_on_iteration_errors = False
+    """Should the application throw an error if an iteration fails?
+
+    Useful for debugging, but should be disabled for production.
+    """
+
     DO_NOT_DISCARD_SOLUTIONS: ClassVar[bool] = False
     """Should the solutions be discarded after they have been dominated?
 

@@ -4,9 +4,10 @@ from typing import TYPE_CHECKING, Optional, cast
 
 import rtree
 
+from o2.models.settings import Settings
 from o2.models.solution import Solution
 from o2.pareto_front import ParetoFront
-from o2.util.indented_printer import print_l3
+from o2.util.indented_printer import print_l1, print_l3
 
 if TYPE_CHECKING:
     from o2.actions.base_actions.base_action import BaseAction
@@ -25,9 +26,14 @@ class SolutionTree:
     nearest neighbor queries, as well as insertions / deletions.
     """
 
-    def __init__(self) -> None:
+    def __init__(
+        self,
+    ) -> None:
         self.rtree = rtree.index.Index()
         self.solution_lookup: OrderedDict[int, Optional[Solution]] = OrderedDict()
+        if Settings.DO_NOT_DISCARD_SOLUTIONS:
+            self.evaluation_discarded_solutions = []
+            print_l1("Warning: Solutions will not be discarded.")
 
     def add_solution(self, solution: "Solution") -> None:
         """Add a solution to the tree."""
@@ -155,3 +161,6 @@ class SolutionTree:
         """Remove a solution from the tree."""
         self.rtree.delete(solution.id, solution.point)
         self.solution_lookup[solution.id] = None
+
+        if Settings.DO_NOT_DISCARD_SOLUTIONS:
+            self.evaluation_discarded_solutions.append(solution)
