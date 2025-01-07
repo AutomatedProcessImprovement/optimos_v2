@@ -129,7 +129,7 @@ class PPOInput:
 
         # Discrete features
         task_execution_count_with_wt_or_it_dict = (
-            evaluation.get_task_execution_count_with_wt_or_it()
+            evaluation.task_execution_count_with_wt_or_it
         )
         task_execution_count_with_wt_or_it_ = np.array(
             [
@@ -140,7 +140,7 @@ class PPOInput:
             ]
         ).reshape(-1, 1)
 
-        task_execution_counts_dict = evaluation.get_task_execution_counts()
+        task_execution_counts_dict = evaluation.task_execution_counts
         task_execution_counts = np.array(
             [
                 task_execution_counts_dict[task_id]
@@ -180,7 +180,7 @@ class PPOInput:
         scaler_hourly_cost = MinMaxScaler()
 
         # Continuous features
-        waiting_times_dict = evaluation.waiting_time_per_resource
+        waiting_times_dict = evaluation.total_batching_waiting_time_per_resource
         waiting_times = np.array(
             [
                 waiting_times_dict[resource.id]
