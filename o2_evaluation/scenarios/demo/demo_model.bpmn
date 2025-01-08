@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:qbp="http://www.qbp-simulator.com/Schema201212" xmlns:ap="http://apromore.org" xmlns:signavio="http://www.signavio.com" id="sid-5a3dd963-5d50-4127-b0d0-3164a51771d0" targetNamespace="http://www.signavio.com/bpmn20" exporter="Signavio Process Editor, http://www.signavio.com" exporterVersion="6.1.0" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL http://www.omg.org/spec/BPMN/2.0/20100501/BPMN20.xsd">
+  <process id="sid-e138ad92-53db-4474-a117-cf3a5074182e" isExecutable="false">
+    <startEvent id="START_EVENT" name="Credit application received">
+      <extensionElements>
+        <signavio:signavioMetaData metaKey="bgcolor" metaValue="#ffffff" />
+        <ap:img src="" />
+        <ap:icon elIconName="" />
+        <ap:icons />
+      </extensionElements>
+      <outgoing>sid-E469684F-C09F-4A8B-A916-E9927BA15372</outgoing>
+    </startEvent>
+    <parallelGateway id="GATEWAY_PARALLEL_CHECKS" name="" gatewayDirection="Diverging">
+      <extensionElements>
+        <signavio:signavioMetaData metaKey="bgcolor" metaValue="#ffffff" />
+        <ap:img src="" />
+        <ap:icon elIconName="" />
+        <ap:icons />
+      </extensionElements>
+      <incoming>sid-E469684F-C09F-4A8B-A916-E9927BA15372</incoming>
+      <outgoing>sid-6FD4FFD3-5784-4D33-9509-234EAB886930</outgoing>
+      <outgoing>sid-9E95A790-241E-4629-8D67-E9A2CE55E3DC</outgoing>
+    </parallelGateway>
+    <task id="TASK_CHECK_CREDIT_HISTORY" name="Check credit history">
+      <documentation id="a7411ebb-eb59-99af-9256-8ae109dbac3a">{"durationDistribution":{"type":"normal","mean":600,"value":3600,"stdev":120,"min":0,"max":0,"timeUnit":"minutes"},"resource":"Clerk","fixedCost":"0","name":"Check credit history"}</documentation>
+      <extensionElements>
+        <signavio:signavioMetaData metaKey="bgcolor" metaValue="#ffffcc" />
+        <signavio:signavioMetaData metaKey="risklevel" metaValue="" />
+        <signavio:signavioMetaData metaKey="externaldocuments" metaValue="[]" />
+        <ap:img src="" />
+        <ap:icon elIconName="" />
+        <ap:icons />
+      </extensionElements>
+      <incoming>sid-6FD4FFD3-5784-4D33-9509-234EAB886930</incoming>
+      <outgoing>sid-10E6C62E-2CBD-476A-976B-B862156F5DEC</outgoing>
+    </task>
+    <parallelGateway id="GATEWAY_JOIN" name="" gatewayDirection="Converging">
+      <extensionElements>
+        <signavio:signavioMetaData metaKey="bgcolor" metaValue="#ffffff" />
+      </extensionElements>
+      <incoming>sid-FF95F9DA-C10F-455B-B2FC-FBC1C270C0B4</incoming>
+      <incoming>sid-10E6C62E-2CBD-476A-976B-B862156F5DEC</incoming>
+      <outgoing>sid-281400BA-53E3-47C9-8437-B699CA182453</outgoing>
+    </parallelGateway>
+    <task id="TASK_CHECK_INCOME_SOURCES" name="Check income sources">
+      <extensionElements>
+        <signavio:signavioMetaData metaKey="bgcolor" metaValue="#ffffcc" />
+        <signavio:signavioMetaData metaKey="risklevel" metaValue="" />
+        <signavio:signavioMetaData metaKey="externaldocuments" metaValue="[]" />
+        <ap:img src="" />
+        <ap:icon elIconName="" />
+        <ap:icons />
+      </extensionElements>
+      <incoming>sid-9E95A790-241E-4629-8D67-E9A2CE55E3DC</incoming>
+      <outgoing>sid-FF95F9DA-C10F-455B-B2FC-FBC1C270C0B4</outgoing>
+    </task>
+    <exclusiveGateway id="GATEWAY_JOIN_2" name="" gatewayDirection="Converging">
+      <extensionElements>
+        <signavio:signavioMetaData metaKey="bgcolor" metaValue="#ffffff" />
+      </extensionElements>
+      <incoming>sid-281400BA-53E3-47C9-8437-B699CA182453</incoming>
+      <incoming>sid-AFEC7074-8C12-43E2-A1FE-87D5CEF395C8</incoming>
+      <outgoing>sid-0617E6F8-139D-4F02-B850-6604A21D603D</outgoing>
+    </exclusiveGateway>
+    <exclusiveGateway id="GATEWAY_CUSTOMER_FEEDBACK" name="customer feedback?" gatewayDirection="Diverging" default="sid-AE313010-5715-438C-AD61-1C02F03DCF77">
+      <extensionElements>
+        <signavio:signavioMetaData metaKey="bgcolor" metaValue="#ffffff" />
+      </extensionElements>
+      <incoming>sid-0B638436-AEB9-459C-AC18-9B64381CB7F9</incoming>
+      <outgoing>sid-AFEC7074-8C12-43E2-A1FE-87D5CEF395C8</outgoing>
+      <outgoing>sid-AE313010-5715-438C-AD61-1C02F03DCF77</outgoing>
+    </exclusiveGateway>
+    <task id="TASK_RECIEVE_CUSTOMER_FEEDBACK" name="Receive customer feedback">
+      <extensionElements>
+        <signavio:signavioMetaData metaKey="bgcolor" metaValue="#ffffcc" />
+        <signavio:signavioMetaData metaKey="risklevel" metaValue="" />
+        <signavio:signavioMetaData metaKey="externaldocuments" metaValue="[]" />
+        <ap:img src="" />
+        <ap:icon elIconName="" />
+        <ap:icons />
+      </extensionElements>
+      <incoming>sid-58A4F70B-5279-4DBC-AEE2-8D7D2596DE63</incoming>
+      <outgoing>sid-0B638436-AEB9-459C-AC18-9B64381CB7F9</outgoing>
+    </task>
+    <task id="TASK_NOTIFY_REJECTION" name="Notify rejection">
+      <documentation id="ccaf3372-1cf9-00a9-a7ac-93179ce2300b">{"durationDistribution":{"type":"normal","mean":"10","value":"0","stdev":"2","min":"0","max":"0","timeUnit":"seconds"},"resource":"CreditOfficer","fixedCost":"0","name":"Notify rejection"}</documentation>
+      <extensionElements>
+        <signavio:signavioMetaData metaKey="bgcolor" metaValue="#ffffcc" />
+        <signavio:signavioMetaData metaKey="risklevel" metaValue="" />
+        <signavio:signavioMetaData metaKey="externaldocuments" metaValue="[]" />
+        <ap:img src="" />
+        <ap:icon elIconName="" />
+        <ap:icons />
+      </extensionElements>
+      <incoming>sid-8AE82A7B-75EE-401B-8ABE-279FB05A3946</incoming>
+      <outgoing>sid-58A4F70B-5279-4DBC-AEE2-8D7D2596DE63</outgoing>
+    </task>
+    <exclusiveGateway id="GATEWAY_LENDING_DECISION" name="lending decision?" gatewayDirection="Diverging">
+      <extensionElements>
+        <signavio:signavioMetaData metaKey="bgcolor" metaValue="#ffffff" />
+      </extensionElements>
+      <incoming>sid-FA2D48D3-A316-4C2F-90DB-C2390990D727</incoming>
+      <outgoing>sid-8AE82A7B-75EE-401B-8ABE-279FB05A3946</outgoing>
+      <outgoing>sid-789335C6-205C-4A03-9AD6-9655893C1FFB</outgoing>
+    </exclusiveGateway>
+    <task id="TASK_ASSESS_APPLICATION" name="Assess application">
+      <extensionElements>
+        <signavio:signavioMetaData metaKey="bgcolor" metaValue="#ffffcc" />
+        <signavio:signavioMetaData metaKey="risklevel" metaValue="" />
+        <signavio:signavioMetaData metaKey="externaldocuments" metaValue="[]" />
+        <ap:img src="" />
+        <ap:icon elIconName="" />
+        <ap:icons />
+      </extensionElements>
+      <incoming>sid-0617E6F8-139D-4F02-B850-6604A21D603D</incoming>
+      <outgoing>sid-FA2D48D3-A316-4C2F-90DB-C2390990D727</outgoing>
+    </task>
+    <task id="TASK_MAKE_CREDIT_OFFER" name="Make credit offer">
+      <extensionElements>
+        <signavio:signavioMetaData metaKey="bgcolor" metaValue="#ffffcc" />
+        <signavio:signavioMetaData metaKey="risklevel" metaValue="" />
+        <signavio:signavioMetaData metaKey="externaldocuments" metaValue="[]" />
+        <ap:img src="" />
+        <ap:icon elIconName="" />
+        <ap:icons />
+      </extensionElements>
+      <incoming>sid-789335C6-205C-4A03-9AD6-9655893C1FFB</incoming>
+      <outgoing>sid-E27B9A7A-4414-4BFC-83F5-4BC438B77E37</outgoing>
+    </task>
+    <exclusiveGateway id="sid-F9CBAF0E-0679-4E1F-ACE1-E98177DDA3D0" name="" gatewayDirection="Converging">
+      <extensionElements>
+        <signavio:signavioMetaData metaKey="bgcolor" metaValue="#ffffff" />
+      </extensionElements>
+      <incoming>sid-E27B9A7A-4414-4BFC-83F5-4BC438B77E37</incoming>
+      <incoming>sid-AE313010-5715-438C-AD61-1C02F03DCF77</incoming>
+      <outgoing>sid-287B8ED1-E9CD-44BD-92E8-C9AD7E940100</outgoing>
+    </exclusiveGateway>
+    <endEvent id="sid-08B606A8-2F7C-4DFD-BEA8-A0F4694AA576" name="Credit application processed">
+      <extensionElements>
+        <signavio:signavioMetaData metaKey="bgcolor" metaValue="#ffffff" />
+      </extensionElements>
+      <incoming>sid-287B8ED1-E9CD-44BD-92E8-C9AD7E940100</incoming>
+    </endEvent>
+    <sequenceFlow id="sid-6FD4FFD3-5784-4D33-9509-234EAB886930" name="" sourceRef="GATEWAY_PARALLEL_CHECKS" targetRef="TASK_CHECK_CREDIT_HISTORY" />
+    <sequenceFlow id="sid-9E95A790-241E-4629-8D67-E9A2CE55E3DC" name="" sourceRef="GATEWAY_PARALLEL_CHECKS" targetRef="TASK_CHECK_INCOME_SOURCES" />
+    <sequenceFlow id="sid-FF95F9DA-C10F-455B-B2FC-FBC1C270C0B4" name="" sourceRef="TASK_CHECK_INCOME_SOURCES" targetRef="GATEWAY_JOIN" />
+    <sequenceFlow id="sid-10E6C62E-2CBD-476A-976B-B862156F5DEC" name="" sourceRef="TASK_CHECK_CREDIT_HISTORY" targetRef="GATEWAY_JOIN" />
+    <sequenceFlow id="sid-281400BA-53E3-47C9-8437-B699CA182453" name="" sourceRef="GATEWAY_JOIN" targetRef="GATEWAY_JOIN_2" />
+    <sequenceFlow id="sid-FA2D48D3-A316-4C2F-90DB-C2390990D727" name="" sourceRef="TASK_ASSESS_APPLICATION" targetRef="GATEWAY_LENDING_DECISION" />
+    <sequenceFlow id="sid-E27B9A7A-4414-4BFC-83F5-4BC438B77E37" name="" sourceRef="TASK_MAKE_CREDIT_OFFER" targetRef="sid-F9CBAF0E-0679-4E1F-ACE1-E98177DDA3D0" />
+    <sequenceFlow id="sid-287B8ED1-E9CD-44BD-92E8-C9AD7E940100" name="" sourceRef="sid-F9CBAF0E-0679-4E1F-ACE1-E98177DDA3D0" targetRef="sid-08B606A8-2F7C-4DFD-BEA8-A0F4694AA576" />
+    <sequenceFlow id="sid-8AE82A7B-75EE-401B-8ABE-279FB05A3946" name="denied" sourceRef="GATEWAY_LENDING_DECISION" targetRef="TASK_NOTIFY_REJECTION">
+      <conditionExpression xsi:type="tFormalExpression">0.2</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="sid-E469684F-C09F-4A8B-A916-E9927BA15372" name="" sourceRef="START_EVENT" targetRef="GATEWAY_PARALLEL_CHECKS" />
+    <sequenceFlow id="sid-58A4F70B-5279-4DBC-AEE2-8D7D2596DE63" name="" sourceRef="TASK_NOTIFY_REJECTION" targetRef="TASK_RECIEVE_CUSTOMER_FEEDBACK" />
+    <sequenceFlow id="sid-0B638436-AEB9-459C-AC18-9B64381CB7F9" name="" sourceRef="TASK_RECIEVE_CUSTOMER_FEEDBACK" targetRef="GATEWAY_CUSTOMER_FEEDBACK" />
+    <sequenceFlow id="sid-AFEC7074-8C12-43E2-A1FE-87D5CEF395C8" name="decision review requested" sourceRef="GATEWAY_CUSTOMER_FEEDBACK" targetRef="GATEWAY_JOIN_2">
+      <extensionElements>
+        <signavio:signavioLabel align="left" bottom="false" distance="-7.0" from="1" left="false" orientation="ll" ref="text_name" right="false" to="2" top="false" valign="bottom" x="1003.4727728225834" y="577.0" />
+      </extensionElements>
+      <conditionExpression xsi:type="tFormalExpression">0.2</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="sid-AE313010-5715-438C-AD61-1C02F03DCF77" name="" sourceRef="GATEWAY_CUSTOMER_FEEDBACK" targetRef="sid-F9CBAF0E-0679-4E1F-ACE1-E98177DDA3D0">
+      <conditionExpression xsi:type="tFormalExpression">0.8</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="sid-0617E6F8-139D-4F02-B850-6604A21D603D" name="" sourceRef="GATEWAY_JOIN_2" targetRef="TASK_ASSESS_APPLICATION" />
+    <sequenceFlow id="sid-789335C6-205C-4A03-9AD6-9655893C1FFB" name="granted" sourceRef="GATEWAY_LENDING_DECISION" targetRef="TASK_MAKE_CREDIT_OFFER">
+      <conditionExpression xsi:type="tFormalExpression">0.8</conditionExpression>
+    </sequenceFlow>
+    <association id="sid-D0D7001B-5E95-4F04-BCBB-FA1B2D82989C" associationDirection="None" />
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_sid-e138ad92-53db-4474-a117-cf3a5074182e">
+    <bpmndi:BPMNPlane id="BPMNPlane_sid-e138ad92-53db-4474-a117-cf3a5074182e" bpmnElement="sid-e138ad92-53db-4474-a117-cf3a5074182e">
+      <bpmndi:BPMNShape id="START_EVENT_di" bpmnElement="START_EVENT">
+        <dc:Bounds x="57" y="52" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GATEWAY_PARALLEL_CHECKS_di" bpmnElement="GATEWAY_PARALLEL_CHECKS">
+        <dc:Bounds x="200" y="45" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TASK_CHECK_CREDIT_HISTORY_di" bpmnElement="TASK_CHECK_CREDIT_HISTORY">
+        <dc:Bounds x="325" y="30" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GATEWAY_JOIN_di" bpmnElement="GATEWAY_JOIN">
+        <dc:Bounds x="500" y="45" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GATEWAY_JOIN_2_di" bpmnElement="GATEWAY_JOIN_2" isMarkerVisible="true">
+        <dc:Bounds x="650" y="45" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TASK_ASSESS_APPLICATION_di" bpmnElement="TASK_ASSESS_APPLICATION">
+        <dc:Bounds x="775" y="30" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GATEWAY_LENDING_DECISION_di" bpmnElement="GATEWAY_LENDING_DECISION" isMarkerVisible="true">
+        <dc:Bounds x="950" y="45" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TASK_NOTIFY_REJECTION_di" bpmnElement="TASK_NOTIFY_REJECTION">
+        <dc:Bounds x="1075" y="30" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TASK_RECIEVE_CUSTOMER_FEEDBACK_di" bpmnElement="TASK_RECIEVE_CUSTOMER_FEEDBACK">
+        <dc:Bounds x="1225" y="30" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="GATEWAY_CUSTOMER_FEEDBACK_di" bpmnElement="GATEWAY_CUSTOMER_FEEDBACK" isMarkerVisible="true">
+        <dc:Bounds x="1400" y="45" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="sid-F9CBAF0E-0679-4E1F-ACE1-E98177DDA3D0_di" bpmnElement="sid-F9CBAF0E-0679-4E1F-ACE1-E98177DDA3D0" isMarkerVisible="true">
+        <dc:Bounds x="1550" y="45" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="sid-08B606A8-2F7C-4DFD-BEA8-A0F4694AA576_di" bpmnElement="sid-08B606A8-2F7C-4DFD-BEA8-A0F4694AA576">
+        <dc:Bounds x="1707" y="52" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TASK_CHECK_INCOME_SOURCES_di" bpmnElement="TASK_CHECK_INCOME_SOURCES">
+        <dc:Bounds x="325" y="170" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TASK_MAKE_CREDIT_OFFER_di" bpmnElement="TASK_MAKE_CREDIT_OFFER">
+        <dc:Bounds x="1075" y="170" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="sid-E469684F-C09F-4A8B-A916-E9927BA15372_di" bpmnElement="sid-E469684F-C09F-4A8B-A916-E9927BA15372">
+        <di:waypoint x="93" y="70" />
+        <di:waypoint x="200" y="70" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="sid-6FD4FFD3-5784-4D33-9509-234EAB886930_di" bpmnElement="sid-6FD4FFD3-5784-4D33-9509-234EAB886930">
+        <di:waypoint x="250" y="70" />
+        <di:waypoint x="325" y="70" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="sid-9E95A790-241E-4629-8D67-E9A2CE55E3DC_di" bpmnElement="sid-9E95A790-241E-4629-8D67-E9A2CE55E3DC">
+        <di:waypoint x="225" y="95" />
+        <di:waypoint x="225" y="210" />
+        <di:waypoint x="325" y="210" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="sid-10E6C62E-2CBD-476A-976B-B862156F5DEC_di" bpmnElement="sid-10E6C62E-2CBD-476A-976B-B862156F5DEC">
+        <di:waypoint x="425" y="70" />
+        <di:waypoint x="500" y="70" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="sid-281400BA-53E3-47C9-8437-B699CA182453_di" bpmnElement="sid-281400BA-53E3-47C9-8437-B699CA182453">
+        <di:waypoint x="550" y="70" />
+        <di:waypoint x="650" y="70" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="sid-0617E6F8-139D-4F02-B850-6604A21D603D_di" bpmnElement="sid-0617E6F8-139D-4F02-B850-6604A21D603D">
+        <di:waypoint x="700" y="70" />
+        <di:waypoint x="775" y="70" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="sid-FA2D48D3-A316-4C2F-90DB-C2390990D727_di" bpmnElement="sid-FA2D48D3-A316-4C2F-90DB-C2390990D727">
+        <di:waypoint x="875" y="70" />
+        <di:waypoint x="950" y="70" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="sid-8AE82A7B-75EE-401B-8ABE-279FB05A3946_di" bpmnElement="sid-8AE82A7B-75EE-401B-8ABE-279FB05A3946">
+        <di:waypoint x="1000" y="70" />
+        <di:waypoint x="1075" y="70" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="sid-789335C6-205C-4A03-9AD6-9655893C1FFB_di" bpmnElement="sid-789335C6-205C-4A03-9AD6-9655893C1FFB">
+        <di:waypoint x="975" y="95" />
+        <di:waypoint x="975" y="210" />
+        <di:waypoint x="1075" y="210" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="sid-58A4F70B-5279-4DBC-AEE2-8D7D2596DE63_di" bpmnElement="sid-58A4F70B-5279-4DBC-AEE2-8D7D2596DE63">
+        <di:waypoint x="1175" y="70" />
+        <di:waypoint x="1225" y="70" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="sid-0B638436-AEB9-459C-AC18-9B64381CB7F9_di" bpmnElement="sid-0B638436-AEB9-459C-AC18-9B64381CB7F9">
+        <di:waypoint x="1325" y="70" />
+        <di:waypoint x="1400" y="70" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="sid-AFEC7074-8C12-43E2-A1FE-87D5CEF395C8_di" bpmnElement="sid-AFEC7074-8C12-43E2-A1FE-87D5CEF395C8">
+        <di:waypoint x="1425" y="95" />
+        <di:waypoint x="1425" y="140" />
+        <di:waypoint x="675" y="140" />
+        <di:waypoint x="675" y="95" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="sid-AE313010-5715-438C-AD61-1C02F03DCF77_di" bpmnElement="sid-AE313010-5715-438C-AD61-1C02F03DCF77">
+        <di:waypoint x="1450" y="70" />
+        <di:waypoint x="1550" y="70" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="sid-287B8ED1-E9CD-44BD-92E8-C9AD7E940100_di" bpmnElement="sid-287B8ED1-E9CD-44BD-92E8-C9AD7E940100">
+        <di:waypoint x="1600" y="70" />
+        <di:waypoint x="1707" y="70" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="sid-FF95F9DA-C10F-455B-B2FC-FBC1C270C0B4_di" bpmnElement="sid-FF95F9DA-C10F-455B-B2FC-FBC1C270C0B4">
+        <di:waypoint x="425" y="210" />
+        <di:waypoint x="525" y="210" />
+        <di:waypoint x="525" y="95" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="sid-E27B9A7A-4414-4BFC-83F5-4BC438B77E37_di" bpmnElement="sid-E27B9A7A-4414-4BFC-83F5-4BC438B77E37">
+        <di:waypoint x="1175" y="210" />
+        <di:waypoint x="1575" y="210" />
+        <di:waypoint x="1575" y="95" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

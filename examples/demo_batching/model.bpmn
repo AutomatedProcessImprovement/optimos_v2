@@ -126,7 +126,7 @@
       <incoming>sid-6FD4FFD3-5784-4D33-9509-234EAB886930</incoming>
       <outgoing>sid-10E6C62E-2CBD-476A-976B-B862156F5DEC</outgoing>
     </task>
-    <parallelGateway id="sid-A4FBE0D9-8D45-4B22-8D7C-217BEBBA3B06" name="" gatewayDirection="Converging">
+    <parallelGateway id="GATEWAY_JOIN" name="" gatewayDirection="Converging">
       <extensionElements>
         <signavio:signavioMetaData metaKey="bgcolor" metaValue="#ffffff" />
       </extensionElements>
@@ -235,9 +235,9 @@
     </endEvent>
     <sequenceFlow id="sid-6FD4FFD3-5784-4D33-9509-234EAB886930" name="" sourceRef="GATEWAY_PARALLEL_CHECKS" targetRef="TASK_CHECK_CREDIT_HISTORY" />
     <sequenceFlow id="sid-9E95A790-241E-4629-8D67-E9A2CE55E3DC" name="" sourceRef="GATEWAY_PARALLEL_CHECKS" targetRef="TASK_CHECK_INCOME_SOURCES" />
-    <sequenceFlow id="sid-FF95F9DA-C10F-455B-B2FC-FBC1C270C0B4" name="" sourceRef="TASK_CHECK_INCOME_SOURCES" targetRef="sid-A4FBE0D9-8D45-4B22-8D7C-217BEBBA3B06" />
-    <sequenceFlow id="sid-10E6C62E-2CBD-476A-976B-B862156F5DEC" name="" sourceRef="TASK_CHECK_CREDIT_HISTORY" targetRef="sid-A4FBE0D9-8D45-4B22-8D7C-217BEBBA3B06" />
-    <sequenceFlow id="sid-281400BA-53E3-47C9-8437-B699CA182453" name="" sourceRef="sid-A4FBE0D9-8D45-4B22-8D7C-217BEBBA3B06" targetRef="sid-5CD7112A-35AE-483D-95BC-EC8270DA9A39" />
+    <sequenceFlow id="sid-FF95F9DA-C10F-455B-B2FC-FBC1C270C0B4" name="" sourceRef="TASK_CHECK_INCOME_SOURCES" targetRef="GATEWAY_JOIN" />
+    <sequenceFlow id="sid-10E6C62E-2CBD-476A-976B-B862156F5DEC" name="" sourceRef="TASK_CHECK_CREDIT_HISTORY" targetRef="GATEWAY_JOIN" />
+    <sequenceFlow id="sid-281400BA-53E3-47C9-8437-B699CA182453" name="" sourceRef="GATEWAY_JOIN" targetRef="sid-5CD7112A-35AE-483D-95BC-EC8270DA9A39" />
     <sequenceFlow id="sid-FA2D48D3-A316-4C2F-90DB-C2390990D727" name="" sourceRef="TASK_ASSESS_APPLICATION" targetRef="GATEWAY_LENDING_DECISION" />
     <sequenceFlow id="sid-E27B9A7A-4414-4BFC-83F5-4BC438B77E37" name="" sourceRef="TASK_MAKE_CREDIT_OFFER" targetRef="sid-F9CBAF0E-0679-4E1F-ACE1-E98177DDA3D0" />
     <sequenceFlow id="sid-287B8ED1-E9CD-44BD-92E8-C9AD7E940100" name="" sourceRef="sid-F9CBAF0E-0679-4E1F-ACE1-E98177DDA3D0" targetRef="sid-08B606A8-2F7C-4DFD-BEA8-A0F4694AA576" />
@@ -355,7 +355,7 @@
       <bpmndi:BPMNShape id="TASK_CHECK_CREDIT_HISTORY_gui" bpmnElement="TASK_CHECK_CREDIT_HISTORY">
         <omgdc:Bounds x="450" y="315" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="sid-A4FBE0D9-8D45-4B22-8D7C-217BEBBA3B06_gui" bpmnElement="sid-A4FBE0D9-8D45-4B22-8D7C-217BEBBA3B06">
+      <bpmndi:BPMNShape id="GATEWAY_JOIN_gui" bpmnElement="GATEWAY_JOIN">
         <omgdc:Bounds x="563" y="399" width="40" height="40" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="TASK_CHECK_INCOME_SOURCES_gui" bpmnElement="TASK_CHECK_INCOME_SOURCES">
