@@ -11,5 +11,5 @@
     "**/*.less",
     "node_modules/@mantine/core/styles.css"
   ],
-  "cSpell.words": ["dynamik", "Fileless", "pytz"]
+  "cSpell.words": ["dynamik", "Fileless", "hyperarea", "pytz"]
 }
