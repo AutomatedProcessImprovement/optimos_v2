@@ -173,3 +173,36 @@ def create_timetable():
     )
 
 
+def create_constraints():
+    return ConstraintsType(
+        batching_constraints=[
+            SizeRuleConstraints(
+                id="size_rule",
+                tasks=[task_id for task_id in OFFICER_TASKS],
+                batch_type=BATCH_TYPE.PARALLEL,
+                rule_type=RULE_TYPE.SIZE,
+                duration_fn=f"0.2*(size - {5})**2 + {0.75}",
+                cost_fn="10*1/size",
+                min_size=0,
+                max_size=6,
+            )
+        ],
+    )
+
+
+current_file_path = __file__
+bpmn_file_name = "demo_model.bpmn"
+with open(path.join(path.dirname(current_file_path), bpmn_file_name)) as f:
+    bpmn_definition = f.read()
+
+timetable = create_timetable()
+constraints = create_constraints()
+
+initial_state = State(
+    bpmn_definition=bpmn_definition,
+    timetable=timetable,
+)
+demo_store = Store.from_state_and_constraints(
+    initial_state,
+    constraints,
+)
