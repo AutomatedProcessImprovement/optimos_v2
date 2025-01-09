@@ -26,6 +26,22 @@ def calculate_averaged_hausdorff_distance(
     # Average over the Pareto front size
     return total_distance / len(pareto_front) if pareto_front else 0.0
 
+def calculate_delta_metric(pareto_front: list[Solution], global_set: list[Solution]):
+    """Calculate the Delta metric for diversity of the Pareto front."""
+    if not pareto_front:
+        return 0.0
+
+    distances = [
+        np.linalg.norm(np.array(p1.point) - np.array(p2.point))
+        for i, p1 in enumerate(pareto_front)
+        for j, p2 in enumerate(pareto_front)
+        if i < j
+    ]
+
+    avg_distance = np.mean(distances) if distances else 0.0
+    return np.std(distances) / avg_distance if avg_distance > 0 else 0.0
+
+
 
 def update_store_settings(store: Store, agent: AgentType):
     """Update the store settings for the given agent."""
