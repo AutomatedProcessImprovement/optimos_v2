@@ -9,6 +9,23 @@ def calculate_hyperarea(solutions: list[Solution], center_point):
     return total_area
 
 
+def distance(point1, point2):
+    return np.linalg.norm(np.array(point1) - np.array(point2))
+
+
+def calculate_averaged_hausdorff_distance(
+    pareto_front: list[Solution], global_set: list[Solution]
+):
+    """Calculate the Averaged Hausdorff Distance between the Pareto front and the global set."""
+
+    total_distance = 0.0
+    for solution in pareto_front:
+        distances = [distance(solution.point, other.point) for other in global_set]
+        total_distance += min(distances)
+
+    # Average over the Pareto front size
+    return total_distance / len(pareto_front) if pareto_front else 0.0
+
 
 def update_store_settings(store: Store, agent: AgentType):
     """Update the store settings for the given agent."""
