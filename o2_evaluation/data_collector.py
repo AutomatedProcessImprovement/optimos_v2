@@ -1,3 +1,14 @@
+def calculate_hyperarea(solutions: list[Solution], center_point):
+    """Calculate the hyperarea covered by a set of solutions relative to a center point."""
+    total_area = 0.0
+    for solution in solutions:
+        x, y = solution.point
+        area = (center_point[0] - x) * (center_point[1] - y)
+        if area > 0:  # Ignore invalid solutions
+            total_area += area
+    return total_area
+
+
 
 def update_store_settings(store: Store, agent: AgentType):
     """Update the store settings for the given agent."""
