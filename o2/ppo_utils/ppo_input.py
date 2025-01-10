@@ -7,7 +7,6 @@ from sklearn.preprocessing import MinMaxScaler
 
 from o2.actions.base_actions.base_action import BaseAction
 from o2.actions.base_actions.modify_calendar_base_action import (
-    ModifyCalendarBaseAction,
     ModifyCalendarBaseActionParamsType,
 )
 from o2.actions.base_actions.modify_resource_base_action import (
@@ -30,14 +29,15 @@ class PPOInput:
         Task:
             - waiting_times, per task
             - idle_time, per task
+            - batching_waiting_time, per task
+            - fixed_cost, per task
         Resource:
             - waiting_times, per resource
             - available_time, per resource
             - utilization, per resource
-            - hourly_cost, per resource
-        Batching rules:
-            - Abs. waiting time difference after removal ("impact"), per batching rule
 
+        Batching rules:
+            - avg_batch_size, per task
 
     Discrete features:
     - Number of task instances that either have a waiting or idle time, per task
@@ -46,13 +46,17 @@ class PPOInput:
     - Number of tasks, per resource
 
 
-
     Also we'll have the following actions:
-    - Add Hour to calendar, per resource, per day
-    - Remove Hour from calendar, per resource, per day
-    - Shift Hour forward in calendar, per resource, per day
-    - Shift Hour backward in calendar, per resource, per day
-    - Clone resource, per resource
+    - Add Batching DateTime Rule, per day, per task,
+    - Shift Batching DateTime Rule forward, per task
+    - Shift Batching DateTime Rule backward, per task
+    - Remove Batching DateTime Rule, per task
+    - Add 1h to large waiting time rule, per task
+    - Remove 1h from large waiting time rule, per task
+    - Add 1h to ready waiting time rule, per task
+    - Remove 1h from ready waiting time rule, per task
+    - Increase batch size, per task
+    - Decrease batch size, per task
 
     We'll use action masking to disable the invalid actions per step.
 
