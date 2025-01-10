@@ -1,12 +1,13 @@
-from datetime import datetime
 import time
+from datetime import datetime
+
 import tensorflow as tf
 
 from o2.agents.agent import Agent
 from o2.agents.simulated_annealing_agent import SimulatedAnnealingAgent
 from o2.models.solution import Solution
 from o2.store import Store
-from o2.util.indented_printer import print_l2, print_l3
+from o2.util.indented_printer import print_l3
 
 log_dir = "./logs/optimos_v2_tensorboard"
 
