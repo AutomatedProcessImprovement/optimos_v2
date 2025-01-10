@@ -42,6 +42,13 @@ def calculate_delta_metric(pareto_front: list[Solution], global_set: list[Soluti
     return np.std(distances) / avg_distance if avg_distance > 0 else 0.0
 
 
+def calculate_purity(pareto_front: list[Solution], global_set: list[Solution]) -> float:
+    """Calculate the Purity metric for the Pareto front."""
+    pareto_set = {tuple(sol.point) for sol in pareto_front}
+    global_set_points = {tuple(sol.point) for sol in global_set}
+    pure_points = pareto_set.intersection(global_set_points)
+    return len(pure_points) / len(pareto_front) if pareto_front else 0.0
+
 
 def update_store_settings(store: Store, agent: AgentType):
     """Update the store settings for the given agent."""
