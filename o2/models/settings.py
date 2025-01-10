@@ -126,6 +126,12 @@ class Settings:
     ppo_model_path = "models/ppo_maskable-20241025-075307"
     """The path to the PPO model to use for the PPO agent."""
 
+    ppo_use_existing_model = False
+    """Should the PPO agent use an existing model?"""
+
+    ppo_steps_per_iteration = 50
+    """The number of steps per iteration for the PPO agent."""
+
     log_to_tensor_board = False
     """Should the evaluation be logged to TensorBoard?"""
 
