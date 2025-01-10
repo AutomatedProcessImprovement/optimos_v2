@@ -126,6 +126,12 @@ class SimulatedAnnealingAgent(Agent):
         self.store.solution_tree.remove_solution(solution)
         return solution
 
+    def result_callback(
+        self, chosen_tries: list[SolutionTry], not_chosen_tries: list[SolutionTry]
+    ) -> None:
+        """Call to handle the result of the evaluation."""
+        pass
+
 
 def accept_worse_solution(distance: float, temperature: float) -> bool:
     """Determine whether to accept a worse solution."""

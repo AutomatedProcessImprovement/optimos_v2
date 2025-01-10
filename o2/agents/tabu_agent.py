@@ -211,3 +211,9 @@ class TabuAgent(Agent):
                     continue
 
         return evaluations
+
+    def result_callback(
+        self, chosen_tries: list[SolutionTry], not_chosen_tries: list[SolutionTry]
+    ) -> None:
+        """Call to handle the result of the evaluation."""
+        pass

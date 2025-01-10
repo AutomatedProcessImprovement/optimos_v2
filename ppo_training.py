@@ -75,6 +75,7 @@ def main() -> None:
         save_replay_buffer=True,
         save_vecnormalize=True,
     )
+
     model.learn(total_timesteps=150 * 100, callback=checkpoint_callback)
 
     # Save the agent

@@ -99,6 +99,8 @@ class HillClimber:
                     else None,
                 )
 
+                self.agent.result_callback(chosen_tries, not_chosen_tries)
+
                 if len(chosen_tries) == 0:
                     print_l1("No action improved the evaluation")
                     self.max_non_improving_iter -= len(actions_to_perform)

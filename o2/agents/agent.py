@@ -143,6 +143,13 @@ class Agent(ABC):
         """
         pass
 
+    @abstractmethod
+    def result_callback(
+        self, chosen_tries: list[SolutionTry], not_chosen_tries: list[SolutionTry]
+    ) -> None:
+        """Callback to handle the result of the evaluation."""
+        pass
+
     @staticmethod
     def get_valid_actions(
         store: "Store",
