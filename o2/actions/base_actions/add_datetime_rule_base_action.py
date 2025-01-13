@@ -100,3 +100,13 @@ class AddDateTimeRuleBaseAction(BatchingRuleAction, ABC, str=False):
     def get_default_rating() -> RATING:
         """Return the default rating for this action."""
         return RATING.MEDIUM
+
+
+class AddDateTimeRuleAction(AddDateTimeRuleBaseAction):
+    """AddDateTimeRuleAction will add a new day of week and time of day rule."""
+
+    params: AddDateTimeRuleBaseActionParamsType
+
+    @staticmethod
+    def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
+        raise NotImplementedError("rate_self is not implemented")
