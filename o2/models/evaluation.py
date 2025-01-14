@@ -1,6 +1,7 @@
 import math
 from dataclasses import dataclass
 from functools import cached_property, reduce
+from itertools import groupby
 from typing import TYPE_CHECKING, Counter, cast
 
 import pandas as pd
@@ -225,6 +226,21 @@ class Evaluation:
                 for weekday, task_start_times in resource_start_times.items()
             }
             for resource_id, task_start_times_by_day in self.resource_task_started_weekdays.items()
+        }
+
+    @cached_property
+    def average_batch_size_per_task(self) -> dict[str, float]:
+        """Get the average batch size per task."""
+        batches_by_task = {}
+        for batch in self.batches.values():
+            task_id = batch["activity"]
+            if task_id not in batches_by_task:
+                batches_by_task[task_id] = []
+            batches_by_task[task_id].append(batch)
+
+        return {
+            task_id: sum(batch["size"] for batch in batches) / len(batches)
+            for task_id, batches in batches_by_task.items()
         }
 
     @property
