@@ -35,9 +35,18 @@ class State:
         """Replace the timetable with the given changes."""
         return replace(self, timetable=replace(self.timetable, **changes))
 
-    def evaluate(self, show_simulation_errors: bool = False) -> Evaluation:
+    def evaluate(self) -> Evaluation:
         """Evaluate the current state."""
-        result = SimulationRunner.run_simulation(self, show_simulation_errors)
+        if not self.is_valid():
+            print("Trying to evaluate an invalid state.")
+            return Evaluation.empty()
+        try:
+            result = SimulationRunner.run_simulation(self)
+        except Exception as e:
+            print(f"Error in simulation (state.evaluate): {e}")
+            if Settings.RAISE_SIMULATION_ERRORS:
+                raise e
+            return Evaluation.empty()
         return Evaluation.from_run_simulation_result(
             self.timetable.get_hourly_rates(),
             self.timetable.get_fixed_cost_fns(),
