@@ -600,6 +600,37 @@ class BatchingRule(JSONWizard):
             for j, rule in enumerate(or_rules)
             if type is None or rule.attribute == type
         ]
+    
+
+    def get_time_period_for_daily_hour_firing_rules(self) -> dict[tuple[Optional[RuleSelector], RuleSelector, RuleSelector], tuple[Optional[DAY], int, int]]:
+        """Get the time period for daily hour firing rules.
+        
+        Returns a dictionary with the optional Rule Selector of the day, lower bound, and upper bound as the key,
+        and the day, lower bound, and upper bound as the value.
+        """
+        timeperiods_by_or_index = {}
+        for or_index, or_rules in enumerate(self.firing_rules):
+            day_selector = None
+            lower_bound_selector = None
+            upper_bound_selector = None
+            day = None
+            lower_bound = float('-inf')
+            upper_bound = float('inf')
+            for and_rule_index, and_rule in enumerate(or_rules):
+                if rule_is_week_day(and_rule):
+                    day_selector = RuleSelector.from_batching_rule(self, (or_index, and_rule_index))
+                    day = and_rule.value
+                if rule_is_daily_hour(and_rule):
+                    if and_rule.comparison == COMPARATOR.LESS_THEN or and_rule.comparison == COMPARATOR.LESS_THEN_OR_EQUAL:
+                        if upper_bound is None or and_rule.value < upper_bound:
+                            upper_bound = and_rule.value
+                            upper_bound_selector = RuleSelector.from_batching_rule(self, (or_index, and_rule_index))
+                    elif and_rule.comparison == COMPARATOR.GREATER_THEN or and_rule.comparison == COMPARATOR.GREATER_THEN_OR_EQUAL:
+                        if lower_bound is None or and_rule.value > lower_bound:
+                            lower_bound = and_rule.value
+                            lower_bound_selector = RuleSelector.from_batching_rule(self, (or_index, and_rule_index))
+            timeperiods_by_or_index[(day_selector, lower_bound_selector, upper_bound_selector)] = (day, lower_bound, upper_bound)
+        return timeperiods_by_or_index
 
     def get_firing_rule(self, rule_selector: "RuleSelector") -> Optional[FiringRule]:
         """Get a firing rule by rule selector."""
@@ -754,6 +785,32 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
             for firing_rule in firing_rules
             if rule_type is None or firing_rule.attribute == rule_type
         ]
+    
+    def get_longest_time_period_for_daily_hour_firing_rules(self, task_id: str, day: DAY) -> Optional[tuple[Optional[RuleSelector], RuleSelector, RuleSelector]]:
+        """Get the longest time period for daily hour firing rules.
+        
+        Returns the Rule Selector of the day, lower bound, and upper bound.
+        """
+
+        batching_rules = self.get_batching_rules_for_task(
+            task_id=task_id,
+        )
+
+        best_selector = None
+        best_length = 0
+
+        for batching_rule in batching_rules:
+            if batching_rule is None:
+                continue
+            periods = batching_rule.get_time_period_for_daily_hour_firing_rules().items()
+            for (day_selector, lower_bound_selector, upper_bound_selector), (_day, lower_bound, upper_bound) in periods:
+                if _day == day:
+                    length = (upper_bound - lower_bound) if upper_bound is not None and lower_bound is not None else 0
+                    if length > best_length:
+                        best_selector = (day_selector, lower_bound_selector, upper_bound_selector)
+                        best_length = length
+        return best_selector
+    
 
     def get_firing_rule_selectors_for_task(
         self,
@@ -958,6 +1015,10 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
             key=operator.itemgetter(1),
             reverse=True,
         )
+    
+    def replace_batching_rule(self, rule_selector: RuleSelector, new_batching_rule: BatchingRule) -> "TimetableType":
+        """Replace a batching rule."""
+        return replace(self, batch_processing=[new_batching_rule if rule.task_id == rule_selector.batching_rule_task_id else rule for rule in self.batch_processing])
 
     def replace_resource_calendar(
         self, new_calendar: ResourceCalendar
