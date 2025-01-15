@@ -69,13 +69,6 @@ class Settings:
 
     This is useful for debugging, but can be very verbose."""
 
-    show_simulation_errors = False
-    """Should the simulation errors be shown?
-
-    Most of the time this is not needed, as the errors might just indicate an invalid
-    state, which will just result in the action not being chosen.
-    """
-
     legacy_approach: LegacyApproach = LegacyApproach.CALENDAR_FIRST
     """
     This Setting is used to simulate different approaches used by legacy optimos.
@@ -139,6 +132,19 @@ class Settings:
     """Should the application throw an error if an iteration fails?
 
     Useful for debugging, but should be disabled for production.
+    """
+
+    SHOW_SIMULATION_ERRORS: ClassVar[bool] = False
+    """Should the simulation errors be shown?
+
+    Most of the time this is not needed, as the errors might just indicate an invalid
+    state, which will just result in the action not being chosen.
+    """
+
+    RAISE_SIMULATION_ERRORS: ClassVar[bool] = False
+    """Should the simulation errors be raised?
+
+    This is useful for debugging, but should be disabled for production.
     """
 
     DO_NOT_DISCARD_SOLUTIONS: ClassVar[bool] = False

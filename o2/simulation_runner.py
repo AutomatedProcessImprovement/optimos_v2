@@ -9,6 +9,8 @@ from bpdfr_simulation_engine.simulation_stats_calculator import (
     ResourceKPI,
 )
 
+from o2.models.settings import Settings
+
 TaskKPIs: TypeAlias = dict[str, KPIMap]
 RessourceKPIs: TypeAlias = dict[str, ResourceKPI]
 SimulationKPIs: TypeAlias = tuple[KPIMap, TaskKPIs, RessourceKPIs, datetime, datetime]
@@ -24,7 +26,7 @@ class SimulationRunner:
     @staticmethod
     def run_simulation(
         state: "State",
-        show_simulation_errors: bool = False,
+        show_simulation_errors: bool = Settings.SHOW_SIMULATION_ERRORS,
     ) -> RunSimulationResult:
         """Run simulation and return the results."""
         try:
