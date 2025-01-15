@@ -414,6 +414,50 @@ class TimetableGenerator:
         )
 
     @staticmethod
+    def daily_hour_rule_with_day(
+        task_id: str,
+        day: DAY,
+        min_hour: int,
+        max_hour: int,
+        size=BATCHING_BASE_SIZE,
+        duration_distribution=1.0,
+    ):
+        return BatchingRule(
+            task_id=task_id,
+            type=BATCH_TYPE.PARALLEL,
+            size_distrib=[
+                # Forbid execution of the task without batching
+                Distribution(key=str(1), value=0.0),
+                Distribution(key=str(size), value=1.0),
+            ],
+            duration_distrib=[
+                Distribution(
+                    key=str(size),
+                    value=duration_distribution,
+                )
+            ],
+            firing_rules=[
+                [
+                    FiringRule(
+                        attribute=RULE_TYPE.WEEK_DAY,
+                        comparison=COMPARATOR.EQUAL,
+                        value=day,
+                    ),
+                    FiringRule(
+                        attribute=RULE_TYPE.DAILY_HOUR,
+                        comparison=COMPARATOR.GREATER_THEN_OR_EQUAL,
+                        value=min_hour,
+                    ),
+                    FiringRule(
+                        attribute=RULE_TYPE.DAILY_HOUR,
+                        comparison=COMPARATOR.LESS_THEN_OR_EQUAL,
+                        value=max_hour,
+                    ),
+                ]
+            ],
+        )
+
+    @staticmethod
     def task_resource_distribution_simple(task_ids: list[str], duration=60 * 60):
         return [
             TaskResourceDistributions(
