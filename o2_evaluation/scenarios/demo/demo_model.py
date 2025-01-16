@@ -183,7 +183,7 @@ def create_constraints():
                 rule_type=RULE_TYPE.SIZE,
                 duration_fn=f"0.2*(size - {5})**2 + {0.75}",
                 cost_fn="10*1/size",
-                min_size=0,
+                min_size=1,
                 max_size=6,
             )
         ],
