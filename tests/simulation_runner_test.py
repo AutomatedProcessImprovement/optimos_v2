@@ -72,3 +72,79 @@ def test_size_batching_rule(two_tasks_state: State):
     assert case_0.event_list[1].completed_at == 4 * 60 * 60
     assert case_1.event_list[1].completed_at == 4 * 60 * 60
 
+
+def test_large_wt_batching_rule(two_tasks_state: State):
+    """This is mostly a regression test for a bug in the batching engine."""
+    rule = TimetableGenerator.large_wt_rule(
+        # Start batch after 3 hours
+        TimetableGenerator.SECOND_ACTIVITY,
+        3 * 60 * 60,
+        10,
+        1.0,
+    )
+    state = two_tasks_state.replace_timetable(
+        batch_processing=[rule],
+        total_cases=2,
+        arrival_time_distribution=TimetableGenerator.arrival_time_distribution(
+            min=5 * 60, max=5 * 60
+        ),
+    )
+    global_kpis, task_kpis, resource_kpis, log_info = SimulationRunner.run_simulation(
+        state, show_simulation_errors=True
+    )
+
+    case_0 = log_info.trace_list[0]
+    case_1 = log_info.trace_list[1]
+
+    # Enabled directly
+    assert case_0.event_list[0].enabled_at == 0 * 60
+    # Enabled after waiting for the first task to complete
+    assert case_0.event_list[1].enabled_at == 60 * 60
+    # Enabled after second arrival
+    assert case_1.event_list[0].enabled_at == 5 * 60
+    # Enabled after waiting for the first task (of snd case) to complete
+    assert case_1.event_list[1].enabled_at == 120 * 60
+
+    # Completed after processing the first task
+    assert case_0.event_list[0].completed_at == 60 * 60
+    # Completed after processing the second task
+    assert case_1.event_list[0].completed_at == 2 * 60 * 60
+    # Completed after 3 hours of waiting, which starts after the first task is completed
+    # -> 1:00 + 3h + 2*1h processing time = 6:00
+    assert case_0.event_list[1].completed_at == 6 * 60 * 60
+    assert case_1.event_list[1].completed_at == 6 * 60 * 60
+
+
+def test_ready_wt_batching_rule(two_tasks_state: State):
+    """This is mostly a regression test for a bug in the batching engine."""
+    rule = TimetableGenerator.ready_wt_rule(
+        TimetableGenerator.SECOND_ACTIVITY,
+        5 * 60 * 60,
+    )
+    state = two_tasks_state.replace_timetable(
+        batch_processing=[rule],
+        total_cases=3,
+        arrival_time_distribution=TimetableGenerator.arrival_time_distribution(
+            min=5 * 60, max=5 * 60
+        ),
+    )
+    global_kpis, task_kpis, resource_kpis, log_info = SimulationRunner.run_simulation(
+        state, show_simulation_errors=True
+    )
+
+    case_0 = log_info.trace_list[0]
+    case_1 = log_info.trace_list[1]
+    case_2 = log_info.trace_list[2]
+    assert case_0.event_list[0].enabled_at == 0 * 60
+    assert case_1.event_list[0].enabled_at == 5 * 60
+    assert case_0.event_list[1].enabled_at == 1 * 60 * 60
+    assert case_1.event_list[1].enabled_at == 2 * 60 * 60
+    assert case_2.event_list[1].enabled_at == 3 * 60 * 60
+
+    assert case_0.event_list[0].completed_at == 1 * 60 * 60
+    assert case_1.event_list[0].completed_at == 2 * 60 * 60
+    # The cases are completed only after 5 hours of waiting after the last enabled event
+    # 3:00 + 5h + 3*1h processing = 11:00 completed
+    assert case_0.event_list[1].completed_at == 11 * 60 * 60
+    assert case_1.event_list[1].completed_at == 11 * 60 * 60
+    assert case_2.event_list[1].completed_at == 11 * 60 * 60
