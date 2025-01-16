@@ -190,6 +190,7 @@ class TimetableGenerator:
         task_id: str,
         size: int = BATCHING_BASE_SIZE,
         duration_distribution=1.0,
+        comparator: COMPARATOR = COMPARATOR.EQUAL,
     ):
         return BatchingRule(
             task_id=task_id,
@@ -204,7 +205,7 @@ class TimetableGenerator:
                 [
                     FiringRule(
                         attribute=RULE_TYPE.SIZE,
-                        comparison=COMPARATOR.EQUAL,
+                        comparison=comparator,
                         value=size,
                     )
                 ]
@@ -233,14 +234,13 @@ class TimetableGenerator:
                 [
                     FiringRule(
                         attribute=RULE_TYPE.READY_WT,
-                        comparison=COMPARATOR.EQUAL,
-                        value=ready_wt,
+                        comparison=COMPARATOR.LESS_THEN_OR_EQUAL,
+                        value=24 * 60 * 60,
                     ),
-                    # We need a size rule as well, also it must be last in the list
                     FiringRule(
-                        attribute=RULE_TYPE.SIZE,
-                        comparison=COMPARATOR.EQUAL,
-                        value=size,
+                        attribute=RULE_TYPE.READY_WT,
+                        comparison=COMPARATOR.GREATER_THEN_OR_EQUAL,
+                        value=ready_wt,
                     ),
                 ],
             ],
@@ -282,11 +282,6 @@ class TimetableGenerator:
                         attribute=RULE_TYPE.LARGE_WT,
                         comparison=COMPARATOR.GREATER_THEN_OR_EQUAL,
                         value=min_wt,
-                    ),
-                    FiringRule(
-                        attribute=RULE_TYPE.SIZE,
-                        comparison=COMPARATOR.EQUAL,
-                        value=size,
                     ),
                 ],
             ],
