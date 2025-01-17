@@ -83,11 +83,11 @@ class Solution:
         )
 
     @staticmethod
-    def empty(state: State) -> "Solution":
+    def empty(state: State, last_action: Optional["BaseAction"] = None) -> "Solution":
         """Create an empty solution."""
         return Solution(
             evaluation=Evaluation.empty(),
             state=state,
             parent_state=None,
-            actions=[],
+            actions=[last_action] if last_action else [],
         )

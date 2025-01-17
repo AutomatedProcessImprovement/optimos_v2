@@ -53,6 +53,11 @@ class SizeRuleConstraints(BatchingConstraints, JSONWizard):
 
     def _verify_firing_rule(self, firing_rule: FiringRule[int]) -> bool:
         """Check if the firing rule is valid against the constraints."""
+        # Special case: Size 0 is always invalid
+        if firing_rule.value == 0:
+            print("Warning: Size 0 rule was created!")
+            return False
+
         # Special case: If the rule is a <(=) min size, it is invalid if min size is set
         if (
             self.min_size
