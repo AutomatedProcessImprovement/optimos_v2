@@ -1,13 +1,13 @@
 from abc import ABC
 from dataclasses import dataclass, replace
 
-from o2.actions.base_actions.base_action import BaseActionParamsType
+from o2.actions.base_actions.base_action import BaseAction, BaseActionParamsType
 from o2.actions.batching_rule_action import (
     BatchingRuleAction,
 )
 from o2.models.days import DAY
 from o2.models.self_rating import SelfRatingInput
-from o2.models.state import State
+from o2.models.state import State, TabuState
 from o2.models.timetable import (
     BatchingRule,
     Distribution,
@@ -46,7 +46,7 @@ class ShiftDateTimeRuleBaseAction(BatchingRuleAction, ABC, str=False):
 
         if best_selector is None:
             # TODO: Here we should add a new rule
-            raise NotImplementedError("No rule found to shift")
+            return TabuState()
 
         # Modify Start / End
         _, lower_bound_selector, upper_bound_selector = best_selector

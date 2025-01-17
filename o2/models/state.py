@@ -8,6 +8,7 @@ from bpdfr_simulation_engine.simulation_setup import SimDiffSetup
 
 from o2.actions.base_actions.base_action import BaseAction
 from o2.models.evaluation import Evaluation
+from o2.models.settings import Settings
 from o2.simulation_runner import SimulationRunner
 from o2.util.sim_diff_setup_fileless import SimDiffSetupFileless
 
@@ -83,3 +84,14 @@ class State:
     def is_valid(self) -> bool:
         """Check if the state is valid."""
         return self.timetable.is_valid()
+
+
+class TabuState(State):
+    """A state that is tabu."""
+
+    def __init__(self) -> None:
+        """Initialize the tabu state."""
+
+    def is_valid(self) -> bool:
+        """Check if the state is valid."""
+        return False

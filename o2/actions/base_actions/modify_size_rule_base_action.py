@@ -12,7 +12,7 @@ from o2.actions.batching_rule_action import (
 )
 from o2.models.constraints import RULE_TYPE
 from o2.models.self_rating import RATING, SelfRatingInput
-from o2.models.state import State
+from o2.models.state import State, TabuState
 from o2.models.timetable import (
     COMPARATOR,
     BatchingRule,
@@ -54,6 +54,9 @@ class ModifySizeRuleBaseAction(BatchingRuleAction, ABC, str=False):
         old_size = self.get_dominant_distribution(old_rule).key
         new_size = int(old_size) + self.params["size_increment"]
         fn = lambdify(Symbol("size"), self.params["duration_fn"])
+
+        if new_size < 1:
+            return TabuState()
 
         size_distrib = [
             Distribution(
