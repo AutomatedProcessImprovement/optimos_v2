@@ -5,17 +5,25 @@ import numpy as np
 from gymnasium import spaces
 from sklearn.preprocessing import MinMaxScaler
 
+from o2.actions.base_actions.add_datetime_rule_base_action import (
+    AddDateTimeRuleAction,
+    AddDateTimeRuleBaseActionParamsType,
+)
 from o2.actions.base_actions.base_action import BaseAction
-from o2.actions.base_actions.modify_calendar_base_action import (
-    ModifyCalendarBaseActionParamsType,
+from o2.actions.base_actions.shift_datetime_rule_base_action import (
+    ShiftDateTimeRuleAction,
+    ShiftDateTimeRuleBaseActionParamsType,
 )
-from o2.actions.base_actions.modify_resource_base_action import (
-    ModifyResourceBaseActionParamsType,
+from o2.actions.new_actions.modify_size_of_significant_rule_action import (
+    ModifySizeOfSignificantRuleAction,
+    ModifySizeOfSignificantRuleActionParamsType,
 )
-from o2.actions.modify_calendar_by_cost_action import ModifyCalendarByCostAction
-from o2.actions.remove_resource_by_cost_action import RemoveResourceByCostAction
+from o2.actions.new_actions.remove_date_time_rule_action import (
+    RemoveDateTimeRuleAction,
+    RemoveDateTimeRuleActionParamsType,
+)
 from o2.models.days import DAYS
-from o2.models.evaluation import Evaluation
+from o2.models.time_period import TimePeriod
 from o2.store import Store
 
 
@@ -29,34 +37,36 @@ class PPOInput:
         Task:
             - waiting_times, per task
             - idle_time, per task
-            - batching_waiting_time, per task
+            - percentage of waiting is batching, per task
             - fixed_cost, per task
+            - Percentage of task instances that either have a waiting or idle time, per task
+
         Resource:
             - waiting_times, per resource
             - available_time, per resource
             - utilization, per resource
 
+
         Batching rules:
             - avg_batch_size, per task
 
     Discrete features:
-    - Number of task instances that either have a waiting or idle time, per task
-    - Number of task enablements, per task, per day
-    - Number of resources, per task
-    - Number of tasks, per resource
+        - Number of task enablements, per task, per day
+        - Number of resources, per task
+        - Number of tasks, per resource
 
 
     Also we'll have the following actions:
-    - Add Batching DateTime Rule, per day, per task,
-    - Shift Batching DateTime Rule forward, per task
-    - Shift Batching DateTime Rule backward, per task
-    - Remove Batching DateTime Rule, per task
-    - Add 1h to large waiting time rule, per task
-    - Remove 1h from large waiting time rule, per task
-    - Add 1h to ready waiting time rule, per task
-    - Remove 1h from ready waiting time rule, per task
-    - Increase batch size, per task
-    - Decrease batch size, per task
+        - Add Batching DateTime Rule, per day, per task,
+        - Shift Batching DateTime Rule forward, per task
+        - Shift Batching DateTime Rule backward, per task
+        - Remove Batching DateTime Rule, per task
+        - Add 1h to large waiting time rule, per task
+        - Remove 1h from large waiting time rule, per task
+        - Add 1h to ready waiting time rule, per task
+        - Remove 1h from ready waiting time rule, per task
+        - Increase batch size, per task
+        - Decrease batch size, per task
 
     We'll use action masking to disable the invalid actions per step.
 
@@ -67,6 +77,7 @@ class PPOInput:
         """Get the observation space based on the current state of the store."""
         task_ids = store.current_timetable.get_task_ids()
         num_tasks = len(task_ids)
+        num_days = len(DAYS)
         resources = store.current_timetable.get_all_resources()
         num_resources = len(resources)
         num_cases = store.settings.num_of_cases
@@ -77,33 +88,36 @@ class PPOInput:
             {
                 # Continuous resource-related observations
                 "resource_waiting_times": spaces.Box(
-                    low=0, high=1, shape=(num_resources, 1)
+                    low=0, high=1, shape=(1, num_resources)
                 ),
                 "resource_available_time": spaces.Box(
-                    low=0, high=1, shape=(num_resources, 1)
+                    low=0, high=1, shape=(1, num_resources)
                 ),
                 "resource_utilization": spaces.Box(
-                    low=0, high=1, shape=(num_resources, 1)
-                ),
-                "resource_hourly_cost": spaces.Box(
-                    low=0, high=1, shape=(num_resources, 1)
+                    low=0, high=1, shape=(1, num_resources)
                 ),
                 # Discrete resource-related observations
                 "resource_num_tasks": spaces.Box(
-                    low=0, high=high, shape=(num_resources, 1)
+                    low=0, high=high, shape=(1, num_resources)
                 ),
                 # Continuous task-related observations
-                "task_waiting_times": spaces.Box(low=0, high=1, shape=(num_tasks, 1)),
-                "task_idle_time": spaces.Box(low=0, high=1, shape=(num_tasks, 1)),
-                # Discrete task-related observations
-                "task_execution_count_with_wt_or_it": spaces.Box(
-                    low=0, high=num_cases, shape=(num_tasks, 1)
+                "task_waiting_times": spaces.Box(low=0, high=1, shape=(1, num_tasks)),
+                "task_idle_time": spaces.Box(low=0, high=1, shape=(1, num_tasks)),
+                "task_batching_waiting_times_percentage": spaces.Box(
+                    low=0, high=1, shape=(1, num_tasks)
                 ),
-                "task_execution_counts": spaces.Box(
-                    low=0, high=num_cases, shape=(num_tasks, 1)
+                # Discrete task-related observations
+                "task_execution_percentage_with_wt_or_it": spaces.Box(
+                    low=0, high=num_cases, shape=(1, num_tasks)
+                ),
+                "task_enablements_per_day": spaces.Box(
+                    low=0, high=num_cases, shape=(1, num_tasks * num_days)
                 ),
                 "task_num_resources": spaces.Box(
-                    low=0, high=num_resources, shape=(num_tasks, 1)
+                    low=0, high=num_resources, shape=(1, num_tasks)
+                ),
+                "task_average_batch_size": spaces.Box(
+                    low=0, high=num_resources, shape=(1, num_tasks)
                 ),
             }
         )
@@ -120,39 +134,62 @@ class PPOInput:
 
         # Continuous features
         waiting_times = np.array(
-            [kpis[task_id].waiting_time.total for task_id in task_ids]
-        ).reshape(-1, 1)
+            [
+                kpis[task_id].waiting_time.total if task_id in kpis else 0
+                for task_id in task_ids
+            ]
+        )
+
+        batching_waiting_times = np.array(
+            [
+                evaluation.total_batching_waiting_time_per_task[task_id]
+                if task_id in evaluation.total_batching_waiting_time_per_task
+                else 0
+                for task_id in task_ids
+            ]
+        )
+
+        batching_waiting_times_percentage = np.array(
+            [batching_waiting_times[i] / waiting_times[i] for i in range(len(task_ids))]
+        )
 
         idle_times = np.array(
-            [kpis[task_id].idle_time.total for task_id in task_ids]
-        ).reshape(-1, 1)
+            [
+                kpis[task_id].idle_time.total if task_id in kpis else 0
+                for task_id in task_ids
+            ]
+        )
 
         # Scale continuous features
-        waiting_times = scaler_waiting_time.fit_transform(waiting_times)
-        idle_times = scaler_idle_time.fit_transform(idle_times)
+        waiting_times = scaler_waiting_time.fit_transform(waiting_times.reshape(1, -1))
+        idle_times = scaler_idle_time.fit_transform(idle_times.reshape(1, -1))
 
         # Discrete features
         task_execution_count_with_wt_or_it_dict = (
             evaluation.task_execution_count_with_wt_or_it
         )
-        task_execution_count_with_wt_or_it_ = np.array(
+        task_execution_percentage_with_wt_or_it_ = np.array(
             [
                 task_execution_count_with_wt_or_it_dict[task_id]
+                / evaluation.task_execution_counts[task_id]
                 if task_id in task_execution_count_with_wt_or_it_dict
                 else 0
                 for task_id in task_ids
             ]
-        ).reshape(-1, 1)
+        )
 
-        task_execution_counts_dict = evaluation.task_execution_counts
-        task_execution_counts = np.array(
+        task_enablements_per_day = np.array(
             [
-                task_execution_counts_dict[task_id]
-                if task_id in task_execution_counts_dict
+                len(evaluation.task_enablement_weekdays[task_id][day])
+                if (
+                    task_id in evaluation.task_enablement_weekdays
+                    and day in evaluation.task_enablement_weekdays[task_id]
+                )
                 else 0
                 for task_id in task_ids
+                for day in DAYS
             ]
-        ).reshape(-1, 1)
+        )
 
         number_of_resources = np.array(
             [
@@ -161,14 +198,31 @@ class PPOInput:
                 else 0
                 for task_id in task_ids
             ]
-        ).reshape(-1, 1)
+        )
+
+        average_batch_size = np.array(
+            [
+                evaluation.average_batch_size_per_task[task_id]
+                if task_id in evaluation.average_batch_size_per_task
+                else 1
+                for task_id in task_ids
+            ]
+        )
 
         return {
-            "task_waiting_times": waiting_times,
-            "task_idle_time": idle_times,
-            "task_execution_count_with_wt_or_it": task_execution_count_with_wt_or_it_,
-            "task_execution_counts": task_execution_counts,
-            "task_num_resources": number_of_resources,
+            "task_waiting_times": PPOInput._clean_np_array(waiting_times),
+            "task_idle_time": PPOInput._clean_np_array(idle_times),
+            "task_batching_waiting_times_percentage": PPOInput._clean_np_array(
+                batching_waiting_times_percentage
+            ),
+            "task_execution_percentage_with_wt_or_it": PPOInput._clean_np_array(
+                task_execution_percentage_with_wt_or_it_
+            ),
+            "task_enablements_per_day": PPOInput._clean_np_array(
+                task_enablements_per_day
+            ),
+            "task_num_resources": PPOInput._clean_np_array(number_of_resources),
+            "task_average_batch_size": PPOInput._clean_np_array(average_batch_size),
         }
 
     @staticmethod
@@ -193,7 +247,7 @@ class PPOInput:
                 else 0
                 for resource in resources
             ]
-        ).reshape(-1, 1)
+        )
 
         available_times = np.array(
             [
@@ -202,7 +256,7 @@ class PPOInput:
                 else 0
                 for resource in resources
             ]
-        ).reshape(-1, 1)
+        )
 
         utilizations = np.array(
             [
@@ -211,29 +265,28 @@ class PPOInput:
                 else 0
                 for resource in resources
             ]
-        ).reshape(-1, 1)
+        )
 
-        hourly_costs = np.array(
-            [resource.cost_per_hour for resource in resources]
-        ).reshape(-1, 1)
+        hourly_costs = np.array([resource.cost_per_hour for resource in resources])
 
         # Scale continuous features
-        waiting_times = scaler_waiting_time.fit_transform(waiting_times)
-        available_times = scaler_available_time.fit_transform(available_times)
-        utilizations = scaler_utilization.fit_transform(utilizations)
-        hourly_costs = scaler_hourly_cost.fit_transform(hourly_costs)
+        waiting_times = scaler_waiting_time.fit_transform(waiting_times.reshape(1, -1))
+        available_times = scaler_available_time.fit_transform(
+            available_times.reshape(1, -1)
+        )
+        utilizations = scaler_utilization.fit_transform(utilizations.reshape(1, -1))
+        hourly_costs = scaler_hourly_cost.fit_transform(hourly_costs.reshape(1, -1))
 
         # Discrete features
         number_of_tasks = np.array(
             [len(resource.assigned_tasks) for resource in resources]
-        ).reshape(-1, 1)
+        )
 
         return {
-            "resource_waiting_times": waiting_times,
-            "resource_available_time": available_times,
-            "resource_utilization": utilizations,
-            "resource_hourly_cost": hourly_costs,
-            "resource_num_tasks": number_of_tasks,
+            "resource_waiting_times": PPOInput._clean_np_array(waiting_times),
+            "resource_available_time": PPOInput._clean_np_array(available_times),
+            "resource_utilization": PPOInput._clean_np_array(utilizations),
+            "resource_num_tasks": PPOInput._clean_np_array(number_of_tasks),
         }
 
     @staticmethod
@@ -261,116 +314,79 @@ class PPOInput:
         resources = store.base_timetable.get_all_resources()
         current_timetable = store.current_timetable
 
-        actions = []
+        actions: list[Optional[BaseAction]] = []
 
-        # - Add Hour to start of calendar, per resource, per day
-        # - Add Hour to end of calendar, per resource, per day
-        # - Remove first hour from calendar, per resource, per day
-        # - Remove last hour from calendar, per resource, per day
-        # - Shift Hour forward in calendar, per resource, per day
-        # - Shift Hour backward in calendar, per resource, per day
-        # - Clone resource, per resource
-        # - Remove resource, per resource
-        modify_calendar_action_params: list[
-            Optional[ModifyCalendarBaseActionParamsType]
-        ] = []
+        # TODO: This is not complete
+        # - [ ] Add 1h to large waiting time rule (or create), per task
+        # - [ ] Remove 1h from large waiting time rule (or remove), per task
+        # - [ ] Add 1h to ready waiting time rule (or create), per task
+        # - [ ] Remove 1h from ready waiting time rule (or remove), per task
+        # - [x] Increase batch size (or create), per task
+        # - [x] Decrease batch size (or remove), per task
+        # - [x] Add Batching DateTime Rule, per day, per task,
+        # - [x] Shift Batching DateTime Rule forward, per day, per task
+        # - [x] Shift Batching DateTime Rule backward, per day, per task
+        # - [x] Remove Batching DateTime Rule, per day, per task
 
-        modify_resource_action_params: list[
-            Optional[ModifyResourceBaseActionParamsType]
-        ] = []
-
-        for resource in resources:
-            if current_timetable.get_resource(resource.id) is None:
-                modify_resource_action_params.extend([None] * ((len(DAYS) * 6) + 2))
-                continue
-            modify_resource_action_params.extend(
-                [
-                    # Clone resource
-                    ModifyResourceBaseActionParamsType(
-                        resource_id=resource.id,
-                        clone_resource=True,
-                    ),
-                    # Remove resource
-                    ModifyResourceBaseActionParamsType(
-                        resource_id=resource.id,
-                        remove_resource=True,
-                    ),
-                ]
-            )
-            calendar = store.current_timetable.get_calendar_for_resource(resource.id)
-            for day in DAYS:
-                if calendar is None:
-                    modify_calendar_action_params.extend([None] * 6)
-                    continue
-                periods = calendar.get_periods_for_day(day)
-                if periods is None or len(periods) == 0:
-                    modify_calendar_action_params.extend([None] * 6)
-                    continue
-                # Remove first hour
-                modify_calendar_action_params.extend(
-                    [
-                        # Add Hour to start of calendar
-                        ModifyCalendarBaseActionParamsType(
-                            calendar_id=calendar.id,
-                            period_id=periods[0].id,
-                            day=day,
-                            add_hours_before=1,
-                        ),
-                        # Add Hour to end of calendar
-                        ModifyCalendarBaseActionParamsType(
-                            calendar_id=calendar.id,
-                            period_id=periods[-1].id,
-                            day=day,
-                            add_hours_after=1,
-                        ),
-                        # Remove first hour
-                        ModifyCalendarBaseActionParamsType(
-                            calendar_id=calendar.id,
-                            period_id=periods[0].id,
-                            day=day,
-                            remove_period=True,
-                        ),
-                        # Remove last hour
-                        ModifyCalendarBaseActionParamsType(
-                            calendar_id=calendar.id,
-                            period_id=periods[-1].id,
-                            day=day,
-                            remove_period=True,
-                        ),
-                        # Shift Hour forward
-                        ModifyCalendarBaseActionParamsType(
-                            calendar_id=calendar.id,
-                            period_id=periods[0].id,
-                            day=day,
-                            shift_hours=1,
-                        ),
-                        # Shift Hour backward
-                        ModifyCalendarBaseActionParamsType(
-                            calendar_id=calendar.id,
-                            period_id=periods[-1].id,
-                            day=day,
-                            shift_hours=-1,
-                        ),
-                    ]
+        for task_id in store.current_timetable.get_task_ids():
+            actions.append(
+                ModifySizeOfSignificantRuleAction(
+                    ModifySizeOfSignificantRuleActionParamsType(
+                        task_id=task_id,
+                        change_size=1,
+                    )
                 )
-        actions: list[Optional[BaseAction]] = [
-            # TODO: We'll use a ModifyCalendarByCostAction for now
-            ModifyCalendarByCostAction(modify_calendar_action_param)
-            if modify_calendar_action_param
-            else None
-            for modify_calendar_action_param in modify_calendar_action_params
-        ]
-        actions.extend(
-            [
-                # TODO: We'll use a RemoveResourceByCostAction for now
-                RemoveResourceByCostAction(modify_resource_action_param)
-                if modify_resource_action_param
-                else None
-                for modify_resource_action_param in modify_resource_action_params
-            ]
-        )
+            )
+            actions.append(
+                ModifySizeOfSignificantRuleAction(
+                    ModifySizeOfSignificantRuleActionParamsType(
+                        task_id=task_id,
+                        change_size=-1,
+                    )
+                )
+            )
+            for day in DAYS:
+                # TODO: Is a default value for start and end okay?
+                actions.append(
+                    AddDateTimeRuleAction(
+                        params=AddDateTimeRuleBaseActionParamsType(
+                            task_id=task_id,
+                            time_period=TimePeriod.from_start_end(
+                                day=day, start=12, end=13
+                            ),
+                        )
+                    )
+                )
+                actions.append(
+                    ShiftDateTimeRuleAction(
+                        params=ShiftDateTimeRuleBaseActionParamsType(
+                            task_id=task_id, day=day, add_to_start=-1, add_to_end=1
+                        )
+                    )
+                )
+                actions.append(
+                    ShiftDateTimeRuleAction(
+                        params=ShiftDateTimeRuleBaseActionParamsType(
+                            task_id=task_id, day=day, add_to_start=1, add_to_end=-1
+                        )
+                    )
+                )
+                actions.append(
+                    RemoveDateTimeRuleAction(
+                        params=RemoveDateTimeRuleActionParamsType(
+                            task_id=task_id, day=day
+                        )
+                    )
+                )
+
         return [
-            action if (action is not None and store.is_tabu(action) is False) else None
+            action
+            if (
+                action is not None
+                and store.is_tabu(action) is False
+                and action.check_if_valid(store)
+            )
+            else None
             for action in actions
         ]
 
@@ -379,3 +395,8 @@ class PPOInput:
         """Get the action mask based on the actions."""
         mask = np.array([action is not None for action in actions])
         return mask
+
+    @staticmethod
+    def _clean_np_array(array: np.ndarray) -> np.ndarray:
+        """Clean the numpy array."""
+        return np.nan_to_num(array, nan=0, posinf=0, neginf=0).reshape(1, -1)

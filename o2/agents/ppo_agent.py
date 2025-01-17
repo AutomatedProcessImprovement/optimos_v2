@@ -1,6 +1,7 @@
 from typing import Optional
 
 import gymnasium as gym
+import numpy as np
 import torch as th
 from gymnasium import spaces
 from numpy import ndarray
@@ -109,7 +110,7 @@ class PPOAgent(Agent):
 
         new_obs, reward, done = self.step_info_from_try(result)
         rewards = [reward]
-        dones = [1 if done else 0]
+        dones = np.array([1 if done else 0])
         actions = self.last_actions.reshape(-1, 1)
         log_probs = self.log_probs
         action_masks = self.last_action_mask
@@ -129,6 +130,7 @@ class PPOAgent(Agent):
 
         # Train if the buffer is full
         if self.model.rollout_buffer.full:
+            print_l1("Rollout buffer full, training...")
             with th.no_grad():
                 last_values = self.model.policy.predict_values(
                     obs_as_tensor(new_obs, self.model.device)
