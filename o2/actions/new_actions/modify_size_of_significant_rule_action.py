@@ -1,14 +1,24 @@
-from dataclasses import replace
-
 from o2.actions.base_actions.base_action import (
     BaseAction,
     BaseActionParamsType,
     RateSelfReturnType,
 )
+from o2.actions.base_actions.modify_size_rule_base_action import (
+    ModifySizeRuleAction,
+    ModifySizeRuleBaseActionParamsType,
+)
 from o2.models.rule_selector import RuleSelector
 from o2.models.self_rating import SelfRatingInput
 from o2.models.state import State
-from o2.models.timetable import COMPARATOR, RULE_TYPE, FiringRule, rule_is_size
+from o2.models.timetable import (
+    BATCH_TYPE,
+    COMPARATOR,
+    RULE_TYPE,
+    BatchingRule,
+    Distribution,
+    FiringRule,
+    rule_is_size,
+)
 from o2.store import Store
 
 
@@ -31,20 +41,22 @@ class ModifySizeOfSignificantRuleAction(BaseAction):
         change_size = self.params["change_size"]
 
         batching_rules = timetable.get_batching_rules_for_task(task_id)
-        if len(batching_rules) == 0:
-            return state
 
         # Smallest size (only) and-rule (if change_size > 0)
         # Largest size (only) and-rule (if change_size < 0)
         significant_rule = None
-        significant_size = 0
+        significant_size = float("inf") if change_size > 0 else -float("inf")
 
         for batching_rule in batching_rules:
             for i, and_rules in enumerate(batching_rule.firing_rules):
-                if len(and_rules) > 1:
+                if len(and_rules) > 1 or len(and_rules) == 0:
                     continue
-                if rule_is_size(and_rules[0]):
-                    size = int(and_rules[0].value)
+                firing_rule = and_rules[0]
+                if rule_is_size(firing_rule):
+                    size = int(firing_rule.value)
+                    new_size = size + change_size
+                    if new_size < 1:
+                        continue
                     if change_size > 0 and size < significant_size:
                         significant_rule = RuleSelector.from_batching_rule(
                             batching_rule, (i, 0)
@@ -56,28 +68,44 @@ class ModifySizeOfSignificantRuleAction(BaseAction):
                         )
                         significant_size = size
 
+        # If no significant rule is found, add a new one
         if significant_rule is None:
-            return state
+            # TODO: We need to find the min size from the constraints
+            new_size = 1 + abs(change_size)
+            new_batching_rule = BatchingRule(
+                task_id=task_id,
+                type=BATCH_TYPE.PARALLEL,
+                size_distrib=[
+                    # Forbid execution of the task without batching
+                    Distribution(key=str(1), value=0.0),
+                    Distribution(key=str(new_size), value=1.0),
+                ],
+                duration_distrib=[
+                    Distribution(key="1", value=0.0),
+                    Distribution(key=str(new_size), value=1.0),
+                ],
+                firing_rules=[
+                    [
+                        FiringRule(
+                            attribute=RULE_TYPE.SIZE,
+                            comparison=COMPARATOR.GREATER_THEN_OR_EQUAL,
+                            value=new_size,
+                        )
+                    ]
+                ],
+            )
+            return state.replace_timetable(
+                batch_processing=timetable.batch_processing + [new_batching_rule]
+            )
 
-        batching_rule = significant_rule.get_batching_rule_from_state(state)
-        assert batching_rule is not None
-        firing_rule = batching_rule.get_firing_rule(significant_rule)
-        assert firing_rule is not None
-        new_batching_rule = batching_rule.replace_firing_rule(
-            significant_rule,
-            FiringRule(
-                attribute=RULE_TYPE.SIZE,
-                comparison=COMPARATOR.EQUAL,
-                value=firing_rule.value + change_size,
-            ),
-        )
-
-        return replace(
-            state,
-            timetable=timetable.replace_batching_rule(
-                significant_rule, new_batching_rule
-            ),
-        )
+        return ModifySizeRuleAction(
+            ModifySizeRuleBaseActionParamsType(
+                rule=significant_rule,
+                size_increment=change_size,
+                # TODO: Get from constraints
+                duration_fn="0.8*size",
+            )
+        ).apply(state, enable_prints=enable_prints)
 
     @staticmethod
     def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
