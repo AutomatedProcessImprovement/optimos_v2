@@ -86,7 +86,7 @@ class ModifySizeRuleBaseAction(BatchingRuleAction, ABC, str=False):
             [
                 FiringRule(
                     attribute=RULE_TYPE.SIZE,
-                    comparison=COMPARATOR.EQUAL,
+                    comparison=COMPARATOR.GREATER_THEN_OR_EQUAL,
                     value=new_size,
                 )
             ]
@@ -126,3 +126,11 @@ class ModifySizeRuleBaseAction(BatchingRuleAction, ABC, str=False):
     def get_default_rating() -> RATING:
         """Return the default rating for this action."""
         return RATING.MEDIUM
+
+
+class ModifySizeRuleAction(ModifySizeRuleBaseAction):
+    """ModifySizeRuleAction will modify the size of a BatchingRule."""
+
+    @staticmethod
+    def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
+        raise NotImplementedError("Not implemented")

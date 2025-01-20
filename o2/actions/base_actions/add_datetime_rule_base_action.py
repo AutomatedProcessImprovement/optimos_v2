@@ -74,6 +74,12 @@ class AddDateTimeRuleBaseAction(BatchingRuleAction, ABC, str=False):
                 comparison=COMPARATOR.LESS_THEN,
                 value=time_period.end_time_hour,
             ),
+            # We need this size rule, to make Prosimos happy.
+            FiringRule(
+                attribute=RULE_TYPE.SIZE,
+                comparison=COMPARATOR.GREATER_THEN_OR_EQUAL,
+                value=1,
+            ),
         ]
         updated_rule = replace(
             rule,
