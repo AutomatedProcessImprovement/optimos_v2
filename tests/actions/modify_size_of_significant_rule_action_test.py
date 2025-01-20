@@ -1,0 +1,41 @@
+from o2.actions.new_actions.modify_size_of_significant_rule_action import (
+    ModifySizeOfSignificantRuleAction,
+    ModifySizeOfSignificantRuleActionParamsType,
+)
+from o2.models.rule_selector import RuleSelector
+from o2.store import Store
+from tests.actions.modify_size_rule_base_action_test import helper_rule_matches_size
+from tests.fixtures.test_helpers import replace_timetable
+from tests.fixtures.timetable_generator import TimetableGenerator
+
+
+def test_increment_size(store: Store):
+    new_size = TimetableGenerator.BATCHING_BASE_SIZE + 1
+    first_rule = store.base_timetable.batch_processing[0]
+
+    action = ModifySizeOfSignificantRuleAction(
+        ModifySizeOfSignificantRuleActionParamsType(
+            task_id=TimetableGenerator.FIRST_ACTIVITY,
+            change_size=1,
+        )
+    )
+    new_state = action.apply(state=store.base_state)
+    assert first_rule.task_id == new_state.timetable.batch_processing[0].task_id
+    assert helper_rule_matches_size(new_state.timetable.batch_processing[0], new_size)
+
+
+def test_decrement_size(store: Store):
+    new_size = TimetableGenerator.BATCHING_BASE_SIZE - 1
+    first_rule = store.base_timetable.batch_processing[0]
+
+    action = ModifySizeOfSignificantRuleAction(
+        ModifySizeOfSignificantRuleActionParamsType(
+            task_id=TimetableGenerator.FIRST_ACTIVITY,
+            change_size=-1,
+        )
+    )
+    new_state = action.apply(state=store.base_state)
+    assert first_rule.task_id == new_state.timetable.batch_processing[0].task_id
+    assert helper_rule_matches_size(new_state.timetable.batch_processing[0], new_size)
+
+
