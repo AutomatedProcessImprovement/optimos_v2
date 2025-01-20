@@ -39,3 +39,42 @@ def test_decrement_size(store: Store):
     assert helper_rule_matches_size(new_state.timetable.batch_processing[0], new_size)
 
 
+def test_decrement_to_one(store: Store):
+    store = replace_timetable(
+        store,
+        batch_processing=[
+            TimetableGenerator.batching_size_rule(TimetableGenerator.FIRST_ACTIVITY, 2)
+        ],
+    )
+    new_size = 1
+    first_rule = store.base_timetable.batch_processing[0]
+    action = ModifySizeOfSignificantRuleAction(
+        ModifySizeOfSignificantRuleActionParamsType(
+            task_id=TimetableGenerator.FIRST_ACTIVITY,
+            change_size=-1,
+        )
+    )
+    new_state = action.apply(state=store.base_state)
+    assert first_rule.task_id == new_state.timetable.batch_processing[0].task_id
+    assert helper_rule_matches_size(new_state.timetable.batch_processing[0], new_size)
+
+
+def test_create_new_rule(store: Store):
+    store = replace_timetable(
+        store,
+        batch_processing=[],
+    )
+    action = ModifySizeOfSignificantRuleAction(
+        ModifySizeOfSignificantRuleActionParamsType(
+            task_id=TimetableGenerator.FIRST_ACTIVITY,
+            change_size=1,
+        )
+    )
+    new_state = action.apply(state=store.base_state)
+
+    assert len(new_state.timetable.batch_processing) == 1
+    assert (
+        new_state.timetable.batch_processing[0].task_id
+        == TimetableGenerator.FIRST_ACTIVITY
+    )
+    assert helper_rule_matches_size(new_state.timetable.batch_processing[0], 2)
