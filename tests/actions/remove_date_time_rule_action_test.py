@@ -31,3 +31,52 @@ def test_remove_date_time_rule_action_simple(store: Store):
     new_state = action.apply(state=store.base_state)
     assert len(new_state.timetable.batch_processing) == 0
 
+
+def test_remove_date_time_rule_action_additional_rules(store: Store):
+    batching_rule = TimetableGenerator.daily_hour_rule_with_day(
+        TimetableGenerator.SECOND_ACTIVITY,
+        DAY.MONDAY,
+        9,
+        12,
+    )
+    batching_rule.firing_rules[0].insert(
+        0,
+        TimetableGenerator.batching_size_rule(
+            TimetableGenerator.SECOND_ACTIVITY, 50
+        ).firing_rules[0][0],
+    )
+    batching_rule.firing_rules[0].append(
+        TimetableGenerator.batching_size_rule(
+            TimetableGenerator.SECOND_ACTIVITY, 100
+        ).firing_rules[0][0]
+    )
+    batching_rule.firing_rules.append(
+        TimetableGenerator.batching_size_rule(
+            TimetableGenerator.SECOND_ACTIVITY, 200
+        ).firing_rules[0]
+    )
+    store = replace_timetable(
+        store,
+        batch_processing=[
+            TimetableGenerator.batching_size_rule(TimetableGenerator.FIRST_ACTIVITY, 0),
+            batching_rule,
+            TimetableGenerator.batching_size_rule(
+                TimetableGenerator.THIRD_ACTIVITY, 300
+            ),
+        ],
+    )
+
+    action = RemoveDateTimeRuleAction(
+        RemoveDateTimeRuleActionParamsType(
+            task_id=TimetableGenerator.SECOND_ACTIVITY,
+            day=DAY.MONDAY,
+        )
+    )
+
+    new_state = action.apply(state=store.base_state)
+    assert len(new_state.timetable.batch_processing) == 3
+    # We got two sets of or rules, the first includes the size rules, the second only the size rule
+    assert len(new_state.timetable.batch_processing[1].firing_rules) == 2
+    # We got still two size rules (and part)
+    assert len(new_state.timetable.batch_processing[1].firing_rules[0]) == 2
+    assert len(new_state.timetable.batch_processing[1].firing_rules[1]) == 1
