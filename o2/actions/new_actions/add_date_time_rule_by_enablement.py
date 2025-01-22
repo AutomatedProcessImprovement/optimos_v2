@@ -1,7 +1,7 @@
 from dataclasses import replace
 from datetime import datetime
 
-from bpdfr_simulation_engine.execution_info import TaskEvent
+from prosimos.execution_info import TaskEvent
 
 from o2.actions.base_actions.add_datetime_rule_base_action import (
     AddDateTimeRuleBaseAction,

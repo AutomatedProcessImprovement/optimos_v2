@@ -4,7 +4,7 @@ from dataclasses import dataclass, field, replace
 from typing import TYPE_CHECKING
 
 import pytz
-from bpdfr_simulation_engine.simulation_setup import SimDiffSetup
+from prosimos.simulation_setup import SimDiffSetup
 
 from o2.actions.base_actions.base_action import BaseAction
 from o2.models.evaluation import Evaluation

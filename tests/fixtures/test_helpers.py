@@ -2,7 +2,7 @@ from dataclasses import replace
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Optional
 
-from bpdfr_simulation_engine.simulation_stats_calculator import (
+from prosimos.simulation_stats_calculator import (
     KPIInfo,
     KPIMap,
     LogInfo,

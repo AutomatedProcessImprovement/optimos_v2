@@ -5,10 +5,9 @@ from itertools import groupby
 from typing import TYPE_CHECKING, Counter, cast
 
 import pandas as pd
-from bpdfr_simulation_engine.execution_info import TaskEvent, Trace
-from bpdfr_simulation_engine.simulation_stats_calculator import (
+from prosimos.execution_info import TaskEvent, Trace
+from prosimos.simulation_stats_calculator import (
     KPIMap,
-    LogInfo,
     ResourceKPI,
 )
 

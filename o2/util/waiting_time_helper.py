@@ -2,7 +2,7 @@ from collections import defaultdict
 from datetime import datetime
 from typing import TypedDict
 
-from bpdfr_simulation_engine.simulation_stats_calculator import (
+from prosimos.simulation_stats_calculator import (
     LogInfo,
     TaskEvent,
 )

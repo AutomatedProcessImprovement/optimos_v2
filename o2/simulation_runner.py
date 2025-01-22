@@ -2,8 +2,8 @@ import traceback
 from datetime import datetime
 from typing import TYPE_CHECKING, Optional, TypeAlias
 
-from bpdfr_simulation_engine.simulation_engine import run_simpy_simulation
-from bpdfr_simulation_engine.simulation_stats_calculator import (
+from prosimos.simulation_engine import run_simpy_simulation
+from prosimos.simulation_stats_calculator import (
     KPIMap,
     LogInfo,
     ResourceKPI,
