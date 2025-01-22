@@ -54,23 +54,21 @@ class RemoveDateTimeRuleAction(BaseAction):
         )
         assert upper_bound_selector.firing_rule_index is not None
         or_rules_index = upper_bound_selector.firing_rule_index[0]
+
+        new_and_rule = [
+            and_rule
+            for i, and_rule in enumerate(batching_rule.firing_rules[or_rules_index])
+            if i
+            not in [
+                day_selector_index,
+                lower_bound_index,
+                upper_bound_index,
+            ]
+        ]
         new_batching_rule = replace(
             batching_rule,
             firing_rules=batching_rule.firing_rules[:or_rules_index]
-            + [
-                [
-                    and_rule
-                    for i, and_rule in enumerate(
-                        batching_rule.firing_rules[or_rules_index]
-                    )
-                    if i
-                    not in [
-                        day_selector_index,
-                        lower_bound_index,
-                        upper_bound_index,
-                    ]
-                ]
-            ]
+            + ([new_and_rule] if new_and_rule else [])
             + batching_rule.firing_rules[or_rules_index + 1 :],
         )
         if len(new_batching_rule.firing_rules) == 0:
