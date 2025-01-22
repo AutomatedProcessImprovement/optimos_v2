@@ -5,6 +5,7 @@ import tensorflow as tf
 
 from o2.agents.agent import Agent
 from o2.agents.simulated_annealing_agent import SimulatedAnnealingAgent
+from o2.models.settings import CostType, Settings
 from o2.models.solution import Solution
 from o2.store import Store
 from o2.util.indented_printer import print_l3
@@ -36,7 +37,6 @@ class TensorBoardHelper:
 
     def tensor_board_iteration_callback(self, solution: Solution) -> None:
         """Log the current solution to TensorBoard."""  # noqa: D401
-        start_time = time.time()
         with self.writer.as_default():
             self.step += 1
             if isinstance(self.agent, SimulatedAnnealingAgent):
@@ -74,13 +74,24 @@ class TensorBoardHelper:
             )
 
             tf.summary.scalar(
-                "front/avg_total_cost",
-                self.store.current_pareto_front.avg_total_cost,
+                "front/" + Settings.get_pareto_x_label().replace(" ", "_").lower(),
+                self.store.current_pareto_front.avg_x,
                 step=self.step,
             )
             tf.summary.scalar(
-                "front/avg_total_duration",
-                self.store.current_pareto_front.avg_total_duration,
+                "front/" + Settings.get_pareto_y_label().replace(" ", "_").lower(),
+                self.store.current_pareto_front.avg_y,
+                step=self.step,
+            )
+            if Settings.COST_TYPE != CostType.TOTAL_COST:
+                tf.summary.scalar(
+                    "front/avg_total_cost",
+                    self.store.current_pareto_front.avg_total_cost,
+                    step=self.step,
+                )
+            tf.summary.scalar(
+                "front/size",
+                self.store.current_pareto_front.size,
                 step=self.step,
             )
 
@@ -96,4 +107,4 @@ class TensorBoardHelper:
                 step=self.step,
             )
 
-        print_l3(f"Logged to TensorBoard in {time.time() - start_time:.2f}s")
+        # print_l3(f"Logged to TensorBoard in {time.time() - start_time:.2f}s")
