@@ -89,6 +89,8 @@ class SimDiffSetupFileless(SimDiffSetup):
         self.gateway_conditions = add_default_flows(self.gateway_conditions, bpmn_file)
         self.case_attributes = self.all_attributes.case_attributes
 
+        # Reset the file pointer to the beginning of the file
+        bpmn_file.seek(0)
         self.bpmn_graph = parse_simulation_model(bpmn_file)
         self.bpmn_graph.set_additional_fields_from_json(
             self.element_probability,
