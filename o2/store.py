@@ -196,7 +196,7 @@ class Store:
 
     @staticmethod
     def from_state_and_constraints(
-        state: State, constraints: ConstraintsType
+        state: State, constraints: ConstraintsType, name: str = "An Optimos Run"
     ) -> "Store":
         """Create a new Store from a state and constraints."""
         updated_state = replace(
@@ -204,4 +204,4 @@ class Store:
         )
         evaluation = updated_state.evaluate()
         solution = Solution(evaluation, updated_state, None)
-        return Store(solution, constraints)
+        return Store(solution, constraints, name)

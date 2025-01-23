@@ -77,7 +77,7 @@ class HillClimber:
                     )
 
                 print_l0(
-                    f"{self.store.settings.agent} - Iteration {it}/{self.max_iter}"
+                    f"{self.store.settings.agent.name} - Iteration {it}/{self.max_iter}"
                 )
 
                 actions_to_perform = self.agent.select_actions(self.store)

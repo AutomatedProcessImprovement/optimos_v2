@@ -35,7 +35,7 @@ class PPOAgent(Agent):
                 "MultiInputPolicy",
                 env,
                 verbose=1,
-                tensorboard_log="./logs/progress_tensorboard/",
+                # tensorboard_log="./logs/progress_tensorboard/",
                 clip_range=0.2,
                 # TODO make learning rate smarter
                 # learning_rate=linear_schedule(3e-4),
