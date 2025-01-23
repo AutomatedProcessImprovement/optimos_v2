@@ -3,28 +3,53 @@ import io
 from typing import TYPE_CHECKING
 
 import pytz
-from bpdfr_simulation_engine.batch_processing_parser import BatchProcessingParser
-from bpdfr_simulation_engine.case_attributes import AllCaseAttributes
-from bpdfr_simulation_engine.prioritisation import AllPriorityRules
-from bpdfr_simulation_engine.prioritisation_parser import PrioritisationParser
-from bpdfr_simulation_engine.simulation_properties_parser import (
+from prosimos.all_attributes import AllAttributes
+from prosimos.batch_processing_parser import BatchProcessingParser
+from prosimos.branch_condition_parser import BranchConditionParser
+from prosimos.branch_condition_rules import AllBranchConditionRules
+from prosimos.case_attributes import AllCaseAttributes, CaseAttribute
+from prosimos.control_flow_manager import BPMN, EVENT_TYPE, BPMNGraph, ElementInfo
+from prosimos.event_attributes import AllEventAttributes
+from prosimos.event_attributes_parser import EventAttributesParser
+from prosimos.fuzzy_engine.fuzzy_calendar import FuzzyModel, WeeklyFuzzyCalendar
+from prosimos.gateway_condition_choice import GatewayConditionChoice
+from prosimos.global_attributes import AllGlobalAttributes
+from prosimos.global_attributes_parser import GlobalAttributesParser
+from prosimos.histogram_distribution import HistogramDistribution
+from prosimos.prioritisation import AllPriorityRules
+from prosimos.prioritisation_parser import PrioritisationParser
+from prosimos.probability_distributions import Choice
+from prosimos.resource_profile import PoolInfo, ResourceProfile
+from prosimos.simulation_properties_parser import (
     BATCH_PROCESSING_SECTION,
+    BRANCH_RULES,
     CASE_ATTRIBUTES_SECTION,
+    DEFAULT_GATEWAY_EXECUTION_LIMIT,
+    EVENT_ATTRIBUTES,
     EVENT_DISTRIBUTION_SECTION,
+    GATEWAY_EXECUTION_LIMIT,
+    GLOBAL_ATTRIBUTES,
+    MULTITASKING_SECTION,
     PRIORITISATION_RULES_SECTION,
     RESOURCE_CALENDARS,
+    add_default_flows,
     parse_arrival_branching_probabilities,
     parse_arrival_calendar,
     parse_case_attr,
     parse_event_distribution,
+    parse_fuzzy_calendar,
+    parse_gateway_conditions,
+    parse_json_sim_parameters,
+    parse_multitasking_model,
     parse_resource_calendars,
     parse_resource_profiles,
     parse_task_resource_distributions,
 )
-from bpdfr_simulation_engine.simulation_setup import (
+from prosimos.simulation_setup import (
     SimDiffSetup,
     parse_simulation_model,
 )
+from prosimos.warning_logger import warning_logger
 
 from o2.models.timetable import TimetableType
 
@@ -53,9 +78,16 @@ class SimDiffSetupFileless(SimDiffSetup):
             self.arrival_calendar,
             self.event_distibution,
             self.batch_processing,
-            self.case_attributes,
             self.prioritisation_rules,
+            self.branch_rules,
+            self.gateway_conditions,
+            self.all_attributes,
+            self.gateway_execution_limit,
+            self.model_type,
+            self.multitask_info,
         ) = self.parse_json_sim_parameters_from_string(timetable.to_dict())
+        self.gateway_conditions = add_default_flows(self.gateway_conditions, bpmn_file)
+        self.case_attributes = self.all_attributes.case_attributes
 
         self.bpmn_graph = parse_simulation_model(bpmn_file)
         self.bpmn_graph.set_additional_fields_from_json(
@@ -63,7 +95,10 @@ class SimDiffSetupFileless(SimDiffSetup):
             self.task_resource,
             self.event_distibution,
             self.batch_processing,
+            self.gateway_conditions,
+            self.gateway_execution_limit,
         )
+
         if not self.arrival_calendar:
             self.arrival_calendar = self.find_arrival_calendar()
 
@@ -71,18 +106,38 @@ class SimDiffSetupFileless(SimDiffSetup):
         self.total_num_cases = total_cases  # how many process cases should be simulated
 
     def parse_json_sim_parameters_from_string(self, json_data):
+        model_type = json_data["model_type"] if "model_type" in json_data else "CRSIP"
+
         resources_map, res_pool = parse_resource_profiles(
             json_data["resource_profiles"]
         )
-        calendars_map = parse_resource_calendars(json_data[RESOURCE_CALENDARS])
+        # calendars_map = parse_resource_calendars(json_data[RESOURCE_CALENDARS])
+
+        calendars_map = (
+            parse_fuzzy_calendar(json_data)
+            if model_type == "FUZZY"
+            else parse_resource_calendars(json_data[RESOURCE_CALENDARS])
+        )
+
         task_resource_distribution = parse_task_resource_distributions(
             json_data["task_resource_distribution"], res_pool
+        )
+
+        branch_rules = (
+            BranchConditionParser(json_data[BRANCH_RULES]).parse()
+            if BRANCH_RULES in json_data
+            else AllBranchConditionRules([])
         )
 
         element_distribution = parse_arrival_branching_probabilities(
             json_data["arrival_time_distribution"],
             json_data["gateway_branching_probabilities"],
         )
+
+        gateway_conditions = parse_gateway_conditions(
+            json_data["gateway_branching_probabilities"], branch_rules
+        )
+
         arrival_calendar = parse_arrival_calendar(json_data)
         event_distibution = (
             parse_event_distribution(json_data[EVENT_DISTRIBUTION_SECTION])
@@ -99,10 +154,40 @@ class SimDiffSetupFileless(SimDiffSetup):
             if CASE_ATTRIBUTES_SECTION in json_data
             else AllCaseAttributes([])
         )
+        event_attributes = (
+            EventAttributesParser(json_data[EVENT_ATTRIBUTES]).parse()
+            if EVENT_ATTRIBUTES in json_data
+            else AllEventAttributes({})
+        )
+
+        global_attributes = (
+            GlobalAttributesParser(json_data[GLOBAL_ATTRIBUTES]).parse()
+            if GLOBAL_ATTRIBUTES in json_data
+            else AllGlobalAttributes({})
+        )
+
+        all_attributes = AllAttributes(
+            global_attributes, case_attributes, event_attributes
+        )
+
         prioritisation_rules = (
             PrioritisationParser(json_data[PRIORITISATION_RULES_SECTION]).parse()
             if PRIORITISATION_RULES_SECTION in json_data
             else AllPriorityRules([])
+        )
+
+        gateway_execution_limit = (
+            json_data[GATEWAY_EXECUTION_LIMIT]
+            if GATEWAY_EXECUTION_LIMIT in json_data
+            else DEFAULT_GATEWAY_EXECUTION_LIMIT
+        )
+
+        multitasking_info = (
+            parse_multitasking_model(
+                json_data[MULTITASKING_SECTION], task_resource_distribution
+            )
+            if MULTITASKING_SECTION in json_data
+            else None
         )
 
         return (
@@ -113,6 +198,11 @@ class SimDiffSetupFileless(SimDiffSetup):
             arrival_calendar,
             event_distibution,
             batch_processing,
-            case_attributes,
             prioritisation_rules,
+            branch_rules,
+            gateway_conditions,
+            all_attributes,
+            gateway_execution_limit,
+            model_type,
+            multitasking_info,
         )
