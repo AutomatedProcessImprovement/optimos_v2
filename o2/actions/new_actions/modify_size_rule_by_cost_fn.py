@@ -188,7 +188,7 @@ class ModifyBatchSizeIfNoCostImprovement(ModifySizeRuleBaseAction):
             )[0]
 
             yield (
-                RATING.HIGH,
+                RATING.MEDIUM,
                 ModifyBatchSizeIfNoCostImprovement(
                     ModifySizeRuleByCostFnParamsType(
                         rule=rule_selector,

@@ -77,7 +77,7 @@ class AddDateTimeRuleByEnablementAction(AddDateTimeRuleBaseAction):
             task_enablement_pairs = task_enablements[task_id]
             for _, day, hour in task_enablement_pairs:
                 yield (
-                    RATING.HIGH,
+                    RATING.MEDIUM,
                     AddDateTimeRuleByEnablementAction(
                         AddDateTimeRuleByEnablementActionParamsType(
                             task_id=task_id,

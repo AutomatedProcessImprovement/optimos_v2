@@ -75,7 +75,7 @@ class ModifyBatchSizeIfNoDurationImprovement(ModifySizeRuleBaseAction):
             )[0]
 
             yield (
-                RATING.HIGH,
+                RATING.MEDIUM,
                 ModifyBatchSizeIfNoDurationImprovement(
                     ModifySizeRuleByDurationFnParamsType(
                         rule=rule_selector,

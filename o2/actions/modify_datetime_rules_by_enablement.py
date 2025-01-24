@@ -172,7 +172,7 @@ class ModifyDateTimeRulesByEnablementAction(AddDateTimeRuleBaseAction):
         task_id, day, hour = most_enablement[0]
 
         yield (
-            RATING.HIGH,
+            RATING.MEDIUM,
             ModifyDateTimeRulesByEnablementAction(
                 ModifyDateTimeRulesByEnablementActionParamsType(
                     task_id=task_id,
