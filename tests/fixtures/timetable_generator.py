@@ -292,8 +292,8 @@ class TimetableGenerator:
         task_id: str,
         week_day: DAY = DAY.MONDAY,
         size=BATCHING_BASE_SIZE,
-        include_monday=True,
-        include_size=True,
+        include_monday=False,
+        include_size=False,
     ):
         assert not (include_monday and not include_size)
 
@@ -434,11 +434,6 @@ class TimetableGenerator:
             firing_rules=[
                 [
                     FiringRule(
-                        attribute=RULE_TYPE.WEEK_DAY,
-                        comparison=COMPARATOR.EQUAL,
-                        value=day,
-                    ),
-                    FiringRule(
                         attribute=RULE_TYPE.DAILY_HOUR,
                         comparison=COMPARATOR.GREATER_THEN_OR_EQUAL,
                         value=min_hour,
@@ -447,6 +442,11 @@ class TimetableGenerator:
                         attribute=RULE_TYPE.DAILY_HOUR,
                         comparison=COMPARATOR.LESS_THEN_OR_EQUAL,
                         value=max_hour,
+                    ),
+                    FiringRule(
+                        attribute=RULE_TYPE.WEEK_DAY,
+                        comparison=COMPARATOR.EQUAL,
+                        value=day,
                     ),
                 ]
             ],
