@@ -233,3 +233,6 @@ mapping.json
 model_checkpoints
 optimos_v2.bin
 tmp/
+
+stores/
+**/scenarios/*/outputs/

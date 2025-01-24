@@ -32,6 +32,15 @@
       "justMyCode": false
     },
     {
+      "name": "Python: Run data_collector.py",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/o2_evaluation/data_collector.py",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": false
+    },
+    {
       "name": "Python: Debug Tests",
       "type": "debugpy",
       "request": "launch",
