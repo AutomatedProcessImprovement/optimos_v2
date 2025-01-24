@@ -60,11 +60,6 @@ class AddDateTimeRuleBaseAction(BatchingRuleAction, ABC, str=False):
 
         new_or_rule = [
             FiringRule(
-                attribute=RULE_TYPE.WEEK_DAY,
-                comparison=COMPARATOR.EQUAL,
-                value=time_period.from_,
-            ),
-            FiringRule(
                 attribute=RULE_TYPE.DAILY_HOUR,
                 comparison=COMPARATOR.GREATER_THEN_OR_EQUAL,
                 value=time_period.begin_time_hour,
@@ -74,11 +69,10 @@ class AddDateTimeRuleBaseAction(BatchingRuleAction, ABC, str=False):
                 comparison=COMPARATOR.LESS_THEN,
                 value=time_period.end_time_hour,
             ),
-            # We need this size rule, to make Prosimos happy.
             FiringRule(
-                attribute=RULE_TYPE.SIZE,
-                comparison=COMPARATOR.GREATER_THEN_OR_EQUAL,
-                value=1,
+                attribute=RULE_TYPE.WEEK_DAY,
+                comparison=COMPARATOR.EQUAL,
+                value=time_period.from_,
             ),
         ]
         updated_rule = replace(
