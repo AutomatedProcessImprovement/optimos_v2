@@ -66,7 +66,6 @@ class OptimosService:
         )
         store.settings.max_iterations = config["max_iterations"]
         store.settings.max_non_improving_actions = config["max_non_improving_actions"]
-        store.settings.num_of_cases = config["num_cases"]
         store.settings.agent = config["agent"]
 
         # Upload initial evaluation

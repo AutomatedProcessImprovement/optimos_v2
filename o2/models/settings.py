@@ -1,7 +1,7 @@
 import os
 from dataclasses import dataclass
 from enum import Enum
-from typing import ClassVar
+from typing import ClassVar, Optional
 
 from o2.models.legacy_approach import LegacyApproach
 
@@ -39,9 +39,6 @@ class Settings:
     This class is initialized with sensible defaults, but can be changed to
     suit the needs of the user, e.g. to run it in legacy optimos mode.
     """
-
-    num_of_cases = 100
-    """The number of cases to simulate per run."""
 
     agent: AgentType = AgentType.TABU_SEARCH
     """The agent to use for the optimization task."""
@@ -162,6 +159,11 @@ class Settings:
 
     Because this won't differ during the optimization, it's a class variable.
     """
+
+    NUMBER_OF_CASES: Optional[int] = None
+    """Overrite the number of cases to simulate per run.
+
+    Will use information from the model if not set (1000 cases by default)."""
 
     @staticmethod
     def get_pareto_x_label() -> str:

@@ -23,6 +23,7 @@ from o2.actions.new_actions.remove_date_time_rule_action import (
     RemoveDateTimeRuleActionParamsType,
 )
 from o2.models.days import DAYS
+from o2.models.settings import Settings
 from o2.models.time_period import TimePeriod
 from o2.store import Store
 
@@ -80,9 +81,9 @@ class PPOInput:
         num_days = len(DAYS)
         resources = store.current_timetable.get_all_resources()
         num_resources = len(resources)
-        num_cases = store.settings.num_of_cases
+        num_cases = Settings.NUMBER_OF_CASES or store.current_timetable.total_cases
 
-        high = store.settings.num_of_cases * 2
+        high = num_cases * 2
 
         return spaces.Dict(
             {

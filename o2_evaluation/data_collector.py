@@ -198,6 +198,7 @@ def collect_data_sequentially(base_store):
     Settings.COST_TYPE = CostType.WAITING_TIME_AND_PROCESSING_TIME
     Settings.DUMP_DISCARDED_SOLUTIONS = True
     Settings.SHOW_SIMULATION_ERRORS = True
+    Settings.NUMBER_OF_CASES = 100
 
     # Initialize solution dumper
     SolutionDumper()
