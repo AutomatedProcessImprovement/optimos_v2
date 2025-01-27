@@ -27,6 +27,10 @@ class CostType(Enum):
     FIXED_COST = "fixed_cost"
     """The fixed cost per task / batch. No resource costs."""
 
+    WAITING_TIME_AND_PROCESSING_TIME = "wt_pt"
+    """Instead of using an financial cost use
+    waiting time (incl. idle time) and processing time"""
+
 
 @dataclass()
 class Settings:
@@ -147,10 +151,10 @@ class Settings:
     This is useful for debugging, but should be disabled for production.
     """
 
-    DO_NOT_DISCARD_SOLUTIONS: ClassVar[bool] = False
-    """Should the solutions be discarded after they have been dominated?
+    DUMP_DISCARDED_SOLUTIONS: ClassVar[bool] = False
+    """Should the solutions be dumped (to file system via pickle) after they have been dominated?
 
-    This should only be activated for evaluation, as it will draw a lot of memory!
+    This should only be activated for evaluation, as it will cause IO & processing overhead.
     """
 
     COST_TYPE: ClassVar[CostType] = CostType.FIXED_COST
@@ -158,3 +162,24 @@ class Settings:
 
     Because this won't differ during the optimization, it's a class variable.
     """
+
+    @staticmethod
+    def get_pareto_x_label() -> str:
+        """Get the label for the x-axis of the pareto front."""
+        if Settings.COST_TYPE == CostType.WAITING_TIME_AND_PROCESSING_TIME:
+            return "Waiting Time"
+        elif Settings.COST_TYPE == CostType.FIXED_COST:
+            return "Fixed Cost"
+        elif Settings.COST_TYPE == CostType.RESOURCE_COST:
+            return "Resource Cost"
+        elif Settings.COST_TYPE == CostType.TOTAL_COST:
+            return "Total Cost"
+        else:
+            raise ValueError(f"Unknown cost type: {Settings.COST_TYPE}")
+
+    @staticmethod
+    def get_pareto_y_label() -> str:
+        """Get the label for the y-axis of the pareto front."""
+        if Settings.COST_TYPE == CostType.WAITING_TIME_AND_PROCESSING_TIME:
+            return "Processing Time"
+        return "Total Duration"

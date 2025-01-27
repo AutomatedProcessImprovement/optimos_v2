@@ -24,10 +24,7 @@ if TYPE_CHECKING:
 
 class SimulationRunner:
     @staticmethod
-    def run_simulation(
-        state: "State",
-        show_simulation_errors: bool = Settings.SHOW_SIMULATION_ERRORS,
-    ) -> RunSimulationResult:
+    def run_simulation(state: "State") -> RunSimulationResult:
         """Run simulation and return the results."""
         try:
             setup = state.to_sim_diff_setup()
@@ -47,6 +44,6 @@ class SimulationRunner:
             return global_kpis, task_kpis, resource_kpis, log_info
         except Exception as e:
             print(f"Error in simulation: {e}")
-            if show_simulation_errors:
+            if Settings.SHOW_SIMULATION_ERRORS:
                 print(traceback.format_exc())
             raise e

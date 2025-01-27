@@ -243,7 +243,7 @@ class Evaluation:
         }
 
     @property
-    def pareto_cost(self) -> float:
+    def pareto_x(self) -> float:
         """Get the cost used for positioning the evaluation in the pareto front.
 
         NOTE: This is depended on the global, static setting found in `Settings.COST_TYPE`
@@ -254,14 +254,17 @@ class Evaluation:
             return self.total_cost_for_available_time
         elif Settings.COST_TYPE == CostType.TOTAL_COST:
             return self.total_cost_for_worked_time
+        elif Settings.COST_TYPE == CostType.WAITING_TIME_AND_PROCESSING_TIME:
+            return self.global_kpis.processing_time.total
         raise ValueError(f"Unknown cost type: {Settings.COST_TYPE}")
 
     @property
-    def pareto_duration(self) -> float:
-        """Get the duration used for positioning the evaluation in the pareto front.
-
-        NOTE: This is currently NOT depended on your settings
-        """
+    def pareto_y(self) -> float:
+        """Get the duration used for positioning the evaluation in the pareto front."""
+        if Settings.COST_TYPE == CostType.WAITING_TIME_AND_PROCESSING_TIME:
+            return (
+                self.global_kpis.waiting_time.total + self.global_kpis.idle_time.total
+            )
         return self.total_duration
 
     def get_avg_waiting_time_of_task_id(self, task_id: str) -> float:
@@ -420,27 +423,24 @@ class Evaluation:
 
     def to_tuple(self) -> tuple[float, float]:
         """Convert self to a tuple of cost for available time and total cycle time."""
-        return (self.pareto_cost, self.pareto_duration)
+        return (self.pareto_x, self.pareto_y)
 
     def distance_to(self, other: "Evaluation") -> float:
         """Calculate the euclidean distance between two evaluations."""
         return math.sqrt(
-            (self.pareto_cost - other.pareto_cost) ** 2
-            + (self.pareto_duration - other.pareto_duration) ** 2
+            (self.pareto_x - other.pareto_x) ** 2
+            + (self.pareto_y - other.pareto_y) ** 2
         )
 
     # Is this evaluation dominated by another evaluation?
     # (Taking only the total cost & total cycle time into account)
     def is_dominated_by(self, other: "Evaluation") -> bool:
         """Check if this evaluation is dominated by another evaluation."""
-        return (
-            other.pareto_cost < self.pareto_cost
-            and other.pareto_duration < self.pareto_duration
-        )
+        return other.pareto_x < self.pareto_x and other.pareto_y < self.pareto_y
 
     def __str__(self) -> str:
         """Return a string representation of the evaluation."""
-        return f"Duration: {self.pareto_duration}, Cost: {self.pareto_cost}, Waiting Time: {self.total_waiting_time}"  # noqa: E501
+        return f"{Settings.get_pareto_x_label()}: {self.pareto_x:.1f}, {Settings.get_pareto_y_label()}: {self.pareto_y:.1f}"  # noqa: E501
 
     @staticmethod
     def get_task_enablement_weekdays(
