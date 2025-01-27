@@ -717,6 +717,23 @@ class BatchingRule(JSONWizard):
 
         return replace(self, firing_rules=or_rules)
 
+    def is_valid(self) -> bool:
+        """Check if the timetable is valid.
+
+        Currently this will only check if week day rules come after time of day rules
+        """
+        for and_rules in self.firing_rules:
+            if len(and_rules) == 0:
+                # Empty AND rules are not allowed
+                return False
+            has_week_day_rule = False
+            for rule in and_rules:
+                if rule_is_week_day(rule):
+                    has_week_day_rule = True
+                if rule_is_daily_hour(rule) and has_week_day_rule:
+                    return False
+        return True
+
 
 @dataclass(frozen=True)
 class TimetableType(JSONWizard, CustomLoader, CustomDumper):
@@ -1310,4 +1327,6 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
         The timetable is valid if all calendars are valid.
         TODO: Add more checks.
         """
-        return all(calendar.is_valid() for calendar in self.resource_calendars)
+        return all(calendar.is_valid() for calendar in self.resource_calendars) and all(
+            rule.is_valid() for rule in self.batch_processing
+        )
