@@ -1,13 +1,32 @@
+import json
+import os
+import pickle
+import xml.etree.ElementTree as ET
+from datetime import datetime
+from io import BufferedWriter
+
 import numpy as np
 
 from o2.hill_climber import HillClimber
+from o2.models.constraints import ConstraintsType, SizeRuleConstraints
 from o2.models.settings import AgentType, CostType, Settings
 from o2.models.solution import Solution
+from o2.models.state import State
+from o2.models.timetable import BATCH_TYPE, RULE_TYPE, TimetableType
 from o2.store import Store
-from o2_evaluation.scenarios.demo.demo_model import demo_store
+from o2.util.solution_dumper import SolutionDumper
+from o2.util.tensorboard_helper import TensorBoardHelper
 
-MAX_ITERATIONS = 100
-MAX_NON_IMPROVING_ACTIONS = 50
+MAX_ITERATIONS = 1000
+# NOTE: This is actions(!) not iterations, therefore we need to set this to a higher value
+# A good rule of thumb is to set it to core_count times the number of non improving iterations
+MAX_NON_IMPROVING_ACTIONS = (os.cpu_count() or 1) * 100
+DUMP_INTERVAL = 100
+SCENARIO = "Purchasing"
+
+FIXED_COST_FN = "1 * 1/size"
+COST_FN = "1"
+DURATION_FN = "1/size"
 
 
 def calculate_hyperarea(solutions: list[Solution], center_point):
@@ -71,7 +90,7 @@ def calculate_metrics(stores: list[tuple[str, Store]]):
             solution
             for solution in store.solution_tree.solution_lookup.values()
             if solution is not None
-        ] + (store.solution_tree.evaluation_discarded_solutions or [])
+        ] + SolutionDumper.instance.load_solutions()
         all_solutions.extend(solutions)
 
     # Find pareto front for all solutions
@@ -121,8 +140,12 @@ def calculate_metrics(stores: list[tuple[str, Store]]):
         print(f"\t> Solutions left: {store.solution_tree.solutions_left}")
         print("\t> Pareto front:")
         print(f"\t\t>> size: {store.current_pareto_front.size}")
-        print(f"\t\t>> Avg cost: {store.current_pareto_front.avg_total_cost}")
-        print(f"\t\t>> Avg time: {store.current_pareto_front.avg_total_duration}")
+        print(
+            f"\t\t>> Avg {Settings.get_pareto_x_label()}: {store.current_pareto_front.avg_x}"
+        )
+        print(
+            f"\t\t>> Avg {Settings.get_pareto_y_label()}: {store.current_pareto_front.avg_y}"
+        )
         print(f"\t> Hyperarea: {pareto_hyperarea}")
         print(f"\t> Hyperarea Ratio: {ratio}")
         print(f"\t> Averaged Hausdorff Distance: {hausdorff_distance}")
@@ -132,6 +155,7 @@ def calculate_metrics(stores: list[tuple[str, Store]]):
 
 def update_store_settings(store: Store, agent: AgentType):
     """Update the store settings for the given agent."""
+
     store.settings.optimos_legacy_mode = False
     store.settings.batching_only = True
     store.settings.max_iterations = MAX_ITERATIONS
@@ -140,55 +164,165 @@ def update_store_settings(store: Store, agent: AgentType):
     store.settings.agent = agent
 
 
-def collect_data_sequentially():
+def persist_store(store: Store):
+    """Persist the store to a file."""
+    SolutionDumper.instance.dump_store(store)
+
+
+def solve_store(store: Store):
+    hill_climber = HillClimber(store)
+    generator = hill_climber.get_iteration_generator(yield_on_non_acceptance=True)
+    iteration = 1
+    for _ in generator:
+        if store.settings.log_to_tensor_board:
+            # Just iterate through the generator to run it
+            TensorBoardHelper.instance.tensor_board_iteration_callback(store.solution)
+        if iteration % DUMP_INTERVAL == 0:
+            persist_store(store)
+        iteration += 1
+
+    persist_store(store)
+    if not store.settings.disable_parallel_evaluation:
+        hill_climber.executor.shutdown()
+
+
+def collect_data_sequentially(base_store):
     """Collect all possible solutions, and the respective pareto fronts.
 
     It does this sequentially for the 3 simulation methods one after the other.
     """
-    # Make sure we use FIXED cost type
-    Settings.COST_TYPE = CostType.FIXED_COST
-    Settings.DO_NOT_DISCARD_SOLUTIONS = True
+
+    # Constant (class variable) settings
+    Settings.SHOW_SIMULATION_ERRORS = True
+    Settings.RAISE_SIMULATION_ERRORS = True
+    Settings.COST_TYPE = CostType.WAITING_TIME_AND_PROCESSING_TIME
+    Settings.DUMP_DISCARDED_SOLUTIONS = True
+    Settings.SHOW_SIMULATION_ERRORS = True
+
+    # Initialize solution dumper
+    SolutionDumper()
 
     # We start with TABU search
 
     # Clone store just to avoid changing the original store
     tabu_store = Store.from_state_and_constraints(
-        demo_store.base_state, demo_store.constraints
+        base_store.base_state, base_store.constraints, "Tabu Search"
     )
     update_store_settings(tabu_store, AgentType.TABU_SEARCH)
 
-    tabu_climber = HillClimber(tabu_store)
-    tabu_climber.solve()
+    solve_store(tabu_store)
 
-    # Next, we use Simulated Annealing
+    # # Next, we use Simulated Annealing
     sa_store = Store.from_state_and_constraints(
-        demo_store.base_state, demo_store.constraints
+        base_store.base_state, base_store.constraints, "Simulated Annealing"
     )
     update_store_settings(sa_store, AgentType.SIMULATED_ANNEALING)
     sa_store.settings.sa_initial_temperature = 5_000_000_000
-    sa_store.settings.sa_cooling_factor = 0.90
+    sa_store.settings.sa_cooling_factor = 0.99
 
-    sa_climber = HillClimber(sa_store)
-    sa_climber.solve()
+    solve_store(sa_store)
 
     # Finally we use PPO
-    # ppo_store = Store.from_state_and_constraints(
-    #     demo_store.base_state, demo_store.constraints
-    # )
-    # update_store_settings(ppo_store, AgentType.PROXIMAL_POLICY_OPTIMIZATION)
+    ppo_store = Store.from_state_and_constraints(
+        base_store.base_state, base_store.constraints, "Proximal Policy Optimization"
+    )
+    update_store_settings(ppo_store, AgentType.PROXIMAL_POLICY_OPTIMIZATION)
+    ppo_store.settings.disable_parallel_evaluation = True
+    ppo_store.settings.max_threads = 1
 
-    # ppo_climber = HillClimber(ppo_store)
-    # ppo_climber.solve()
+    solve_store(ppo_store)
 
     # Calculate metrics
     calculate_metrics(
         [
             ("Tabu Search", tabu_store),
             ("Simulated Annealing", sa_store),
-            # ("Proximal Policy Optimization", ppo_store),
+            ("Proximal Policy Optimization", ppo_store),
         ]
     )
 
+    SolutionDumper.instance.close()
+
+
+def store_from_files(
+    timetable_path: str, constraints_path: str, bpmn_path: str
+) -> Store:
+    """Create a store from the given files."""
+    with open(timetable_path) as f:
+        timetable = TimetableType.from_dict(json.load(f))
+
+    with open(constraints_path) as f:
+        constraints = ConstraintsType.from_dict(json.load(f))
+
+    with open(bpmn_path) as f:
+        bpmn_definition = f.read()
+
+    initial_state = State(
+        bpmn_definition=bpmn_definition,
+        timetable=timetable,
+    )
+    return Store.from_state_and_constraints(
+        initial_state,
+        constraints,
+    )
+
+
+def store_with_baseline_constraints(timetable_path: str, bpmn_path: str) -> Store:
+    """Create a store from the given files and constraints."""
+    constraints = base_line_constraints(bpmn_path)
+    with open(timetable_path) as f:
+        timetable = TimetableType.from_dict(json.load(f))
+
+    with open(bpmn_path) as f:
+        bpmn_definition = f.read()
+
+    initial_state = State(
+        bpmn_definition=bpmn_definition,
+        timetable=timetable,
+    )
+    return Store.from_state_and_constraints(
+        initial_state,
+        constraints,
+    )
+
+
+def base_line_constraints(bpmn_path: str) -> ConstraintsType:
+    bpmn_root = ET.parse(bpmn_path)
+    # Get all the Elements of kind bpmn:task in bpmn:process
+    tasks = bpmn_root.findall(".//{http://www.omg.org/spec/BPMN/20100524/MODEL}task")
+    task_ids = [task.attrib["id"] for task in tasks]
+    constraints = ConstraintsType(
+        batching_constraints=[
+            SizeRuleConstraints(
+                id=f"size_rule_{task_id}",
+                tasks=[task_id],
+                batch_type=BATCH_TYPE.PARALLEL,
+                rule_type=RULE_TYPE.SIZE,
+                duration_fn=DURATION_FN,
+                cost_fn=COST_FN,
+                min_size=1,
+                max_size=10,
+            )
+            for task_id in task_ids
+        ],
+    )
+    # TODO: Add more constraints
+    return constraints
+
 
 if __name__ == "__main__":
-    collect_data_sequentially()
+    if SCENARIO == "Demo":
+        from o2_evaluation.scenarios.demo.demo_model import demo_store
+
+        store = demo_store
+    elif SCENARIO == "Purchasing":
+        timetable_path = (
+            "o2_evaluation/scenarios/purchasing_example/purchasing_example.json"
+        )
+        bpmn_path = "o2_evaluation/scenarios/purchasing_example/purchasing_example.bpmn"
+
+        store = store_with_baseline_constraints(timetable_path, bpmn_path)
+    else:
+        raise ValueError(f"Unknown scenario: {SCENARIO}")
+
+    collect_data_sequentially(store)
