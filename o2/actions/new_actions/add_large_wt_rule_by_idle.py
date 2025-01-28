@@ -92,7 +92,7 @@ class AddLargeWTRuleByIdleAction(AddReadyLargeWTRuleBaseAction):
                         )
 
                         yield (
-                            AddDateTimeRuleBaseAction.get_default_rating(),
+                            AddLargeWTRuleByIdleAction.get_default_rating(),
                             AddLargeWTRuleByIdleAction(
                                 AddLargeWTRuleByIdleActionParamsType(
                                     task_id=activity,

@@ -179,7 +179,7 @@ class Agent(ABC):
                     continue
                 if not action.check_if_valid(store):
                     continue
-                if store.settings.only_allow_low_last and rating == RATING.LOW:
+                if store.settings.only_allow_low_last and rating <= RATING.LOW:
                     low_actions.append((rating, action))
                 else:
                     actions.append((rating, action))

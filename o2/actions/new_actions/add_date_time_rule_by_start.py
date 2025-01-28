@@ -1,34 +1,17 @@
 from collections import Counter
-from dataclasses import replace
-from datetime import datetime
-
-from prosimos.execution_info import TaskEvent
 
 from o2.actions.base_actions.add_datetime_rule_base_action import (
     AddDateTimeRuleBaseAction,
     AddDateTimeRuleBaseActionParamsType,
 )
 from o2.actions.base_actions.base_action import (
-    BaseAction,
-    BaseActionParamsType,
     RateSelfReturnType,
 )
-from o2.models.constraints import RULE_TYPE
-from o2.models.days import DAY
-from o2.models.legacy_constraints import WorkMasks
 from o2.models.self_rating import RATING, SelfRatingInput
-from o2.models.state import State
 from o2.models.time_period import TimePeriod
-from o2.models.timetable import (
-    COMPARATOR,
-    FiringRule,
-    rule_is_daily_hour,
-    rule_is_week_day,
-)
 from o2.store import Store
 
-SIZE_OF_CHANGE = 1
-CLOSENESS_TO_MAX_WT = 0.01
+LIMIT_OF_OPTIONS = 3
 
 
 class AddDateTimeRuleByStartActionParamsType(AddDateTimeRuleBaseActionParamsType):
@@ -78,7 +61,9 @@ class AddDateTimeRuleByStartAction(AddDateTimeRuleBaseAction):
             }
 
             # find most frequent day,hour combination
-            most_frequent_day_hour = Counter(aggregated_start_times).most_common(3)
+            most_frequent_day_hour = Counter(aggregated_start_times).most_common(
+                LIMIT_OF_OPTIONS
+            )
             if not most_frequent_day_hour:
                 continue
 
@@ -86,7 +71,7 @@ class AddDateTimeRuleByStartAction(AddDateTimeRuleBaseAction):
             # TODO: See if top 3 makes sense
             for (day, hour), _ in most_frequent_day_hour:
                 yield (
-                    AddDateTimeRuleBaseAction.get_default_rating(),
+                    RATING.HIGH,
                     AddDateTimeRuleByStartAction(
                         AddDateTimeRuleByStartActionParamsType(
                             task_id=task_id,

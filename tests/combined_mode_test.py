@@ -70,4 +70,4 @@ def test_multiple_actions_of_same_type(one_task_store: Store):
     assert len(chosen) == 1
     assert len(not_chosen) > 1
     assert ModifyResourceBaseAction.get_default_rating(store) == RATING.HIGH
-    assert ModifyCalendarBaseAction.get_default_rating(store) == RATING.LOW
+    assert ModifyCalendarBaseAction.get_default_rating(store) <= RATING.LOW

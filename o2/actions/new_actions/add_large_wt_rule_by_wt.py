@@ -11,7 +11,7 @@ from o2.actions.base_actions.add_ready_large_wt_rule_base_action import (
 from o2.actions.base_actions.base_action import (
     RateSelfReturnType,
 )
-from o2.models.self_rating import SelfRatingInput
+from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.timetable import RULE_TYPE
 from o2.store import Store
 
@@ -47,10 +47,12 @@ class AddLargeWTRuleByWTAction(AddReadyLargeWTRuleBaseAction):
             waiting_time = store.current_evaluation.avg_batching_waiting_time_per_task[
                 task_id
             ]
+            if waiting_time == 0:
+                continue
             # Cap the waiting time to 24 hours
             new_large_wt = min(ceil(waiting_time * 0.9), 24 * 60 * 60)
             yield (
-                AddDateTimeRuleBaseAction.get_default_rating(),
+                RATING.VERY_LOW,
                 AddLargeWTRuleByWTAction(
                     AddLargeWTRuleByWTActionParamsType(
                         task_id=task_id,

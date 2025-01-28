@@ -8,10 +8,6 @@ from o2.actions.base_actions.base_action import (
     BaseActionParamsType,
     RateSelfReturnType,
 )
-from o2.actions.batching_rule_action import (
-    BatchingRuleAction,
-    BatchingRuleActionParamsType,
-)
 from o2.models.constraints import RULE_TYPE
 from o2.models.rule_selector import RuleSelector
 from o2.models.self_rating import RATING, SelfRatingInput
@@ -24,9 +20,6 @@ from o2.models.timetable import (
     FiringRule,
 )
 from o2.store import Store
-
-MARGIN_OF_ERROR = 0.03
-SIZE_OF_CHANGE = 1
 
 
 class AddSizeRuleBaseActionParamsType(BaseActionParamsType):

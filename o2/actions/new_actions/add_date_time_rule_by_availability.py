@@ -7,7 +7,7 @@ from o2.actions.base_actions.add_datetime_rule_base_action import (
 from o2.actions.base_actions.base_action import (
     RateSelfReturnType,
 )
-from o2.models.self_rating import SelfRatingInput
+from o2.models.self_rating import RATING, SelfRatingInput
 from o2.store import Store
 
 
@@ -57,10 +57,11 @@ class AddDateTimeRuleByAvailabilityAction(AddDateTimeRuleBaseAction):
             if best_time_period is None:
                 continue
             yield (
-                AddDateTimeRuleBaseAction.get_default_rating(),
+                RATING.HIGH,
                 AddDateTimeRuleByAvailabilityAction(
                     AddDateTimeRuleByAvailabilityActionParamsType(
                         task_id=task_id, time_period=best_time_period
                     )
                 ),
             )
+        return

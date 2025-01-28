@@ -158,5 +158,5 @@ def test_self_rating_non_optimal_rule(one_task_store: Store):
     rating_input = SelfRatingInput.from_rule_solutions(store, evaluations)
     assert rating_input is not None
     result = first_valid(store, RemoveRuleAction.rate_self(store, rating_input))
-    assert result[0] == RATING.LOW
+    assert result[0] <= RATING.LOW
     assert result[1] is not None
