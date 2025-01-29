@@ -22,7 +22,9 @@ from o2.models.timetable import (
 )
 from o2.store import Store
 
-FIXED_COST = 10
+FIXED_COST_FN = "1 * 1/size"
+COST_FN = "1"
+DURATION_FN = "1/size"
 
 CLERKS = ["Clerk_1", "Clerk_2", "Clerk_3", "Clerk_4"]
 
@@ -44,7 +46,7 @@ def create_timetable():
             ResourcePool(
                 id=task_id,
                 name=f"{task_id} Resource Pool",
-                fixed_cost_fn=f"{FIXED_COST} * 1/size",
+                fixed_cost_fn=FIXED_COST_FN,
                 resource_list=[
                     Resource(
                         id=resource_id,
@@ -63,7 +65,7 @@ def create_timetable():
             ResourcePool(
                 id="Credit_Officer_1",
                 name="Credit_Officer_1 Resource Pool",
-                fixed_cost_fn=f"{FIXED_COST} * 1/size",
+                fixed_cost_fn=FIXED_COST_FN,
                 resource_list=[
                     Resource(
                         id="Credit_Officer_1",
@@ -177,15 +179,16 @@ def create_constraints():
     return ConstraintsType(
         batching_constraints=[
             SizeRuleConstraints(
-                id="size_rule",
-                tasks=[task_id for task_id in OFFICER_TASKS],
+                id=f"size_rule_{task_id}",
+                tasks=[task_id],
                 batch_type=BATCH_TYPE.PARALLEL,
                 rule_type=RULE_TYPE.SIZE,
-                duration_fn=f"0.2*(size - {5})**2 + {0.75}",
-                cost_fn="10*1/size",
+                duration_fn=DURATION_FN,
+                cost_fn=COST_FN,
                 min_size=1,
-                max_size=6,
+                max_size=10,
             )
+            for task_id in (CLERK_TASKS + OFFICER_TASKS)
         ],
     )
 
