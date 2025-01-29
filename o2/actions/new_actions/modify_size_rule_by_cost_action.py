@@ -1,3 +1,4 @@
+from o2.actions.base_actions.add_size_rule_base_action import AddSizeRuleAction
 from o2.actions.base_actions.base_action import (
     BaseAction,
     BaseActionParamsType,
@@ -7,7 +8,7 @@ from o2.actions.base_actions.modify_size_rule_base_action import (
     ModifySizeRuleBaseAction,
     ModifySizeRuleBaseActionParamsType,
 )
-from o2.models.self_rating import SelfRatingInput
+from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.timetable import RULE_TYPE
 from o2.store import Store
 
@@ -59,3 +60,14 @@ class ModifySizeRuleByCostAction(ModifySizeRuleBaseAction):
                             )
                         ),
                     )
+                # If nothing else helps, try to add a size rule
+        for task_id, _ in sorted_tasks:
+            yield (
+                RATING.LOW,
+                AddSizeRuleAction(
+                    ModifySizeRuleBaseActionParamsType(
+                        task_id=task_id,
+                        size=1,
+                    )  # type: ignore
+                ),
+            )

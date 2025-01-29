@@ -1,3 +1,4 @@
+from o2.actions.base_actions.add_size_rule_base_action import AddSizeRuleAction
 from o2.actions.base_actions.base_action import (
     BaseAction,
     BaseActionParamsType,
@@ -7,7 +8,7 @@ from o2.actions.base_actions.modify_size_rule_base_action import (
     ModifySizeRuleBaseAction,
     ModifySizeRuleBaseActionParamsType,
 )
-from o2.models.self_rating import SelfRatingInput
+from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.timetable import RULE_TYPE
 from o2.store import Store
 
@@ -62,6 +63,17 @@ class ModifySizeRuleByLowAllocationAction(ModifySizeRuleBaseAction):
                             )
                         ),
                     )
+        # If nothing else helps, try to add a size rule
+        for task_id, _ in tasks_by_allocation:
+            yield (
+                RATING.LOW,
+                AddSizeRuleAction(
+                    ModifySizeRuleBaseActionParamsType(
+                        task_id=task_id,
+                        size=1,
+                    )  # type: ignore
+                ),
+            )
 
 
 class ModifySizeRuleByHighAllocationAction(ModifySizeRuleBaseAction):
@@ -98,7 +110,7 @@ class ModifySizeRuleByHighAllocationAction(ModifySizeRuleBaseAction):
                     duration_fn = "1" if not constraints else constraints[0].duration_fn
                     yield (
                         ModifySizeRuleBaseAction.get_default_rating(),
-                        ModifySizeRuleByLowAllocationAction(
+                        ModifySizeRuleByHighAllocationAction(
                             ModifySizeRuleByAllocationActionParamsType(
                                 rule=selector,
                                 size_increment=-1,
@@ -106,3 +118,14 @@ class ModifySizeRuleByHighAllocationAction(ModifySizeRuleBaseAction):
                             )
                         ),
                     )
+        # If nothing else helps, try to add a size rule
+        for task_id, _ in tasks_by_allocation:
+            yield (
+                RATING.LOW,
+                AddSizeRuleAction(
+                    ModifySizeRuleBaseActionParamsType(
+                        task_id=task_id,
+                        size=1,
+                    )  # type: ignore
+                ),
+            )
