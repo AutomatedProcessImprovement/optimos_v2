@@ -1,3 +1,5 @@
+import os
+import shutil
 import time
 from datetime import datetime
 
@@ -10,8 +12,8 @@ from o2.models.solution import Solution
 from o2.store import Store
 from o2.util.indented_printer import print_l3
 
-log_dir = "./logs/optimos_v2_tensorboard"
-
+TENSORBOARD_LOG_DIR = "./logs/optimos_v2_tensorboard"
+TENSORBOARD_LOG_DIR_ARCHIVE = f"{TENSORBOARD_LOG_DIR}_archive"
 
 # Metrics:
 # - Current best solution cost + time
@@ -29,7 +31,7 @@ class TensorBoardHelper:
         self.store: "Store" = self.agent.store
         self.name = f"{self.store.settings.agent.name}_{datetime.now().isoformat()}"
         self.writer = tf.summary.create_file_writer(
-            f"{log_dir}/{self.name}",
+            f"{TENSORBOARD_LOG_DIR}/{self.name}",
             name=self.name,
         )
         self.step = 0
@@ -108,3 +110,16 @@ class TensorBoardHelper:
             )
 
         # print_l3(f"Logged to TensorBoard in {time.time() - start_time:.2f}s")
+
+    @staticmethod
+    def move_logs_to_archive_dir() -> None:
+        """Move the logs to the archive directory."""
+        # Ensure archive dir exists
+        os.makedirs(TENSORBOARD_LOG_DIR_ARCHIVE, exist_ok=True)
+        if os.path.exists(TENSORBOARD_LOG_DIR):
+            # Move all files (incl. folders)
+            for file in os.listdir(TENSORBOARD_LOG_DIR):
+                shutil.move(
+                    os.path.join(TENSORBOARD_LOG_DIR, file),
+                    os.path.join(TENSORBOARD_LOG_DIR_ARCHIVE, file),
+                )

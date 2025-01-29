@@ -12,9 +12,10 @@ if TYPE_CHECKING:
 
 class RATING(float, Enum):
     NOT_APPLICABLE = 0
-    LOW = 1
-    MEDIUM = 2
-    HIGH = 3
+    VERY_LOW = 1
+    LOW = 2
+    MEDIUM = 3
+    HIGH = 4
     EXTREME = 99
 
 

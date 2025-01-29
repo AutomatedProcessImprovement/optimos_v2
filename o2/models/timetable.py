@@ -1305,8 +1305,8 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
             if resource_profile not in original_resource_profiles
         ] + new_resource_profiles
 
-    def print_batching_rules(self):
-        """Print the batching rules."""
+    def batching_rules_debug_str(self) -> str:
+        """Get the batching rules as a string."""
         lines = []
         for batching_rule in self.batch_processing:
             lines.append(f"\tTask: {batching_rule.task_id}")
@@ -1319,7 +1319,11 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
                     )
                 or_lines.append("\t\tAND\n".join(and_lines))
             lines.append("\tOR\n".join(or_lines))
-        print("\n".join(lines))
+        return "\n".join(lines)
+
+    def print_batching_rules(self) -> None:
+        """Print the batching rules."""
+        print(self.batching_rules_debug_str())
 
     def is_valid(self) -> bool:
         """Check if the timetable is valid.

@@ -203,6 +203,10 @@ def collect_data_sequentially(base_store):
     # Initialize solution dumper
     SolutionDumper()
 
+    # Move TensorBoard logs to a new folder
+    if base_store.settings.log_to_tensor_board:
+        TensorBoardHelper.move_logs_to_archive_dir()
+
     # We start with TABU search
 
     # Clone store just to avoid changing the original store
