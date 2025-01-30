@@ -61,7 +61,7 @@ class AddSizeRuleBaseAction(BaseAction, ABC, str=False):
                 duration_distrib=[
                     Distribution(key="1", value=0.0),
                     # TODO: Get duration from duration fn
-                    Distribution(key=str(new_size), value=1.0),
+                    Distribution(key=str(new_size), value=1 / new_size),
                 ],
                 firing_rules=[
                     [
@@ -93,7 +93,7 @@ class AddSizeRuleBaseAction(BaseAction, ABC, str=False):
                 ],
                 duration_distrib=[
                     # TODO: Get duration from duration fn
-                    Distribution(key=str(new_size), value=1.0),
+                    Distribution(key=str(new_size), value=1 / new_size),
                 ]
                 + [
                     duration_distrib
