@@ -12,6 +12,7 @@ from o2.agents.agent import (
     ACTION_CATALOG_BATCHING_ONLY,
     ACTION_CATALOG_LEGACY,
     Agent,
+    NoNewBaseSolutionFoundError,
 )
 from o2.models.rule_selector import RuleSelector
 from o2.models.self_rating import RATING, SelfRatingInput
@@ -119,7 +120,7 @@ class TabuAgent(Agent):
         )
 
         if new_solution is None:
-            raise Exception("No new base solutions left in the solution tree.")
+            raise NoNewBaseSolutionFoundError()
 
         return new_solution
 

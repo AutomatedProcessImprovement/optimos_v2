@@ -48,13 +48,15 @@ class SolutionDumper:
         if store.name != self.current_store_name:
             if self.store_file is not None:
                 self.store_file.close()
+            if self.store_stats_file is not None:
+                self.store_stats_file.close()
             sanitized_name = store.name.replace(" ", "_").lower()
             self.store_filename = f"{self.folder}/store_{sanitized_name}.pkl"
             self.store_stats_filename = (
                 f"{self.folder}/store_{sanitized_name}_stats.txt"
             )
             self.store_file = open(self.store_filename, "wb")  # noqa: SIM115
-            self.store_stats_file = open(self.store_stats_filename, "w+")  # noqa: SIM115
+            self.store_stats_file = open(self.store_stats_filename, "w")  # noqa: SIM115
             self.current_store_name = store.name
         assert self.store_file is not None
         assert self.store_stats_file is not None
@@ -63,21 +65,22 @@ class SolutionDumper:
         pickle.dump(store, self.store_file)
         self.store_file.flush()
 
+        self.store_stats_file.seek(0)
         self.store_stats_file.writelines(
             [
                 "Current Batching Rules:\n",
                 store.current_timetable.batching_rules_debug_str(),
-                "",
-                "",
+                "\n",
+                "\n",
                 "All Actions:\n",
                 "\n".join(
                     [
-                        f"{i}: {action}"
+                        f"{i}:\t{repr(action)}"
                         for i, action in enumerate(reversed(store.solution.actions))
                     ]
                 ),
-                "",
-                "",
+                "\n",
+                "\n",
                 "Current Timetable:\n",
                 store.current_timetable.to_json(),
             ]

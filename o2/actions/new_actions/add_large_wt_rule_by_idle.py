@@ -90,6 +90,8 @@ class AddLargeWTRuleByIdleAction(AddReadyLargeWTRuleBaseAction):
                         required_large_wt = (
                             period.begin_time_hour - batch["accumulation_begin"].hour
                         )
+                        if required_large_wt <= 0:
+                            continue
 
                         yield (
                             AddLargeWTRuleByIdleAction.get_default_rating(),
