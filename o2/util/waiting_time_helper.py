@@ -59,62 +59,20 @@ def get_batches_from_event_log(
 
     Additionally the activity, resource and start / end time are kept for each batch.
     """
-    max_sequential_gap = 0
-
     batches: list[list[TaskEvent]] = []
-
-    # Group events by resource and activity
-    events_per_resource_and_activity: dict[
-        tuple[str, str], list[TaskEvent]
-    ] = defaultdict(list)
 
     events: list[TaskEvent] = [
         event for trace in log.trace_list for event in trace.event_list
     ]
 
+    # Group events by batch_id
+    batches_dict: dict[str, list[TaskEvent]] = defaultdict(list)
     for event in events:
-        if event.resource_id is not None:
-            events_per_resource_and_activity[(event.resource_id, event.task_id)].append(
-                event
-            )
+        if event.resource_id is not None and event.batch_id is not None:
+            batches_dict[event.batch_id].append(event)
 
-    # Build batches for each resource and activity
-    for events in events_per_resource_and_activity.values():
-        # Create a new empty batch (new activity implies new batch)
-        current_batch: list[TaskEvent] = []
-        current_start: float = float("inf")
-        current_end: float = float("-inf")
-
-        for event in sorted(events, key=lambda _evt: _evt.started_at or 0):
-            if (
-                event.enabled_at is None
-                or event.started_at is None
-                or event.completed_at is None
-            ):
-                continue
-            # add event to current batch if in first iteration
-            if len(current_batch) == 0:
-                current_batch.append(event)
-                current_start = event.started_at
-                current_end = event.completed_at
-            # add event to current batch if enabled between the first event enablement and the batch started executing
-            elif (
-                batching_rules_exist
-                and event.enabled_at <= current_start
-                and (event.started_at - current_end) <= max_sequential_gap
-            ):
-                current_batch.append(event)
-                current_end = max(event.completed_at, current_end)
-            # If the event is not part of the current batch, save the current batch and create a new one with the
-            # current event
-            else:
-                batches.append(current_batch)
-                current_batch = [event]
-                current_start = event.started_at
-                current_end = event.completed_at
-
-        # Save the batch for the last iteration
-        batches.append(current_batch)
+    # Convert to list of batches
+    batches = list(batches_dict.values())
 
     result: dict[BatchInfoKey, BatchInfo] = {}
 
