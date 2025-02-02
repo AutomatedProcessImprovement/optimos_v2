@@ -755,7 +755,10 @@ class BatchingRule(JSONWizard):
         return replace(self, firing_rules=or_rules)
 
     def replace_firing_rule(
-        self, rule_selector: "RuleSelector", new_rule: FiringRule
+        self,
+        rule_selector: "RuleSelector",
+        new_rule: FiringRule,
+        skip_merge: bool = False,
     ) -> "BatchingRule":
         """Replace a firing rule. Returns a new BatchingRule."""
         assert rule_selector.firing_rule_index is not None
@@ -776,7 +779,8 @@ class BatchingRule(JSONWizard):
         updated_batching_rule = replace(self, firing_rules=or_rules)
 
         if (
-            new_rule.attribute == RULE_TYPE.WEEK_DAY
+            not skip_merge
+            and new_rule.attribute == RULE_TYPE.WEEK_DAY
             or new_rule.attribute == RULE_TYPE.DAILY_HOUR
         ):
             return updated_batching_rule._generate_merged_datetime_firing_rules()

@@ -3,6 +3,7 @@ from dataclasses import replace
 import pandas as pd
 
 from o2.models.evaluation import Evaluation
+from o2.models.settings import CostType, Settings
 from o2.models.solution import Solution
 from o2.models.state import State
 from o2.pareto_front import FRONT_STATUS, ParetoFront
@@ -69,6 +70,8 @@ def test_is_in_front(simple_state: State):
 
 
 def test_one_dimension_equal(simple_state: State):
+    Settings.EQUAL_DOMINATION_ALLOWED = True
+
     front = ParetoFront()
 
     # Create some evaluations for testing
@@ -83,3 +86,23 @@ def test_one_dimension_equal(simple_state: State):
     assert front.is_in_front(solution1) == FRONT_STATUS.IN_FRONT
     assert front.is_in_front(solution2) == FRONT_STATUS.IN_FRONT
     assert front.is_in_front(solution3) == FRONT_STATUS.IN_FRONT
+    Settings.EQUAL_DOMINATION_ALLOWED = False
+
+
+def test_equal_domination_forbidden(simple_state: State):
+    Settings.EQUAL_DOMINATION_ALLOWED = False
+    Settings.COST_TYPE = CostType.TOTAL_COST
+    front = ParetoFront()
+
+    # Create some evaluations for testing
+    base_solution = create_mock_solution(simple_state, 5, 5)
+
+    solution1 = create_mock_solution(simple_state, 5, 5)
+    solution2 = create_mock_solution(simple_state, 5, 6)
+    solution3 = create_mock_solution(simple_state, 6, 5)
+
+    front.add(base_solution)
+
+    assert front.is_in_front(solution1) == FRONT_STATUS.DOMINATES
+    assert front.is_in_front(solution2) == FRONT_STATUS.DOMINATES
+    assert front.is_in_front(solution3) == FRONT_STATUS.DOMINATES
