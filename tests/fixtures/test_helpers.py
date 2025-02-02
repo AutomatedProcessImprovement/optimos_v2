@@ -66,8 +66,11 @@ def create_mock_solution(
     kpis.waiting_time = KPIInfo()
     kpis.waiting_time.total = total_cycle_time
 
+    task_kpi = KPIMap()
+    task_kpi.idle_time.total = total_cycle_time
+
     resource_kpi = ResourceKPI(
-        r_profile="",
+        r_profile="_",
         task_allocated=[],
         available_time=total_cost,
         worked_time=total_cost,
@@ -79,10 +82,15 @@ def create_mock_solution(
     log_info.ended_at = datetime(2000, 1, 1) + timedelta(seconds=total_cycle_time)
 
     evaluation = Evaluation.from_run_simulation_result(
-        state.timetable.get_hourly_rates(),
-        state.timetable.get_fixed_cost_fns(),
+        {"_": total_cost},
+        {"_": f"{total_cost}"},
         state.timetable.batching_rules_exist,
-        (kpis, {}, {TimetableGenerator.RESOURCE_ID: resource_kpi}, log_info),  # type: ignore
+        (
+            kpis,
+            {"_": task_kpi},
+            {"_": resource_kpi},
+            log_info,
+        ),  # type: ignore
     )
     state = replace(state, bpmn_definition=random_string())
     return Solution(evaluation, state, None, [MockAction()])
