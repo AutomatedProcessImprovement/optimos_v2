@@ -773,11 +773,101 @@ class BatchingRule(JSONWizard):
             + self.firing_rules[or_index + 1 :]
         )
 
-        return replace(self, firing_rules=or_rules)
+        updated_batching_rule = replace(self, firing_rules=or_rules)
+
+        if (
+            new_rule.attribute == RULE_TYPE.WEEK_DAY
+            or new_rule.attribute == RULE_TYPE.DAILY_HOUR
+        ):
+            return updated_batching_rule._generate_merged_datetime_firing_rules()
+        return updated_batching_rule
 
     def add_firing_rule(self, firing_rule: FiringRule) -> "BatchingRule":
         """Add a firing rule. Returns a new BatchingRule."""
-        return replace(self, firing_rules=self.firing_rules + [[firing_rule]])
+        updated_batching_rule = replace(
+            self, firing_rules=self.firing_rules + [[firing_rule]]
+        )
+        if (
+            firing_rule.attribute == RULE_TYPE.WEEK_DAY
+            or firing_rule.attribute == RULE_TYPE.DAILY_HOUR
+        ):
+            return updated_batching_rule._generate_merged_datetime_firing_rules()
+        return updated_batching_rule
+
+    def add_firing_rules(self, firing_rules: list[FiringRule]) -> "BatchingRule":
+        """Add a list of firing rules. Returns a new BatchingRule."""
+        updated_batching_rule = replace(
+            self, firing_rules=self.firing_rules + [firing_rules]
+        )
+        if any(
+            rule.attribute == RULE_TYPE.WEEK_DAY
+            or rule.attribute == RULE_TYPE.DAILY_HOUR
+            for rule in firing_rules
+        ):
+            return updated_batching_rule._generate_merged_datetime_firing_rules()
+        return updated_batching_rule
+
+    def _generate_merged_datetime_firing_rules(self) -> "BatchingRule":
+        """Generate merged firing rules for datetime rules.
+
+        E.g. if there are multiple OR-Rules, that only contain daily hour rules,
+        we can merge them into a single OR-Rule. Or if there are multiple OR-Rules,
+        that only contain the same week day + daily hour rule,
+        we can merge them into a single OR-Rule.
+        """
+
+        or_rules_to_remove = []
+        work_mask = WorkMasks()
+
+        for index, or_rules in enumerate(self.firing_rules):
+            if len(or_rules) > 3:
+                continue
+            daily_hour_gte_rule: Optional[FiringRule[int]] = None
+            daily_hour_lt_rule: Optional[FiringRule[int]] = None
+            week_day_rule: Optional[FiringRule[DAY]] = None
+            for rule in or_rules:
+                if rule_is_daily_hour(rule) and rule.is_gte:
+                    daily_hour_gte_rule = rule
+                elif rule_is_daily_hour(rule) and rule.is_lt:
+                    daily_hour_lt_rule = rule
+                elif rule_is_week_day(rule) and rule.is_eq:
+                    week_day_rule = rule
+            if daily_hour_gte_rule is None or daily_hour_lt_rule is None:
+                continue
+            if len(or_rules) == 3 and week_day_rule is None:
+                continue
+            if not week_day_rule:
+                work_mask = work_mask.set_hour_range_for_every_day(
+                    daily_hour_gte_rule.value,
+                    daily_hour_lt_rule.value,
+                )
+            else:
+                work_mask = work_mask.set_hour_range_for_day(
+                    week_day_rule.value,
+                    daily_hour_gte_rule.value,
+                    daily_hour_lt_rule.value,
+                )
+            or_rules_to_remove.append(index)
+        new_or_rules = []
+        for day in DAY:
+            periods = TimePeriod.from_bitmask(work_mask.get(day), day)
+            for period in periods:
+                new_or_rules.append(
+                    [
+                        FiringRule.eq(RULE_TYPE.WEEK_DAY, day),
+                        FiringRule.gte(RULE_TYPE.DAILY_HOUR, period.begin_time_hour),
+                        FiringRule.lt(RULE_TYPE.DAILY_HOUR, period.end_time_hour),
+                    ]
+                )
+        return replace(
+            self,
+            firing_rules=new_or_rules
+            + [
+                or_rules
+                for index, or_rules in enumerate(self.firing_rules)
+                if index not in or_rules_to_remove
+            ],
+        )
 
     def is_valid(self) -> bool:
         """Check if the timetable is valid.
@@ -800,19 +890,13 @@ class BatchingRule(JSONWizard):
                 if and_rules.count(rule) > 1:
                     return False
                 if rule_is_daily_hour(rule):
-                    if (
-                        rule.comparison == COMPARATOR.LESS_THEN
-                        or rule.comparison == COMPARATOR.LESS_THEN_OR_EQUAL
-                    ):
+                    if rule.is_lt_or_lte:
                         if (
                             largest_smaller_than_time is None
                             or rule.value > largest_smaller_than_time
                         ):
                             largest_smaller_than_time = rule.value
-                    elif (
-                        rule.comparison == COMPARATOR.GREATER_THEN
-                        or rule.comparison == COMPARATOR.GREATER_THEN_OR_EQUAL
-                    ):
+                    elif rule.is_gt_or_gte:
                         if (
                             smallest_larger_than_time is None
                             or rule.value < smallest_larger_than_time
@@ -826,7 +910,7 @@ class BatchingRule(JSONWizard):
                 largest_smaller_than_time is not None
                 and smallest_larger_than_time is not None
             ):
-                if largest_smaller_than_time >= smallest_larger_than_time:
+                if smallest_larger_than_time >= largest_smaller_than_time:
                     return False
 
         return True
@@ -1210,15 +1294,13 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
         self, rule_selector: RuleSelector, new_firing_rule: FiringRule
     ) -> "TimetableType":
         """Replace a firing rule."""
-        return replace(
-            self,
-            batch_processing=[
-                rule
-                if rule.task_id != rule_selector.batching_rule_task_id
-                else rule.replace_firing_rule(rule_selector, new_firing_rule)
-                for rule in self.batch_processing
-            ],
+        _, batching_rule = self.get_batching_rule(rule_selector)
+        if batching_rule is None:
+            return self
+        new_batching_rule = batching_rule.replace_firing_rule(
+            rule_selector, new_firing_rule
         )
+        return self.replace_batching_rule(rule_selector, new_batching_rule)
 
     def add_firing_rule(
         self, rule_selector: RuleSelector, new_firing_rule: FiringRule
