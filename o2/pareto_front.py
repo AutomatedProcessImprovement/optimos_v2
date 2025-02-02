@@ -48,6 +48,16 @@ class ParetoFront:
         return sum(s.evaluation.pareto_x for s in self.solutions) / self.size
 
     @property
+    def median_y(self) -> float:
+        """Return the median y of the front."""
+        return sorted(s.evaluation.pareto_y for s in self.solutions)[self.size // 2]
+
+    @property
+    def median_x(self) -> float:
+        """Return the median x of the front."""
+        return sorted(s.evaluation.pareto_x for s in self.solutions)[self.size // 2]
+
+    @property
     def min_y(self) -> float:
         """Return the minimum y of the front."""
         return min(s.evaluation.pareto_y for s in self.solutions)

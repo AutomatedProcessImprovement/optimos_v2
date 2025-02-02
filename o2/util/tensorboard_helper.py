@@ -118,6 +118,20 @@ class TensorBoardHelper:
                 step=self.step,
             )
 
+            # Median
+            tf.summary.scalar(
+                "front/median_"
+                + Settings.get_pareto_x_label().replace(" ", "_").lower(),
+                self.store.current_pareto_front.median_x,
+                step=self.step,
+            )
+            tf.summary.scalar(
+                "front/median_"
+                + Settings.get_pareto_y_label().replace(" ", "_").lower(),
+                self.store.current_pareto_front.median_y,
+                step=self.step,
+            )
+
             if Settings.COST_TYPE != CostType.TOTAL_COST:
                 tf.summary.scalar(
                     "front/avg_total_cost",
@@ -142,7 +156,7 @@ class TensorBoardHelper:
                 step=self.step,
             )
 
-            if self.step % 100 == 0:
+            if self.step % 500 == 0:
                 # --- Plot and log the 2D Pareto front image ---
                 fig = self._create_pareto_front_plot()
                 image = self._plot_to_image(fig)
@@ -158,13 +172,63 @@ class TensorBoardHelper:
         """
         fig, ax = plt.subplots(figsize=(16, 9))
 
-        # Plot all Pareto front solution points
+        points = []
+        # Plot old, discarded Pareto fronts in translucent yellow (bottom layer)
+        xs_old_pareto = []
+        ys_old_pareto = []
+        for old_front in self.store.pareto_fronts[1:-1]:
+            for sol in old_front.solutions:
+                xs_old_pareto.append(sol.point[0])
+                ys_old_pareto.append(sol.point[1])
+                points.append(sol.point)
+        # Plot the current Pareto front in blue
+        xs_pareto = []
+        ys_pareto = []
         solutions = self.store.current_pareto_front.solutions
         if solutions:
             points = [sol.point for sol in solutions]
-            xs = [p[0] for p in points]
-            ys = [p[1] for p in points]
-            ax.scatter(xs, ys, c="blue", label="Pareto Front Solutions", alpha=0.7)
+            xs_pareto = [p[0] for p in points]
+            ys_pareto = [p[1] for p in points]
+            points.extend(points)
+
+        # Plot all non-pareto solutions in grey
+        xs_non_pareto = []
+        ys_non_pareto = []
+        for sol in self.store.solution_tree.solution_lookup.values():
+            if sol is not None:
+                sol_point = sol.point
+                # Check if point is xs_pareto/ys_pareto or xs_old_pareto/ys_old_pareto
+                if sol_point not in points:
+                    xs_non_pareto.append(sol_point[0])
+                    ys_non_pareto.append(sol_point[1])
+
+        ax.scatter(
+            xs_non_pareto,
+            ys_non_pareto,
+            color="grey",
+            alpha=0.5,
+            s=15,
+            edgecolors="none",
+            label="Non-Pareto Solutions",
+        )
+        ax.scatter(
+            xs_old_pareto,
+            ys_old_pareto,
+            color="yellow",
+            alpha=0.7,
+            s=25,
+            edgecolors="none",
+            label="Old Pareto Front Solutions",
+        )
+
+        ax.scatter(
+            xs_pareto,
+            ys_pareto,
+            c="blue",
+            label="Pareto Front Solutions",
+            alpha=0.7,
+            s=50,
+        )
 
         # Plot the base solution
         base_point = self.store.base_solution.point
@@ -193,7 +257,7 @@ class TensorBoardHelper:
                 # Save current axis limits to prevent zooming out when adding the circle.
                 current_xlim = ax.get_xlim()
                 current_ylim = ax.get_ylim()
-                circle = plt.Circle(
+                circle = plt.Circle(  # type: ignore
                     (avg_point[0], avg_point[1]),
                     self.agent.temperature,
                     color="purple",
@@ -236,7 +300,7 @@ class TensorBoardHelper:
         figure.savefig(buf, format="png", dpi=50)
         buf.seek(0)
         # Convert PNG buffer to TF image
-        image = tf.image.decode_png(buf.getvalue(), channels=4)
+        image = tf.image.decode_png(buf.getvalue(), channels=4)  # type: ignore
         # Add the batch dimension
         image = tf.expand_dims(image, 0)
         return image
