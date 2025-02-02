@@ -70,6 +70,11 @@ def get_batches_from_event_log(
     for event in events:
         if event.resource_id is not None and event.batch_id is not None:
             batches_dict[event.batch_id].append(event)
+        else:
+            # TODO: Be a bit smarter here and don't add unbatched events to the batches
+            batches_dict[
+                f"{event.p_case}_{event.task_id}_{event.resource_id}_{event.started_datetime}"
+            ].append(event)
 
     # Convert to list of batches
     batches = list(batches_dict.values())
