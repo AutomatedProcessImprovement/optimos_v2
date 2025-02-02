@@ -786,21 +786,11 @@ def test_batching_rule_date_time_merging_simple():
         ).firing_rules[0]
     )
 
-    assert batching_rule.firing_rules[0][0] == FiringRule(
-        attribute=RULE_TYPE.WEEK_DAY,
-        comparison=COMPARATOR.EQUAL,
-        value=DAY.MONDAY,
-    )
-    assert batching_rule.firing_rules[0][1] == FiringRule(
-        attribute=RULE_TYPE.DAILY_HOUR,
-        comparison=COMPARATOR.GREATER_THEN_OR_EQUAL,
-        value=10,
-    )
-    assert batching_rule.firing_rules[0][2] == FiringRule(
-        attribute=RULE_TYPE.DAILY_HOUR,
-        comparison=COMPARATOR.LESS_THEN,
-        value=14,
-    )
+    assert batching_rule.firing_rules[0] == [
+        FiringRule.eq(RULE_TYPE.WEEK_DAY, DAY.MONDAY),
+        FiringRule.gte(RULE_TYPE.DAILY_HOUR, 10),
+        FiringRule.lt(RULE_TYPE.DAILY_HOUR, 14),
+    ]
 
 
 def test_batching_rule_date_time_merging_complex():
@@ -825,3 +815,72 @@ def test_batching_rule_date_time_merging_complex():
     assert batching_rule.firing_rules[0][0] == FiringRule(
         RULE_TYPE.WEEK_DAY, COMPARATOR.EQUAL, DAY.MONDAY
     )
+
+
+def test_batching_rule_date_time_merging_with_size():
+    batching_rule = BatchingRule.from_task_id(
+        TimetableGenerator.FIRST_ACTIVITY,
+        firing_rules=[
+            FiringRule.eq(RULE_TYPE.WEEK_DAY, DAY.MONDAY),
+            FiringRule.gte(RULE_TYPE.DAILY_HOUR, 10),
+            FiringRule.lt(RULE_TYPE.DAILY_HOUR, 14),
+            FiringRule.gte(RULE_TYPE.SIZE, 2),
+        ],
+    )
+
+    batching_rule = batching_rule.add_firing_rules(
+        TimetableGenerator.daily_hour_rule_with_day(
+            TimetableGenerator.FIRST_ACTIVITY, DAY.MONDAY, 16, 18
+        ).firing_rules[0]
+    )
+
+    assert batching_rule.firing_rules[0] == [
+        FiringRule.eq(RULE_TYPE.WEEK_DAY, DAY.MONDAY),
+        FiringRule.gte(RULE_TYPE.DAILY_HOUR, 10),
+        FiringRule.lt(RULE_TYPE.DAILY_HOUR, 14),
+        FiringRule.gte(RULE_TYPE.SIZE, 2),
+    ]
+
+    assert batching_rule.firing_rules[1] == [
+        FiringRule.eq(RULE_TYPE.WEEK_DAY, DAY.MONDAY),
+        FiringRule.gte(RULE_TYPE.DAILY_HOUR, 16),
+        FiringRule.lt(RULE_TYPE.DAILY_HOUR, 18),
+    ]
+
+    new_batching_rule = batching_rule.add_firing_rules(
+        [
+            FiringRule.gte(RULE_TYPE.DAILY_HOUR, 10),
+            FiringRule.lt(RULE_TYPE.DAILY_HOUR, 18),
+        ]
+    )
+    assert len(new_batching_rule.firing_rules) == 7
+    assert new_batching_rule.firing_rules[0] == [
+        FiringRule.eq(RULE_TYPE.WEEK_DAY, DAY.MONDAY),
+        FiringRule.gte(RULE_TYPE.DAILY_HOUR, 10),
+        FiringRule.lt(RULE_TYPE.DAILY_HOUR, 18),
+        FiringRule.gte(RULE_TYPE.SIZE, 2),
+    ]
+
+    assert new_batching_rule.firing_rules[0][3] == FiringRule.gte(RULE_TYPE.SIZE, 2)
+
+    new_size_batching_rule = new_batching_rule.add_firing_rules(
+        [
+            FiringRule.eq(RULE_TYPE.WEEK_DAY, DAY.MONDAY),
+            FiringRule.gte(RULE_TYPE.DAILY_HOUR, 15),
+            FiringRule.lt(RULE_TYPE.DAILY_HOUR, 17),
+            FiringRule.gte(RULE_TYPE.SIZE, 10),
+        ]
+    )
+    assert len(new_size_batching_rule.firing_rules) == 7
+    assert new_size_batching_rule.firing_rules[0] == [
+        FiringRule.eq(RULE_TYPE.WEEK_DAY, DAY.MONDAY),
+        FiringRule.gte(RULE_TYPE.DAILY_HOUR, 10),
+        FiringRule.lt(RULE_TYPE.DAILY_HOUR, 18),
+        FiringRule.gte(RULE_TYPE.SIZE, 10),
+    ]
+
+    assert new_size_batching_rule.firing_rules[1] == [
+        FiringRule.eq(RULE_TYPE.WEEK_DAY, DAY.TUESDAY),
+        FiringRule.gte(RULE_TYPE.DAILY_HOUR, 10),
+        FiringRule.lt(RULE_TYPE.DAILY_HOUR, 18),
+    ]
