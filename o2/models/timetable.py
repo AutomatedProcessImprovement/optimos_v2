@@ -1,8 +1,7 @@
-import functools
 import hashlib
 from dataclasses import asdict, dataclass, field, replace
 from enum import Enum
-from functools import cache, cached_property, reduce
+from functools import cached_property, reduce
 from itertools import groupby
 from json import dumps
 from operator import itemgetter
@@ -80,7 +79,7 @@ class DISTRIBUTION_TYPE(str, Enum):
 
     # Uniform aka random between, min and max
     # (Using numpy.random.uniform)
-    UNIFORM = "default"
+    UNIFORM = "uniform"
 
     # The rest of the distributions are from scipy.stats
     NORMAL = "norm"
@@ -724,18 +723,53 @@ class BatchingRule(JSONWizard):
     def is_valid(self) -> bool:
         """Check if the timetable is valid.
 
-        Currently this will only check if week day rules come after time of day rules
+        Currently this will check:
+         - if daily hour rules come after week day rules
+         - if there are no duplicate daily hour rules
         """
         for and_rules in self.firing_rules:
+            # OR rules should not be duplicated
+            largest_smaller_than_time = None
+            smallest_larger_than_time = None
+            if self.firing_rules.count(and_rules) > 1:
+                return False
             if len(and_rules) == 0:
                 # Empty AND rules are not allowed
                 return False
-            has_week_day_rule = False
+            has_daily_hour_rule = False
             for rule in and_rules:
-                if rule_is_week_day(rule):
-                    has_week_day_rule = True
-                if rule_is_daily_hour(rule) and has_week_day_rule:
+                if and_rules.count(rule) > 1:
                     return False
+                if rule_is_daily_hour(rule):
+                    if (
+                        rule.comparison == COMPARATOR.LESS_THEN
+                        or rule.comparison == COMPARATOR.LESS_THEN_OR_EQUAL
+                    ):
+                        if (
+                            largest_smaller_than_time is None
+                            or rule.value > largest_smaller_than_time
+                        ):
+                            largest_smaller_than_time = rule.value
+                    elif (
+                        rule.comparison == COMPARATOR.GREATER_THEN
+                        or rule.comparison == COMPARATOR.GREATER_THEN_OR_EQUAL
+                    ):
+                        if (
+                            smallest_larger_than_time is None
+                            or rule.value < smallest_larger_than_time
+                        ):
+                            smallest_larger_than_time = rule.value
+                    has_daily_hour_rule = True
+                if rule_is_week_day(rule) and has_daily_hour_rule:
+                    return False
+
+            if (
+                largest_smaller_than_time is not None
+                and smallest_larger_than_time is not None
+            ):
+                if largest_smaller_than_time >= smallest_larger_than_time:
+                    return False
+
         return True
 
     @staticmethod
