@@ -135,6 +135,14 @@ class Settings:
     Useful for debugging, but should be disabled for production.
     """
 
+    ADD_SIZE_RULE_TO_NEW_RULES: ClassVar[bool] = True
+    """Should a size rule be added to new rules?
+
+    This is esp. relevant for date time rules, as it allows the optimizer,
+    very easily to later increase / decrease it. But as Prosimos isn't quite
+    behaving the same with a size rule, this may be disabled by the user.
+    """
+
     SHOW_SIMULATION_ERRORS: ClassVar[bool] = False
     """Should the simulation errors be shown?
 
@@ -167,9 +175,9 @@ class Settings:
 
     @staticmethod
     def get_pareto_x_label() -> str:
-        """Get the label for the x-axis of the pareto front."""
+        """Get the label for the x-axis (cost) of the pareto front."""
         if Settings.COST_TYPE == CostType.WAITING_TIME_AND_PROCESSING_TIME:
-            return "Waiting Time"
+            return "Processing Time"
         elif Settings.COST_TYPE == CostType.FIXED_COST:
             return "Fixed Cost"
         elif Settings.COST_TYPE == CostType.RESOURCE_COST:
@@ -181,7 +189,7 @@ class Settings:
 
     @staticmethod
     def get_pareto_y_label() -> str:
-        """Get the label for the y-axis of the pareto front."""
+        """Get the label for the y-axis (duration) of the pareto front."""
         if Settings.COST_TYPE == CostType.WAITING_TIME_AND_PROCESSING_TIME:
-            return "Processing Time"
+            return "Waiting Time"
         return "Total Duration"
