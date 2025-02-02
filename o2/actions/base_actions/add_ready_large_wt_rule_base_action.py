@@ -48,13 +48,61 @@ class AddReadyLargeWTRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
         existing_task_rules = timetable.get_batching_rules_for_task(task_id)
 
         if not existing_task_rules:
-            # TODO Also allow adding new rules
-            # TODO 2: Allow combining rules, e.g. extending date range
-            return state
+            new_batching_rule = BatchingRule.from_task_id(
+                task_id=task_id,
+                firing_rules=[
+                    FiringRule(
+                        attribute=type,
+                        comparison=COMPARATOR.GREATER_THEN_OR_EQUAL,
+                        value=waiting_time,
+                    ),
+                    FiringRule(
+                        attribute=type,
+                        comparison=COMPARATOR.LESS_THEN_OR_EQUAL,
+                        value=24 * 60 * 60,
+                    ),
+                ],
+            )
+            return state.replace_timetable(
+                batch_processing=timetable.batch_processing + [new_batching_rule]
+            )
 
         # Find the rule to modify
         rule = existing_task_rules[0]
         index = timetable.batch_processing.index(rule)
+
+        for or_index, and_rules in enumerate(rule.firing_rules):
+            if len(and_rules) == 2:
+                rule_1 = and_rules[0]
+                rule_2 = and_rules[1]
+
+                if (
+                    rule_1.attribute == type
+                    and rule_2.attribute == type
+                    and rule_1.comparison == COMPARATOR.GREATER_THEN_OR_EQUAL
+                    and rule_2.comparison == COMPARATOR.LESS_THEN_OR_EQUAL
+                    and rule_2.value == 24 * 60 * 60
+                ):
+                    # The rule is already smaller than the waiting time
+                    # -> it would fire anyway
+                    if rule_1.value <= waiting_time:
+                        return state
+
+                    # We can modify this existing rule
+                    updated_firing_rule = FiringRule(
+                        attribute=type,
+                        comparison=COMPARATOR.GREATER_THEN_OR_EQUAL,
+                        value=waiting_time,
+                    )
+                    selector = RuleSelector(
+                        batching_rule_task_id=task_id, firing_rule_index=(or_index, 0)
+                    )
+                    return replace(
+                        state,
+                        timetable=timetable.replace_firing_rule(
+                            selector, updated_firing_rule
+                        ),
+                    )
 
         new_or_rule = [
             FiringRule(
