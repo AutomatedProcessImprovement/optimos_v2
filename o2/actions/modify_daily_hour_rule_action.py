@@ -6,6 +6,7 @@ from o2.actions.batching_rule_action import (
     BatchingRuleAction,
     BatchingRuleActionParamsType,
 )
+from o2.models.rule_selector import RuleSelector
 from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.state import State
 from o2.models.timetable import COMPARATOR, rule_is_daily_hour
@@ -76,77 +77,34 @@ class ModifyDailyHourRuleAction(BatchingRuleAction, str=False):
     @staticmethod
     def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
         """Generate a best set of parameters & self-evaluates this action."""
-        most_reduction_selector = input.most_wt_reduction
-        most_increase_selector = input.most_wt_increase
 
-        # TODO Clean this loop up, and think of a better style, e.g. moving it
-        # to a helper fn
+        for batching_rule in store.current_timetable.batch_processing:
+            for or_rule_index, or_rules in enumerate(batching_rule.firing_rules):
+                for and_rule_index, rule in enumerate(or_rules):
+                    if rule_is_daily_hour(rule):
+                        if rule.comparison == COMPARATOR.EQUAL:
+                            # TODO Do something with EQUAL
+                            pass
+                        selector = RuleSelector(
+                            batching_rule_task_id=batching_rule.task_id,
+                            firing_rule_index=(or_rule_index, and_rule_index),
+                        )
 
-        possible_candidates = (
-            [
-                most_reduction_selector,
-                most_increase_selector,
-            ]
-            if most_reduction_selector == input.most_impactful_rule
-            else [
-                most_increase_selector,
-                most_reduction_selector,
-            ]
-        )
-
-        for rule_selector in possible_candidates:
-            if rule_selector is None:
-                continue
-
-            rule = rule_selector.get_firing_rule_from_state(store.base_state)
-            if rule is None:
-                continue
-
-            if not rule_is_daily_hour(rule):
-                continue
-
-            if rule.comparison == COMPARATOR.EQUAL:
-                # TODO Do something with EQUAL
-                continue
-
-            constraints = store.constraints.get_daily_hour_rule_constraints(
-                rule_selector.batching_rule_task_id
-            )
-            if constraints is None:
-                continue
-
-            hour_change = 0
-            if rule_selector == most_increase_selector and "<" in rule.comparison:
-                hour_change = SIZE_OF_CHANGE * 1
-            elif rule_selector == most_increase_selector and ">" in rule.comparison:
-                hour_change = SIZE_OF_CHANGE * -1
-            elif rule_selector == most_reduction_selector and ">" in rule.comparison:
-                hour_change = SIZE_OF_CHANGE * 1
-            elif rule_selector == most_reduction_selector and "<" in rule.comparison:
-                hour_change = SIZE_OF_CHANGE * -1
-
-            else:
-                continue
-
-            new_hour = rule.value + hour_change
-            if new_hour < 0 or new_hour > 24:
-                continue
-
-            allowed_hours = set(
-                hour for constraint in constraints for hour in constraint.allowed_hours
-            )
-            if new_hour not in allowed_hours:
-                # TODO: We need to get the relevant day constraint here, or if none
-                # is applicable, we'll need to check if any day constraint forbids
-                # this hour
-                continue
-            yield (
-                RATING.MEDIUM,
-                ModifyDailyHourRuleAction(
-                    ModifyDailyHourRuleActionParamsType(
-                        rule=rule_selector, hour_increment=hour_change
-                    )
-                ),
-            )
+                        yield (
+                            RATING.LOW,
+                            ModifyDailyHourRuleAction(
+                                ModifyDailyHourRuleActionParamsType(
+                                    rule=selector, hour_increment=-1
+                                )
+                            ),
+                        )
+                        yield (
+                            RATING.LOW,
+                            ModifyDailyHourRuleAction(
+                                ModifyDailyHourRuleActionParamsType(
+                                    rule=selector, hour_increment=1
+                                )
+                            ),
+                        )
 
         return
