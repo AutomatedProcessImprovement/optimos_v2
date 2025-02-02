@@ -1,22 +1,37 @@
+from o2.models.days import DAY
 from o2.models.state import State
-from tests.fixtures.store_fixture import ONE_TASK_BPMN_PATH
+from o2.models.time_period import TimePeriod
+from o2.models.timetable import (
+    BATCH_TYPE,
+    COMPARATOR,
+    RULE_TYPE,
+    BatchingRule,
+    Distribution,
+    FiringRule,
+)
+from tests.fixtures.store_fixture import TWO_TASKS_BPMN_PATH
 from tests.fixtures.timetable_generator import TimetableGenerator
 
-bpmn_content = open(ONE_TASK_BPMN_PATH).read()
+bpmn_content = open(TWO_TASKS_BPMN_PATH).read()
 state = State(
     bpmn_definition=bpmn_content,
     timetable=TimetableGenerator(bpmn_content).generate_simple(),
     for_testing=True,
 )
 
+time_period = TimePeriod.from_start_end(10, 15, DAY.FRIDAY)
+
 state = state.replace_timetable(
     # Resource has cost of $10/h
     resource_profiles=TimetableGenerator.resource_pools(
-        [TimetableGenerator.FIRST_ACTIVITY], 10, fixed_cost_fn="15"
+        [TimetableGenerator.FIRST_ACTIVITY, TimetableGenerator.SECOND_ACTIVITY],
+        10,
+        fixed_cost_fn="15",
     ),
     # Working one case takes 1h
     task_resource_distribution=TimetableGenerator.task_resource_distribution_simple(
-        [TimetableGenerator.FIRST_ACTIVITY], 1 * 60 * 60
+        [TimetableGenerator.FIRST_ACTIVITY, TimetableGenerator.SECOND_ACTIVITY],
+        1 * 60 * 60,
     ),
     # Work from 9 to 18 (9h)
     resource_calendars=TimetableGenerator.resource_calendars(
@@ -34,8 +49,37 @@ state = state.replace_timetable(
     # Batch Size of 4 (Meaning 4 days are needed to for a single batch)
     # Will work twice as fast, e.g. only needed 2 hours for 4 tasks
     batch_processing=[
-        TimetableGenerator.batching_size_rule(
-            TimetableGenerator.FIRST_ACTIVITY, 4, duration_distribution=0.5
+        BatchingRule(
+            task_id=TimetableGenerator.SECOND_ACTIVITY,
+            type=BATCH_TYPE.PARALLEL,
+            size_distrib=[Distribution(key=str(1), value=0.0)]
+            + [
+                Distribution(key=str(new_size), value=1.0) for new_size in range(2, 100)
+            ],
+            duration_distrib=[
+                # TODO: Get duration from duration fn
+                Distribution(key=str(new_size), value=1 / new_size)
+                for new_size in range(1, 100)
+            ],
+            firing_rules=[
+                [
+                    FiringRule(
+                        attribute=RULE_TYPE.WEEK_DAY,
+                        comparison=COMPARATOR.EQUAL,
+                        value=time_period.from_,
+                    ),
+                    FiringRule(
+                        attribute=RULE_TYPE.DAILY_HOUR,
+                        comparison=COMPARATOR.GREATER_THEN_OR_EQUAL,
+                        value=time_period.begin_time_hour,
+                    ),
+                    FiringRule(
+                        attribute=RULE_TYPE.DAILY_HOUR,
+                        comparison=COMPARATOR.LESS_THEN,
+                        value=time_period.end_time_hour,
+                    ),
+                ],
+            ],
         )
     ],
     total_cases=8,
