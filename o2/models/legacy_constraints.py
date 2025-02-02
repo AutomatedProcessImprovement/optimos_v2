@@ -81,7 +81,7 @@ class WorkMasks(JSONWizard):
             self,
             **{
                 day.name.lower(): self.get(day)
-                | ((1 << (24 - start)) - (1 << (25 - end)))
+                | ((1 << (24 - start)) - (1 << (24 - end)))
             },
         )
 
@@ -89,13 +89,13 @@ class WorkMasks(JSONWizard):
         """Enable the hour range for every day."""
         return replace(
             self,
-            monday=(self.monday or 0) | ((1 << (24 - start)) - (1 << (25 - end))),
-            tuesday=(self.tuesday or 0) | ((1 << (24 - start)) - (1 << (25 - end))),
-            wednesday=(self.wednesday or 0) | ((1 << (24 - start)) - (1 << (25 - end))),
-            thursday=(self.thursday or 0) | ((1 << (24 - start)) - (1 << (25 - end))),
-            friday=(self.friday or 0) | ((1 << (24 - start)) - (1 << (25 - end))),
-            saturday=(self.saturday or 0) | ((1 << (24 - start)) - (1 << (25 - end))),
-            sunday=(self.sunday or 0) | ((1 << (24 - start)) - (1 << (25 - end))),
+            monday=(self.monday or 0) | ((1 << (24 - start)) - (1 << (24 - end))),
+            tuesday=(self.tuesday or 0) | ((1 << (24 - start)) - (1 << (24 - end))),
+            wednesday=(self.wednesday or 0) | ((1 << (24 - start)) - (1 << (24 - end))),
+            thursday=(self.thursday or 0) | ((1 << (24 - start)) - (1 << (24 - end))),
+            friday=(self.friday or 0) | ((1 << (24 - start)) - (1 << (24 - end))),
+            saturday=(self.saturday or 0) | ((1 << (24 - start)) - (1 << (24 - end))),
+            sunday=(self.sunday or 0) | ((1 << (24 - start)) - (1 << (24 - end))),
         )
 
     @staticmethod
