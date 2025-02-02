@@ -10,7 +10,7 @@ from sb3_contrib.common.maskable.utils import get_action_masks
 from stable_baselines3.common.utils import obs_as_tensor
 
 from o2.actions.base_actions.base_action import BaseAction
-from o2.agents.agent import Agent
+from o2.agents.agent import Agent, NoActionsLeftError
 from o2.agents.tabu_agent import TabuAgent
 from o2.models.solution import Solution
 from o2.pareto_front import FRONT_STATUS
@@ -70,7 +70,8 @@ class PPOAgent(Agent):
         action_from_store = PPOInput.get_actions_from_store(store)
         action_count = len([a for a in action_from_store if a is not None])
         if action_count == 0:
-            raise ValueError("No actions available.")
+            # TODO: We need to reset the env here
+            raise NoActionsLeftError()
         else:
             print_l1(f"Choosing best action out of {action_count} possible actions.")
         action_mask = PPOInput.get_action_mask_from_actions(action_from_store)

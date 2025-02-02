@@ -5,7 +5,7 @@ import traceback
 from typing import Generator
 
 from o2.actions.base_actions.base_action import BaseAction, RateSelfReturnType
-from o2.agents.agent import Agent, NoNewBaseSolutionFoundError
+from o2.agents.agent import Agent, NoActionsLeftError, NoNewBaseSolutionFoundError
 from o2.agents.ppo_agent import PPOAgent
 from o2.agents.simulated_annealing_agent import SimulatedAnnealingAgent
 from o2.agents.tabu_agent import TabuAgent
@@ -105,7 +105,10 @@ class HillClimber:
                     print_l1("No action improved the evaluation")
                     self.max_non_improving_iter -= len(actions_to_perform)
                     for _, solution in not_chosen_tries:
-                        print_l2(repr(solution.last_action))
+                        print_str = repr(solution.last_action)
+                        if not solution.is_valid:
+                            print_str = f"[INVALID] {print_str}"
+                        print_l2(print_str)
                         if yield_on_non_acceptance:
                             yield solution
                 else:
@@ -131,6 +134,9 @@ class HillClimber:
                             )
                         yield solution
                 print_l1(f"Non improving actions left: {self.max_non_improving_iter}")
+            except NoActionsLeftError:
+                print_l1("No actions left to perform.")
+                break
             except NoNewBaseSolutionFoundError:
                 print_l1("No new base solution found.")
                 break

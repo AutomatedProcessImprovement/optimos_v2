@@ -44,7 +44,6 @@ class State:
         try:
             result = SimulationRunner.run_simulation(self)
         except Exception as e:
-            print(f"Error in simulation (state.evaluate): {e}")
             if Settings.RAISE_SIMULATION_ERRORS:
                 raise e
             return Evaluation.empty()

@@ -115,6 +115,12 @@ class NoNewBaseSolutionFoundError(Exception):
     pass
 
 
+class NoActionsLeftError(Exception):
+    """Exception raised when no actions are left to perform."""
+
+    pass
+
+
 class Agent(ABC):
     """Selects the best action to take next, based on the current state of the store."""
 

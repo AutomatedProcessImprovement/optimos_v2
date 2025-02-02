@@ -99,7 +99,7 @@ class TabuAgent(Agent):
             proposed_solution_try is not None
             and proposed_solution_try[1].id == solution.id
         ):
-            print_l3("Continuing with same solution as before.")
+            print_l3("The proposed solution is the same as the current solution.")
         return solution
 
     def _select_new_base_evaluation(
@@ -111,7 +111,9 @@ class TabuAgent(Agent):
         reinserted into the solution tree. This is useful if you aren't
         sure if you exhausted all possible actions for this solution.
         """
-        print_l2("Selecting new base evaluation...")
+        print_l2(
+            f"Selecting new base evaluation {'(reinserting)' if reinsert_current_solution else ''}..."
+        )
         if reinsert_current_solution:
             self.store.solution_tree.add_solution(self.store.solution)
         new_solution = self.store.solution_tree.pop_nearest_solution(

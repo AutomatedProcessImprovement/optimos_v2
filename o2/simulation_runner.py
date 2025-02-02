@@ -10,6 +10,7 @@ from prosimos.simulation_stats_calculator import (
 )
 
 from o2.models.settings import Settings
+from o2.util.indented_printer import print_l3
 
 TaskKPIs: TypeAlias = dict[str, KPIMap]
 RessourceKPIs: TypeAlias = dict[str, ResourceKPI]
@@ -43,7 +44,7 @@ class SimulationRunner:
 
             return global_kpis, task_kpis, resource_kpis, log_info
         except Exception as e:
-            print(f"Error in simulation: {e}")
+            print_l3(f"Error in simulation: {e}")
             if Settings.SHOW_SIMULATION_ERRORS:
                 print(traceback.format_exc())
             raise e
