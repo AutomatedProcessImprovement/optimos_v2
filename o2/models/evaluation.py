@@ -449,6 +449,8 @@ class Evaluation:
     # (Taking only the total cost & total cycle time into account)
     def is_dominated_by(self, other: "Evaluation") -> bool:
         """Check if this evaluation is dominated by another evaluation."""
+        if not Settings.EQUAL_DOMINATION_ALLOWED:
+            return other.pareto_x <= self.pareto_x and other.pareto_y <= self.pareto_y
         return other.pareto_x < self.pareto_x and other.pareto_y < self.pareto_y
 
     def __str__(self) -> str:

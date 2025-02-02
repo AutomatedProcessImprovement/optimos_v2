@@ -162,7 +162,7 @@ class Settings:
     This should only be activated for evaluation, as it will cause IO & processing overhead.
     """
 
-    COST_TYPE: ClassVar[CostType] = CostType.FIXED_COST
+    COST_TYPE: ClassVar[CostType] = CostType.RESOURCE_COST
     """The type of cost to use for the optimization task.
 
     Because this won't differ during the optimization, it's a class variable.
@@ -172,6 +172,13 @@ class Settings:
     """Overrite the number of cases to simulate per run.
 
     Will use information from the model if not set (1000 cases by default)."""
+
+    EQUAL_DOMINATION_ALLOWED: ClassVar[bool] = False
+    """Should equal domination be allowed?
+
+    If this is set to True, the pareto front will allow solutions with the same
+    x and y values.
+    """
 
     @staticmethod
     def get_pareto_x_label() -> str:
