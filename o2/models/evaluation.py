@@ -1,8 +1,8 @@
 import math
+from collections import Counter
 from dataclasses import dataclass
 from functools import cached_property, reduce
-from itertools import groupby
-from typing import TYPE_CHECKING, Counter, cast
+from typing import TYPE_CHECKING, cast
 
 import pandas as pd
 from prosimos.execution_info import TaskEvent, Trace
@@ -358,14 +358,14 @@ class Evaluation:
         """Get the average total (fixed + processing) cost per task."""
         return {
             task_id: task_kpi.cost.avg
-            + (self.total_fixed_cost_by_task[task_id] / task_kpi.cost.count)
+            + (self.total_fixed_cost_by_task.get(task_id, 0) / task_kpi.cost.count)
             for task_id, task_kpi in self.task_kpis.items()
         }
 
     def get_total_cost_per_task(self) -> dict[str, float]:
         """Get the total (fixed + processing) cost per task."""
         return {
-            task_id: task_kpi.cost.total + self.total_fixed_cost_by_task[task_id]
+            task_id: task_kpi.cost.total + self.total_fixed_cost_by_task.get(task_id, 0)
             for task_id, task_kpi in self.task_kpis.items()
         }
 
@@ -626,7 +626,7 @@ class Evaluation:
 
         batches = get_batches_from_event_log(log_info, batching_rules_exist)
 
-        waiting_time_canvas = pd.DataFrame(
+        batch_pd = pd.DataFrame(
             (
                 {
                     "activity": batch["activity"],
@@ -649,7 +649,7 @@ class Evaluation:
         fixed_cost_fns_lambdas = lambdify_dict(fixed_cost_fns)
         # waiting_time_canvas has the batch_size we need to calculate the fixed cost,
         # so we go over each line and calculate the fixed cost for each task
-        waiting_time_canvas["fixed_cost"] = waiting_time_canvas.apply(
+        batch_pd["fixed_cost"] = batch_pd.apply(
             lambda x: fixed_cost_fns_lambdas.get(x["activity"], lambda _: 0)(
                 x["batch_size"]
             ),
@@ -657,18 +657,13 @@ class Evaluation:
         )
 
         total_fixed_cost_by_task = (
-            waiting_time_canvas.groupby("activity")["fixed_cost"]
-            .sum()
-            .fillna(0)
-            .to_dict()
+            batch_pd.groupby("activity")["fixed_cost"].sum().fillna(0).to_dict()
         )
 
-        avg_fixed_cost_per_case = (
-            waiting_time_canvas.groupby("case")["fixed_cost"].sum().mean()
-        )
+        avg_fixed_cost_per_case = batch_pd.groupby("case")["fixed_cost"].sum().mean()
 
         avg_fixed_cost_per_case_by_task = (
-            waiting_time_canvas.groupby(["activity", "case"])["fixed_cost"]
+            batch_pd.groupby(["activity", "case"])["fixed_cost"]
             .mean()
             .fillna(0)
             .to_dict()
@@ -720,29 +715,27 @@ class Evaluation:
                 cases
             ),
             avg_batching_waiting_time_per_task=(
-                waiting_time_canvas.groupby("activity")["batch_waiting_time_seconds"]
+                batch_pd.groupby("activity")["batch_waiting_time_seconds"]
                 .mean()
                 .fillna(0)
                 .to_dict()
             ),
             total_batching_waiting_time_per_task=(
-                waiting_time_canvas.groupby("activity")["batch_waiting_time_seconds"]
+                batch_pd.groupby("activity")["batch_waiting_time_seconds"]
                 .sum()
                 .fillna(0)
                 .to_dict()
             ),
             total_batching_waiting_time_per_resource=(
-                waiting_time_canvas.groupby("resource")["batch_waiting_time_seconds"]
+                batch_pd.groupby("resource")["batch_waiting_time_seconds"]
                 .sum()
                 .fillna(0)
                 .to_dict()
             ),
             avg_batching_waiting_time_by_case=(
-                waiting_time_canvas["batch_waiting_time_seconds"].mean()
+                batch_pd["batch_waiting_time_seconds"].mean()
             ),
-            total_batching_waiting_time=(
-                waiting_time_canvas["batch_waiting_time_seconds"].sum()
-            ),
+            total_batching_waiting_time=(batch_pd["batch_waiting_time_seconds"].sum()),
             total_fixed_cost_by_task=total_fixed_cost_by_task,
             avg_fixed_cost_per_case=avg_fixed_cost_per_case,
             avg_fixed_cost_per_case_by_task=avg_fixed_cost_per_case_by_task,
