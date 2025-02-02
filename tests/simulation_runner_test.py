@@ -208,12 +208,9 @@ def test_week_day_batching_rule_with_different_distribution(two_tasks_state: Sta
 
     rule = replace(
         rule,
+        # TODO: Check if we actually want to allow size 1 batches
         size_distrib=[Distribution(key=str(1), value=0.0)]
-        + [
-            # TODO: Check if we actually want to allow size 1 batches
-            Distribution(key=str(new_size), value=1.0)
-            for new_size in range(2, 100)
-        ],
+        + [Distribution(key=str(new_size), value=1.0) for new_size in range(2, 100)],
         duration_distrib=[
             # TODO: Get duration from duration fn
             Distribution(key=str(new_size), value=1)
