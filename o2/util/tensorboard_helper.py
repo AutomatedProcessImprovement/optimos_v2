@@ -75,6 +75,12 @@ class TensorBoardHelper:
             )
 
             tf.summary.scalar(
+                "current_base/average_batch_size",
+                self.store.current_evaluation.average_batch_size_for_batch_enabled_tasks,
+                step=self.step,
+            )
+
+            tf.summary.scalar(
                 "front/avg_" + Settings.get_pareto_x_label().replace(" ", "_").lower(),
                 self.store.current_pareto_front.avg_x,
                 step=self.step,

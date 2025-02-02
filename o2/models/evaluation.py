@@ -242,6 +242,13 @@ class Evaluation:
             for task_id, batches in batches_by_task.items()
         }
 
+    @cached_property
+    def average_batch_size_for_batch_enabled_tasks(self) -> float:
+        """Get the average batch size over all batches."""
+        if not self.batches:
+            return 0
+        return sum(batch["size"] for batch in self.batches.values()) / len(self.batches)
+
     @property
     def pareto_x(self) -> float:
         """Get the cost used for positioning the evaluation in the pareto front.
