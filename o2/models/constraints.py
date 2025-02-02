@@ -62,8 +62,9 @@ class SizeRuleConstraints(BatchingConstraints, JSONWizard):
             return False
 
         # Special case: If the rule is a >(=) max size, it is invalid if max size is set
-        if self.max_size and (firing_rule.is_gt_or_gte):
-            return False
+        # TODO: Think about this
+        # if self.max_size and (firing_rule.is_gt_or_gte):
+        #     return False
 
         if (self.min_size and firing_rule.value < self.min_size) or (  # noqa: SIM103
             self.max_size and firing_rule.value > self.max_size
