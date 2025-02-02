@@ -717,6 +717,10 @@ class BatchingRule(JSONWizard):
 
         return replace(self, firing_rules=or_rules)
 
+    def add_firing_rule(self, firing_rule: FiringRule) -> "BatchingRule":
+        """Add a firing rule. Returns a new BatchingRule."""
+        return replace(self, firing_rules=self.firing_rules + [[firing_rule]])
+
     def is_valid(self) -> bool:
         """Check if the timetable is valid.
 
@@ -1108,6 +1112,34 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
                 for rule in self.batch_processing
             ],
         )
+
+    def replace_firing_rule(
+        self, rule_selector: RuleSelector, new_firing_rule: FiringRule
+    ) -> "TimetableType":
+        """Replace a firing rule."""
+        return replace(
+            self,
+            batch_processing=[
+                rule
+                if rule.task_id != rule_selector.batching_rule_task_id
+                else rule.replace_firing_rule(rule_selector, new_firing_rule)
+                for rule in self.batch_processing
+            ],
+        )
+
+    def add_firing_rule(
+        self, rule_selector: RuleSelector, new_firing_rule: FiringRule
+    ) -> "TimetableType":
+        """Add a firing rule."""
+        _, old_batching_rule = self.get_batching_rule(rule_selector)
+        if old_batching_rule is None:
+            batching_rule = BatchingRule.from_task_id(
+                rule_selector.batching_rule_task_id,
+                firing_rules=[new_firing_rule],
+            )
+        else:
+            batching_rule = old_batching_rule.add_firing_rule(new_firing_rule)
+        return self.replace_batching_rule(rule_selector, batching_rule)
 
     def replace_resource_calendar(
         self, new_calendar: ResourceCalendar
