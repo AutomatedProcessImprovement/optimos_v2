@@ -39,7 +39,6 @@ class Evaluation:
 
     hourly_rates: HourlyRates
 
-    global_kpis: KPIMap
     task_kpis: dict[str, KPIMap]
     resource_kpis: dict[str, ResourceKPI]
 
@@ -58,7 +57,13 @@ class Evaluation:
     """Get the total batching waiting time per task (all cases)."""
 
     total_duration: float
-    """Get the total duration (idle + cycle) of the simulation."""
+    """Get the total duration (processing + idle) of the simulation."""
+
+    sum_of_durations: float
+    """Get the sum of all task durations of the simulation."""
+
+    sum_of_cycle_times: float
+    """Get the sum of all task cycle times of the simulation."""
 
     total_batching_waiting_time: float
     """Get the total batching waiting time of the simulation (all cases)."""
@@ -68,6 +73,9 @@ class Evaluation:
 
     total_cycle_time: float
     """Get the total cycle time of the simulation."""
+
+    total_processing_time: float
+    """Get the total processing time of the simulation."""
 
     total_waiting_time: float
     """Get the total waiting time of the simulation."""
@@ -262,16 +270,14 @@ class Evaluation:
         elif Settings.COST_TYPE == CostType.TOTAL_COST:
             return self.total_cost_for_worked_time
         elif Settings.COST_TYPE == CostType.WAITING_TIME_AND_PROCESSING_TIME:
-            return self.global_kpis.processing_time.total
+            return self.total_processing_time
         raise ValueError(f"Unknown cost type: {Settings.COST_TYPE}")
 
     @property
     def pareto_y(self) -> float:
         """Get the duration used for positioning the evaluation in the pareto front."""
         if Settings.COST_TYPE == CostType.WAITING_TIME_AND_PROCESSING_TIME:
-            return (
-                self.global_kpis.waiting_time.total + self.global_kpis.idle_time.total
-            )
+            return self.total_waiting_time + self.total_task_idle_time
         return self.total_duration
 
     def get_avg_waiting_time_of_task_id(self, task_id: str) -> float:
@@ -407,9 +413,9 @@ class Evaluation:
         }
 
     def get_total_duration_time_per_task(self) -> dict[str, float]:
-        """Get the total duration time per task (incl. idle times & wt)."""
+        """Get the total duration time per task (incl. idle times)."""
         return {
-            task_id: task_kpi.idle_processing_time.total + task_kpi.waiting_time.total
+            task_id: task_kpi.idle_processing_time.total
             for task_id, task_kpi in self.task_kpis.items()
         }
 
@@ -597,7 +603,6 @@ class Evaluation:
             total_cycle_time=0,
             avg_cycle_time_by_case=0,
             is_empty=True,
-            global_kpis=KPIMap(),
             task_kpis={},
             resource_kpis={},
             task_execution_count_with_wt_or_it={},
@@ -612,6 +617,9 @@ class Evaluation:
             total_batching_waiting_time=0,
             avg_waiting_time_by_case=0,
             total_waiting_time=0,
+            total_processing_time=0,
+            sum_of_durations=0,
+            sum_of_cycle_times=0,
             total_fixed_cost_by_task={},
             avg_fixed_cost_per_case=0,
             avg_fixed_cost_per_case_by_task={},
@@ -692,18 +700,52 @@ class Evaluation:
             ],
             default=log_info.ended_at,
         )
-        total_duration = (last_completion - first_enablement).total_seconds()
+        total_cycle_time = (last_completion - first_enablement).total_seconds()
+        total_idle_time = sum(
+            [
+                kpi.idle_time.total
+                for kpi in task_kpis.values()
+                if kpi.idle_time.total is not None
+            ]
+        )
+        total_processing_time = sum(
+            [
+                kpi.processing_time.total
+                for kpi in task_kpis.values()
+                if kpi.processing_time.total is not None
+            ]
+        )
+
+        total_duration = total_idle_time + total_processing_time
+
+        sum_of_durations = sum(
+            [
+                kpi.idle_processing_time.total
+                for kpi in task_kpis.values()
+                if kpi.idle_processing_time.total is not None
+            ]
+        )
+
+        sum_of_cycle_times = sum(
+            [
+                kpi.idle_cycle_time.total
+                for kpi in task_kpis.values()
+                if kpi.idle_cycle_time.total is not None
+            ]
+        )
 
         # print("\n".join([f"{event.started_datetime.isoformat()} -> {event.completed_datetime.isoformat()} (enabled: {event.enabled_datetime.isoformat()}) (I:{event.idle_time / 3600}, P:{event.processing_time/3600}, WT:{event.waiting_time/3600}, C:{event.cycle_time / 3600})" for trace in log_info.trace_list for event in trace.event_list]))
         return Evaluation(
             hourly_rates=hourly_rates,
             total_duration=total_duration,
-            total_cycle_time=global_kpis.cycle_time.total,
+            total_cycle_time=total_cycle_time,
             total_waiting_time=global_kpis.waiting_time.total,
             avg_cycle_time_by_case=global_kpis.cycle_time.avg,
             avg_waiting_time_by_case=global_kpis.waiting_time.avg,
+            total_processing_time=total_processing_time,
+            sum_of_durations=sum_of_durations,
+            sum_of_cycle_times=sum_of_cycle_times,
             is_empty=not cases,
-            global_kpis=global_kpis,
             task_kpis=task_kpis,
             resource_kpis=resource_kpis,
             task_execution_count_with_wt_or_it=Evaluation.get_task_execution_count_with_wt_or_it(

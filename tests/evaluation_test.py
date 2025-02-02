@@ -43,11 +43,11 @@ def test_evaluation_calculation_without_batching(one_task_state: State):
     # => 2 days + 1 * 45min + 9h = 2d + 0,75h+ 0,5h +9h = 2d + 10,25h
     # (The first day begins at 9:00, so the first day is only 15h long)
     # 15h + 24h + 10,25h = 49,25h
-    assert evaluation.total_duration == 49.25 * 60 * 60
+    assert evaluation.total_cycle_time == 49.25 * 60 * 60
     # No waiting time, so the total time is the same as the processing time
     assert evaluation.avg_cycle_time_by_case == 30 * 60
     # Total cycle time is the same as the total time
-    assert evaluation.total_cycle_time == 26 * 30 * 60
+    assert evaluation.total_duration == 26 * 30 * 60
     assert evaluation.avg_waiting_time_by_case == 0
 
     # The first cases of each day don't have any waiting time (3 cases)
@@ -169,7 +169,7 @@ def test_evaluation_with_intra_task_idling(one_task_state: State):
         evaluation.task_kpis[TimetableGenerator.FIRST_ACTIVITY].idle_time.total
         == (7 * 22 + 48) * 60 * 60
     )
-    assert evaluation.global_kpis.idle_time.total == (7 * 22 + 48) * 60 * 60
+    assert evaluation.total_task_idle_time == (7 * 22 + 48) * 60 * 60
 
 
 def test_evaluation_with_intra_task_idling_task_stats(one_task_state: State):
@@ -199,7 +199,7 @@ def test_evaluation_with_intra_task_idling_task_stats(one_task_state: State):
 
     evaluation = state.evaluate()
 
-    # Because the first task only arrives one our later, it spans over two days
+    # Because the first task only arrives one hour later, it spans over two days
     # Processing time is 2h
     assert (
         evaluation.get_total_processing_time_per_task()[
@@ -207,6 +207,8 @@ def test_evaluation_with_intra_task_idling_task_stats(one_task_state: State):
         ]
         == 2 * 4 * 60 * 60
     )
+    assert evaluation.total_processing_time == 2 * 4 * 60 * 60
+
     # Waiting time (due to resource contention) is 0 for the first task
     # + 11:00 -> 10:00 (next day) + 12:00 -> 10:00 (2 days later) +
     # 13:00 -> 10:00 (3 days later) = 0 + 24-1 + 24*2-2 + 24*3-3 = 0 + 23 + 46 + 69
@@ -214,21 +216,28 @@ def test_evaluation_with_intra_task_idling_task_stats(one_task_state: State):
         evaluation.get_total_waiting_time_of_task_id(TimetableGenerator.FIRST_ACTIVITY)
         == (0 + 23 + 46 + 69) * 60 * 60
     )
+    assert evaluation.total_waiting_time == (0 + 23 + 46 + 69) * 60 * 60
     # Idle time is 22h for each task (11:00 -> 09:00)
     assert (
         evaluation.get_total_idle_time_of_task_id(TimetableGenerator.FIRST_ACTIVITY)
         == 22 * 4 * 60 * 60
     )
+    assert evaluation.total_task_idle_time == 22 * 4 * 60 * 60
     # Duration is processing time + idle time
     assert (
         evaluation.get_total_duration_time_per_task()[TimetableGenerator.FIRST_ACTIVITY]
-        == (2 * 4 + 22 * 4 + 0 + 23 + 46 + 69) * 60 * 60
+        == (2 * 4 + 22 * 4) * 60 * 60
     )
+    assert evaluation.total_duration == (2 * 4 + 22 * 4) * 60 * 60
     # Cycle time is duration + waiting time (= wt + processing + idle)
     assert (
         evaluation.get_total_cycle_time_of_task_id(TimetableGenerator.FIRST_ACTIVITY)
         == (2 * 4 + 22 * 4 + 0 + 23 + 46 + 69) * 60 * 60
     )
+    # For the whole process, we can't just sum up the waiting times, because a task
+    # might wait, while other tasks are being processed, which wont increase the total
+    # cycle time
+    assert evaluation.total_cycle_time == (2 * 4 + 22 * 4) * 60 * 60
 
 
 def test_evaluation_with_waiting_times(one_task_state: State):
@@ -267,8 +276,12 @@ def test_evaluation_with_waiting_times(one_task_state: State):
 
     assert evaluation.avg_waiting_time_by_case == (0.5 * (7 / 2)) * 60 * 60
     # 1 hour processing time + 1.75h wt (on avg) times 8 cases
-    assert evaluation.total_cycle_time == 8 * (1 + (0.5 * (7 / 2))) * 60 * 60
+    assert evaluation.sum_of_cycle_times == 8 * (1 + (0.5 * (7 / 2))) * 60 * 60
+    assert evaluation.sum_of_durations == 8 * 60 * 60
+    assert evaluation.total_cycle_time == 8 * 60 * 60
     assert evaluation.total_duration == 8 * 60 * 60
+    assert evaluation.total_processing_time == 8 * 60 * 60
+    assert evaluation.total_task_idle_time == 0
 
     assert (
         evaluation.get_average_processing_time_per_task()[
@@ -277,7 +290,9 @@ def test_evaluation_with_waiting_times(one_task_state: State):
         == 1 * 60 * 60
     )
     assert (
-        evaluation.avg_batching_waiting_time_per_task[TimetableGenerator.FIRST_ACTIVITY]
+        evaluation.avg_batching_waiting_time_per_task.get(
+            TimetableGenerator.FIRST_ACTIVITY, 0
+        )
         == 0
     )
     assert (
@@ -289,8 +304,13 @@ def test_evaluation_with_waiting_times(one_task_state: State):
         == (1 + (0.5 * (7 / 2))) * 60 * 60
     )
     assert (
-        evaluation.get_total_duration_time_per_task()[TimetableGenerator.FIRST_ACTIVITY]
+        evaluation.get_total_cycle_time_of_task_id(TimetableGenerator.FIRST_ACTIVITY)
         == (8 * (1 + (0.5 * (7 / 2)))) * 60 * 60
+    )
+
+    assert (
+        evaluation.get_total_duration_time_per_task()[TimetableGenerator.FIRST_ACTIVITY]
+        == 8 * 60 * 60
     )
 
 
@@ -386,7 +406,7 @@ def test_batch_detection(one_task_state: State):
     # first day (9:00 -> 17:00 = 8h) + night time (17:00 -> 9:00 = 16h)
     # + another day (9:00 -> 17:00 = 8h) + night time (17:00 -> 9:00 = 16h)
     # + 1h for the last case = 2*8 + 2*16 + 1 = 49h
-    assert evaluation.total_duration == 49 * 60 * 60
+    assert evaluation.total_cycle_time == 49 * 60 * 60
     # 16 cases * 1.5h avg waiting time (0-3h)
     assert evaluation.total_waiting_time == (16 * 1.5) * 60 * 60
     # 2 * 4 cases idle over night (17:00 -> 9:00 = 16h)
@@ -396,6 +416,10 @@ def test_batch_detection(one_task_state: State):
     # TODO: This stat ignores the initial 3h of working time, due
     # to it thinking "the process hasn't really started"
     assert evaluation.total_resource_idle_time == ((8 * 2 + 1 - 3) - 4 * 2) * 60 * 60
+
+    assert evaluation.total_processing_time == (16 * 2) * 60 * 60
+    assert evaluation.total_task_idle_time == (2 * 4 * 16) * 60 * 60
+    assert evaluation.total_duration == (16 * 2 + 2 * 4 * 16) * 60 * 60
 
     # Check Calculated batches
     assert evaluation.batches is not None

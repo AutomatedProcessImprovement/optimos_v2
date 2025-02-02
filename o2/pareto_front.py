@@ -135,8 +135,8 @@ class ParetoFront:
 
     def get_bounding_rect(self) -> tuple[float, float, float, float]:
         """Get the bounding rectangle of the front."""
-        min_x = min(s.evaluation.total_cost for s in self.solutions)
-        max_x = max(s.evaluation.total_cost for s in self.solutions)
-        min_y = min(s.evaluation.total_duration for s in self.solutions)
-        max_y = max(s.evaluation.total_duration for s in self.solutions)
+        min_x = min(s.evaluation.pareto_x for s in self.solutions)
+        max_x = max(s.evaluation.pareto_x for s in self.solutions)
+        min_y = min(s.evaluation.pareto_y for s in self.solutions)
+        max_y = max(s.evaluation.pareto_y for s in self.solutions)
         return min_x, min_y, max_x, max_y
