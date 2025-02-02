@@ -18,8 +18,10 @@ class RuleSelector(JSONWizard):
 
     @staticmethod
     def from_batching_rule(
-        batching_rule: "BatchingRule", firing_rule_index: Optional[tuple[int, int]]
-    ):
+        batching_rule: "BatchingRule",
+        firing_rule_index: Optional[tuple[int, int]] = None,
+    ) -> "RuleSelector":
+        """Create a rule selector from a batching rule."""
         return RuleSelector(
             batching_rule_task_id=batching_rule.task_id,
             firing_rule_index=firing_rule_index,

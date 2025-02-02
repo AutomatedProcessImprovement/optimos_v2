@@ -50,13 +50,7 @@ class AddSizeRuleBaseAction(BaseAction, ABC, str=False):
             new_batching_rule = BatchingRule.from_task_id(
                 task_id=task_id,
                 size=new_size,
-                firing_rules=[
-                    FiringRule(
-                        attribute=RULE_TYPE.SIZE,
-                        comparison=COMPARATOR.GREATER_THEN_OR_EQUAL,
-                        value=new_size,
-                    )
-                ],
+                firing_rules=[FiringRule.gte(RULE_TYPE.SIZE, new_size)],
             )
             return state.replace_timetable(
                 batch_processing=timetable.batch_processing + [new_batching_rule]
@@ -64,7 +58,7 @@ class AddSizeRuleBaseAction(BaseAction, ABC, str=False):
         # Add OR Case to existing rule
         else:
             existing_rule = batching_rules[0]
-
+            # TODO: Check if a single size rule already exists, and if so, replace it
             new_batching_rule = replace(
                 existing_rule,
                 # Integrate in existing size distribution
@@ -86,17 +80,11 @@ class AddSizeRuleBaseAction(BaseAction, ABC, str=False):
                 ],
                 firing_rules=existing_rule.firing_rules
                 + [
-                    [
-                        FiringRule(
-                            attribute=RULE_TYPE.SIZE,
-                            comparison=COMPARATOR.GREATER_THEN_OR_EQUAL,
-                            value=new_size,
-                        )
-                    ],
+                    [FiringRule.gte(RULE_TYPE.SIZE, new_size)],
                 ],
             )
             new_timetable = timetable.replace_batching_rule(
-                RuleSelector(batching_rule_task_id=task_id, firing_rule_index=None),
+                RuleSelector.from_batching_rule(new_batching_rule),
                 new_batching_rule,
             )
             return replace(state, timetable=new_timetable)

@@ -64,11 +64,7 @@ class ModifySizeRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
             firing_rules=[
                 # TODO: Do not replace the whole firing rules,
                 # just the one that needs to be changed
-                FiringRule(
-                    attribute=RULE_TYPE.SIZE,
-                    comparison=COMPARATOR.GREATER_THEN_OR_EQUAL,
-                    value=new_size,
-                )
+                FiringRule.gte(RULE_TYPE.SIZE, new_size),
             ],
         )
 

@@ -67,7 +67,7 @@ class ModifyDateTimeRulesByEnablementAction(AddDateTimeRuleBaseAction):
                             None,
                         )
                         has_day = day_rule is not None
-                        if firing_rule.comparison == COMPARATOR.EQUAL:
+                        if firing_rule.is_eq:
                             if has_day:
                                 task_batch_enablement[rule.task_id] = (
                                     task_batch_enablement[
@@ -84,14 +84,13 @@ class ModifyDateTimeRulesByEnablementAction(AddDateTimeRuleBaseAction):
                                     ].set_hour_for_every_day(firing_rule.value)
                                 )
 
-                        elif firing_rule.comparison == COMPARATOR.GREATER_THEN:
+                        elif firing_rule.is_gt:
                             less_than_rule = next(
                                 (
                                     less_than_rule
                                     for less_than_rule in and_rules
                                     if rule_is_daily_hour(less_than_rule)
-                                    and less_than_rule.comparison
-                                    == COMPARATOR.LESS_THEN
+                                    and less_than_rule.is_lt
                                 ),
                                 None,
                             )

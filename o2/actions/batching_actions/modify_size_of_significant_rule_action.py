@@ -76,13 +76,7 @@ class ModifySizeOfSignificantRuleAction(BaseAction):
             new_batching_rule = BatchingRule.from_task_id(
                 task_id=task_id,
                 size=new_size,
-                firing_rules=[
-                    FiringRule(
-                        attribute=RULE_TYPE.SIZE,
-                        comparison=COMPARATOR.GREATER_THEN_OR_EQUAL,
-                        value=new_size,
-                    )
-                ],
+                firing_rules=[FiringRule.gte(RULE_TYPE.SIZE, new_size)],
             )
             return state.replace_timetable(
                 batch_processing=timetable.batch_processing + [new_batching_rule]

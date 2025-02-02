@@ -547,6 +547,71 @@ class FiringRule(JSONWizard, Generic[V]):
         """
         return hash_string(dumps(asdict(self)))
 
+    @property
+    def is_gte(self) -> bool:
+        """Check if the rule is a greater than or equal rule."""
+        return self.comparison == COMPARATOR.GREATER_THEN_OR_EQUAL
+
+    @property
+    def is_lt(self) -> bool:
+        """Check if the rule is a less than rule."""
+        return self.comparison == COMPARATOR.LESS_THEN
+
+    @property
+    def is_eq(self) -> bool:
+        """Check if the rule is an equal rule."""
+        return self.comparison == COMPARATOR.EQUAL
+
+    @property
+    def is_lte(self) -> bool:
+        """Check if the rule is a less than or equal rule."""
+        return self.comparison == COMPARATOR.LESS_THEN_OR_EQUAL
+
+    @property
+    def is_gt(self) -> bool:
+        """Check if the rule is a greater than rule."""
+        return self.comparison == COMPARATOR.GREATER_THEN
+
+    @property
+    def is_gt_or_gte(self) -> bool:
+        """Check if the rule is a greater than or equal rule."""
+        return self.is_gt or self.is_gte
+
+    @property
+    def is_lt_or_lte(self) -> bool:
+        """Check if the rule is a less than or equal rule."""
+        return self.is_lt or self.is_lte
+
+    @staticmethod
+    def eq(attribute: RULE_TYPE, value: V) -> "FiringRule[V]":
+        return FiringRule(attribute=attribute, comparison=COMPARATOR.EQUAL, value=value)
+
+    @staticmethod
+    def gte(attribute: RULE_TYPE, value: V) -> "FiringRule[V]":
+        return FiringRule(
+            attribute=attribute,
+            comparison=COMPARATOR.GREATER_THEN_OR_EQUAL,
+            value=value,
+        )
+
+    @staticmethod
+    def lt(attribute: RULE_TYPE, value: V) -> "FiringRule[V]":
+        return FiringRule(
+            attribute=attribute, comparison=COMPARATOR.LESS_THEN, value=value
+        )
+
+    @staticmethod
+    def lte(attribute: RULE_TYPE, value: V) -> "FiringRule[V]":
+        return FiringRule(
+            attribute=attribute, comparison=COMPARATOR.LESS_THEN_OR_EQUAL, value=value
+        )
+
+    @staticmethod
+    def gt(attribute: RULE_TYPE, value: V) -> "FiringRule[V]":
+        return FiringRule(
+            attribute=attribute, comparison=COMPARATOR.GREATER_THEN, value=value
+        )
+
 
 AndRules = List[FiringRule]
 OrRules = List[AndRules]
@@ -626,19 +691,13 @@ class BatchingRule(JSONWizard):
                     )
                     day = and_rule.value
                 if rule_is_daily_hour(and_rule):
-                    if (
-                        and_rule.comparison == COMPARATOR.LESS_THEN
-                        or and_rule.comparison == COMPARATOR.LESS_THEN_OR_EQUAL
-                    ):
+                    if and_rule.is_lt_or_lte:
                         if upper_bound is None or and_rule.value < upper_bound:
                             upper_bound = and_rule.value
                             upper_bound_selector = RuleSelector.from_batching_rule(
                                 self, (or_index, and_rule_index)
                             )
-                    elif (
-                        and_rule.comparison == COMPARATOR.GREATER_THEN
-                        or and_rule.comparison == COMPARATOR.GREATER_THEN_OR_EQUAL
-                    ):
+                    elif and_rule.is_gt_or_gte:
                         if lower_bound is None or and_rule.value > lower_bound:
                             lower_bound = and_rule.value
                             lower_bound_selector = RuleSelector.from_batching_rule(

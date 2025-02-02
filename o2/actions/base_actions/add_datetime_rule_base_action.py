@@ -9,6 +9,7 @@ from o2.actions.base_actions.batching_rule_base_action import (
     BatchingRuleBaseAction,
 )
 from o2.models.constraints import RULE_TYPE
+from o2.models.rule_selector import RuleSelector
 from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.state import State
 from o2.models.time_period import TimePeriod
@@ -47,21 +48,9 @@ class AddDateTimeRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
             new_batching_rule = BatchingRule.from_task_id(
                 task_id=task_id,
                 firing_rules=[
-                    FiringRule(
-                        attribute=RULE_TYPE.WEEK_DAY,
-                        comparison=COMPARATOR.EQUAL,
-                        value=time_period.from_,
-                    ),
-                    FiringRule(
-                        attribute=RULE_TYPE.DAILY_HOUR,
-                        comparison=COMPARATOR.GREATER_THEN_OR_EQUAL,
-                        value=time_period.begin_time_hour,
-                    ),
-                    FiringRule(
-                        attribute=RULE_TYPE.DAILY_HOUR,
-                        comparison=COMPARATOR.LESS_THEN,
-                        value=time_period.end_time_hour,
-                    ),
+                    FiringRule.eq(RULE_TYPE.WEEK_DAY, time_period.from_),
+                    FiringRule.gte(RULE_TYPE.DAILY_HOUR, time_period.begin_time_hour),
+                    FiringRule.lt(RULE_TYPE.DAILY_HOUR, time_period.end_time_hour),
                 ],
             )
             return state.replace_timetable(
@@ -70,39 +59,25 @@ class AddDateTimeRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
 
         # Find the rule to modify
         rule = existing_task_rules[0]
-        index = timetable.batch_processing.index(rule)
 
         new_or_rule = [
-            FiringRule(
-                attribute=RULE_TYPE.WEEK_DAY,
-                comparison=COMPARATOR.EQUAL,
-                value=time_period.from_,
-            ),
-            FiringRule(
-                attribute=RULE_TYPE.DAILY_HOUR,
-                comparison=COMPARATOR.GREATER_THEN_OR_EQUAL,
-                value=time_period.begin_time_hour,
-            ),
-            FiringRule(
-                attribute=RULE_TYPE.DAILY_HOUR,
-                comparison=COMPARATOR.LESS_THEN,
-                value=time_period.end_time_hour,
-            ),
+            FiringRule.eq(RULE_TYPE.WEEK_DAY, time_period.from_),
+            FiringRule.gte(RULE_TYPE.DAILY_HOUR, time_period.begin_time_hour),
+            FiringRule.lt(RULE_TYPE.DAILY_HOUR, time_period.end_time_hour),
         ]
-        updated_rule = replace(
-            rule,
-            firing_rules=rule.firing_rules + [new_or_rule],
-        )
+        updated_rule = rule.add_firing_rules(new_or_rule)
 
         if enable_prints:
             print(
                 f"\t\t>> Adding rule for {task_id} on {time_period.from_} from {time_period.begin_time} to {time_period.end_time}"
             )
 
-        return state.replace_timetable(
-            batch_processing=timetable.batch_processing[:index]
-            + [updated_rule]
-            + timetable.batch_processing[index + 1 :],
+        return replace(
+            state,
+            timetable=timetable.replace_batching_rule(
+                RuleSelector.from_batching_rule(rule),
+                updated_rule,
+            ),
         )
 
     @staticmethod

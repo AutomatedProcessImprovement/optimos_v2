@@ -51,16 +51,8 @@ class AddReadyLargeWTRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
             new_batching_rule = BatchingRule.from_task_id(
                 task_id=task_id,
                 firing_rules=[
-                    FiringRule(
-                        attribute=type,
-                        comparison=COMPARATOR.GREATER_THEN_OR_EQUAL,
-                        value=waiting_time,
-                    ),
-                    FiringRule(
-                        attribute=type,
-                        comparison=COMPARATOR.LESS_THEN_OR_EQUAL,
-                        value=24 * 60 * 60,
-                    ),
+                    FiringRule.gte(type, waiting_time),
+                    FiringRule.lte(type, 24 * 60 * 60),
                 ],
             )
             return state.replace_timetable(
@@ -79,8 +71,8 @@ class AddReadyLargeWTRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
                 if (
                     rule_1.attribute == type
                     and rule_2.attribute == type
-                    and rule_1.comparison == COMPARATOR.GREATER_THEN_OR_EQUAL
-                    and rule_2.comparison == COMPARATOR.LESS_THEN_OR_EQUAL
+                    and rule_1.is_gte
+                    and rule_2.is_lte
                     and rule_2.value == 24 * 60 * 60
                 ):
                     # The rule is already smaller than the waiting time
@@ -89,11 +81,7 @@ class AddReadyLargeWTRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
                         return state
 
                     # We can modify this existing rule
-                    updated_firing_rule = FiringRule(
-                        attribute=type,
-                        comparison=COMPARATOR.GREATER_THEN_OR_EQUAL,
-                        value=waiting_time,
-                    )
+                    updated_firing_rule = FiringRule.gte(type, waiting_time)
                     selector = RuleSelector(
                         batching_rule_task_id=task_id, firing_rule_index=(or_index, 0)
                     )
@@ -105,22 +93,12 @@ class AddReadyLargeWTRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
                     )
 
         new_or_rule = [
-            FiringRule(
-                attribute=type,
-                comparison=COMPARATOR.GREATER_THEN_OR_EQUAL,
-                value=waiting_time,
-            ),
+            FiringRule.gte(type, waiting_time),
             # This is needed, or else we get an error
-            FiringRule(
-                attribute=type,
-                comparison=COMPARATOR.LESS_THEN_OR_EQUAL,
-                value=24 * 60 * 60,
-            ),
+            FiringRule.lte(type, 24 * 60 * 60),
         ]
-        updated_rule = replace(
-            rule,
-            firing_rules=rule.firing_rules + [new_or_rule],
-        )
+
+        updated_rule = rule.add_firing_rules(new_or_rule)
 
         if enable_prints:
             print(f"\t\t>> Adding rule for {task_id} with large_wt >= {waiting_time}")

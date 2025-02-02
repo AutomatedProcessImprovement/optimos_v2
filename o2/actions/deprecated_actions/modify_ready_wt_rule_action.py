@@ -52,11 +52,7 @@ class ModifyReadyWtRuleAction(BatchingRuleBaseAction, str=False):
         old_wt = firing_rule.value
         new_wt = old_wt + wt_increment
 
-        new_firing_rule = FiringRule(
-            attribute=RULE_TYPE.READY_WT,
-            comparison=COMPARATOR.EQUAL,
-            value=new_wt,
-        )
+        new_firing_rule = FiringRule.eq(RULE_TYPE.READY_WT, new_wt)
 
         new_batching_rule = rule.replace_firing_rule(rule_selector, new_firing_rule)
 

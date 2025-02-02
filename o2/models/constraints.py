@@ -58,24 +58,14 @@ class SizeRuleConstraints(BatchingConstraints, JSONWizard):
             return False
 
         # Special case: If the rule is a <(=) min size, it is invalid if min size is set
-        if (
-            self.min_size
-            and self.min_size > 0
-            and (
-                firing_rule.comparison == COMPARATOR.LESS_THEN
-                or firing_rule.comparison == COMPARATOR.LESS_THEN_OR_EQUAL
-            )
-        ):
+        if self.min_size and self.min_size > 0 and (firing_rule.is_lt_or_lte):
             return False
 
         # Special case: If the rule is a >(=) max size, it is invalid if max size is set
-        if self.max_size and (
-            firing_rule.comparison == COMPARATOR.GREATER_THEN
-            or firing_rule.comparison == COMPARATOR.GREATER_THEN_OR_EQUAL
-        ):
+        if self.max_size and (firing_rule.is_gt_or_gte):
             return False
 
-        if (self.min_size and firing_rule.value < self.min_size) or (
+        if (self.min_size and firing_rule.value < self.min_size) or (  # noqa: SIM103
             self.max_size and firing_rule.value > self.max_size
         ):
             return False

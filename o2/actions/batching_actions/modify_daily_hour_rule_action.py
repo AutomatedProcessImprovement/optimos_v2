@@ -81,7 +81,7 @@ class ModifyDailyHourRuleAction(BatchingRuleBaseAction, str=False):
             for or_rule_index, or_rules in enumerate(batching_rule.firing_rules):
                 for and_rule_index, rule in enumerate(or_rules):
                     if rule_is_daily_hour(rule):
-                        if rule.comparison == COMPARATOR.EQUAL:
+                        if rule.is_eq:
                             # TODO Do something with EQUAL
                             pass
                         selector = RuleSelector(
