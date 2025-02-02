@@ -11,6 +11,7 @@ from o2.actions.base_actions.batching_rule_base_action import (
 from o2.models.constraints import RULE_TYPE
 from o2.models.rule_selector import RuleSelector
 from o2.models.self_rating import RATING, SelfRatingInput
+from o2.models.settings import Settings
 from o2.models.state import State
 from o2.models.time_period import TimePeriod
 from o2.models.timetable import (
@@ -43,15 +44,18 @@ class AddDateTimeRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
 
         existing_task_rules = timetable.get_batching_rules_for_task(task_id)
 
+        new_or_rule = [
+            FiringRule.eq(RULE_TYPE.WEEK_DAY, time_period.from_),
+            FiringRule.gte(RULE_TYPE.DAILY_HOUR, time_period.begin_time_hour),
+            FiringRule.lt(RULE_TYPE.DAILY_HOUR, time_period.end_time_hour),
+        ]
+        if Settings.ADD_SIZE_RULE_TO_NEW_RULES:
+            new_or_rule.append(FiringRule.gte(RULE_TYPE.SIZE, 2))
+
         if not existing_task_rules:
             # TODO: Allow combining rules, e.g. extending date range
             new_batching_rule = BatchingRule.from_task_id(
-                task_id=task_id,
-                firing_rules=[
-                    FiringRule.eq(RULE_TYPE.WEEK_DAY, time_period.from_),
-                    FiringRule.gte(RULE_TYPE.DAILY_HOUR, time_period.begin_time_hour),
-                    FiringRule.lt(RULE_TYPE.DAILY_HOUR, time_period.end_time_hour),
-                ],
+                task_id=task_id, firing_rules=new_or_rule
             )
             return state.replace_timetable(
                 batch_processing=timetable.batch_processing + [new_batching_rule]
@@ -59,12 +63,6 @@ class AddDateTimeRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
 
         # Find the rule to modify
         rule = existing_task_rules[0]
-
-        new_or_rule = [
-            FiringRule.eq(RULE_TYPE.WEEK_DAY, time_period.from_),
-            FiringRule.gte(RULE_TYPE.DAILY_HOUR, time_period.begin_time_hour),
-            FiringRule.lt(RULE_TYPE.DAILY_HOUR, time_period.end_time_hour),
-        ]
         updated_rule = rule.add_firing_rules(new_or_rule)
 
         if enable_prints:
