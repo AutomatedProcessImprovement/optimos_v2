@@ -1,4 +1,6 @@
 import hashlib
+from collections import defaultdict
+from collections.abc import Iterator
 from dataclasses import asdict, dataclass, field, replace
 from enum import Enum
 from functools import cached_property, reduce
@@ -8,10 +10,8 @@ from operator import itemgetter
 from typing import (
     TYPE_CHECKING,
     Generic,
-    Iterator,
-    List,
+    Literal,
     Optional,
-    Tuple,
     TypeGuard,
     TypeVar,
     Union,
@@ -97,7 +97,7 @@ class Resource(JSONWizard):
     cost_per_hour: int
     amount: int
     calendar: str
-    assigned_tasks: List[str]
+    assigned_tasks: list[str]
 
     def get_total_cost(self, timetable: "TimetableType") -> int:
         """Get the total cost of the resource."""
@@ -120,7 +120,7 @@ class Resource(JSONWizard):
                 return False
         return True
 
-    def clone(self, assigned_tasks: List[str]) -> "Resource":
+    def clone(self, assigned_tasks: list[str]) -> "Resource":
         """Clone the resource with new assigned tasks."""
         base_name = self.name
         match = CLONE_REGEX.match(self.name)
@@ -153,7 +153,7 @@ class Resource(JSONWizard):
 class ResourcePool(JSONWizard):
     id: str
     name: str
-    resource_list: List[Resource]
+    resource_list: list[Resource]
     fixed_cost_fn: str = "0"
 
     def remove_resource(self, resource_id: str) -> "ResourcePool":
@@ -186,7 +186,7 @@ class DistributionParameter(JSONWizard):
 @dataclass(frozen=True)
 class ArrivalTimeDistribution(JSONWizard):
     distribution_name: DISTRIBUTION_TYPE
-    distribution_params: List[DistributionParameter]
+    distribution_params: list[DistributionParameter]
 
 
 @dataclass(frozen=True)
@@ -198,20 +198,20 @@ class Probability(JSONWizard):
 @dataclass(frozen=True)
 class GatewayBranchingProbability(JSONWizard):
     gateway_id: str
-    probabilities: List[Probability]
+    probabilities: list[Probability]
 
 
 @dataclass(frozen=True)
 class TaskResourceDistribution(JSONWizard):
     resource_id: str
     distribution_name: str
-    distribution_params: List[DistributionParameter]
+    distribution_params: list[DistributionParameter]
 
 
 @dataclass(frozen=True)
 class TaskResourceDistributions(JSONWizard):
     task_id: str
-    resources: List[TaskResourceDistribution]
+    resources: list[TaskResourceDistribution]
 
     def remove_resource(self, resource_id: str) -> "TaskResourceDistributions":
         """Remove a resource from the distribution."""
@@ -301,7 +301,7 @@ class TaskResourceDistributions(JSONWizard):
         return result
 
     @cached_property
-    def resource_ids(self) -> List[str]:
+    def resource_ids(self) -> list[str]:
         """Get the resource ids in the distribution."""
         return [resource.resource_id for resource in self.resources]
 
@@ -310,7 +310,7 @@ class TaskResourceDistributions(JSONWizard):
 class ResourceCalendar(JSONWizard, CustomLoader, CustomDumper):
     id: str
     name: str
-    time_periods: List["TimePeriod"]
+    time_periods: list["TimePeriod"]
 
     def is_valid(self) -> bool:
         """Check if the calendar is valid.
@@ -334,18 +334,18 @@ class ResourceCalendar(JSONWizard, CustomLoader, CustomDumper):
         """Split the time periods by day."""
         return groupby(self.split_time_periods_by_day(), key=lambda tp: tp.from_)
 
-    def split_time_periods_by_day(self) -> List["TimePeriod"]:
+    def split_time_periods_by_day(self) -> list["TimePeriod"]:
         """Split the time periods by day and sort them."""
         return sorted(
             (tp for tp in self.time_periods for tp in tp.split_by_day()),
             key=lambda tp: tp.from_,
         )
 
-    def get_periods_for_day(self, day: DAY) -> List["TimePeriod"]:
+    def get_periods_for_day(self, day: DAY) -> list["TimePeriod"]:
         """Get the time periods for a specific day."""
         return [tp for tp in self.split_time_periods_by_day() if tp.from_ == day]
 
-    def get_periods_containing_day(self, day: DAY) -> List["TimePeriod"]:
+    def get_periods_containing_day(self, day: DAY) -> list["TimePeriod"]:
         """Get the time periods that contain a specific day."""
         return [tp for tp in self.time_periods if is_day_in_range(day, tp.from_, tp.to)]
 
@@ -613,8 +613,8 @@ class FiringRule(JSONWizard, Generic[V]):
         )
 
 
-AndRules = List[FiringRule]
-OrRules = List[AndRules]
+AndRules = list[FiringRule]
+OrRules = list[AndRules]
 
 
 def rule_is_large_wt(rule: Optional[FiringRule]) -> TypeGuard[FiringRule[int]]:
@@ -656,7 +656,7 @@ class BatchingRule(JSONWizard):
 
     def get_firing_rule_selectors(
         self, type: Optional[RULE_TYPE] = None
-    ) -> List["RuleSelector"]:
+    ) -> list["RuleSelector"]:
         """Get all firing rule selectors for the rule."""
         return [
             RuleSelector.from_batching_rule(self, (i, j))
@@ -818,13 +818,17 @@ class BatchingRule(JSONWizard):
 
         or_rules_to_remove = []
         work_mask = WorkMasks()
+        size_dict: dict[DAY | Literal["ALL"], dict[int, int]] = defaultdict(dict)
 
         for index, or_rules in enumerate(self.firing_rules):
-            if len(or_rules) > 3:
+            length = len(or_rules)
+            if length > 4:
                 continue
             daily_hour_gte_rule: Optional[FiringRule[int]] = None
             daily_hour_lt_rule: Optional[FiringRule[int]] = None
             week_day_rule: Optional[FiringRule[DAY]] = None
+            size_rule: Optional[FiringRule[int]] = None
+
             for rule in or_rules:
                 if rule_is_daily_hour(rule) and rule.is_gte:
                     daily_hour_gte_rule = rule
@@ -832,33 +836,51 @@ class BatchingRule(JSONWizard):
                     daily_hour_lt_rule = rule
                 elif rule_is_week_day(rule) and rule.is_eq:
                     week_day_rule = rule
+                elif rule_is_size(rule) and rule.is_gt_or_gte:
+                    size_rule = rule
             if daily_hour_gte_rule is None or daily_hour_lt_rule is None:
                 continue
-            if len(or_rules) == 3 and week_day_rule is None:
+            if length == 4 and (size_rule is None or week_day_rule is None):
+                continue
+            if length == 3 and (week_day_rule is None and size_rule is None):
                 continue
             if not week_day_rule:
                 work_mask = work_mask.set_hour_range_for_every_day(
                     daily_hour_gte_rule.value,
                     daily_hour_lt_rule.value,
                 )
+                if size_rule:
+                    size_dict["ALL"][daily_hour_gte_rule.value] = max(
+                        size_dict["ALL"].get(daily_hour_gte_rule.value, 0),
+                        size_rule.value,
+                    )
             else:
                 work_mask = work_mask.set_hour_range_for_day(
                     week_day_rule.value,
                     daily_hour_gte_rule.value,
                     daily_hour_lt_rule.value,
                 )
+                if size_rule:
+                    size_dict[week_day_rule.value][daily_hour_gte_rule.value] = max(
+                        size_dict[week_day_rule.value].get(
+                            daily_hour_gte_rule.value, 0
+                        ),
+                        size_rule.value,
+                    )
             or_rules_to_remove.append(index)
         new_or_rules = []
         for day in DAY:
             periods = TimePeriod.from_bitmask(work_mask.get(day), day)
             for period in periods:
-                new_or_rules.append(
-                    [
-                        FiringRule.eq(RULE_TYPE.WEEK_DAY, day),
-                        FiringRule.gte(RULE_TYPE.DAILY_HOUR, period.begin_time_hour),
-                        FiringRule.lt(RULE_TYPE.DAILY_HOUR, period.end_time_hour),
-                    ]
-                )
+                max_size = self._find_max_size(size_dict, period)
+                rules = [
+                    FiringRule.eq(RULE_TYPE.WEEK_DAY, day),
+                    FiringRule.gte(RULE_TYPE.DAILY_HOUR, period.begin_time_hour),
+                    FiringRule.lt(RULE_TYPE.DAILY_HOUR, period.end_time_hour),
+                ]
+                if max_size > 0:
+                    rules.append(FiringRule.gte(RULE_TYPE.SIZE, max_size))
+                new_or_rules.append(rules)
         return replace(
             self,
             firing_rules=new_or_rules
@@ -867,6 +889,18 @@ class BatchingRule(JSONWizard):
                 for index, or_rules in enumerate(self.firing_rules)
                 if index not in or_rules_to_remove
             ],
+        )
+
+    def _find_max_size(
+        self, size_dict: dict[DAY | Literal["ALL"], dict[int, int]], period: TimePeriod
+    ) -> int:
+        all_entries = size_dict.get("ALL", {})
+        day_entries = size_dict.get(period.from_, {})
+
+        # Get maximum of all entries, that are between begin_time_hour and end_time_hour
+        return max(
+            max(all_entries.get(entry, 0), day_entries.get(entry, 0))
+            for entry in range(period.begin_time_hour, period.end_time_hour)
         )
 
     def is_valid(self) -> bool:
@@ -947,14 +981,14 @@ class BatchingRule(JSONWizard):
 
 @dataclass(frozen=True)
 class TimetableType(JSONWizard, CustomLoader, CustomDumper):
-    resource_profiles: List[ResourcePool]
+    resource_profiles: list[ResourcePool]
     arrival_time_distribution: ArrivalTimeDistribution
-    arrival_time_calendar: List["TimePeriod"]
-    gateway_branching_probabilities: List[GatewayBranchingProbability]
-    task_resource_distribution: List[TaskResourceDistributions]
-    resource_calendars: List[ResourceCalendar]
+    arrival_time_calendar: list["TimePeriod"]
+    gateway_branching_probabilities: list[GatewayBranchingProbability]
+    task_resource_distribution: list[TaskResourceDistributions]
+    resource_calendars: list[ResourceCalendar]
     event_distribution: EventDistribution
-    batch_processing: List[BatchingRule] = field(default_factory=list)
+    batch_processing: list[BatchingRule] = field(default_factory=list)
     start_time: str = "2000-01-01T00:00:00Z"
     total_cases: int = 1000
 
@@ -978,7 +1012,7 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
 
     def get_batching_rule(
         self, rule_selector: "RuleSelector"
-    ) -> Union[Tuple[int, BatchingRule], Tuple[None, None]]:
+    ) -> Union[tuple[int, BatchingRule], tuple[None, None]]:
         """Get a batching rule by rule selector."""
         return next(
             (
@@ -994,7 +1028,7 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
 
     def get_batching_rules_for_task(
         self, task_id: str, batch_type: Optional["BATCH_TYPE"] = None
-    ) -> List[BatchingRule]:
+    ) -> list[BatchingRule]:
         """Get all batching rules for a task."""
         return [
             rule
@@ -1004,8 +1038,8 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
         ]
 
     def get_batching_rules_for_tasks(
-        self, task_ids: List[str], batch_type: Optional["BATCH_TYPE"] = None
-    ) -> List[BatchingRule]:
+        self, task_ids: list[str], batch_type: Optional["BATCH_TYPE"] = None
+    ) -> list[BatchingRule]:
         """Get all batching rules for a list of tasks."""
         return [
             rule
@@ -1019,7 +1053,7 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
         task_id: str,
         batch_type: Optional["BATCH_TYPE"] = None,
         rule_type: Optional[RULE_TYPE] = None,
-    ) -> List[FiringRule]:
+    ) -> list[FiringRule]:
         """Get all firing rules for a task."""
         return [
             firing_rule
@@ -1077,7 +1111,7 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
         task_id: str,
         batch_type: Optional["BATCH_TYPE"] = None,
         rule_type: Optional[RULE_TYPE] = None,
-    ) -> List["RuleSelector"]:
+    ) -> list["RuleSelector"]:
         """Get all firing rule selectors for a task."""
         return [
             rule_selector
@@ -1089,10 +1123,10 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
 
     def get_firing_rules_for_tasks(
         self,
-        task_ids: List[str],
+        task_ids: list[str],
         batch_type: Optional["BATCH_TYPE"] = None,
         rule_type: Optional[RULE_TYPE] = None,
-    ) -> List[FiringRule]:
+    ) -> list[FiringRule]:
         """Get all firing rules for a list of tasks."""
         return [
             firing_rule
@@ -1120,7 +1154,7 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
                     return resource
         return None
 
-    def get_tasks(self, resource_id: str) -> List[str]:
+    def get_tasks(self, resource_id: str) -> list[str]:
         """Get all tasks assigned to a resource."""
         resource = self.get_resource(resource_id)
         if resource is None:
@@ -1136,7 +1170,7 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
                 return task_resource_distribution
         return None
 
-    def get_resources_assigned_to_task(self, task_id: str) -> List[str]:
+    def get_resources_assigned_to_task(self, task_id: str) -> list[str]:
         """Get all resources assigned to a task."""
         task_resource_distribution = self.get_task_resource_distribution(task_id)
         if task_resource_distribution is None:
@@ -1145,7 +1179,7 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
             resource.resource_id for resource in task_resource_distribution.resources
         ]
 
-    def get_task_ids_assigned_to_resource(self, resource_id: str) -> List[str]:
+    def get_task_ids_assigned_to_resource(self, resource_id: str) -> list[str]:
         """Get all tasks assigned to a resource."""
         return [
             task_resource_distribution.task_id
@@ -1229,7 +1263,7 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
 
     def get_calendars_for_resource_clones(
         self, resource_name: str
-    ) -> List[ResourceCalendar]:
+    ) -> list[ResourceCalendar]:
         """Get all resource calendars of clones of a resource."""
         return [
             resource_calendar
@@ -1244,7 +1278,7 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
                 return resource_calendar
         return None
 
-    def get_all_resources(self) -> List[Resource]:
+    def get_all_resources(self) -> list[Resource]:
         """Get all resources."""
         resources = {
             resource.id: resource
@@ -1253,7 +1287,7 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
         }
         return list(resources.values())
 
-    def get_deleted_resources(self, base_state: "State") -> List[Resource]:
+    def get_deleted_resources(self, base_state: "State") -> list[Resource]:
         """Get all resources that have been deleted."""
         return [
             resource
@@ -1262,7 +1296,7 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
             if self.get_resource(resource.id) is None
         ]
 
-    def get_resources_with_cost(self) -> List[tuple[Resource, int]]:
+    def get_resources_with_cost(self) -> list[tuple[Resource, int]]:
         """Get all resources with cost. Sorted desc."""
         return sorted(
             (
@@ -1433,7 +1467,7 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
             task_resource_distribution=new_task_resource_distribution,
         )
 
-    def get_task_ids(self) -> List[str]:
+    def get_task_ids(self) -> list[str]:
         """Get all task ids."""
         return [task.task_id for task in self.task_resource_distribution]
 
