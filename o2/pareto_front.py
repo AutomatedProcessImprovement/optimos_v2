@@ -48,6 +48,26 @@ class ParetoFront:
         return sum(s.evaluation.pareto_x for s in self.solutions) / self.size
 
     @property
+    def min_y(self) -> float:
+        """Return the minimum y of the front."""
+        return min(s.evaluation.pareto_y for s in self.solutions)
+
+    @property
+    def min_x(self) -> float:
+        """Return the minimum x of the front."""
+        return min(s.evaluation.pareto_x for s in self.solutions)
+
+    @property
+    def max_y(self) -> float:
+        """Return the maximum y of the front."""
+        return max(s.evaluation.pareto_y for s in self.solutions)
+
+    @property
+    def max_x(self) -> float:
+        """Return the maximum x of the front."""
+        return max(s.evaluation.pareto_x for s in self.solutions)
+
+    @property
     def avg_per_case_cost(self) -> float:
         """Return the average cost of the front."""
         return sum(s.evaluation.avg_cost_by_case for s in self.solutions) / self.size

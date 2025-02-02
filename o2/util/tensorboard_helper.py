@@ -76,15 +76,38 @@ class TensorBoardHelper:
             )
 
             tf.summary.scalar(
-                "front/" + Settings.get_pareto_x_label().replace(" ", "_").lower(),
+                "front/avg_" + Settings.get_pareto_x_label().replace(" ", "_").lower(),
                 self.store.current_pareto_front.avg_x,
                 step=self.step,
             )
             tf.summary.scalar(
-                "front/" + Settings.get_pareto_y_label().replace(" ", "_").lower(),
+                "front/avg_" + Settings.get_pareto_y_label().replace(" ", "_").lower(),
                 self.store.current_pareto_front.avg_y,
                 step=self.step,
             )
+
+            tf.summary.scalar(
+                "front/max_" + Settings.get_pareto_x_label().replace(" ", "_").lower(),
+                self.store.current_pareto_front.max_x,
+                step=self.step,
+            )
+            tf.summary.scalar(
+                "front/max_ " + Settings.get_pareto_y_label().replace(" ", "_").lower(),
+                self.store.current_pareto_front.max_y,
+                step=self.step,
+            )
+
+            tf.summary.scalar(
+                "front/min_" + Settings.get_pareto_x_label().replace(" ", "_").lower(),
+                self.store.current_pareto_front.min_x,
+                step=self.step,
+            )
+            tf.summary.scalar(
+                "front/min_ " + Settings.get_pareto_y_label().replace(" ", "_").lower(),
+                self.store.current_pareto_front.min_y,
+                step=self.step,
+            )
+
             if Settings.COST_TYPE != CostType.TOTAL_COST:
                 tf.summary.scalar(
                     "front/avg_total_cost",
@@ -114,6 +137,7 @@ class TensorBoardHelper:
     @staticmethod
     def move_logs_to_archive_dir() -> None:
         """Move the logs to the archive directory."""
+        print("Archiving TensorBoard logs")
         # Ensure archive dir exists
         os.makedirs(TENSORBOARD_LOG_DIR_ARCHIVE, exist_ok=True)
         if os.path.exists(TENSORBOARD_LOG_DIR):
