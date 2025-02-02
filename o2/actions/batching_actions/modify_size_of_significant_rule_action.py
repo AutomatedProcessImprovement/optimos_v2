@@ -36,6 +36,7 @@ class ModifySizeOfSignificantRuleAction(BaseAction):
     params: ModifySizeOfSignificantRuleActionParamsType
 
     def apply(self, state: State, enable_prints: bool = True) -> State:
+        """Apply the action to the state."""
         timetable = state.timetable
         task_id = self.params["task_id"]
         change_size = self.params["change_size"]
@@ -57,12 +58,12 @@ class ModifySizeOfSignificantRuleAction(BaseAction):
                     new_size = size + change_size
                     if new_size < 1:
                         continue
-                    if change_size > 0 and size < significant_size:
-                        significant_rule = RuleSelector.from_batching_rule(
-                            batching_rule, (i, 0)
-                        )
-                        significant_size = size
-                    elif change_size < 0 and size > significant_size:
+                    if (
+                        change_size > 0
+                        and size < significant_size
+                        or change_size < 0
+                        and size > significant_size
+                    ):
                         significant_rule = RuleSelector.from_batching_rule(
                             batching_rule, (i, 0)
                         )
@@ -72,27 +73,15 @@ class ModifySizeOfSignificantRuleAction(BaseAction):
         if significant_rule is None:
             # TODO: We need to find the min size from the constraints
             new_size = 1 + abs(change_size)
-            new_batching_rule = BatchingRule(
+            new_batching_rule = BatchingRule.from_task_id(
                 task_id=task_id,
-                type=BATCH_TYPE.PARALLEL,
-                size_distrib=[
-                    # Forbid execution of the task without batching
-                    Distribution(key=str(1), value=0.0),
-                    Distribution(key=str(new_size), value=1.0),
-                ],
-                duration_distrib=[
-                    Distribution(key="1", value=0.0),
-                    # TODO: Get duration from duration fn
-                    Distribution(key=str(new_size), value=1 / new_size),
-                ],
+                size=new_size,
                 firing_rules=[
-                    [
-                        FiringRule(
-                            attribute=RULE_TYPE.SIZE,
-                            comparison=COMPARATOR.GREATER_THEN_OR_EQUAL,
-                            value=new_size,
-                        )
-                    ]
+                    FiringRule(
+                        attribute=RULE_TYPE.SIZE,
+                        comparison=COMPARATOR.GREATER_THEN_OR_EQUAL,
+                        value=new_size,
+                    )
                 ],
             )
             return state.replace_timetable(
@@ -110,4 +99,5 @@ class ModifySizeOfSignificantRuleAction(BaseAction):
 
     @staticmethod
     def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
+        """Generate a best set of parameters & self-evaluates this action."""
         raise NotImplementedError("Not implemented")

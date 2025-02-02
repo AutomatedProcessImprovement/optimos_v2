@@ -44,37 +44,24 @@ class AddDateTimeRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
 
         if not existing_task_rules:
             # TODO: Allow combining rules, e.g. extending date range
-            new_batching_rule = BatchingRule(
+            new_batching_rule = BatchingRule.from_task_id(
                 task_id=task_id,
-                type=BATCH_TYPE.PARALLEL,
-                size_distrib=[Distribution(key=str(1), value=0.0)]
-                + [
-                    Distribution(key=str(new_size), value=1.0)
-                    for new_size in range(2, 100)
-                ],
-                duration_distrib=[
-                    # TODO: Get duration from duration fn
-                    Distribution(key=str(new_size), value=1 / new_size)
-                    for new_size in range(1, 100)
-                ],
                 firing_rules=[
-                    [
-                        FiringRule(
-                            attribute=RULE_TYPE.WEEK_DAY,
-                            comparison=COMPARATOR.EQUAL,
-                            value=time_period.from_,
-                        ),
-                        FiringRule(
-                            attribute=RULE_TYPE.DAILY_HOUR,
-                            comparison=COMPARATOR.GREATER_THEN_OR_EQUAL,
-                            value=time_period.begin_time_hour,
-                        ),
-                        FiringRule(
-                            attribute=RULE_TYPE.DAILY_HOUR,
-                            comparison=COMPARATOR.LESS_THEN,
-                            value=time_period.end_time_hour,
-                        ),
-                    ],
+                    FiringRule(
+                        attribute=RULE_TYPE.WEEK_DAY,
+                        comparison=COMPARATOR.EQUAL,
+                        value=time_period.from_,
+                    ),
+                    FiringRule(
+                        attribute=RULE_TYPE.DAILY_HOUR,
+                        comparison=COMPARATOR.GREATER_THEN_OR_EQUAL,
+                        value=time_period.begin_time_hour,
+                    ),
+                    FiringRule(
+                        attribute=RULE_TYPE.DAILY_HOUR,
+                        comparison=COMPARATOR.LESS_THEN,
+                        value=time_period.end_time_hour,
+                    ),
                 ],
             )
             return state.replace_timetable(

@@ -58,45 +58,18 @@ class ModifySizeRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
         if new_size < 1:
             return TabuState()
 
-        size_distrib = [
-            Distribution(
-                key=str(new_size),
-                value=1,
-            ),
-        ]
-        if new_size != 1:
-            size_distrib.insert(
-                0,
-                Distribution(
-                    key=str(1),
-                    value=0,
-                ),
-            )
-
-        duration_distrib = [
-            Distribution(
-                key=str(new_size),
-                value=fn(new_size),
-            )
-        ]
-
-        # TODO: Do not replace the whole firing rules,
-        # just the one that needs to be changed
-        firing_rules = [
-            [
+        new_rule = BatchingRule.from_task_id(
+            task_id=old_rule.task_id,
+            size=new_size,
+            firing_rules=[
+                # TODO: Do not replace the whole firing rules,
+                # just the one that needs to be changed
                 FiringRule(
                     attribute=RULE_TYPE.SIZE,
                     comparison=COMPARATOR.GREATER_THEN_OR_EQUAL,
                     value=new_size,
                 )
-            ]
-        ]
-        new_rule = BatchingRule(
-            task_id=old_rule.task_id,
-            type=old_rule.type,
-            size_distrib=size_distrib,
-            duration_distrib=duration_distrib,
-            firing_rules=firing_rules,
+            ],
         )
 
         if enable_prints:
@@ -120,6 +93,7 @@ class ModifySizeRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
     @staticmethod
     @abstractmethod
     def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
+        """Generate a best set of parameters & self-evaluates this action."""
         pass
 
     @staticmethod
@@ -133,4 +107,5 @@ class ModifySizeRuleAction(ModifySizeRuleBaseAction):
 
     @staticmethod
     def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
+        """Generate a best set of parameters & self-evaluates this action."""
         raise NotImplementedError("Not implemented")

@@ -734,6 +734,35 @@ class BatchingRule(JSONWizard):
                     return False
         return True
 
+    @staticmethod
+    def from_task_id(
+        task_id: str,
+        type: "BATCH_TYPE" = BATCH_TYPE.PARALLEL,
+        firing_rules: list[FiringRule] = [],
+        size: Optional[int] = None,
+    ) -> "BatchingRule":
+        size_distrib = ([Distribution(key=str(1), value=0.0)] if size != 1 else []) + (
+            [Distribution(key=str(new_size), value=1.0) for new_size in range(2, 100)]
+            if size is None
+            else [Distribution(key=str(size), value=1.0)]
+        )
+        duration_distrib = (
+            [
+                # TODO: Get duration from duration fn
+                Distribution(key=str(new_size), value=1 / new_size)
+                for new_size in range(1, 100)
+            ]
+            if size is None
+            else [Distribution(key=str(size), value=1 / size)]
+        )
+        return BatchingRule(
+            task_id=task_id,
+            type=type,
+            size_distrib=size_distrib,
+            duration_distrib=duration_distrib,
+            firing_rules=[firing_rules],
+        )
+
 
 @dataclass(frozen=True)
 class TimetableType(JSONWizard, CustomLoader, CustomDumper):

@@ -47,27 +47,15 @@ class AddSizeRuleBaseAction(BaseAction, ABC, str=False):
 
         # Create fully fresh rule
         if len(batching_rules) == 0:
-            new_batching_rule = BatchingRule(
+            new_batching_rule = BatchingRule.from_task_id(
                 task_id=task_id,
-                type=BATCH_TYPE.PARALLEL,
-                size_distrib=[
-                    # Forbid execution of the task without batching
-                    Distribution(key=str(1), value=0.0),
-                    Distribution(key=str(new_size), value=1.0),
-                ],
-                duration_distrib=[
-                    Distribution(key="1", value=0.0),
-                    # TODO: Get duration from duration fn
-                    Distribution(key=str(new_size), value=1 / new_size),
-                ],
+                size=new_size,
                 firing_rules=[
-                    [
-                        FiringRule(
-                            attribute=RULE_TYPE.SIZE,
-                            comparison=COMPARATOR.GREATER_THEN_OR_EQUAL,
-                            value=new_size,
-                        )
-                    ]
+                    FiringRule(
+                        attribute=RULE_TYPE.SIZE,
+                        comparison=COMPARATOR.GREATER_THEN_OR_EQUAL,
+                        value=new_size,
+                    )
                 ],
             )
             return state.replace_timetable(
