@@ -106,6 +106,9 @@ ACTION_CATALOG_BATCHING_ONLY = [
     ModifySizeRuleByLowAllocationAction,
     ModifySizeRuleByLowUtilizationAction,
     ModifySizeRuleByWTAction,
+    # Legacy Rules, that are fallbacks now
+    ModifyDailyHourRuleAction,
+    RemoveRuleAction,
 ]
 
 
@@ -159,7 +162,7 @@ class Agent(ABC):
     @staticmethod
     def get_valid_actions(
         store: "Store",
-        action_generators: list[RateSelfReturnType],
+        action_generators: list[RateSelfReturnType[BaseAction]],
     ) -> list[tuple[RATING, BaseAction]]:
         """Get settings.number_of_actions_to_select valid actions from the generators.
 
@@ -183,7 +186,7 @@ class Agent(ABC):
                     break
                 if store.is_tabu(action):
                     continue
-                if not action.check_if_valid(store):
+                if not action.check_if_valid(store, mark_no_change_as_invalid=True):
                     continue
                 if store.settings.only_allow_low_last and rating <= RATING.LOW:
                     low_actions.append((rating, action))
