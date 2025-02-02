@@ -1,3 +1,4 @@
+import random
 from dataclasses import dataclass
 from typing import Literal
 
@@ -23,7 +24,10 @@ class RemoveRuleActionParamsType(BatchingRuleActionParamsType):
 
 @dataclass(frozen=True)
 class RemoveRuleAction(BatchingRuleAction, str=False):
-    """`RemoveRuleAction` will remove a `FiringRule` from a `BatchingRule`."""
+    """`RemoveRuleAction` will remove a `FiringRule` from a `BatchingRule`.
+
+    It will not be smart about this, but just yield random firing rules to remove
+    """
 
     params: RemoveRuleActionParamsType
 
@@ -55,30 +59,15 @@ class RemoveRuleAction(BatchingRuleAction, str=False):
     @staticmethod
     def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
         """Create a set of parameters & rate this action."""
-        rule_selector = input.most_wt_increase
-        if rule_selector is None:
-            return
+        selectors = [
+            rule_selector
+            for batching_rule in store.base_state.timetable.batch_processing
+            for rule_selector in batching_rule.get_firing_rule_selectors()
+        ]
 
-        evaluation = input.most_wt_increase_evaluation
-
-        constraints = store.constraints.get_batching_size_rule_constraints(
-            rule_selector.batching_rule_task_id
-        )
-
-        max_allowed_min_size = max(
-            [constraint.min_size for constraint in constraints], default=1
-        )
-        if max_allowed_min_size > 0:
-            return
-
-        # TODO: Check constraints
-        # Check if this evaluation beats the current pareto front
-        if store.current_pareto_front.is_dominated_by_evaluation(evaluation):
-            print(
-                f"\t\t>> Most impactful rule dominates current. Rule: {rule_selector}"
-            )
+        random.shuffle(selectors)
+        for rule_selector in selectors:
             yield (
-                RATING.LOW,
+                RATING.VERY_LOW,
                 RemoveRuleAction(RemoveRuleActionParamsType(rule=rule_selector)),
             )
-        return
