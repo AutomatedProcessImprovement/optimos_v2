@@ -3,9 +3,19 @@ from dataclasses import replace
 
 from o2.models.days import DAY
 from o2.models.legacy_constraints import WorkMasks
+from o2.models.rule_selector import RuleSelector
 from o2.models.state import State
-from o2.models.timetable import Resource, ResourceCalendar, TimePeriod
+from o2.models.timetable import (
+    COMPARATOR,
+    RULE_TYPE,
+    BatchingRule,
+    FiringRule,
+    Resource,
+    ResourceCalendar,
+    TimePeriod,
+)
 from o2.util.bit_mask_helper import (
+    bitmask_to_string,
     find_mixed_ranges_in_bitmask,
     find_most_frequent_overlap,
     string_to_bitmask,
@@ -435,6 +445,16 @@ def test_bit_mask_off_by_one():
     assert work_mask.has_intersection(calendar)  # type: ignore
 
 
+def test_work_masks():
+    all_day_work_mask = WorkMasks().set_hour_range_for_every_day(0, 24)
+    assert bitmask_to_string(all_day_work_mask.get(DAY.MONDAY)) == "1" * 24
+    assert bitmask_to_string(all_day_work_mask.get(DAY.SUNDAY)) == "1" * 24
+
+    work_mask = WorkMasks().set_hour_range_for_day(DAY.MONDAY, 10, 12)
+    assert bitmask_to_string(work_mask.get(DAY.MONDAY)) == "0" * 10 + "1" * 2 + "0" * 12
+    assert bitmask_to_string(work_mask.get(DAY.SUNDAY)) == "0" * 24
+
+
 def test_time_period_json():
     time_period = TimePeriod(
         from_=DAY.MONDAY,
@@ -750,3 +770,58 @@ def test_get_time_periods_of_length_excl_idle_simple():
     ]
 
     assert calendar.get_time_periods_of_length_excl_idle(DAY.MONDAY, 6, 0, 23) == []
+
+
+def test_batching_rule_date_time_merging_simple():
+    batching_rule = BatchingRule.from_task_id(
+        TimetableGenerator.FIRST_ACTIVITY,
+        firing_rules=TimetableGenerator.daily_hour_rule_with_day(
+            TimetableGenerator.FIRST_ACTIVITY, DAY.MONDAY, 10, 12
+        ).firing_rules[0],
+    )
+
+    batching_rule = batching_rule.add_firing_rules(
+        TimetableGenerator.daily_hour_rule_with_day(
+            TimetableGenerator.FIRST_ACTIVITY, DAY.MONDAY, 12, 14
+        ).firing_rules[0]
+    )
+
+    assert batching_rule.firing_rules[0][0] == FiringRule(
+        attribute=RULE_TYPE.WEEK_DAY,
+        comparison=COMPARATOR.EQUAL,
+        value=DAY.MONDAY,
+    )
+    assert batching_rule.firing_rules[0][1] == FiringRule(
+        attribute=RULE_TYPE.DAILY_HOUR,
+        comparison=COMPARATOR.GREATER_THEN_OR_EQUAL,
+        value=10,
+    )
+    assert batching_rule.firing_rules[0][2] == FiringRule(
+        attribute=RULE_TYPE.DAILY_HOUR,
+        comparison=COMPARATOR.LESS_THEN,
+        value=14,
+    )
+
+
+def test_batching_rule_date_time_merging_complex():
+    batching_rule = BatchingRule.from_task_id(
+        TimetableGenerator.FIRST_ACTIVITY,
+        firing_rules=TimetableGenerator.daily_hour_rule_with_day(
+            TimetableGenerator.FIRST_ACTIVITY, DAY.MONDAY, 10, 12
+        ).firing_rules[0],
+    )
+
+    batching_rule = batching_rule.add_firing_rules(
+        TimetableGenerator.daily_hour_rule_with_day(
+            TimetableGenerator.FIRST_ACTIVITY, DAY.THURSDAY, 14, 16
+        ).firing_rules[0]
+    ).add_firing_rules(
+        TimetableGenerator.daily_hour_rule(
+            TimetableGenerator.FIRST_ACTIVITY, 12, 14
+        ).firing_rules[0]
+    )
+
+    assert len(batching_rule.firing_rules) == 2
+    assert batching_rule.firing_rules[0][0] == FiringRule(
+        RULE_TYPE.WEEK_DAY, COMPARATOR.EQUAL, DAY.MONDAY
+    )
