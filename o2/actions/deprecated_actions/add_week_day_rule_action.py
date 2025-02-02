@@ -9,9 +9,9 @@ from o2.actions.base_actions.base_action import (
     BaseActionParamsType,
     RateSelfReturnType,
 )
-from o2.actions.batching_rule_action import (
-    BatchingRuleAction,
-    BatchingRuleActionParamsType,
+from o2.actions.base_actions.batching_rule_base_action import (
+    BatchingRuleBaseAction,
+    BatchingRuleBaseActionParamsType,
 )
 from o2.models.days import DAY
 from o2.models.self_rating import RATING, SelfRatingInput
@@ -23,13 +23,13 @@ SIZE_OF_CHANGE = 100
 CLOSENESS_TO_MAX_WT = 0.01
 
 
-class AddWeekDayRuleActionParamsType(BatchingRuleActionParamsType):
+class AddWeekDayRuleActionParamsType(BatchingRuleBaseActionParamsType):
     """Parameter for AddWeekDayRuleAction."""
 
     add_days: list[DAY]
 
 
-class AddWeekDayRuleAction(BatchingRuleAction, str=False):
+class AddWeekDayRuleAction(BatchingRuleBaseAction, str=False):
     """AddWeekDayRuleAction will add a new day to the firing rules of a BatchingRule.
 
     It does this by cloning all the surrounding (AND) `FiringRule`s of

@@ -6,9 +6,9 @@ from o2.actions.base_actions.base_action import (
     BaseActionParamsType,
     RateSelfReturnType,
 )
-from o2.actions.batching_rule_action import (
-    BatchingRuleAction,
-    BatchingRuleActionParamsType,
+from o2.actions.base_actions.batching_rule_base_action import (
+    BatchingRuleBaseAction,
+    BatchingRuleBaseActionParamsType,
 )
 from o2.models.constraints import RULE_TYPE
 from o2.models.self_rating import RATING, SelfRatingInput
@@ -24,14 +24,14 @@ SIZE_OF_CHANGE = 100
 
 
 @dataclass
-class ModifyReadyWtRuleActionParamsType(BatchingRuleActionParamsType):
+class ModifyReadyWtRuleActionParamsType(BatchingRuleBaseActionParamsType):
     """Parameter for `ModifyReadyWtRuleAction`."""
 
     wt_increment: int
 
 
 @dataclass(frozen=True)
-class ModifyReadyWtRuleAction(BatchingRuleAction, str=False):
+class ModifyReadyWtRuleAction(BatchingRuleBaseAction, str=False):
     """`ModifyReadyWtRuleAction` will modify the `READY_WT` value of a `FiringRule`."""
 
     params: ModifyReadyWtRuleActionParamsType

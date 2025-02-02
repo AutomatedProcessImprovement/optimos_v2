@@ -1,20 +1,14 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, replace
-from typing import Literal
-
-from sympy import Symbol, lambdify
 
 from o2.actions.base_actions.base_action import (
-    BaseAction,
     BaseActionParamsType,
     RateSelfReturnType,
 )
-from o2.actions.batching_rule_action import (
-    BatchingRuleAction,
-    BatchingRuleActionParamsType,
+from o2.actions.base_actions.batching_rule_base_action import (
+    BatchingRuleBaseAction,
 )
 from o2.models.constraints import RULE_TYPE
-from o2.models.days import DAY
 from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.state import State
 from o2.models.time_period import TimePeriod
@@ -36,7 +30,7 @@ class AddDateTimeRuleBaseActionParamsType(BaseActionParamsType):
 
 
 @dataclass(frozen=True)
-class AddDateTimeRuleBaseAction(BatchingRuleAction, ABC, str=False):
+class AddDateTimeRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
     """AddDateTimeRuleBaseAction will add a new day of week and time of day rule."""
 
     params: AddDateTimeRuleBaseActionParamsType

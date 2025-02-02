@@ -2,9 +2,9 @@ from dataclasses import replace
 from typing import Literal
 
 from o2.actions.base_actions.base_action import RateSelfReturnType
-from o2.actions.batching_rule_action import (
-    BatchingRuleAction,
-    BatchingRuleActionParamsType,
+from o2.actions.base_actions.batching_rule_base_action import (
+    BatchingRuleBaseAction,
+    BatchingRuleBaseActionParamsType,
 )
 from o2.models.rule_selector import RuleSelector
 from o2.models.self_rating import RATING, SelfRatingInput
@@ -16,7 +16,7 @@ SIZE_OF_CHANGE = 1
 CLOSENESS_TO_MAX_WT = 0.01
 
 
-class ModifyDailyHourRuleActionParamsType(BatchingRuleActionParamsType):
+class ModifyDailyHourRuleActionParamsType(BatchingRuleBaseActionParamsType):
     """Parameter for ModifyDailyHourRuleAction.
 
     hour_increment may also be negative to remove hours.
@@ -25,7 +25,7 @@ class ModifyDailyHourRuleActionParamsType(BatchingRuleActionParamsType):
     hour_increment: int
 
 
-class ModifyDailyHourRuleAction(BatchingRuleAction, str=False):
+class ModifyDailyHourRuleAction(BatchingRuleBaseAction, str=False):
     """ModifyDailyHourRuleAction will add a new day to the firing rules of a BatchingRule.
 
     It does this by cloning all the surrounding (AND) `FiringRule`s of

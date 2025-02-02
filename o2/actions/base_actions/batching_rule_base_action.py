@@ -1,3 +1,4 @@
+from abc import ABC
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
@@ -8,14 +9,14 @@ if TYPE_CHECKING:
     from o2.store import State, Store
 
 
-class BatchingRuleActionParamsType(BaseActionParamsType):
+class BatchingRuleBaseActionParamsType(BaseActionParamsType):
     """Base type for all action parameters."""
 
     rule: RuleSelector
 
 
 @dataclass(frozen=True)
-class BatchingRuleAction(BaseAction, str=False):
+class BatchingRuleBaseAction(BaseAction, ABC, str=False):
     """Abstract class for all actions."""
 
     params: BaseActionParamsType

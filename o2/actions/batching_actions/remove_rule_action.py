@@ -7,23 +7,23 @@ from o2.actions.base_actions.base_action import (
     BaseActionParamsType,
     RateSelfReturnType,
 )
-from o2.actions.batching_rule_action import (
-    BatchingRuleAction,
-    BatchingRuleActionParamsType,
+from o2.actions.base_actions.batching_rule_base_action import (
+    BatchingRuleBaseAction,
+    BatchingRuleBaseActionParamsType,
 )
 from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.state import State
 from o2.store import Store
 
 
-class RemoveRuleActionParamsType(BatchingRuleActionParamsType):
+class RemoveRuleActionParamsType(BatchingRuleBaseActionParamsType):
     """Parameter for `RemoveRuleAction`."""
 
     pass
 
 
 @dataclass(frozen=True)
-class RemoveRuleAction(BatchingRuleAction, str=False):
+class RemoveRuleAction(BatchingRuleBaseAction, str=False):
     """`RemoveRuleAction` will remove a `FiringRule` from a `BatchingRule`.
 
     It will not be smart about this, but just yield random firing rules to remove

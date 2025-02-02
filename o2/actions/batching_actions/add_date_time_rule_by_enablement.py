@@ -9,7 +9,7 @@ from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.time_period import TimePeriod
 from o2.store import Store
 
-LIMIT_OF_OPTIONS = 5
+LIMIT_OF_OPTIONS = 3
 
 
 class AddDateTimeRuleByEnablementActionParamsType(AddDateTimeRuleBaseActionParamsType):

@@ -6,9 +6,9 @@ from sympy import Symbol, lambdify
 from o2.actions.base_actions.base_action import (
     RateSelfReturnType,
 )
-from o2.actions.batching_rule_action import (
-    BatchingRuleAction,
-    BatchingRuleActionParamsType,
+from o2.actions.base_actions.batching_rule_base_action import (
+    BatchingRuleBaseAction,
+    BatchingRuleBaseActionParamsType,
 )
 from o2.models.constraints import RULE_TYPE
 from o2.models.self_rating import RATING, SelfRatingInput
@@ -25,7 +25,7 @@ MARGIN_OF_ERROR = 0.03
 SIZE_OF_CHANGE = 1
 
 
-class ModifySizeRuleBaseActionParamsType(BatchingRuleActionParamsType):
+class ModifySizeRuleBaseActionParamsType(BatchingRuleBaseActionParamsType):
     """Parameter for ModifySizeRuleBaseAction."""
 
     size_increment: int
@@ -33,7 +33,7 @@ class ModifySizeRuleBaseActionParamsType(BatchingRuleActionParamsType):
 
 
 @dataclass(frozen=True)
-class ModifySizeRuleBaseAction(BatchingRuleAction, ABC, str=False):
+class ModifySizeRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
     """ModifySizeRuleBaseAction will modify the size of a BatchingRule.
 
     This will effect the size distribution and the duration distribution of the rule,
