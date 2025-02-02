@@ -124,8 +124,9 @@ class Store:
         """
         chosen_tries = []
         not_chosen_tries = []
+        new_baseline_chosen = False
         for solution in solutions:
-            self._add_solution(solution, False)
+            self._add_solution(solution, not solution.is_valid)
 
             status = self.current_pareto_front.is_in_front(solution)
             if solution.evaluation.is_empty:
@@ -134,33 +135,26 @@ class Store:
             if status == FRONT_STATUS.IN_FRONT:
                 chosen_tries.append((status, solution))
                 self.current_pareto_front.add(solution)
-                if choose_new_base_evaluation_callback is not None:
-                    # We choose a new base evaluation, to continue with
-                    # our new front entry
-                    print_l2(
-                        "New Solution is part of front, choosing new base evaluation."
-                    )
-                    self.solution = choose_new_base_evaluation_callback(
-                        (status, solution)
-                    )
-                else:
-                    self.solution = solution
             elif status == FRONT_STATUS.IS_DOMINATED:
                 chosen_tries.append((status, solution))
                 self.pareto_fronts.append(ParetoFront())
                 self.current_pareto_front.add(solution)
+                # A dominating solution, will always override the current baseline
+                new_baseline_chosen = False
+            else:
+                not_chosen_tries.append((status, solution))
+
+            if not new_baseline_chosen and (
+                status == FRONT_STATUS.IN_FRONT or status == FRONT_STATUS.DOMINATES
+            ):
                 if choose_new_base_evaluation_callback is not None:
-                    # We choose a new base evaluation, because we are in a new front
-                    print_l2(
-                        "Current front was dominated by new solution, choosing new base evaluation."  # noqa: E501
-                    )
                     self.solution = choose_new_base_evaluation_callback(
                         (status, solution)
                     )
                 else:
                     self.solution = solution
-            else:
-                not_chosen_tries.append((status, solution))
+                new_baseline_chosen = True
+
         return chosen_tries, not_chosen_tries
 
     def run_action(self, action: "BaseAction") -> Optional[Solution]:
@@ -183,12 +177,12 @@ class Store:
         """
         try:
             if not solution.is_valid:
-                raise Exception("Evaluation empty. Please check the timetable & model.")
+                return (FRONT_STATUS.INVALID, solution)
             status = self.current_pareto_front.is_in_front(solution)
             return (status, solution)
         except Exception as e:
-            print(f"Error in try_action: {e}")
-            return (FRONT_STATUS.INVALID, Solution.empty(self.solution.state))
+            print_l2(f"Error in try_action: {e}")
+            return (FRONT_STATUS.INVALID, solution)
 
     def is_tabu(self, action: "BaseAction") -> bool:
         """Check if the action is tabu."""
