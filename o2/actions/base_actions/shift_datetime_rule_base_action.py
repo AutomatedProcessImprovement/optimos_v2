@@ -67,7 +67,7 @@ class ShiftDateTimeRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
         new_lower_bound_rule = replace(lower_bound_rule, value=new_lower_bound)
         new_upper_bound_rule = replace(upper_bound_rule, value=new_upper_bound)
         new_batching_rule = batching_rule.replace_firing_rule(
-            lower_bound_selector, new_lower_bound_rule
+            lower_bound_selector, new_lower_bound_rule, skip_merge=True
         ).replace_firing_rule(upper_bound_selector, new_upper_bound_rule)
         timetable = timetable.replace_batching_rule(
             lower_bound_selector, new_batching_rule
