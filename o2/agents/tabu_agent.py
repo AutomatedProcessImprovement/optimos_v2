@@ -3,7 +3,7 @@ import traceback
 from typing import Optional
 
 from o2.actions.base_actions.base_action import BaseAction, RateSelfReturnType
-from o2.actions.remove_rule_action import (
+from o2.actions.batching_actions.remove_rule_action import (
     RemoveRuleAction,
     RemoveRuleActionParamsType,
 )
@@ -45,7 +45,7 @@ class TabuAgent(Agent):
                 else ACTION_CATALOG
             )
             # Get a list rating generators for all actions
-            action_generators = [
+            action_generators: list[RateSelfReturnType[BaseAction]] = [
                 Action.rate_self(store, rating_input) for Action in catalog
             ]
 

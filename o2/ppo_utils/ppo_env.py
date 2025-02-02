@@ -1,18 +1,15 @@
-import warnings
-from typing import Any, Dict, Optional, Tuple
+from typing import Optional
 
 import numpy as np
 from gymnasium import Env, Space
 
-from o2.actions.base_actions.base_action import BaseAction
-from o2.models.evaluation import Evaluation
 from o2.models.solution import Solution
 from o2.pareto_front import FRONT_STATUS
 from o2.ppo_utils.ppo_input import PPOInput
 from o2.store import Store
 from o2.util.indented_printer import print_l0, print_l1
 
-StateType = Dict[str, Space]
+StateType = dict[str, Space]
 
 
 class PPOEnv(Env[StateType, np.int64]):
@@ -40,7 +37,7 @@ class PPOEnv(Env[StateType, np.int64]):
         *,
         seed: Optional[int] = None,
         options: Optional[dict] = None,
-    ) -> Tuple[StateType, dict]:
+    ) -> tuple[StateType, dict]:
         super().reset(seed=seed)
         self.stepCount = 0
         self.iteration += 1
@@ -51,7 +48,7 @@ class PPOEnv(Env[StateType, np.int64]):
         self.observation_space = PPOInput.get_observation_space(self.store)
         return self.state, {}
 
-    def step(self, action: np.int64) -> Tuple[StateType, float, bool, bool, dict]:
+    def step(self, action: np.int64) -> tuple[StateType, float, bool, bool, dict]:
         self.stepCount += 1
 
         action_obj = self.actions[action]

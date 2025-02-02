@@ -1,6 +1,5 @@
 from textwrap import TextWrapper
 
-
 PREFERRED_WIDTH = 120
 
 l1_prefix = 4 * " " + "> "

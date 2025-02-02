@@ -1,8 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, replace
 
-from sympy import Symbol, lambdify
-
 from o2.actions.base_actions.base_action import (
     BaseAction,
     BaseActionParamsType,
@@ -11,9 +9,8 @@ from o2.actions.base_actions.base_action import (
 from o2.models.constraints import RULE_TYPE
 from o2.models.rule_selector import RuleSelector
 from o2.models.self_rating import RATING, SelfRatingInput
-from o2.models.state import State, TabuState
+from o2.models.state import State
 from o2.models.timetable import (
-    BATCH_TYPE,
     COMPARATOR,
     BatchingRule,
     Distribution,

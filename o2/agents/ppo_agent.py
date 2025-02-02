@@ -3,10 +3,8 @@ from typing import Optional
 import gymnasium as gym
 import numpy as np
 import torch as th
-from gymnasium import spaces
 from numpy import ndarray
 from sb3_contrib import MaskablePPO
-from sb3_contrib.common.maskable.utils import get_action_masks
 from stable_baselines3.common.utils import obs_as_tensor
 
 from o2.actions.base_actions.base_action import BaseAction
@@ -17,7 +15,7 @@ from o2.pareto_front import FRONT_STATUS
 from o2.ppo_utils.ppo_env import PPOEnv
 from o2.ppo_utils.ppo_input import PPOInput
 from o2.store import SolutionTry, Store
-from o2.util.indented_printer import print_l1, print_l2
+from o2.util.indented_printer import print_l1
 
 
 class PPOAgent(Agent):
@@ -66,7 +64,6 @@ class PPOAgent(Agent):
         If the possible options for the current base evaluation are exhausted,
         it will choose a new base evaluation.
         """
-        state = PPOInput.get_state_from_store(store)
         action_from_store = PPOInput.get_actions_from_store(store)
         action_count = len([a for a in action_from_store if a is not None])
         if action_count == 0:
@@ -105,8 +102,7 @@ class PPOAgent(Agent):
     def result_callback(
         self, chosen_tries: list[SolutionTry], not_chosen_tries: list[SolutionTry]
     ) -> None:
-        """Call to handle the result of the evaluation."""
-
+        """Handle the result of the evaluation."""
         result = chosen_tries[0] if chosen_tries else not_chosen_tries[0]
 
         new_obs, reward, done = self.step_info_from_try(result)

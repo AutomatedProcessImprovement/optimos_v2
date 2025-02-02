@@ -1,8 +1,6 @@
-from typing import Generator, Mapping
+from typing import Mapping
 
 from o2.actions.base_actions.base_action import (
-    BaseAction,
-    BaseActionParamsType,
     RateSelfReturnType,
 )
 from o2.actions.base_actions.modify_size_rule_base_action import (
@@ -26,7 +24,7 @@ def rate_self_helper_by_metric_dict(
     task_id_metric_dict: Mapping[str, float],
     task_class: type[ModifySizeRuleBaseAction],
 ) -> RateSelfReturnType:
-    """Helper function to rate ModifySizeRuleByCostFn actions."""
+    """Rate ModifySizeRuleByCostFn actions."""
     timetable = store.current_timetable
     constraints = store.constraints
     state = store.current_state

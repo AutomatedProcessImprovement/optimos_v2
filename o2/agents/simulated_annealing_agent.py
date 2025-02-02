@@ -2,7 +2,7 @@ import math
 import random
 from typing import Optional
 
-from o2.actions.base_actions.base_action import BaseAction
+from o2.actions.base_actions.base_action import BaseAction, RateSelfReturnType
 from o2.agents.agent import (
     ACTION_CATALOG,
     ACTION_CATALOG_BATCHING_ONLY,
@@ -49,7 +49,7 @@ class SimulatedAnnealingAgent(Agent):
                 else ACTION_CATALOG
             )
             # Get a list rating generators for all actions
-            action_generators = [
+            action_generators: list[RateSelfReturnType[BaseAction]] = [
                 Action.rate_self(store, rating_input) for Action in catalog
             ]
 

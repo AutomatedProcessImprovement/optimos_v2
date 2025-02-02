@@ -66,13 +66,13 @@ class WorkMasks(JSONWizard):
         """Enable the hour for every day."""
         return replace(
             self,
-            monday=self.monday | (1 << (23 - hour)),
-            tuesday=self.tuesday | (1 << (23 - hour)),
-            wednesday=self.wednesday | (1 << (23 - hour)),
-            thursday=self.thursday | (1 << (23 - hour)),
-            friday=self.friday | (1 << (23 - hour)),
-            saturday=self.saturday | (1 << (23 - hour)),
-            sunday=self.sunday | (1 << (23 - hour)),
+            monday=(self.monday or 0) | (1 << (23 - hour)),
+            tuesday=(self.tuesday or 0) | (1 << (23 - hour)),
+            wednesday=(self.wednesday or 0) | (1 << (23 - hour)),
+            thursday=(self.thursday or 0) | (1 << (23 - hour)),
+            friday=(self.friday or 0) | (1 << (23 - hour)),
+            saturday=(self.saturday or 0) | (1 << (23 - hour)),
+            sunday=(self.sunday or 0) | (1 << (23 - hour)),
         )
 
     def set_hour_range_for_day(self, day: DAY, start: int, end: int) -> "WorkMasks":
@@ -89,13 +89,13 @@ class WorkMasks(JSONWizard):
         """Enable the hour range for every day."""
         return replace(
             self,
-            monday=self.monday | ((1 << (24 - start)) - (1 << (25 - end))),
-            tuesday=self.tuesday | ((1 << (24 - start)) - (1 << (25 - end))),
-            wednesday=self.wednesday | ((1 << (24 - start)) - (1 << (25 - end))),
-            thursday=self.thursday | ((1 << (24 - start)) - (1 << (25 - end))),
-            friday=self.friday | ((1 << (24 - start)) - (1 << (25 - end))),
-            saturday=self.saturday | ((1 << (24 - start)) - (1 << (25 - end))),
-            sunday=self.sunday | ((1 << (24 - start)) - (1 << (25 - end))),
+            monday=(self.monday or 0) | ((1 << (24 - start)) - (1 << (25 - end))),
+            tuesday=(self.tuesday or 0) | ((1 << (24 - start)) - (1 << (25 - end))),
+            wednesday=(self.wednesday or 0) | ((1 << (24 - start)) - (1 << (25 - end))),
+            thursday=(self.thursday or 0) | ((1 << (24 - start)) - (1 << (25 - end))),
+            friday=(self.friday or 0) | ((1 << (24 - start)) - (1 << (25 - end))),
+            saturday=(self.saturday or 0) | ((1 << (24 - start)) - (1 << (25 - end))),
+            sunday=(self.sunday or 0) | ((1 << (24 - start)) - (1 << (25 - end))),
         )
 
     @staticmethod

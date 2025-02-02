@@ -1,12 +1,7 @@
-from dataclasses import replace
 import random
-from typing import Literal
-
-import numpy as np
+from dataclasses import replace
 
 from o2.actions.base_actions.base_action import (
-    BaseAction,
-    BaseActionParamsType,
     RateSelfReturnType,
 )
 from o2.actions.base_actions.batching_rule_base_action import (

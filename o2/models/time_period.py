@@ -1,8 +1,8 @@
 import functools
 from json import dumps, loads
-from typing import Any, ClassVar, List, Optional
+from typing import Any, ClassVar, Optional
 
-from pydantic import BaseModel, Field, model_validator, root_validator
+from pydantic import BaseModel, Field, model_validator
 
 from o2.models.days import DAY, day_range
 from o2.util.bit_mask_helper import get_ranges_from_bitmask
@@ -164,7 +164,7 @@ class TimePeriod(BaseModel):
             }
         )
 
-    def split_by_day(self) -> List["TimePeriod"]:
+    def split_by_day(self) -> list["TimePeriod"]:
         """Split the time period by day.
 
         Return a list of time periods, one for each day in the range.
@@ -198,7 +198,7 @@ class TimePeriod(BaseModel):
         )
 
     @staticmethod
-    def from_bitmask(bitmask: int, day: "DAY") -> List["TimePeriod"]:
+    def from_bitmask(bitmask: int, day: "DAY") -> list["TimePeriod"]:
         """Create a time period from a bitmask."""
         hour_ranges = get_ranges_from_bitmask(bitmask)
         return [

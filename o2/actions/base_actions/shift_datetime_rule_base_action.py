@@ -1,7 +1,10 @@
 from abc import ABC
 from dataclasses import dataclass, replace
 
-from o2.actions.base_actions.base_action import BaseAction, BaseActionParamsType
+from o2.actions.base_actions.base_action import (
+    BaseActionParamsType,
+    RateSelfReturnType,
+)
 from o2.actions.base_actions.batching_rule_base_action import (
     BatchingRuleBaseAction,
 )
@@ -22,9 +25,11 @@ class ShiftDateTimeRuleBaseActionParamsType(BaseActionParamsType):
     task_id: str
     day: DAY
     add_to_start: int
-    """How many hours to add to the start of the rule. (e.g. 1 = add 1 hour before, -1 = remove 1 hour after)"""
+    """How many hours to add to the start of the rule.
+    (e.g. 1 = add 1 hour before, -1 = remove 1 hour after)"""
     add_to_end: int
-    """How many hours to add to the end of the rule. (e.g. 1 = add 1 hour after, -1 = remove 1 hour before)"""
+    """How many hours to add to the end of the rule.
+    (e.g. 1 = add 1 hour after, -1 = remove 1 hour before)"""
 
 
 @dataclass(frozen=True)
@@ -87,5 +92,8 @@ class ShiftDateTimeRuleAction(ShiftDateTimeRuleBaseAction):
     """ShiftDateTimeRuleAction will shift a day of week and time of day rule."""
 
     @staticmethod
-    def rate_self(store: Store, input: SelfRatingInput):
+    def rate_self(
+        store: Store, input: SelfRatingInput
+    ) -> RateSelfReturnType[ShiftDateTimeRuleBaseAction]:
+        """Generate a best set of parameters & self-evaluates this action."""
         raise NotImplementedError("Not implemented")

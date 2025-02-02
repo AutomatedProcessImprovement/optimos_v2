@@ -14,11 +14,11 @@ from o2.actions.base_actions.shift_datetime_rule_base_action import (
     ShiftDateTimeRuleAction,
     ShiftDateTimeRuleBaseActionParamsType,
 )
-from o2.actions.new_actions.modify_size_of_significant_rule_action import (
+from o2.actions.batching_actions.modify_size_of_significant_rule_action import (
     ModifySizeOfSignificantRuleAction,
     ModifySizeOfSignificantRuleActionParamsType,
 )
-from o2.actions.new_actions.remove_date_time_rule_action import (
+from o2.actions.batching_actions.remove_date_time_rule_action import (
     RemoveDateTimeRuleAction,
     RemoveDateTimeRuleActionParamsType,
 )

@@ -10,7 +10,6 @@ from o2.agents.simulated_annealing_agent import SimulatedAnnealingAgent
 from o2.models.settings import CostType, Settings
 from o2.models.solution import Solution
 from o2.store import Store
-from o2.util.indented_printer import print_l3
 
 TENSORBOARD_LOG_DIR = "./logs/optimos_v2_tensorboard"
 TENSORBOARD_LOG_DIR_ARCHIVE = f"{TENSORBOARD_LOG_DIR}_archive"

@@ -1,12 +1,11 @@
 import datetime
 import xml.etree.ElementTree as ET
-from dataclasses import dataclass, field, replace
+from dataclasses import dataclass, replace
 from typing import TYPE_CHECKING
 
 import pytz
 from prosimos.simulation_setup import SimDiffSetup
 
-from o2.actions.base_actions.base_action import BaseAction
 from o2.models.evaluation import Evaluation
 from o2.models.settings import Settings
 from o2.simulation_runner import SimulationRunner

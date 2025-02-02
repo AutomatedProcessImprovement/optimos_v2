@@ -39,7 +39,6 @@ from prosimos.simulation_properties_parser import (
     parse_event_distribution,
     parse_fuzzy_calendar,
     parse_gateway_conditions,
-    parse_json_sim_parameters,
     parse_multitasking_model,
     parse_resource_calendars,
     parse_resource_profiles,

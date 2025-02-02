@@ -13,8 +13,12 @@ from o2.actions.base_actions.modify_calendar_base_action import (
 from o2.actions.base_actions.modify_resource_base_action import (
     ModifyResourceBaseActionParamsType,
 )
-from o2.actions.modify_calendar_by_cost_action import ModifyCalendarByCostAction
-from o2.actions.remove_resource_by_cost_action import RemoveResourceByCostAction
+from o2.actions.legacy_optimos_actions.modify_calendar_by_cost_action import (
+    ModifyCalendarByCostAction,
+)
+from o2.actions.legacy_optimos_actions.remove_resource_by_cost_action import (
+    RemoveResourceByCostAction,
+)
 from o2.models.days import DAYS
 from o2.models.evaluation import Evaluation
 from o2.models.settings import Settings

@@ -13,10 +13,8 @@ from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.state import State
 from o2.models.time_period import TimePeriod
 from o2.models.timetable import (
-    BATCH_TYPE,
     COMPARATOR,
     BatchingRule,
-    Distribution,
     FiringRule,
 )
 from o2.store import Store

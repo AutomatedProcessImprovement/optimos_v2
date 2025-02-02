@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field, replace
-from enum import Enum
-from typing import TYPE_CHECKING, Callable, List, Optional, TypeGuard, Union
+from dataclasses import dataclass, field
+from typing import TYPE_CHECKING, Callable, Optional, TypeGuard, Union
 
 from dataclass_wizard import JSONWizard
 from sympy import Symbol, lambdify
@@ -293,7 +292,7 @@ class ConstraintsType(JSONWizard):
     """Global Constraints Type including resource timetable and batching constraints."""
 
     # TODO: Add more constraints here
-    batching_constraints: List[
+    batching_constraints: list[
         Union[
             SizeRuleConstraints,
             ReadyWtRuleConstraints,
@@ -303,7 +302,7 @@ class ConstraintsType(JSONWizard):
         ]
     ] = field(default_factory=list)
     # Legacy Optimos constraints
-    resources: List[ConstraintsResourcesItem] = field(default_factory=list)
+    resources: list[ConstraintsResourcesItem] = field(default_factory=list)
     """Legacy Optimos Constraint: Resource Constraints"""
     max_cap: int = 9999999
     """Legacy Optimos Constraint: Max number of hours a resource can work in a week"""

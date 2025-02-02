@@ -31,6 +31,7 @@ class SimulationRunner:
             setup = state.to_sim_diff_setup()
             result = run_simpy_simulation(setup, None, None)
             assert result is not None
+            assert isinstance(result, tuple)
 
             simulation_kpis: SimulationKPIs = result[0]  # type: ignore
             log_info = result[1]

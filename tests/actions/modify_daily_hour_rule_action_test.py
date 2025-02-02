@@ -1,4 +1,4 @@
-from o2.actions.modify_daily_hour_rule_action import (
+from o2.actions.batching_actions.modify_daily_hour_rule_action import (
     ModifyDailyHourRuleAction,
     ModifyDailyHourRuleActionParamsType,
 )

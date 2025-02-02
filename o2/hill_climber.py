@@ -2,9 +2,9 @@ import concurrent.futures
 import os
 import time
 import traceback
-from typing import Generator
+from collections.abc import Generator
 
-from o2.actions.base_actions.base_action import BaseAction, RateSelfReturnType
+from o2.actions.base_actions.base_action import BaseAction
 from o2.agents.agent import Agent, NoActionsLeftError, NoNewBaseSolutionFoundError
 from o2.agents.ppo_agent import PPOAgent
 from o2.agents.simulated_annealing_agent import SimulatedAnnealingAgent

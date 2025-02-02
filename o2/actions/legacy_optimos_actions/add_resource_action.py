@@ -1,12 +1,12 @@
 from dataclasses import dataclass
-from typing import Literal, Optional
+from typing import Optional
 
 from o2.actions.base_actions.base_action import RateSelfReturnType
 from o2.actions.base_actions.modify_resource_base_action import (
     ModifyResourceBaseAction,
     ModifyResourceBaseActionParamsType,
 )
-from o2.models.self_rating import RATING, SelfRatingInput
+from o2.models.self_rating import SelfRatingInput
 from o2.store import Store
 
 

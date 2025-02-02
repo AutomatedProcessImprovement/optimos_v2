@@ -1,12 +1,11 @@
 import functools
 from abc import ABC, abstractmethod
+from collections.abc import Generator
 from dataclasses import dataclass
 from json import dumps
 from typing import (
     TYPE_CHECKING,
-    Generator,
     Optional,
-    Tuple,
     TypeVar,
 )
 
@@ -22,7 +21,7 @@ if TYPE_CHECKING:
 
 ActionT = TypeVar("ActionT", bound="BaseAction")
 
-ActionRatingTuple = Tuple["RATING", Optional[ActionT]]
+ActionRatingTuple = tuple["RATING", Optional[ActionT]]
 
 RateSelfReturnType = Generator[
     ActionRatingTuple[ActionT], bool, Optional[ActionRatingTuple[ActionT]]
@@ -52,9 +51,13 @@ class BaseAction(JSONSerializable, ABC, str=False):
         """Generate a best set of parameters & self-evaluates this action."""
         pass
 
-    def check_if_valid(self, store: "Store") -> bool:
+    def check_if_valid(
+        self, store: "Store", mark_no_change_as_invalid: bool = False
+    ) -> bool:
         """Check if the action produces a valid state."""
         new_state = self.apply(store.current_state, enable_prints=False)
+        if mark_no_change_as_invalid and new_state == store.current_state:
+            return False
         return (
             new_state.is_valid()
             and store.constraints.verify_legacy_constraints(new_state.timetable)

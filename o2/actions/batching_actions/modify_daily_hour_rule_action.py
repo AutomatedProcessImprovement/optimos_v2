@@ -77,7 +77,6 @@ class ModifyDailyHourRuleAction(BatchingRuleBaseAction, str=False):
     @staticmethod
     def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
         """Generate a best set of parameters & self-evaluates this action."""
-
         for batching_rule in store.current_timetable.batch_processing:
             for or_rule_index, or_rules in enumerate(batching_rule.firing_rules):
                 for and_rule_index, rule in enumerate(or_rules):

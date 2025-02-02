@@ -1,4 +1,3 @@
-from dataclasses import replace
 from datetime import datetime
 
 from prosimos.execution_info import TaskEvent
@@ -8,19 +7,14 @@ from o2.actions.base_actions.add_datetime_rule_base_action import (
     AddDateTimeRuleBaseActionParamsType,
 )
 from o2.actions.base_actions.base_action import (
-    BaseAction,
-    BaseActionParamsType,
     RateSelfReturnType,
 )
-from o2.models.constraints import RULE_TYPE
 from o2.models.days import DAY
 from o2.models.legacy_constraints import WorkMasks
 from o2.models.self_rating import RATING, SelfRatingInput
-from o2.models.state import State
 from o2.models.time_period import TimePeriod
 from o2.models.timetable import (
     COMPARATOR,
-    FiringRule,
     rule_is_daily_hour,
     rule_is_week_day,
 )
@@ -75,18 +69,20 @@ class ModifyDateTimeRulesByEnablementAction(AddDateTimeRuleBaseAction):
                         has_day = day_rule is not None
                         if firing_rule.comparison == COMPARATOR.EQUAL:
                             if has_day:
-                                task_batch_enablement[
-                                    rule.task_id
-                                ] = task_batch_enablement[
-                                    rule.task_id
-                                ].set_hour_for_day(day_rule.value, firing_rule.value)
+                                task_batch_enablement[rule.task_id] = (
+                                    task_batch_enablement[
+                                        rule.task_id
+                                    ].set_hour_for_day(
+                                        day_rule.value, firing_rule.value
+                                    )
+                                )
 
                             else:
-                                task_batch_enablement[
-                                    rule.task_id
-                                ] = task_batch_enablement[
-                                    rule.task_id
-                                ].set_hour_for_every_day(firing_rule.value)
+                                task_batch_enablement[rule.task_id] = (
+                                    task_batch_enablement[
+                                        rule.task_id
+                                    ].set_hour_for_every_day(firing_rule.value)
+                                )
 
                         elif firing_rule.comparison == COMPARATOR.GREATER_THEN:
                             less_than_rule = next(
@@ -101,23 +97,23 @@ class ModifyDateTimeRulesByEnablementAction(AddDateTimeRuleBaseAction):
                             )
                             assert less_than_rule is not None
                             if has_day:
-                                task_batch_enablement[
-                                    rule.task_id
-                                ] = task_batch_enablement[
-                                    rule.task_id
-                                ].set_hour_range_for_day(
-                                    day_rule.value,
-                                    less_than_rule.value,
-                                    firing_rule.value,
+                                task_batch_enablement[rule.task_id] = (
+                                    task_batch_enablement[
+                                        rule.task_id
+                                    ].set_hour_range_for_day(
+                                        day_rule.value,
+                                        less_than_rule.value,
+                                        firing_rule.value,
+                                    )
                                 )
                             else:
-                                task_batch_enablement[
-                                    rule.task_id
-                                ] = task_batch_enablement[
-                                    rule.task_id
-                                ].set_hour_range_for_every_day(
-                                    less_than_rule.value,
-                                    firing_rule.value,
+                                task_batch_enablement[rule.task_id] = (
+                                    task_batch_enablement[
+                                        rule.task_id
+                                    ].set_hour_range_for_every_day(
+                                        less_than_rule.value,
+                                        firing_rule.value,
+                                    )
                                 )
 
         # To the dict we also add all the times in the constraints

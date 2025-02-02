@@ -1,5 +1,4 @@
-from dataclasses import dataclass, replace
-from typing import Literal
+from dataclasses import dataclass
 
 from o2.actions.base_actions.base_action import (
     RateSelfReturnType,
@@ -9,8 +8,7 @@ from o2.actions.base_actions.modify_calendar_base_action import (
     ModifyCalendarBaseActionParamsType,
 )
 from o2.models.days import DAYS
-from o2.models.self_rating import RATING, SelfRatingInput
-from o2.models.time_period import TimePeriod
+from o2.models.self_rating import SelfRatingInput
 from o2.store import Store
 
 

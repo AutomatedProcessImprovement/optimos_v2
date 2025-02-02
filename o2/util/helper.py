@@ -1,10 +1,10 @@
 import random
 import re
 import string
-from typing import Any, Callable, Optional, TypeVar
+from typing import Callable, Optional, TypeVar
 
-from sympy import Symbol, lambdify
 import xxhash
+from sympy import Symbol, lambdify
 
 CLONE_REGEX = re.compile(r"^(.*)_clone_[a-z0-9]{8}(?:timetable)?$")
 

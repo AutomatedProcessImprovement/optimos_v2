@@ -1,68 +1,78 @@
 from abc import ABC, abstractmethod
 from typing import Optional, Type
 
-from o2.actions.add_resource_action import AddResourceAction
-from o2.actions.add_week_day_rule_action import AddWeekDayRuleAction
 from o2.actions.base_actions.base_action import BaseAction, RateSelfReturnType
-from o2.actions.modify_calendar_by_cost_action import (
-    ModifyCalendarByCostAction,
-)
-from o2.actions.modify_calendar_by_it_action import ModifyCalendarByITAction
-from o2.actions.modify_calendar_by_wt_action import ModifyCalendarByWTAction
-from o2.actions.modify_daily_hour_rule_action import ModifyDailyHourRuleAction
-from o2.actions.modify_large_wt_rule_action import ModifyLargeWtRuleAction
-from o2.actions.modify_ready_wt_rule_action import ModifyReadyWtRuleAction
-from o2.actions.new_actions.add_date_time_rule_by_availability import (
+from o2.actions.batching_actions.add_date_time_rule_by_availability import (
     AddDateTimeRuleByAvailabilityAction,
 )
-from o2.actions.new_actions.add_date_time_rule_by_enablement import (
+from o2.actions.batching_actions.add_date_time_rule_by_enablement import (
     AddDateTimeRuleByEnablementAction,
 )
-from o2.actions.new_actions.add_date_time_rule_by_start import (
+from o2.actions.batching_actions.add_date_time_rule_by_start import (
     AddDateTimeRuleByStartAction,
 )
-from o2.actions.new_actions.add_large_wt_rule_by_idle import AddLargeWTRuleByIdleAction
-from o2.actions.new_actions.add_large_wt_rule_by_wt import AddLargeWTRuleByWTAction
-from o2.actions.new_actions.add_ready_wt_rule_by_wt import AddReadyWTRuleByWTAction
-from o2.actions.new_actions.modify_size_rule_by_allocation import (
+from o2.actions.batching_actions.add_large_wt_rule_by_idle import (
+    AddLargeWTRuleByIdleAction,
+)
+from o2.actions.batching_actions.add_large_wt_rule_by_wt import AddLargeWTRuleByWTAction
+from o2.actions.batching_actions.add_ready_wt_rule_by_wt import AddReadyWTRuleByWTAction
+from o2.actions.batching_actions.modify_daily_hour_rule_action import (
+    ModifyDailyHourRuleAction,
+)
+from o2.actions.batching_actions.modify_size_rule_by_allocation import (
     ModifySizeRuleByHighAllocationAction,
     ModifySizeRuleByLowAllocationAction,
 )
-from o2.actions.new_actions.modify_size_rule_by_cost_action import (
+from o2.actions.batching_actions.modify_size_rule_by_cost_action import (
     ModifySizeRuleByCostAction,
 )
-from o2.actions.new_actions.modify_size_rule_by_cost_fn import (
+from o2.actions.batching_actions.modify_size_rule_by_cost_fn import (
     ModifyBatchSizeIfNoCostImprovement,
     ModifySizeRuleByCostFnHighCosts,
     ModifySizeRuleByCostFnLowCycleTimeImpact,
     ModifySizeRuleByCostFnLowProcessingTime,
     ModifySizeRuleByCostFnRepetitiveTasks,
 )
-from o2.actions.new_actions.modify_size_rule_by_duration_fn import (
+from o2.actions.batching_actions.modify_size_rule_by_duration_fn import (
     ModifyBatchSizeIfNoDurationImprovement,
     ModifySizeRuleByDurationFnCostImpact,
 )
-from o2.actions.new_actions.modify_size_rule_by_utilization import (
+from o2.actions.batching_actions.modify_size_rule_by_utilization import (
     ModifySizeRuleByHighUtilizationAction,
     ModifySizeRuleByLowUtilizationAction,
 )
-from o2.actions.new_actions.modify_size_rule_by_wt_action import (
+from o2.actions.batching_actions.modify_size_rule_by_wt_action import (
     ModifySizeRuleByWTAction,
 )
-from o2.actions.remove_resource_by_cost_action import (
+from o2.actions.batching_actions.remove_rule_action import RemoveRuleAction
+from o2.actions.deprecated_actions.add_week_day_rule_action import AddWeekDayRuleAction
+from o2.actions.deprecated_actions.modify_large_wt_rule_action import (
+    ModifyLargeWtRuleAction,
+)
+from o2.actions.deprecated_actions.modify_ready_wt_rule_action import (
+    ModifyReadyWtRuleAction,
+)
+from o2.actions.legacy_optimos_actions.add_resource_action import AddResourceAction
+from o2.actions.legacy_optimos_actions.modify_calendar_by_cost_action import (
+    ModifyCalendarByCostAction,
+)
+from o2.actions.legacy_optimos_actions.modify_calendar_by_it_action import (
+    ModifyCalendarByITAction,
+)
+from o2.actions.legacy_optimos_actions.modify_calendar_by_wt_action import (
+    ModifyCalendarByWTAction,
+)
+from o2.actions.legacy_optimos_actions.remove_resource_by_cost_action import (
     RemoveResourceByCostAction,
 )
-from o2.actions.remove_resource_by_utilization_action import (
+from o2.actions.legacy_optimos_actions.remove_resource_by_utilization_action import (
     RemoveResourceByUtilizationAction,
-)
-from o2.actions.remove_rule_action import (
-    RemoveRuleAction,
 )
 from o2.models.self_rating import RATING
 from o2.models.solution import Solution
 from o2.store import SolutionTry, Store
 
-ACTION_CATALOG: list[Type[BaseAction]] = [
+ACTION_CATALOG: list[type[BaseAction]] = [
     AddResourceAction,
     AddWeekDayRuleAction,
     ModifyCalendarByCostAction,
@@ -77,7 +87,7 @@ ACTION_CATALOG: list[Type[BaseAction]] = [
 ]
 
 
-ACTION_CATALOG_LEGACY = [
+ACTION_CATALOG_LEGACY: list[type[BaseAction]] = [
     AddResourceAction,
     ModifyCalendarByCostAction,
     ModifyCalendarByITAction,
@@ -86,7 +96,7 @@ ACTION_CATALOG_LEGACY = [
     RemoveResourceByUtilizationAction,
 ]
 
-ACTION_CATALOG_BATCHING_ONLY = [
+ACTION_CATALOG_BATCHING_ONLY: list[type[BaseAction]] = [
     AddDateTimeRuleByAvailabilityAction,
     AddDateTimeRuleByEnablementAction,
     AddDateTimeRuleByStartAction,
@@ -156,7 +166,7 @@ class Agent(ABC):
     def result_callback(
         self, chosen_tries: list[SolutionTry], not_chosen_tries: list[SolutionTry]
     ) -> None:
-        """Callback to handle the result of the evaluation."""
+        """Handle the result of the evaluation with this callback."""
         pass
 
     @staticmethod
