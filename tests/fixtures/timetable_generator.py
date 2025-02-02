@@ -445,7 +445,7 @@ class TimetableGenerator:
                     ),
                     FiringRule(
                         attribute=RULE_TYPE.DAILY_HOUR,
-                        comparison=COMPARATOR.LESS_THEN_OR_EQUAL,
+                        comparison=COMPARATOR.LESS_THEN,
                         value=max_hour,
                     ),
                 ]
