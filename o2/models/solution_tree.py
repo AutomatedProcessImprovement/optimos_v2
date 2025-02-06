@@ -67,6 +67,7 @@ class SolutionTree:
 
             if item.id in self.solution_lookup and solution is None:
                 print("WARNING: Got discarded solution from rtree.")
+                self.rtree.delete(item.id, item.bbox)
                 continue
 
             if solution is None:
