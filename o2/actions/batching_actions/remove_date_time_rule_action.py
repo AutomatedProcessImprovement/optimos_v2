@@ -1,5 +1,7 @@
 from dataclasses import replace
 
+from typing_extensions import Required
+
 from o2.actions.base_actions.base_action import BaseAction, BaseActionParamsType
 from o2.models.days import DAY
 from o2.models.self_rating import SelfRatingInput
@@ -10,8 +12,8 @@ from o2.store import Store
 class RemoveDateTimeRuleActionParamsType(BaseActionParamsType):
     """Parameter for RemoveDateTimeRuleAction."""
 
-    task_id: str
-    day: DAY
+    task_id: Required[str]
+    day: Required[DAY]
 
 
 class RemoveDateTimeRuleAction(BaseAction):
