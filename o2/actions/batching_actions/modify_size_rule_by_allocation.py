@@ -1,5 +1,9 @@
-from o2.actions.base_actions.add_size_rule_base_action import AddSizeRuleAction
+from o2.actions.base_actions.add_size_rule_base_action import (
+    AddSizeRuleAction,
+    AddSizeRuleBaseActionParamsType,
+)
 from o2.actions.base_actions.base_action import (
+    BaseAction,
     RateSelfReturnType,
 )
 from o2.actions.base_actions.modify_size_rule_base_action import (
@@ -32,7 +36,7 @@ class ModifySizeRuleByLowAllocationAction(ModifySizeRuleBaseAction):
     @staticmethod
     def rate_self(
         store: "Store", input: SelfRatingInput
-    ) -> RateSelfReturnType["ModifySizeRuleByLowAllocationAction"]:
+    ) -> RateSelfReturnType["ModifySizeRuleByLowAllocationAction | AddSizeRuleAction"]:
         """Generate a best set of parameters & self-evaluates this action."""
         timetable = store.current_timetable
         evaluation = store.current_evaluation
@@ -66,10 +70,11 @@ class ModifySizeRuleByLowAllocationAction(ModifySizeRuleBaseAction):
             yield (
                 RATING.LOW,
                 AddSizeRuleAction(
-                    ModifySizeRuleBaseActionParamsType(
+                    AddSizeRuleBaseActionParamsType(
                         task_id=task_id,
                         size=1,
-                    )  # type: ignore
+                        duration_fn=store.constraints.get_duration_fn_for_task(task_id),
+                    )
                 ),
             )
 
@@ -89,7 +94,7 @@ class ModifySizeRuleByHighAllocationAction(ModifySizeRuleBaseAction):
     @staticmethod
     def rate_self(
         store: "Store", input: SelfRatingInput
-    ) -> RateSelfReturnType["ModifySizeRuleByHighAllocationAction"]:
+    ) -> RateSelfReturnType["ModifySizeRuleByHighAllocationAction | AddSizeRuleAction"]:
         """Generate a best set of parameters & self-evaluates this action."""
         timetable = store.current_timetable
         evaluation = store.current_evaluation
@@ -118,12 +123,15 @@ class ModifySizeRuleByHighAllocationAction(ModifySizeRuleBaseAction):
                     )
         # If nothing else helps, try to add a size rule
         for task_id, _ in tasks_by_allocation:
+            constraints = store.constraints.get_batching_size_rule_constraints(task_id)
+            duration_fn = "1" if not constraints else constraints[0].duration_fn
             yield (
                 RATING.LOW,
                 AddSizeRuleAction(
-                    ModifySizeRuleBaseActionParamsType(
+                    AddSizeRuleBaseActionParamsType(
                         task_id=task_id,
                         size=1,
-                    )  # type: ignore
+                        duration_fn=duration_fn,
+                    )
                 ),
             )

@@ -18,6 +18,7 @@ from typing import (
 )
 
 from dataclass_wizard import JSONWizard
+from sympy import Symbol, lambdify
 
 from o2.models.legacy_constraints import WorkMasks
 from o2.models.rule_selector import RuleSelector
@@ -959,7 +960,10 @@ class BatchingRule(JSONWizard):
         type: "BATCH_TYPE" = BATCH_TYPE.PARALLEL,
         firing_rules: list[FiringRule] = [],
         size: Optional[int] = None,
+        duration_fn: Optional[str] = None,
     ) -> "BatchingRule":
+        """Create a BatchingRule from a task id."""
+        duration_lambda = lambdify(Symbol("size"), duration_fn)
         size_distrib = ([Distribution(key=str(1), value=0.0)] if size != 1 else []) + (
             [Distribution(key=str(new_size), value=1.0) for new_size in range(2, 100)]
             if size is None
@@ -967,12 +971,11 @@ class BatchingRule(JSONWizard):
         )
         duration_distrib = (
             [
-                # TODO: Get duration from duration fn
-                Distribution(key=str(new_size), value=1 / new_size)
+                Distribution(key=str(new_size), value=duration_lambda(new_size))
                 for new_size in range(1, 100)
             ]
             if size is None
-            else [Distribution(key=str(size), value=1 / size)]
+            else [Distribution(key=str(size), value=duration_lambda(size))]
         )
         return BatchingRule(
             task_id=task_id,
@@ -1341,7 +1344,10 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
         return self.replace_batching_rule(rule_selector, new_batching_rule)
 
     def add_firing_rule(
-        self, rule_selector: RuleSelector, new_firing_rule: FiringRule
+        self,
+        rule_selector: RuleSelector,
+        new_firing_rule: FiringRule,
+        duration_fn: Optional[str] = None,
     ) -> "TimetableType":
         """Add a firing rule."""
         _, old_batching_rule = self.get_batching_rule(rule_selector)
@@ -1349,6 +1355,7 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
             batching_rule = BatchingRule.from_task_id(
                 rule_selector.batching_rule_task_id,
                 firing_rules=[new_firing_rule],
+                duration_fn=duration_fn,
             )
         else:
             batching_rule = old_batching_rule.add_firing_rule(new_firing_rule)

@@ -1,6 +1,9 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, replace
 
+from sympy import Symbol, lambdify
+from typing_extensions import Required
+
 from o2.actions.base_actions.base_action import (
     BaseAction,
     BaseActionParamsType,
@@ -22,8 +25,9 @@ from o2.store import Store
 class AddSizeRuleBaseActionParamsType(BaseActionParamsType):
     """Parameter for ModifySizeRuleBaseAction."""
 
-    size: int
-    task_id: str
+    size: Required[int]
+    task_id: Required[str]
+    duration_fn: Required[str]
 
 
 @dataclass(frozen=True)
@@ -41,6 +45,9 @@ class AddSizeRuleBaseAction(BaseAction, ABC, str=False):
 
         new_size = self.params["size"]
         task_id = self.params["task_id"]
+        duration_fn = self.params.get("duration_fn", "1")
+
+        duration_lambda = lambdify(Symbol("size"), duration_fn)
 
         timetable = state.timetable
         batching_rules = timetable.get_batching_rules_for_task(task_id)
@@ -51,6 +58,7 @@ class AddSizeRuleBaseAction(BaseAction, ABC, str=False):
                 task_id=task_id,
                 size=new_size,
                 firing_rules=[FiringRule.gte(RULE_TYPE.SIZE, new_size)],
+                duration_fn=duration_fn,
             )
             return state.replace_timetable(
                 batch_processing=timetable.batch_processing + [new_batching_rule]
@@ -71,12 +79,12 @@ class AddSizeRuleBaseAction(BaseAction, ABC, str=False):
                     if size_distrib.key != str(new_size)
                 ],
                 duration_distrib=[
-                    # TODO: Get duration from duration fn
-                    Distribution(key=str(new_size), value=1 / new_size),
+                    Distribution(key=str(new_size), value=duration_lambda(new_size)),
                 ]
                 + [
                     duration_distrib
                     for duration_distrib in existing_rule.duration_distrib
+                    if duration_distrib.key != str(new_size)
                 ],
                 firing_rules=existing_rule.firing_rules
                 + [

@@ -1,3 +1,5 @@
+from typing_extensions import Required
+
 from o2.actions.base_actions.base_action import (
     BaseAction,
     BaseActionParamsType,
@@ -11,11 +13,8 @@ from o2.models.rule_selector import RuleSelector
 from o2.models.self_rating import SelfRatingInput
 from o2.models.state import State
 from o2.models.timetable import (
-    BATCH_TYPE,
-    COMPARATOR,
     RULE_TYPE,
     BatchingRule,
-    Distribution,
     FiringRule,
     rule_is_size,
 )
@@ -25,9 +24,10 @@ from o2.store import Store
 class ModifySizeOfSignificantRuleActionParamsType(BaseActionParamsType):
     """Parameter for ModifySizeOfSignificantRuleAction."""
 
-    task_id: str
-    change_size: int
+    task_id: Required[str]
+    change_size: Required[int]
     """How much to change the size of the rule by; positive for increase, negative for decrease."""
+    duration_fn: Required[str]
 
 
 class ModifySizeOfSignificantRuleAction(BaseAction):
@@ -40,6 +40,7 @@ class ModifySizeOfSignificantRuleAction(BaseAction):
         timetable = state.timetable
         task_id = self.params["task_id"]
         change_size = self.params["change_size"]
+        duration_fn = self.params.get("duration_fn", None)
 
         batching_rules = timetable.get_batching_rules_for_task(task_id)
 
@@ -77,6 +78,7 @@ class ModifySizeOfSignificantRuleAction(BaseAction):
                 task_id=task_id,
                 size=new_size,
                 firing_rules=[FiringRule.gte(RULE_TYPE.SIZE, new_size)],
+                duration_fn=duration_fn,
             )
             return state.replace_timetable(
                 batch_processing=timetable.batch_processing + [new_batching_rule]
@@ -86,8 +88,7 @@ class ModifySizeOfSignificantRuleAction(BaseAction):
             ModifySizeRuleBaseActionParamsType(
                 rule=significant_rule,
                 size_increment=change_size,
-                # TODO: Get from constraints
-                duration_fn="0.8*size",
+                duration_fn=duration_fn,
             )
         ).apply(state, enable_prints=enable_prints)
 

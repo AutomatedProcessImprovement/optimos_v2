@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, replace
 
+from typing_extensions import NotRequired, Required
+
 from o2.actions.base_actions.base_action import (
     BaseActionParamsType,
     RateSelfReturnType,
@@ -25,8 +27,9 @@ from o2.store import Store
 class AddDateTimeRuleBaseActionParamsType(BaseActionParamsType):
     """Parameter for AddDateTimeRuleBaseAction."""
 
-    task_id: str
-    time_period: TimePeriod
+    task_id: Required[str]
+    time_period: Required[TimePeriod]
+    duration_fn: Required[str]
 
 
 @dataclass(frozen=True)
@@ -41,6 +44,7 @@ class AddDateTimeRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
         timetable = state.timetable
         task_id = self.params["task_id"]
         time_period = self.params["time_period"]
+        duration_fn = self.params.get("duration_fn", None)
 
         existing_task_rules = timetable.get_batching_rules_for_task(task_id)
 
@@ -55,7 +59,9 @@ class AddDateTimeRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
         if not existing_task_rules:
             # TODO: Allow combining rules, e.g. extending date range
             new_batching_rule = BatchingRule.from_task_id(
-                task_id=task_id, firing_rules=new_or_rule
+                task_id=task_id,
+                firing_rules=new_or_rule,
+                duration_fn=duration_fn,
             )
             return state.replace_timetable(
                 batch_processing=timetable.batch_processing + [new_batching_rule]

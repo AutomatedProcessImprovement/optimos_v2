@@ -2,6 +2,8 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, replace
 from typing import Literal
 
+from typing_extensions import NotRequired, Required
+
 from o2.actions.base_actions.base_action import (
     BaseActionParamsType,
     RateSelfReturnType,
@@ -24,9 +26,10 @@ from o2.store import Store
 class AddReadyLargeWTRuleBaseActionParamsType(BaseActionParamsType):
     """Parameter for AddReadyLargeWTRuleBaseAction."""
 
-    task_id: str
-    waiting_time: int
-    type: Literal[RULE_TYPE.LARGE_WT, RULE_TYPE.READY_WT]
+    task_id: Required[str]
+    waiting_time: Required[int]
+    type: Required[Literal[RULE_TYPE.LARGE_WT, RULE_TYPE.READY_WT]]
+    duration_fn: NotRequired[str]
 
 
 @dataclass(frozen=True)
@@ -42,6 +45,7 @@ class AddReadyLargeWTRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
         task_id = self.params["task_id"]
         waiting_time = self.params["waiting_time"]
         type = self.params["type"]
+        duration_fn = self.params.get("duration_fn  ", "1")
 
         assert waiting_time <= 24 * 60 * 60, "Waiting time must be less than 24 hours"
 
@@ -50,6 +54,7 @@ class AddReadyLargeWTRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
         if not existing_task_rules:
             new_batching_rule = BatchingRule.from_task_id(
                 task_id=task_id,
+                duration_fn=duration_fn,
                 firing_rules=[
                     FiringRule.gte(type, waiting_time),
                     FiringRule.lte(type, 24 * 60 * 60),

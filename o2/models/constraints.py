@@ -417,3 +417,11 @@ class ConstraintsType(JSONWizard):
             return "0"
         first_constraint = size_constraint[0]
         return first_constraint.cost_fn
+
+    def get_duration_fn_for_task(self, task_id: str) -> str:
+        """Get the duration function for a specific task."""
+        size_constraint = self.get_batching_size_rule_constraints(task_id)
+        if not size_constraint:
+            return "1"
+        first_constraint = size_constraint[0]
+        return first_constraint.duration_fn

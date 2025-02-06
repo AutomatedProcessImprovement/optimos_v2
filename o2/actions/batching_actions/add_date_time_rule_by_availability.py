@@ -56,11 +56,14 @@ class AddDateTimeRuleByAvailabilityAction(AddDateTimeRuleBaseAction):
             )
             if best_time_period is None:
                 continue
+
             yield (
                 RATING.HIGH,
                 AddDateTimeRuleByAvailabilityAction(
                     AddDateTimeRuleByAvailabilityActionParamsType(
-                        task_id=task_id, time_period=best_time_period
+                        task_id=task_id,
+                        time_period=best_time_period,
+                        duration_fn=store.constraints.get_duration_fn_for_task(task_id),
                     )
                 ),
             )

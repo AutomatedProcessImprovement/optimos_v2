@@ -330,11 +330,14 @@ class PPOInput:
         # - [x] Remove Batching DateTime Rule, per day, per task
 
         for task_id in store.current_timetable.get_task_ids():
+            constraints = store.constraints.get_batching_size_rule_constraints(task_id)
+            duration_fn = "1" if not constraints else constraints[0].duration_fn
             actions.append(
                 ModifySizeOfSignificantRuleAction(
                     ModifySizeOfSignificantRuleActionParamsType(
                         task_id=task_id,
                         change_size=1,
+                        duration_fn=duration_fn,
                     )
                 )
             )
@@ -343,6 +346,7 @@ class PPOInput:
                     ModifySizeOfSignificantRuleActionParamsType(
                         task_id=task_id,
                         change_size=-1,
+                        duration_fn=duration_fn,
                     )
                 )
             )

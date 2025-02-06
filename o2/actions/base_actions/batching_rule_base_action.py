@@ -1,6 +1,8 @@
 from abc import ABC
 from dataclasses import dataclass
 
+from typing_extensions import Required
+
 from o2.actions.base_actions.base_action import BaseAction, BaseActionParamsType
 from o2.models.rule_selector import RuleSelector
 
@@ -8,7 +10,7 @@ from o2.models.rule_selector import RuleSelector
 class BatchingRuleBaseActionParamsType(BaseActionParamsType):
     """Base type for all action parameters."""
 
-    rule: RuleSelector
+    rule: Required[RuleSelector]
 
 
 @dataclass(frozen=True)

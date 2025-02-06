@@ -56,9 +56,8 @@ class AddDateTimeRuleByStartAction(AddDateTimeRuleBaseAction):
             aggregated_start_times = {
                 (day, hour): count
                 for resource_id in resources_ids
-                for day, times in start_times[resource_id].items()
+                for day, times in start_times.get(resource_id, {}).items()
                 for hour, count in times.items()
-                if resource_id in start_times
             }
 
             # find most frequent day,hour combination
@@ -76,6 +75,9 @@ class AddDateTimeRuleByStartAction(AddDateTimeRuleBaseAction):
                         AddDateTimeRuleByStartActionParamsType(
                             task_id=task_id,
                             time_period=TimePeriod.from_start_end(hour, hour + 1, day),
+                            duration_fn=store.constraints.get_duration_fn_for_task(
+                                task_id
+                            ),
                         )
                     ),
                 )

@@ -64,6 +64,9 @@ class AddDateTimeRuleByEnablementAction(AddDateTimeRuleBaseAction):
                         AddDateTimeRuleByEnablementActionParamsType(
                             task_id=task_id,
                             time_period=TimePeriod.from_start_end(hour, hour + 1, day),
+                            duration_fn=store.constraints.get_duration_fn_for_task(
+                                task_id
+                            ),
                         )
                     ),
                 )

@@ -3,7 +3,6 @@ from o2.models.state import State
 from o2.models.time_period import TimePeriod
 from o2.models.timetable import (
     BATCH_TYPE,
-    COMPARATOR,
     RULE_TYPE,
     BatchingRule,
     Distribution,
@@ -57,7 +56,6 @@ state = state.replace_timetable(
                 Distribution(key=str(new_size), value=1.0) for new_size in range(2, 100)
             ],
             duration_distrib=[
-                # TODO: Get duration from duration fn
                 Distribution(key=str(new_size), value=1 / new_size)
                 for new_size in range(1, 100)
             ],

@@ -1,4 +1,7 @@
-from o2.actions.base_actions.add_size_rule_base_action import AddSizeRuleAction
+from o2.actions.base_actions.add_size_rule_base_action import (
+    AddSizeRuleAction,
+    AddSizeRuleBaseActionParamsType,
+)
 from o2.actions.base_actions.base_action import (
     RateSelfReturnType,
 )
@@ -30,7 +33,7 @@ class ModifySizeRuleByCostAction(ModifySizeRuleBaseAction):
     @staticmethod
     def rate_self(
         store: "Store", input: SelfRatingInput
-    ) -> RateSelfReturnType["ModifySizeRuleByCostAction"]:
+    ) -> RateSelfReturnType["ModifySizeRuleByCostAction | AddSizeRuleAction"]:
         """Generate a best set of parameters & self-evaluates this action."""
         timetable = store.current_timetable
 
@@ -63,9 +66,10 @@ class ModifySizeRuleByCostAction(ModifySizeRuleBaseAction):
             yield (
                 RATING.LOW,
                 AddSizeRuleAction(
-                    ModifySizeRuleBaseActionParamsType(
+                    AddSizeRuleBaseActionParamsType(
                         task_id=task_id,
                         size=1,
-                    )  # type: ignore
+                        duration_fn=store.constraints.get_duration_fn_for_task(task_id),
+                    )
                 ),
             )
