@@ -1,9 +1,6 @@
 import json
 import os
-import pickle
 import xml.etree.ElementTree as ET
-from datetime import datetime
-from io import BufferedWriter
 
 import numpy as np
 
@@ -17,19 +14,27 @@ from o2.store import Store
 from o2.util.solution_dumper import SolutionDumper
 from o2.util.tensorboard_helper import TensorBoardHelper
 
-MAX_ITERATIONS = 1000
-# NOTE: This is actions(!) not iterations, therefore we need to set this to a higher value
-# A good rule of thumb is to set it to core_count times the number of non improving iterations
+MAX_ITERATIONS = 1500
+# NOTE: This is actions(!) not iterations, therefore we need to set this
+# to a higher value.  A good rule of thumb is to set it
+# to core_count times the number of non improving iterations
 MAX_NON_IMPROVING_ACTIONS = (os.cpu_count() or 1) * 100
-DUMP_INTERVAL = 100
-SCENARIO = "Purchasing"
+DUMP_INTERVAL = 250
+SCENARIO = "BPI_Challenge_2017"
+
+SA_INITIAL_TEMPERATURE = 75_000_000
+SA_COOLING_FACTOR = 0.995
 
 FIXED_COST_FN = "1 * 1/size"
 COST_FN = "1"
 DURATION_FN = "1/size"
 
+NUMBER_OF_CASES = 100
 
-def calculate_hyperarea(solutions: list[Solution], center_point):
+
+def calculate_hyperarea(
+    solutions: list[Solution], center_point: tuple[float, float]
+) -> float:
     """Calculate the hyperarea covered by a set of solutions relative to a center point."""
     total_area = 0.0
     for solution in solutions:
@@ -41,14 +46,13 @@ def calculate_hyperarea(solutions: list[Solution], center_point):
 
 
 def distance(point1, point2):
-    return np.linalg.norm(np.array(point1) - np.array(point2))
+    return float(np.linalg.norm(np.array(point1) - np.array(point2)))
 
 
 def calculate_averaged_hausdorff_distance(
     pareto_front: list[Solution], global_set: list[Solution]
-):
+) -> float:
     """Calculate the Averaged Hausdorff Distance between the Pareto front and the global set."""
-
     total_distance = 0.0
     for solution in pareto_front:
         distances = [distance(solution.point, other.point) for other in global_set]
@@ -58,7 +62,9 @@ def calculate_averaged_hausdorff_distance(
     return total_distance / len(pareto_front) if pareto_front else 0.0
 
 
-def calculate_delta_metric(pareto_front: list[Solution], global_set: list[Solution]):
+def calculate_delta_metric(
+    pareto_front: list[Solution], global_set: list[Solution]
+) -> float:
     """Calculate the Delta metric for diversity of the Pareto front."""
     if not pareto_front:
         return 0.0
@@ -71,7 +77,7 @@ def calculate_delta_metric(pareto_front: list[Solution], global_set: list[Soluti
     ]
 
     avg_distance = np.mean(distances) if distances else 0.0
-    return np.std(distances) / avg_distance if avg_distance > 0 else 0.0
+    return float(np.std(distances) / avg_distance) if avg_distance > 0 else 0.0
 
 
 def calculate_purity(pareto_front: list[Solution], global_set: list[Solution]) -> float:
@@ -90,8 +96,10 @@ def calculate_metrics(stores: list[tuple[str, Store]]):
             solution
             for solution in store.solution_tree.solution_lookup.values()
             if solution is not None
-        ] + SolutionDumper.instance.load_solutions()
+        ]
         all_solutions.extend(solutions)
+
+    all_solutions.extend(SolutionDumper.instance.load_solutions())
 
     # Find pareto front for all solutions
     all_solutions_front = [
@@ -191,14 +199,13 @@ def collect_data_sequentially(base_store):
 
     It does this sequentially for the 3 simulation methods one after the other.
     """
-
+    print("Setting up enviorment")
     # Constant (class variable) settings
     Settings.SHOW_SIMULATION_ERRORS = True
-    Settings.RAISE_SIMULATION_ERRORS = True
+    Settings.RAISE_SIMULATION_ERRORS = False
     Settings.COST_TYPE = CostType.WAITING_TIME_AND_PROCESSING_TIME
     Settings.DUMP_DISCARDED_SOLUTIONS = True
-    Settings.SHOW_SIMULATION_ERRORS = True
-    Settings.NUMBER_OF_CASES = 100
+    Settings.NUMBER_OF_CASES = NUMBER_OF_CASES
 
     # Initialize solution dumper
     SolutionDumper()
@@ -222,8 +229,8 @@ def collect_data_sequentially(base_store):
         base_store.base_state, base_store.constraints, "Simulated Annealing"
     )
     update_store_settings(sa_store, AgentType.SIMULATED_ANNEALING)
-    sa_store.settings.sa_initial_temperature = 5_000_000_000
-    sa_store.settings.sa_cooling_factor = 0.99
+    sa_store.settings.sa_initial_temperature = SA_INITIAL_TEMPERATURE
+    sa_store.settings.sa_cooling_factor = SA_COOLING_FACTOR
 
     solve_store(sa_store)
 
@@ -325,6 +332,18 @@ if __name__ == "__main__":
             "o2_evaluation/scenarios/purchasing_example/purchasing_example.json"
         )
         bpmn_path = "o2_evaluation/scenarios/purchasing_example/purchasing_example.bpmn"
+
+        store = store_with_baseline_constraints(timetable_path, bpmn_path)
+    elif SCENARIO == "BPI_Challenge_2017":
+        timetable_path = (
+            "o2_evaluation/scenarios/bpi_challenge_2017/bpi_challenge_2017.json"
+        )
+        bpmn_path = "o2_evaluation/scenarios/bpi_challenge_2017/bpi_challenge_2017.bpmn"
+
+        store = store_with_baseline_constraints(timetable_path, bpmn_path)
+    elif SCENARIO == "TwoTasks":
+        timetable_path = "examples/two_tasks_batching/two_tasks_batching.json"
+        bpmn_path = "examples/two_tasks_batching/two_tasks_batching.bpmn"
 
         store = store_with_baseline_constraints(timetable_path, bpmn_path)
     else:
