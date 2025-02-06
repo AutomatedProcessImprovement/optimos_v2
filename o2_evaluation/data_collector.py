@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+import argparse
 import json
 import os
 import xml.etree.ElementTree as ET
@@ -21,22 +23,73 @@ from o2.util.stat_calculation_helper import (
 )
 from o2.util.tensorboard_helper import TensorBoardHelper
 
-MAX_ITERATIONS = 1500
-# NOTE: This is actions(!) not iterations, therefore we need to set this
-# to a higher value.  A good rule of thumb is to set it
-# to core_count times the number of non improving iterations
-MAX_NON_IMPROVING_ACTIONS = (os.cpu_count() or 1) * 100
-DUMP_INTERVAL = 250
-ACTIVE_SCENARIOS = ["BPI_Challenge_2017"]
 
-SA_INITIAL_TEMPERATURE = 75_000_000
-SA_COOLING_FACTOR = 0.995
-
-FIXED_COST_FN = "1 * 1/size"
-COST_FN = "1"
-DURATION_FN = "1/size"
-
-NUMBER_OF_CASES = 100
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="CLI Tool for solving and analyzing simulation scenarios."
+    )
+    parser.add_argument(
+        "--max-iterations",
+        type=int,
+        default=1500,
+        help="Maximum number of iterations (default: 1500)",
+    )
+    parser.add_argument(
+        "--max-non-improving-actions",
+        type=int,
+        default=(os.cpu_count() or 1) * 100,
+        help="Maximum number of non-improving actions (default: cpu_count*100)",
+    )
+    parser.add_argument(
+        "--dump-interval",
+        type=int,
+        default=250,
+        help="Interval for dumping solution data (default: 250)",
+    )
+    parser.add_argument(
+        "--active-scenarios",
+        type=str,
+        nargs="+",
+        default=["BPI_Challenge_2017"],
+        help="List of active scenarios (e.g. Demo, Purchasing, BPI_Challenge_2017, TwoTasks)",
+    )
+    parser.add_argument(
+        "--sa-initial-temperature",
+        type=int,
+        default=75000000,
+        help="Initial temperature for Simulated Annealing (default: 75000000)",
+    )
+    parser.add_argument(
+        "--sa-cooling-factor",
+        type=float,
+        default=0.995,
+        help="Cooling factor for Simulated Annealing (default: 0.995)",
+    )
+    parser.add_argument(
+        "--fixed-cost-fn",
+        type=str,
+        default="1 * 1/size",
+        help="Fixed cost function (default: '1 * 1/size')",
+    )
+    parser.add_argument(
+        "--cost-fn",
+        type=str,
+        default="1",
+        help="Cost function (default: '1')",
+    )
+    parser.add_argument(
+        "--duration-fn",
+        type=str,
+        default="1/size",
+        help="Duration function (default: '1/size')",
+    )
+    parser.add_argument(
+        "--number-of-cases",
+        type=int,
+        default=100,
+        help="Number of cases (default: 100)",
+    )
+    return parser.parse_args()
 
 
 def calculate_metrics(stores: list[tuple[str, Store]]):
@@ -52,29 +105,25 @@ def calculate_metrics(stores: list[tuple[str, Store]]):
 
     all_solutions.extend(SolutionDumper.instance.load_solutions())
 
-    # Find pareto front for all solutions
+    # Find the Pareto front (non-dominated solutions)
     all_solutions_front = [
         solution
         for solution in all_solutions
         if not any(solution.is_dominated_by(other) for other in all_solutions)
     ]
 
-    # Calculate hyperarea
-
-    # Find the center point
+    # Calculate the hyperarea (using the max cost and time as the center point)
     max_cost = max(solution.point[0] for solution in all_solutions)
     max_time = max(solution.point[1] for solution in all_solutions)
     center_point = (max_cost, max_time)
-
-    # Calculate hyperarea for global set and Pareto front
     global_hyperarea = calculate_hyperarea(all_solutions_front, center_point)
+
     print("\n\nMetrics:")
     print("=========")
     print("Global Set:")
     print(f"\t> Solutions Total: {len(all_solutions)}")
     print(f"\t> Center Point: {center_point}")
     print(f"\t> Hyperarea: {global_hyperarea}")
-    # Global pareto
     print("\t> Pareto front:")
     print(f"\t\t>> size: {len(all_solutions_front)}")
     print(f"\t\t>> Avg cost: {np.mean([sol.point[0] for sol in all_solutions_front])}")
@@ -83,8 +132,6 @@ def calculate_metrics(stores: list[tuple[str, Store]]):
     for name, store in stores:
         pareto_solutions = store.current_pareto_front.solutions
         pareto_hyperarea = calculate_hyperarea(pareto_solutions, center_point)
-
-        # Hyperarea ratio
         ratio = 0.0 if global_hyperarea == 0.0 else pareto_hyperarea / global_hyperarea
 
         hausdorff_distance = calculate_averaged_hausdorff_distance(
@@ -112,14 +159,14 @@ def calculate_metrics(stores: list[tuple[str, Store]]):
         print(f"\t> Purity Metric: {purity}")
 
 
-def update_store_settings(store: Store, agent: AgentType) -> None:
+def update_store_settings(
+    store: Store, agent: AgentType, max_iterations: int, max_non_improving_actions: int
+) -> None:
     """Update the store settings for the given agent."""
-
     store.settings.optimos_legacy_mode = False
     store.settings.batching_only = True
-    store.settings.max_iterations = MAX_ITERATIONS
-    store.settings.max_non_improving_actions = MAX_NON_IMPROVING_ACTIONS
-
+    store.settings.max_iterations = max_iterations
+    store.settings.max_non_improving_actions = max_non_improving_actions
     store.settings.agent = agent
 
 
@@ -128,16 +175,15 @@ def persist_store(store: Store) -> None:
     SolutionDumper.instance.dump_store(store)
 
 
-def solve_store(store: Store) -> None:
+def solve_store(store: Store, dump_interval: int) -> None:
     """Solve the store with the given agent."""
     hill_climber = HillClimber(store)
     generator = hill_climber.get_iteration_generator(yield_on_non_acceptance=True)
     iteration = 1
     for _ in generator:
         if store.settings.log_to_tensor_board:
-            # Just iterate through the generator to run it
             TensorBoardHelper.instance.tensor_board_iteration_callback(store.solution)
-        if iteration % DUMP_INTERVAL == 0:
+        if iteration % dump_interval == 0:
             persist_store(store)
         iteration += 1
 
@@ -146,57 +192,64 @@ def solve_store(store: Store) -> None:
         hill_climber.executor.shutdown()
 
 
-def collect_data_sequentially(base_store: Store) -> None:
-    """Collect all possible solutions, and the respective pareto fronts.
-
-    It does this sequentially for the 3 simulation methods one after the other.
-    """
-    print("Setting up enviorment")
-    # Constant (class variable) settings
+def collect_data_sequentially(base_store: Store, args) -> None:
+    """Collect all possible solutions and the respective Pareto fronts."""
+    print("Setting up environment")
+    # Set some global settings
     Settings.SHOW_SIMULATION_ERRORS = True
     Settings.RAISE_SIMULATION_ERRORS = False
     Settings.COST_TYPE = CostType.WAITING_TIME_AND_PROCESSING_TIME
     Settings.DUMP_DISCARDED_SOLUTIONS = True
-    Settings.NUMBER_OF_CASES = NUMBER_OF_CASES
+    Settings.NUMBER_OF_CASES = args.number_of_cases
 
-    # Initialize solution dumper
+    # Initialize the solution dumper
     SolutionDumper()
 
-    # Move TensorBoard logs to a new folder
+    # Optionally archive previous TensorBoard logs
     if base_store.settings.log_to_tensor_board:
         TensorBoardHelper.move_logs_to_archive_dir()
 
-    # We start with TABU search
-
-    # Clone store just to avoid changing the original store
+    # Use TABU search
     tabu_store = Store.from_state_and_constraints(
         base_store.base_state, base_store.constraints, "Tabu Search"
     )
-    update_store_settings(tabu_store, AgentType.TABU_SEARCH)
+    update_store_settings(
+        tabu_store,
+        AgentType.TABU_SEARCH,
+        args.max_iterations,
+        args.max_non_improving_actions,
+    )
+    solve_store(tabu_store, args.dump_interval)
 
-    solve_store(tabu_store)
-
-    # # Next, we use Simulated Annealing
+    # Use Simulated Annealing
     sa_store = Store.from_state_and_constraints(
         base_store.base_state, base_store.constraints, "Simulated Annealing"
     )
-    update_store_settings(sa_store, AgentType.SIMULATED_ANNEALING)
-    sa_store.settings.sa_initial_temperature = SA_INITIAL_TEMPERATURE
-    sa_store.settings.sa_cooling_factor = SA_COOLING_FACTOR
+    update_store_settings(
+        sa_store,
+        AgentType.SIMULATED_ANNEALING,
+        args.max_iterations,
+        args.max_non_improving_actions,
+    )
+    sa_store.settings.sa_initial_temperature = args.sa_initial_temperature
+    sa_store.settings.sa_cooling_factor = args.sa_cooling_factor
+    solve_store(sa_store, args.dump_interval)
 
-    solve_store(sa_store)
-
-    # Finally we use PPO
+    # Use Proximal Policy Optimization (PPO)
     ppo_store = Store.from_state_and_constraints(
         base_store.base_state, base_store.constraints, "Proximal Policy Optimization"
     )
-    update_store_settings(ppo_store, AgentType.PROXIMAL_POLICY_OPTIMIZATION)
+    update_store_settings(
+        ppo_store,
+        AgentType.PROXIMAL_POLICY_OPTIMIZATION,
+        args.max_iterations,
+        args.max_non_improving_actions,
+    )
     ppo_store.settings.disable_parallel_evaluation = True
     ppo_store.settings.max_threads = 1
+    solve_store(ppo_store, args.dump_interval)
 
-    solve_store(ppo_store)
-
-    # Calculate metrics
+    # Calculate and print metrics
     calculate_metrics(
         [
             ("Tabu Search", tabu_store),
@@ -209,7 +262,11 @@ def collect_data_sequentially(base_store: Store) -> None:
 
 
 if __name__ == "__main__":
-    for scenario in ACTIVE_SCENARIOS:
+    # Parse CLI arguments
+    args = parse_args()
+
+    # Loop over the active scenarios provided via CLI
+    for scenario in args.active_scenarios:
         if scenario == "Demo":
             from o2_evaluation.scenarios.demo.demo_model import demo_store
 
@@ -222,7 +279,6 @@ if __name__ == "__main__":
                 bpmn_path = (
                     "o2_evaluation/scenarios/purchasing_example/purchasing_example.bpmn"
                 )
-
             elif scenario == "BPI_Challenge_2017":
                 timetable_path = (
                     "o2_evaluation/scenarios/bpi_challenge_2017/bpi_challenge_2017.json"
@@ -230,15 +286,15 @@ if __name__ == "__main__":
                 bpmn_path = (
                     "o2_evaluation/scenarios/bpi_challenge_2017/bpi_challenge_2017.bpmn"
                 )
-
             elif scenario == "TwoTasks":
                 timetable_path = "examples/two_tasks_batching/two_tasks_batching.json"
                 bpmn_path = "examples/two_tasks_batching/two_tasks_batching.bpmn"
-
             else:
                 raise ValueError(f"Unknown scenario: {scenario}")
 
+            # Pass the cost and duration functions from CLI arguments.
             store = store_with_baseline_constraints(
-                timetable_path, bpmn_path, DURATION_FN, COST_FN
+                timetable_path, bpmn_path, args.duration_fn, args.cost_fn
             )
-        collect_data_sequentially(store)
+        # Run the simulation/collection for the current scenario
+        collect_data_sequentially(store, args)
