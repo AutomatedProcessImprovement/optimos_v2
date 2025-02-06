@@ -1,10 +1,8 @@
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 import gymnasium as gym
 import numpy as np
 import torch as th
-from numpy import ndarray
-from sb3_contrib import MaskablePPO
 from stable_baselines3.common.utils import obs_as_tensor
 
 from o2.actions.base_actions.base_action import BaseAction
@@ -17,12 +15,17 @@ from o2.ppo_utils.ppo_input import PPOInput
 from o2.store import SolutionTry, Store
 from o2.util.indented_printer import print_l1
 
+if TYPE_CHECKING:
+    from numpy import ndarray
+
 
 class PPOAgent(Agent):
     """Selects the best action to take next, based on the current state of the store."""
 
     def __init__(self, store: Store) -> None:
         super().__init__(store)
+        from sb3_contrib import MaskablePPO
+
         if store.settings.ppo_use_existing_model:
             self.model = MaskablePPO.load(store.settings.ppo_model_path)
         else:
