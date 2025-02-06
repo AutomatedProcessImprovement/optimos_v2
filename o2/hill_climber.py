@@ -25,6 +25,7 @@ class HillClimber:
         self.max_iter = store.settings.max_iterations
         self.max_non_improving_iter = store.settings.max_non_improving_actions
         self.max_parallel = store.settings.max_threads
+        self.running_avg_time = 0
         if not store.settings.disable_parallel_evaluation:
             self.executor = concurrent.futures.ProcessPoolExecutor(
                 max_workers=self.store.settings.max_threads
@@ -68,6 +69,7 @@ class HillClimber:
         you can use this method.
         """
         for it in range(self.max_iter):
+            start_time = time.time()
             try:
                 if self.max_non_improving_iter <= 0:
                     print_l0("Maximum non improving iterations reached!")
@@ -147,6 +149,7 @@ class HillClimber:
                     # re-raising the exception to stop the optimization
                     raise
                 continue
+            self._print_time_estimate(it, start_time)
 
     def _print_result(self):
         print_l0("Final result:")
@@ -155,6 +158,17 @@ class HillClimber:
         print_l1("Modifications:")
         for action in self.store.base_solution.actions:
             print_l2(repr(action))
+
+    def _print_time_estimate(self, it: int, start_time: float):
+        time_taken = time.time() - start_time
+        self.running_avg_time = (self.running_avg_time * it + time_taken) / (it + 1)
+        estimated_time_left = self.running_avg_time * (self.max_iter - it)
+        est_hours = estimated_time_left / 3600
+        est_minutes = (estimated_time_left % 3600) / 60
+        est_seconds = estimated_time_left % 60
+        print_l1(
+            f"Iteration took {time_taken:.2f}s (avg: {self.running_avg_time:.2f}s, est. {est_hours:.0f}h {est_minutes:.0f}m {est_seconds:.0f}s left)"
+        )
 
     def _execute_actions_parallel(
         self, store: Store, actions_to_perform: list[BaseAction]
