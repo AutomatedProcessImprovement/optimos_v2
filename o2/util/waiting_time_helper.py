@@ -47,6 +47,15 @@ class BatchInfo(TypedDict):
     size: int
 
 
+class SimpleBatchInfo(TypedDict):
+    """Batch information."""
+
+    accumulation_begin: datetime
+    start: datetime
+    ideal_proc: float
+    idle_time: float
+
+
 def get_batches_from_event_log(
     log: LogInfo, batching_rules_exist=True
 ) -> dict[BatchInfoKey, BatchInfo]:

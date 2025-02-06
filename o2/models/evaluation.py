@@ -18,6 +18,7 @@ from o2.util.helper import lambdify_dict
 from o2.util.waiting_time_helper import (
     BatchInfo,
     BatchInfoKey,
+    SimpleBatchInfo,
     get_batches_from_event_log,
 )
 
@@ -101,9 +102,6 @@ class Evaluation:
     task_started_weekdays: dict[str, dict[DAY, dict[int, int]]]
     """Get the weekdays & hours on which a task was started."""
 
-    resource_task_started_weekdays: dict[str, dict[str, dict[DAY, dict[int, int]]]]
-    """Get the weekdays & hours on which a task was started by a resource."""
-
     resource_allocation_ratio_task: dict[str, float]
     """Get the allocation ratio of each task."""
 
@@ -114,11 +112,17 @@ class Evaluation:
     avg_fixed_cost_per_case_by_task: dict[str, float]
     """Get the average fixed cost by task per case."""
 
-    batches: dict[BatchInfoKey, BatchInfo]
-    """The batches of the simulation.
+    batches_by_activity_with_idle: dict[str, list[SimpleBatchInfo]]
+    """Get the batches grouped by activity, only including those with idle time."""
 
-    NOTE: This only includes size > 1 batches.
-    """
+    avg_batch_size_for_batch_enabled_tasks: float
+    """Get the average batch size over all batches."""
+
+    avg_batch_size_per_task: dict[str, float]
+    """Get the average batch size per task."""
+
+    resource_started_weekdays: dict[str, dict[DAY, dict[int, int]]]
+    """Get the weekdays & hours on which a resource started any task."""
 
     @cached_property
     def total_processing_cost_for_tasks(self) -> float:
@@ -222,40 +226,6 @@ class Evaluation:
     def total_task_idle_time(self) -> float:
         """Get the total task idle time of the simulation."""
         return sum(task_kpi.idle_time.total for task_kpi in self.task_kpis.values())
-
-    @cached_property
-    def resource_started_weekdays(self) -> dict[str, dict[DAY, dict[int, int]]]:
-        """Get the weekdays & time of day on which a resource started a(/any) task."""
-        return {
-            resource_id: {
-                DAY(weekday): {hour: count for hour, count in task_start_times.items()}
-                for _, resource_start_times in task_start_times_by_day.items()
-                for weekday, task_start_times in resource_start_times.items()
-            }
-            for resource_id, task_start_times_by_day in self.resource_task_started_weekdays.items()
-        }
-
-    @cached_property
-    def average_batch_size_per_task(self) -> dict[str, float]:
-        """Get the average batch size per task."""
-        batches_by_task = {}
-        for batch in self.batches.values():
-            task_id = batch["activity"]
-            if task_id not in batches_by_task:
-                batches_by_task[task_id] = []
-            batches_by_task[task_id].append(batch)
-
-        return {
-            task_id: sum(batch["size"] for batch in batches) / len(batches)
-            for task_id, batches in batches_by_task.items()
-        }
-
-    @cached_property
-    def average_batch_size_for_batch_enabled_tasks(self) -> float:
-        """Get the average batch size over all batches."""
-        if not self.batches:
-            return 0
-        return sum(batch["size"] for batch in self.batches.values()) / len(self.batches)
 
     @property
     def pareto_x(self) -> float:
@@ -512,6 +482,22 @@ class Evaluation:
         ]
 
     @staticmethod
+    def get_resource_started_weekdays(
+        cases: list[Trace],
+    ) -> dict[str, dict[DAY, dict[int, int]]]:
+        """Get the weekdays & time of day on which a resource started a(/any) task."""
+        return {
+            resource_id: {
+                DAY(weekday): {hour: count for hour, count in task_start_times.items()}
+                for _, resource_start_times in task_start_times_by_day.items()
+                for weekday, task_start_times in resource_start_times.items()
+            }
+            for resource_id, task_start_times_by_day in Evaluation.get_resource_task_started_weekdays(
+                cases
+            ).items()
+        }
+
+    @staticmethod
     def get_task_execution_counts(cases) -> dict[str, int]:
         """Get the count each task was executed."""
         occurrences: dict[str, int] = {}
@@ -597,6 +583,68 @@ class Evaluation:
         }
 
     @staticmethod
+    def get_batches_by_activity_with_idle(
+        batches: dict[BatchInfoKey, BatchInfo],
+    ) -> dict[str, list[SimpleBatchInfo]]:
+        """Get batches grouped by activity, only including those with idle time.
+
+        Returns a dict where:
+        - key: activity name
+        - value: list of dicts containing only the essential batch info:
+            {
+                'accumulation_begin': datetime,
+                'start': datetime,
+                'ideal_proc': float,
+                'idle_time': float
+            }
+        """
+        result: dict[str, list[SimpleBatchInfo]] = {}
+        for batch in batches.values():
+            if batch["idle_time"] == 0:
+                continue
+
+            activity = batch["activity"]
+            if activity not in result:
+                result[activity] = []
+
+            result[activity].append(
+                {
+                    "accumulation_begin": batch["accumulation_begin"],
+                    "start": batch["start"],
+                    "ideal_proc": batch["ideal_proc"],
+                    "idle_time": batch["idle_time"],
+                }
+            )
+
+        return result
+
+    @staticmethod
+    def get_average_batch_size_per_task(
+        batches: dict[BatchInfoKey, BatchInfo],
+    ) -> dict[str, float]:
+        """Get the average batch size per task."""
+        batches_by_task = {}
+        for batch in batches.values():
+            task_id = batch["activity"]
+            if task_id not in batches_by_task:
+                batches_by_task[task_id] = []
+            batches_by_task[task_id].append(batch)
+
+        return {
+            task_id: sum(batch["size"] for batch in batches) / len(batches)
+            for task_id, batches in batches_by_task.items()
+        }
+
+    @staticmethod
+    def get_avg_batch_size_for_batch_enabled_tasks(
+        batches: dict[BatchInfoKey, BatchInfo],
+    ) -> float:
+        """Get the average batch size over all batches."""
+        if not batches:
+            return 0
+        return sum(batch["size"] for batch in batches.values()) / len(batches)
+
+    @staticmethod
     def empty():
         """Create an empty evaluation."""
         return Evaluation(
@@ -625,9 +673,11 @@ class Evaluation:
             total_fixed_cost_by_task={},
             avg_fixed_cost_per_case=0,
             avg_fixed_cost_per_case_by_task={},
-            resource_task_started_weekdays={},
             resource_allocation_ratio_task={},
-            batches={},
+            batches_by_activity_with_idle={},
+            avg_batch_size_per_task={},
+            avg_batch_size_for_batch_enabled_tasks=0,
+            resource_started_weekdays={},
         )
 
     @staticmethod
@@ -642,6 +692,12 @@ class Evaluation:
         cases: list[Trace] = [] if log_info is None else log_info.trace_list
 
         batches = get_batches_from_event_log(log_info, batching_rules_exist)
+
+        batches_greater_than_one = {
+            batch_key: batch
+            for batch_key, batch in batches.items()
+            if batch["size"] > 1
+        }
 
         batch_pd = pd.DataFrame(
             (
@@ -759,9 +815,6 @@ class Evaluation:
             task_execution_counts=Evaluation.get_task_execution_counts(cases),
             task_enablement_weekdays=Evaluation.get_task_enablement_weekdays(cases),
             task_started_weekdays=Evaluation.get_task_started_at_weekdays(cases),
-            resource_task_started_weekdays=Evaluation.get_resource_task_started_weekdays(
-                cases
-            ),
             resource_allocation_ratio_task=Evaluation.get_resource_allocation_ratio(
                 cases
             ),
@@ -790,9 +843,14 @@ class Evaluation:
             total_fixed_cost_by_task=total_fixed_cost_by_task,
             avg_fixed_cost_per_case=avg_fixed_cost_per_case,
             avg_fixed_cost_per_case_by_task=avg_fixed_cost_per_case_by_task,
-            batches={
-                batch_key: batch
-                for batch_key, batch in batches.items()
-                if batch["size"] > 1
-            },
+            batches_by_activity_with_idle=Evaluation.get_batches_by_activity_with_idle(
+                batches_greater_than_one
+            ),
+            avg_batch_size_per_task=Evaluation.get_average_batch_size_per_task(
+                batches_greater_than_one
+            ),
+            avg_batch_size_for_batch_enabled_tasks=Evaluation.get_avg_batch_size_for_batch_enabled_tasks(
+                batches_greater_than_one
+            ),
+            resource_started_weekdays=Evaluation.get_resource_started_weekdays(cases),
         )

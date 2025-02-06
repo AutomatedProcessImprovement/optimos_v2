@@ -51,14 +51,7 @@ class AddLargeWTRuleByIdleAction(AddReadyLargeWTRuleBaseAction):
         timetable = store.current_timetable
 
         # Group all batches by activity, only include those with idle time
-        batches_by_activity: dict[str, list[BatchInfo]] = {}
-        for batch in store.current_evaluation.batches.values():
-            activity = batch["activity"]
-            if batch["idle_time"] == 0:
-                continue
-            if activity not in batches_by_activity:
-                batches_by_activity[activity] = []
-            batches_by_activity[activity].append(batch)
+        batches_by_activity = store.current_evaluation.batches_by_activity_with_idle
 
         for activity, batch_group in batches_by_activity.items():
             # For each activity, look at all resources, which could also
@@ -90,6 +83,8 @@ class AddLargeWTRuleByIdleAction(AddReadyLargeWTRuleBaseAction):
                         required_large_wt = (
                             period.begin_time_hour - batch["accumulation_begin"].hour
                         )
+                        # Idle time of 0 doesn't make sense,
+                        # as it's basically the same as no batching
                         if required_large_wt <= 0:
                             continue
 
