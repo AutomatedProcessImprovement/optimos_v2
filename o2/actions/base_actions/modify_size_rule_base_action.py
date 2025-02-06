@@ -57,9 +57,11 @@ class ModifySizeRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
             print(f"FiringRule not found for {rule_selector}")
             return state
 
-        new_firing_rule = replace(
-            firing_rule, value=firing_rule.value + self.params["size_increment"]
-        )
+        new_size = firing_rule.value + self.params["size_increment"]
+        if new_size <= 0:
+            return state
+
+        new_firing_rule = replace(firing_rule, value=new_size)
 
         new_timetable = state.timetable.replace_firing_rule(
             rule_selector, new_firing_rule
