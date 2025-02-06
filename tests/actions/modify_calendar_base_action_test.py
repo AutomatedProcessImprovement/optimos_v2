@@ -1,4 +1,4 @@
-from o2.actions.modify_calendar_by_wt_action import (
+from o2.actions.legacy_optimos_actions.modify_calendar_by_wt_action import (
     ModifyCalendarByWTAction,
     ModifyCalendarByWTActionParamsType,
 )

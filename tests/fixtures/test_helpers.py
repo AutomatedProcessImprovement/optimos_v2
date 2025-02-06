@@ -107,6 +107,8 @@ def assert_no_first_valid(
 def first_valid(
     store: Store, generator: RateSelfReturnType[ActionT]
 ) -> ActionRatingTuple[ActionT]:
+    if store.current_evaluation.is_empty:
+        raise ValueError("Current evaluation is empty!")
     for rating, action in generator:
         if action is not None and action.check_if_valid(store):
             return rating, action

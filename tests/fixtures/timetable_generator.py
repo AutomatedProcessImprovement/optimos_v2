@@ -62,7 +62,7 @@ class TimetableGenerator:
             task_resource_distribution=[],
             resource_calendars=[],
             event_distribution=EventDistribution(),
-            total_cases=1000,
+            total_cases=100,
             start_time="2000-01-01T00:00:00Z",
         )
 

@@ -772,6 +772,22 @@ def test_get_time_periods_of_length_excl_idle_simple():
     assert calendar.get_time_periods_of_length_excl_idle(DAY.MONDAY, 6, 0, 23) == []
 
 
+def test_get_time_periods_of_length_excl_idle_regression():
+    calendar = ResourceCalendar(
+        id=TimetableGenerator.CALENDAR_ID,
+        name=TimetableGenerator.CALENDAR_ID,
+        time_periods=[
+            TimePeriod.from_start_end(9, 17, DAY.MONDAY),
+        ],
+    )
+
+    assert calendar.get_time_periods_of_length_excl_idle(DAY.MONDAY, 3, 0, 23) == [
+        TimePeriod.from_start_end(9, 12, DAY.MONDAY),
+        TimePeriod.from_start_end(13, 16, DAY.MONDAY),
+        TimePeriod.from_start_end(11, 14, DAY.MONDAY),
+    ]
+
+
 def test_batching_rule_date_time_merging_simple():
     batching_rule = BatchingRule.from_task_id(
         TimetableGenerator.FIRST_ACTIVITY,

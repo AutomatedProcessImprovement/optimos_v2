@@ -11,7 +11,7 @@ from o2.models.constraints import (
     SizeRuleConstraints,
     WeekDayRuleConstraints,
 )
-from o2.models.days import DAY
+from o2.models.days import DAY, DAYS
 from o2.models.legacy_constraints import (
     ConstraintsResourcesItem,
     GlobalConstraints,
@@ -81,7 +81,7 @@ class ConstraintsGenerator:
 
     def add_week_day_constraint(self):
         self.constraints.batching_constraints.append(
-            self.week_day_constraint(self.task_ids, allowed_days=[DAY.MONDAY])
+            self.week_day_constraint(self.task_ids, allowed_days=DAYS)
         )
         return self
 

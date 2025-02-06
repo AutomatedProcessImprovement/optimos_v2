@@ -1,15 +1,15 @@
-from o2.agents.tabu_agent import TabuAgent
-from o2.actions.modify_large_wt_rule_action import (
+from o2.actions.deprecated_actions.modify_large_wt_rule_action import (
     ModifyLargeWtRuleAction,
     ModifyLargeWtRuleActionParamsType,
 )
+from o2.agents.tabu_agent import TabuAgent
 from o2.models.rule_selector import RuleSelector
 from o2.models.self_rating import RATING, SelfRatingInput
 from o2.store import Store
 from tests.fixtures.constraints_generator import ConstraintsGenerator
 from tests.fixtures.test_helpers import (
-    first_valid,
     assert_no_first_valid,
+    first_valid,
     replace_constraints,
     replace_timetable,
 )

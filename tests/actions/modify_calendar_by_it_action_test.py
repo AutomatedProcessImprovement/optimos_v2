@@ -1,4 +1,4 @@
-from o2.actions.modify_calendar_by_it_action import (
+from o2.actions.legacy_optimos_actions.modify_calendar_by_it_action import (
     ModifyCalendarByITAction,
 )
 from o2.models.days import DAY

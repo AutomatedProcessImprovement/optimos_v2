@@ -1,6 +1,7 @@
-from o2.actions.new_actions.add_date_time_rule_by_enablement import (
+from o2.actions.batching_actions.add_date_time_rule_by_enablement import (
     AddDateTimeRuleByEnablementAction,
 )
+from o2.models.days import DAY
 from o2.models.self_rating import SelfRatingInput
 from o2.models.timetable import TimePeriod
 from o2.store import Store
@@ -25,10 +26,12 @@ def test_add_date_time_rule_by_enablement_rule_simple(one_task_store: Store):
         ),
         # One Task every 24h
         arrival_time_distribution=TimetableGenerator.arrival_time_distribution(
-            24 * 60 * 60
+            24 * 60 * 60, 24 * 60 * 60
         ),
-        arrival_time_calendar=TimetableGenerator.arrival_time_calendar(8, 16),
-        resource_calendars=TimetableGenerator.resource_calendars(8, 16, False),
+        arrival_time_calendar=TimetableGenerator.arrival_time_calendar(
+            8, 16, days=[DAY.MONDAY]
+        ),
+        resource_calendars=TimetableGenerator.resource_calendars(8, 16),
     )
 
     input = SelfRatingInput.from_base_solution(store.solution)
@@ -63,9 +66,11 @@ def test_add_date_time_rule_by_enablement_rule_complex(two_tasks_store):
         ),
         # One Task every 24h
         arrival_time_distribution=TimetableGenerator.arrival_time_distribution(
-            24 * 60 * 60
+            24 * 60 * 60, 24 * 60 * 60
         ),
-        arrival_time_calendar=TimetableGenerator.arrival_time_calendar(8, 16),
+        arrival_time_calendar=TimetableGenerator.arrival_time_calendar(
+            8, 16, days=[DAY.MONDAY]
+        ),
         resource_calendars=TimetableGenerator.resource_calendars(8, 16, False),
     )
 

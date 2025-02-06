@@ -1,4 +1,4 @@
-from o2.actions.add_resource_action import AddResourceAction
+from o2.actions.legacy_optimos_actions.add_resource_action import AddResourceAction
 from o2.models.self_rating import SelfRatingInput
 from o2.store import Store
 from o2.util.helper import name_is_clone_of

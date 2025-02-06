@@ -1,6 +1,6 @@
 from dataclasses import replace
 
-from o2.actions.modify_calendar_by_cost_action import (
+from o2.actions.legacy_optimos_actions.modify_calendar_by_cost_action import (
     ModifyCalendarByCostAction,
 )
 from o2.models.days import DAY

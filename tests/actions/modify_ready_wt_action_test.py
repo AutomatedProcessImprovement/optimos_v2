@@ -1,4 +1,4 @@
-from o2.actions.modify_ready_wt_rule_action import (
+from o2.actions.deprecated_actions.modify_ready_wt_rule_action import (
     ModifyReadyWtRuleAction,
     ModifyReadyWtRuleActionParamsType,
 )

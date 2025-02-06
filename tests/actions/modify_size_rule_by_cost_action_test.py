@@ -1,4 +1,4 @@
-from o2.actions.new_actions.modify_size_rule_by_cost_action import (
+from o2.actions.batching_actions.modify_size_rule_by_cost_action import (
     ModifySizeRuleByCostAction,
 )
 from o2.agents.tabu_agent import TabuAgent

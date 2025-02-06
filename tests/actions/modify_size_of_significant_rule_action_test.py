@@ -1,4 +1,4 @@
-from o2.actions.new_actions.modify_size_of_significant_rule_action import (
+from o2.actions.batching_actions.modify_size_of_significant_rule_action import (
     ModifySizeOfSignificantRuleAction,
     ModifySizeOfSignificantRuleActionParamsType,
 )
@@ -17,6 +17,9 @@ def test_increment_size(store: Store):
         ModifySizeOfSignificantRuleActionParamsType(
             task_id=TimetableGenerator.FIRST_ACTIVITY,
             change_size=1,
+            duration_fn=store.constraints.get_duration_fn_for_task(
+                TimetableGenerator.FIRST_ACTIVITY
+            ),
         )
     )
     new_state = action.apply(state=store.base_state)
@@ -32,6 +35,9 @@ def test_decrement_size(store: Store):
         ModifySizeOfSignificantRuleActionParamsType(
             task_id=TimetableGenerator.FIRST_ACTIVITY,
             change_size=-1,
+            duration_fn=store.constraints.get_duration_fn_for_task(
+                TimetableGenerator.FIRST_ACTIVITY
+            ),
         )
     )
     new_state = action.apply(state=store.base_state)
@@ -52,6 +58,9 @@ def test_decrement_to_one(store: Store):
         ModifySizeOfSignificantRuleActionParamsType(
             task_id=TimetableGenerator.FIRST_ACTIVITY,
             change_size=-1,
+            duration_fn=store.constraints.get_duration_fn_for_task(
+                TimetableGenerator.FIRST_ACTIVITY
+            ),
         )
     )
     new_state = action.apply(state=store.base_state)
@@ -68,6 +77,9 @@ def test_create_new_rule(store: Store):
         ModifySizeOfSignificantRuleActionParamsType(
             task_id=TimetableGenerator.FIRST_ACTIVITY,
             change_size=1,
+            duration_fn=store.constraints.get_duration_fn_for_task(
+                TimetableGenerator.FIRST_ACTIVITY
+            ),
         )
     )
     new_state = action.apply(state=store.base_state)
