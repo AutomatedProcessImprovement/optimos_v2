@@ -16,6 +16,9 @@ from o2.models.settings import CostType, Settings
 from o2.models.solution import Solution
 from o2.store import Store
 
+DIAGRAM_DUMP_INTERVAL = (os.cpu_count() or 1) * 100
+SA_CALCULATION_INTERVAL = (os.cpu_count() or 1) * 5
+
 TENSORBOARD_LOG_DIR = "./logs/optimos_v2_tensorboard"
 TENSORBOARD_LOG_DIR_ARCHIVE = f"{TENSORBOARD_LOG_DIR}_archive"
 
@@ -49,17 +52,19 @@ class TensorBoardHelper:
                 tf.summary.scalar(
                     "sa/temperature", self.agent.temperature, step=self.step
                 )
-                solutions_left_for_temperature = len(
-                    self.store.solution_tree.get_solutions_near_to_pareto_front(
-                        self.store.current_pareto_front,
-                        max_distance=self.agent.temperature,
+
+                if self.step % SA_CALCULATION_INTERVAL == 0:
+                    solutions_left_for_temperature = len(
+                        self.store.solution_tree.get_solutions_near_to_pareto_front(
+                            self.store.current_pareto_front,
+                            max_distance=self.agent.temperature,
+                        )
                     )
-                )
-                tf.summary.scalar(
-                    "sa/solutions_left_for_temperature",
-                    solutions_left_for_temperature,
-                    step=self.step,
-                )
+                    tf.summary.scalar(
+                        "sa/solutions_left_for_temperature",
+                        solutions_left_for_temperature,
+                        step=self.step,
+                    )
 
             tf.summary.scalar(
                 "current_base/total_cost",
@@ -81,7 +86,7 @@ class TensorBoardHelper:
 
             tf.summary.scalar(
                 "current_base/average_batch_size",
-                self.store.current_evaluation.average_batch_size_for_batch_enabled_tasks,
+                self.store.current_evaluation.avg_batch_size_for_batch_enabled_tasks,
                 step=self.step,
             )
 
@@ -156,7 +161,7 @@ class TensorBoardHelper:
                 step=self.step,
             )
 
-            if self.step % 500 == 0:
+            if self.step % DIAGRAM_DUMP_INTERVAL == 0:
                 # --- Plot and log the 2D Pareto front image ---
                 fig = self._create_pareto_front_plot()
                 image = self._plot_to_image(fig)
@@ -202,15 +207,6 @@ class TensorBoardHelper:
                     xs_non_pareto.append(sol_point[0])
                     ys_non_pareto.append(sol_point[1])
 
-        ax.scatter(
-            xs_non_pareto,
-            ys_non_pareto,
-            color="grey",
-            alpha=0.5,
-            s=15,
-            edgecolors="none",
-            label="Non-Pareto Solutions",
-        )
         ax.scatter(
             xs_old_pareto,
             ys_old_pareto,
@@ -278,6 +274,23 @@ class TensorBoardHelper:
                     linestyle="--",
                     label="SA Radius",
                 )
+
+        # Make sure the graph doesn't zoom out when adding the non-pareto solutions
+        current_xlim = ax.get_xlim()
+        current_ylim = ax.get_ylim()
+        ax.scatter(
+            xs_non_pareto,
+            ys_non_pareto,
+            color="grey",
+            alpha=0.5,
+            s=15,
+            edgecolors="none",
+            label="Non-Pareto Solutions",
+            zorder=1,
+        )
+        # Restore the original axis limits.
+        ax.set_xlim(current_xlim)
+        ax.set_ylim(current_ylim)
 
         # Combine legend handles, including the SA radius patch if applicable
         handles, labels = ax.get_legend_handles_labels()
