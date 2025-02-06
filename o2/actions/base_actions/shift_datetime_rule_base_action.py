@@ -1,6 +1,8 @@
 from abc import ABC
 from dataclasses import dataclass, replace
 
+from typing_extensions import NotRequired
+
 from o2.actions.base_actions.base_action import (
     BaseActionParamsType,
     RateSelfReturnType,
@@ -24,10 +26,10 @@ class ShiftDateTimeRuleBaseActionParamsType(BaseActionParamsType):
 
     task_id: str
     day: DAY
-    add_to_start: int
+    add_to_start: NotRequired[int]
     """How many hours to add to the start of the rule.
     (e.g. 1 = add 1 hour before, -1 = remove 1 hour after)"""
-    add_to_end: int
+    add_to_end: NotRequired[int]
     """How many hours to add to the end of the rule.
     (e.g. 1 = add 1 hour after, -1 = remove 1 hour before)"""
 
@@ -42,8 +44,8 @@ class ShiftDateTimeRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
         """Create a copy of the timetable with the rule size modified."""
         timetable = state.timetable
         task_id = self.params["task_id"]
-        add_to_start = self.params["add_to_start"]
-        add_to_end = self.params["add_to_end"]
+        add_to_start = self.params.get("add_to_start", 0)
+        add_to_end = self.params.get("add_to_end", 0)
 
         best_selector = timetable.get_longest_time_period_for_daily_hour_firing_rules(
             task_id, self.params["day"]
