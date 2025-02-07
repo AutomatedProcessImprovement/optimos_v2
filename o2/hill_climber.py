@@ -13,7 +13,6 @@ from o2.models.solution import Solution
 from o2.pareto_front import FRONT_STATUS
 from o2.store import SolutionTry, Store
 from o2.util.indented_printer import print_l0, print_l1, print_l2, print_l3
-from o2.util.tensorboard_helper import TensorBoardHelper
 
 
 class HillClimber:
@@ -31,6 +30,8 @@ class HillClimber:
             )
         self.agent: Agent = self._init_agent()
         if self.store.settings.log_to_tensor_board:
+            from o2.util.tensorboard_helper import TensorBoardHelper
+
             TensorBoardHelper(self.agent)
 
     def _init_agent(self):
@@ -51,6 +52,8 @@ class HillClimber:
         generator = self.get_iteration_generator(yield_on_non_acceptance=True)
         for _ in generator:
             if self.store.settings.log_to_tensor_board:
+                from o2.util.tensorboard_helper import TensorBoardHelper
+
                 # Just iterate through the generator to run it
                 TensorBoardHelper.instance.tensor_board_iteration_callback(
                     self.store.solution

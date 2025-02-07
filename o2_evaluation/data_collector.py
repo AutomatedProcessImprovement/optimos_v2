@@ -1,17 +1,12 @@
 #!/usr/bin/env python3
 import argparse
-import json
 import os
-import xml.etree.ElementTree as ET
 
 import numpy as np
 
 from o2.hill_climber import HillClimber
-from o2.models.constraints import ConstraintsType, SizeRuleConstraints
 from o2.models.settings import AgentType, CostType, Settings
 from o2.models.solution import Solution
-from o2.models.state import State
-from o2.models.timetable import BATCH_TYPE, RULE_TYPE, TimetableType
 from o2.store import Store
 from o2.util.solution_dumper import SolutionDumper
 from o2.util.stat_calculation_helper import (
@@ -21,7 +16,6 @@ from o2.util.stat_calculation_helper import (
     calculate_purity,
     store_with_baseline_constraints,
 )
-from o2.util.tensorboard_helper import TensorBoardHelper
 
 
 def parse_args():
@@ -201,6 +195,8 @@ def solve_store(store: Store, dump_interval: int) -> None:
     iteration = 1
     for _ in generator:
         if store.settings.log_to_tensor_board:
+            from o2.util.tensorboard_helper import TensorBoardHelper
+
             TensorBoardHelper.instance.tensor_board_iteration_callback(store.solution)
         if iteration % dump_interval == 0:
             persist_store(store)
@@ -226,6 +222,8 @@ def collect_data_sequentially(base_store: Store, args) -> None:
 
     # Optionally archive previous TensorBoard logs
     if base_store.settings.log_to_tensor_board:
+        from o2.util.tensorboard_helper import TensorBoardHelper
+
         TensorBoardHelper.move_logs_to_archive_dir()
 
     stores_to_run = []
