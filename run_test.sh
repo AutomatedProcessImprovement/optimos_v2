@@ -11,4 +11,10 @@ conda activate opti2
 
 cd optimos_v2
 poetry install
-./o2_evaluation/data_collector.py --active-scenarios Purchasing --models "Tabu Search" --max-iterations 50 --dump-interval 10
+python ./o2_evaluation/data_collector.py \
+    --active-scenarios Purchasing \
+    --models "Tabu Search" \
+    --max-iterations 50 \
+    --dump-interval 10 \
+    --max-non-improving-actions 800 \
+    --max-threads 16
