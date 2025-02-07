@@ -42,6 +42,7 @@ class TensorBoardHelper:
             name=self.name,
         )
         self.step = 0
+        self.iteration = 0
         TensorBoardHelper.instance = self
 
     def tensor_board_iteration_callback(self, solution: Solution) -> None:
@@ -160,6 +161,7 @@ class TensorBoardHelper:
                 self.store.solution_tree.total_solutions - discarded_solutions,
                 step=self.step,
             )
+            tf.summary.scalar("global/iteration", self.iteration, step=self.step)
 
             if self.step % DIAGRAM_DUMP_INTERVAL == 0:
                 # --- Plot and log the 2D Pareto front image ---

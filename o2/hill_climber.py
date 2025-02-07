@@ -74,6 +74,10 @@ class HillClimber:
         """
         for it in range(self.max_iter):
             start_time = time.time()
+            if self.store.settings.log_to_tensor_board:
+                from o2.util.tensorboard_helper import TensorBoardHelper
+
+                TensorBoardHelper.instance.iteration += 1
             try:
                 if self.max_non_improving_iter <= 0:
                     print_l0("Maximum non improving iterations reached!")

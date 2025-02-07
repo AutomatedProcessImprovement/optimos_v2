@@ -96,6 +96,12 @@ def parse_args():
         default=os.cpu_count() or 1,
         help="Maximum number of threads (default: cpu_count)",
     )
+    parser.add_argument(
+        "--log-to-tensor-board",
+        type=bool,
+        default=False,
+        help="Log to TensorBoard (default: False)",
+    )
     return parser.parse_args()
 
 
@@ -172,6 +178,7 @@ def update_store_settings(
     max_iterations: int,
     max_non_improving_actions: int,
     max_threads: int,
+    log_to_tensor_board: bool,
 ) -> None:
     """Update the store settings for the given agent."""
     store.settings.optimos_legacy_mode = False
@@ -181,6 +188,7 @@ def update_store_settings(
     store.settings.agent = agent
     store.settings.max_threads = max_threads
     store.settings.max_number_of_actions_to_select = max_threads
+    store.settings.log_to_tensor_board = log_to_tensor_board
 
 
 def persist_store(store: Store) -> None:
@@ -239,6 +247,7 @@ def collect_data_sequentially(base_store: Store, args) -> None:
             args.max_iterations,
             args.max_non_improving_actions,
             args.max_threads,
+            args.log_to_tensor_board,
         )
         solve_store(tabu_store, args.dump_interval)
         stores_to_run.append(("Tabu Search", tabu_store))
@@ -254,6 +263,7 @@ def collect_data_sequentially(base_store: Store, args) -> None:
             args.max_iterations,
             args.max_non_improving_actions,
             args.max_threads,
+            args.log_to_tensor_board,
         )
         sa_store.settings.sa_initial_temperature = args.sa_initial_temperature
         sa_store.settings.sa_cooling_factor = args.sa_cooling_factor
@@ -273,6 +283,7 @@ def collect_data_sequentially(base_store: Store, args) -> None:
             args.max_iterations,
             args.max_non_improving_actions,
             args.max_threads,
+            args.log_to_tensor_board,
         )
         ppo_store.settings.disable_parallel_evaluation = True
         ppo_store.settings.max_threads = 1
