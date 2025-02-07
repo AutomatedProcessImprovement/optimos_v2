@@ -6,7 +6,6 @@ from collections.abc import Generator
 
 from o2.actions.base_actions.base_action import BaseAction
 from o2.agents.agent import Agent, NoActionsLeftError, NoNewBaseSolutionFoundError
-from o2.agents.ppo_agent import PPOAgent
 from o2.agents.simulated_annealing_agent import SimulatedAnnealingAgent
 from o2.agents.tabu_agent import TabuAgent
 from o2.models.settings import AgentType
@@ -39,6 +38,8 @@ class HillClimber:
         if self.store.settings.agent == AgentType.TABU_SEARCH:
             return TabuAgent(self.store)
         elif self.store.settings.agent == AgentType.PROXIMAL_POLICY_OPTIMIZATION:
+            from o2.agents.ppo_agent import PPOAgent
+
             return PPOAgent(self.store)
         elif self.store.settings.agent == AgentType.SIMULATED_ANNEALING:
             return SimulatedAnnealingAgent(self.store)
