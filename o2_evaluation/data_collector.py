@@ -96,6 +96,12 @@ def parse_args():
         default=["Tabu Search", "Simulated Annealing", "Proximal Policy Optimization"],
         help="List of models to run (e.g. 'Tabu Search', 'Simulated Annealing', 'Proximal Policy Optimization')",
     )
+    parser.add_argument(
+        "--max-threads",
+        type=int,
+        default=os.cpu_count() or 1,
+        help="Maximum number of threads (default: cpu_count)",
+    )
     return parser.parse_args()
 
 
@@ -167,7 +173,11 @@ def calculate_metrics(stores: list[tuple[str, Store]]) -> None:
 
 
 def update_store_settings(
-    store: Store, agent: AgentType, max_iterations: int, max_non_improving_actions: int
+    store: Store,
+    agent: AgentType,
+    max_iterations: int,
+    max_non_improving_actions: int,
+    max_threads: int,
 ) -> None:
     """Update the store settings for the given agent."""
     store.settings.optimos_legacy_mode = False
@@ -175,6 +185,8 @@ def update_store_settings(
     store.settings.max_iterations = max_iterations
     store.settings.max_non_improving_actions = max_non_improving_actions
     store.settings.agent = agent
+    store.settings.max_threads = max_threads
+    store.settings.max_number_of_actions_to_select = max_threads
 
 
 def persist_store(store: Store) -> None:
@@ -228,6 +240,7 @@ def collect_data_sequentially(base_store: Store, args) -> None:
             AgentType.TABU_SEARCH,
             args.max_iterations,
             args.max_non_improving_actions,
+            args.max_threads,
         )
         solve_store(tabu_store, args.dump_interval)
         stores_to_run.append(("Tabu Search", tabu_store))
@@ -242,6 +255,7 @@ def collect_data_sequentially(base_store: Store, args) -> None:
             AgentType.SIMULATED_ANNEALING,
             args.max_iterations,
             args.max_non_improving_actions,
+            args.max_threads,
         )
         sa_store.settings.sa_initial_temperature = args.sa_initial_temperature
         sa_store.settings.sa_cooling_factor = args.sa_cooling_factor
@@ -260,6 +274,7 @@ def collect_data_sequentially(base_store: Store, args) -> None:
             AgentType.PROXIMAL_POLICY_OPTIMIZATION,
             args.max_iterations,
             args.max_non_improving_actions,
+            args.max_threads,
         )
         ppo_store.settings.disable_parallel_evaluation = True
         ppo_store.settings.max_threads = 1
