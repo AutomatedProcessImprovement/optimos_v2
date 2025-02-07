@@ -89,10 +89,17 @@ def parse_args():
         default=100,
         help="Number of cases (default: 100)",
     )
+    parser.add_argument(
+        "--models",
+        type=str,
+        nargs="+",
+        default=["Tabu Search", "Simulated Annealing", "Proximal Policy Optimization"],
+        help="List of models to run (e.g. 'Tabu Search', 'Simulated Annealing', 'Proximal Policy Optimization')",
+    )
     return parser.parse_args()
 
 
-def calculate_metrics(stores: list[tuple[str, Store]]):
+def calculate_metrics(stores: list[tuple[str, Store]]) -> None:
     """Calculate the metrics for the given stores."""
     all_solutions: list[Solution] = []
     for _, store in stores:
@@ -194,7 +201,7 @@ def solve_store(store: Store, dump_interval: int) -> None:
 
 def collect_data_sequentially(base_store: Store, args) -> None:
     """Collect all possible solutions and the respective Pareto fronts."""
-    print("Setting up environment")
+    print("Setting up Store")
     # Set some global settings
     Settings.SHOW_SIMULATION_ERRORS = True
     Settings.RAISE_SIMULATION_ERRORS = False
@@ -209,54 +216,58 @@ def collect_data_sequentially(base_store: Store, args) -> None:
     if base_store.settings.log_to_tensor_board:
         TensorBoardHelper.move_logs_to_archive_dir()
 
+    stores_to_run = []
+
     # Use TABU search
-    tabu_store = Store.from_state_and_constraints(
-        base_store.base_state, base_store.constraints, "Tabu Search"
-    )
-    update_store_settings(
-        tabu_store,
-        AgentType.TABU_SEARCH,
-        args.max_iterations,
-        args.max_non_improving_actions,
-    )
-    solve_store(tabu_store, args.dump_interval)
+    if "Tabu Search" in args.models:
+        tabu_store = Store.from_state_and_constraints(
+            base_store.base_state, base_store.constraints, "Tabu Search"
+        )
+        update_store_settings(
+            tabu_store,
+            AgentType.TABU_SEARCH,
+            args.max_iterations,
+            args.max_non_improving_actions,
+        )
+        solve_store(tabu_store, args.dump_interval)
+        stores_to_run.append(("Tabu Search", tabu_store))
 
     # Use Simulated Annealing
-    sa_store = Store.from_state_and_constraints(
-        base_store.base_state, base_store.constraints, "Simulated Annealing"
-    )
-    update_store_settings(
-        sa_store,
-        AgentType.SIMULATED_ANNEALING,
-        args.max_iterations,
-        args.max_non_improving_actions,
-    )
-    sa_store.settings.sa_initial_temperature = args.sa_initial_temperature
-    sa_store.settings.sa_cooling_factor = args.sa_cooling_factor
-    solve_store(sa_store, args.dump_interval)
+    if "Simulated Annealing" in args.models:
+        sa_store = Store.from_state_and_constraints(
+            base_store.base_state, base_store.constraints, "Simulated Annealing"
+        )
+        update_store_settings(
+            sa_store,
+            AgentType.SIMULATED_ANNEALING,
+            args.max_iterations,
+            args.max_non_improving_actions,
+        )
+        sa_store.settings.sa_initial_temperature = args.sa_initial_temperature
+        sa_store.settings.sa_cooling_factor = args.sa_cooling_factor
+        solve_store(sa_store, args.dump_interval)
+        stores_to_run.append(("Simulated Annealing", sa_store))
 
     # Use Proximal Policy Optimization (PPO)
-    ppo_store = Store.from_state_and_constraints(
-        base_store.base_state, base_store.constraints, "Proximal Policy Optimization"
-    )
-    update_store_settings(
-        ppo_store,
-        AgentType.PROXIMAL_POLICY_OPTIMIZATION,
-        args.max_iterations,
-        args.max_non_improving_actions,
-    )
-    ppo_store.settings.disable_parallel_evaluation = True
-    ppo_store.settings.max_threads = 1
-    solve_store(ppo_store, args.dump_interval)
+    if "Proximal Policy Optimization" in args.models:
+        ppo_store = Store.from_state_and_constraints(
+            base_store.base_state,
+            base_store.constraints,
+            "Proximal Policy Optimization",
+        )
+        update_store_settings(
+            ppo_store,
+            AgentType.PROXIMAL_POLICY_OPTIMIZATION,
+            args.max_iterations,
+            args.max_non_improving_actions,
+        )
+        ppo_store.settings.disable_parallel_evaluation = True
+        ppo_store.settings.max_threads = 1
+        solve_store(ppo_store, args.dump_interval)
+        stores_to_run.append(("Proximal Policy Optimization", ppo_store))
 
     # Calculate and print metrics
-    calculate_metrics(
-        [
-            ("Tabu Search", tabu_store),
-            ("Simulated Annealing", sa_store),
-            ("Proximal Policy Optimization", ppo_store),
-        ]
-    )
+    calculate_metrics(stores_to_run)
 
     SolutionDumper.instance.close()
 
@@ -291,6 +302,8 @@ if __name__ == "__main__":
                 bpmn_path = "examples/two_tasks_batching/two_tasks_batching.bpmn"
             else:
                 raise ValueError(f"Unknown scenario: {scenario}")
+
+            print(f"Loaded Scenario {scenario}")
 
             # Pass the cost and duration functions from CLI arguments.
             store = store_with_baseline_constraints(
