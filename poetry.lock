@@ -2543,7 +2543,7 @@ optional = false
 python-versions = ">=3.9,<3.12"
 groups = ["main"]
 files = []
-develop = true
+develop = false
 
 [package.dependencies]
 click = "^8.1.3"
@@ -2557,8 +2557,10 @@ pytz = "^2024.2"
 scipy = "^1.13.0"
 
 [package.source]
-type = "directory"
-url = "../Prosimos"
+type = "git"
+url = "https://github.com/sinnaj-r/Prosimos.git"
+reference = "main"
+resolved_reference = "d04428d0d0dcf0986e4decc56ec00c9959df0df1"
 
 [[package]]
 name = "protobuf"
@@ -4093,4 +4095,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<3.11"
-content-hash = "b09096f6130f4fad8b4a43265c567c76282283a8eb3904c54e83474f4c08cc38"
+content-hash = "5b67c98dca18e4c6bc9f8cf23bd4b81fc0aac81d5b16f275827febbf3885b8b6"
