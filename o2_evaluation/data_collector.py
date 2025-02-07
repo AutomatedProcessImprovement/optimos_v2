@@ -283,20 +283,25 @@ if __name__ == "__main__":
 
             store = demo_store
         else:
+            scenario_folder = "o2_evaluation/scenarios"
+
             if scenario == "Purchasing":
                 timetable_path = (
-                    "o2_evaluation/scenarios/purchasing_example/purchasing_example.json"
+                    f"{scenario_folder}/purchasing_example/purchasing_example.json"
                 )
                 bpmn_path = (
-                    "o2_evaluation/scenarios/purchasing_example/purchasing_example.bpmn"
+                    f"{scenario_folder}/purchasing_example/purchasing_example.bpmn"
                 )
             elif scenario == "BPI_Challenge_2017":
                 timetable_path = (
-                    "o2_evaluation/scenarios/bpi_challenge_2017/bpi_challenge_2017.json"
+                    f"{scenario_folder}/bpi_challenge_2017/bpi_challenge_2017.json"
                 )
                 bpmn_path = (
-                    "o2_evaluation/scenarios/bpi_challenge_2017/bpi_challenge_2017.bpmn"
+                    f"{scenario_folder}/bpi_challenge_2017/bpi_challenge_2017.bpmn"
                 )
+            elif scenario == "Production":
+                timetable_path = f"{scenario_folder}/production/production.json"
+                bpmn_path = f"{scenario_folder}/production/production.bpmn"
             elif scenario == "TwoTasks":
                 timetable_path = "examples/two_tasks_batching/two_tasks_batching.json"
                 bpmn_path = "examples/two_tasks_batching/two_tasks_batching.bpmn"
