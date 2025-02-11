@@ -106,13 +106,7 @@ class ParetoFront:
         other solution. This should be done before calling this method.
         """
         # Remove all solutions dominated by the new solution
-        for s in self.solutions:
-            if s.is_dominated_by(solution):
-                self.solutions.remove(s)
-                self.rtree.delete(s.id, s.evaluation.to_tuple())
-                self.removed_solutions.append(s)
-
-        self.rtree.insert(solution.id, solution.evaluation.to_tuple())
+        self.solutions = [s for s in self.solutions if not s.is_dominated_by(solution)]
         self.solutions.append(solution)
 
     def is_in_front(self, solution: "Solution") -> FRONT_STATUS:

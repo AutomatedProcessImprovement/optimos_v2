@@ -106,3 +106,33 @@ def test_equal_domination_forbidden(simple_state: State):
     assert front.is_in_front(solution1) == FRONT_STATUS.DOMINATES
     assert front.is_in_front(solution2) == FRONT_STATUS.DOMINATES
     assert front.is_in_front(solution3) == FRONT_STATUS.DOMINATES
+
+def test_removal_of_multiple_dominated_solutions(simple_state: State):
+    front = ParetoFront()
+
+    dominated_solution1 = create_mock_solution(simple_state, 3, 5)
+    dominated_solution2 = create_mock_solution(simple_state, 4, 5)
+    dominated_solution3 = create_mock_solution(simple_state, 5, 4)
+    dominated_solution4 = create_mock_solution(simple_state, 6, 3)
+
+    dominated_solution4 = create_mock_solution(simple_state, 6, 3)
+
+    front.add(dominated_solution1)
+    front.add(dominated_solution2)
+    front.add(dominated_solution3)
+    front.add(dominated_solution4)
+
+    assert dominated_solution1 in front.solutions
+    assert dominated_solution2 in front.solutions
+    assert dominated_solution3 in front.solutions
+    assert dominated_solution4 in front.solutions
+
+    dominating_solution = create_mock_solution(simple_state, 3, 3)
+
+    front.add(dominating_solution)
+
+    assert dominating_solution in front.solutions
+    assert dominated_solution1 not in front.solutions
+    assert dominated_solution2 not in front.solutions
+    assert dominated_solution3 not in front.solutions
+    assert dominated_solution4 not in front.solutions
