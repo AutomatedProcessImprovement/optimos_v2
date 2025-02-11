@@ -1,7 +1,7 @@
 import random
 import re
 import string
-from typing import Callable, Optional, TypeVar
+from typing import Any, Callable, Concatenate, Generic, Optional, ParamSpec, TypeVar
 
 import xxhash
 from sympy import Symbol, lambdify
@@ -48,3 +48,13 @@ def hash_string(s: object) -> str:
 def lambdify_dict(d: dict[str, str]) -> dict[str, Callable[[float], float]]:
     """Convert all lambdas in the dictionary to functions."""
     return {k: lambdify(Symbol("size"), v) for k, v in d.items()}
+
+
+P = ParamSpec("P")
+R = TypeVar("R")
+
+
+def withSignatureFrom(
+    f: Callable[Concatenate[Any, P], R], /
+) -> Callable[[Callable[Concatenate[Any, P], R]], Callable[Concatenate[Any, P], R]]:
+    return lambda _: _

@@ -13,6 +13,7 @@ from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.state import State
 from o2.models.timetable import rule_is_week_day
 from o2.store import Store
+from o2.util.logger import warn
 
 SIZE_OF_CHANGE = 100
 CLOSENESS_TO_MAX_WT = 0.01
@@ -44,16 +45,16 @@ class AddWeekDayRuleAction(BatchingRuleBaseAction, str=False):
 
         index, rule = timetable.get_batching_rule(rule_selector)
         if rule is None or index is None:
-            print(f"BatchingRule not found for {rule_selector}")
+            warn(f"BatchingRule not found for {rule_selector}")
             return state
 
         firing_rule = rule.get_firing_rule(rule_selector)
         if not rule_is_week_day(firing_rule):
-            print(f"Firing rule not found for {rule_selector}")
+            warn(f"Firing rule not found for {rule_selector}")
             return state
 
         if firing_rule.value in add_days:
-            print("Day already present in the rule")
+            warn("Day already present in the rule")
             return state
 
         assert rule_selector.firing_rule_index is not None

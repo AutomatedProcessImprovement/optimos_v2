@@ -36,6 +36,7 @@ from o2.util.helper import (
     name_is_clone_of,
     random_string,
 )
+from o2.util.logger import info
 
 if TYPE_CHECKING:
     from o2.models.constraints import ConstraintsType
@@ -1604,7 +1605,7 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
 
     def print_batching_rules(self) -> None:
         """Print the batching rules."""
-        print(self.batching_rules_debug_str())
+        info(self.batching_rules_debug_str())
 
     def is_valid(self) -> bool:
         """Check if the timetable is valid.

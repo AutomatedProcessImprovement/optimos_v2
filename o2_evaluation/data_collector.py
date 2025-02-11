@@ -16,6 +16,7 @@ from o2.util.stat_calculation_helper import (
     calculate_purity,
     store_with_baseline_constraints,
 )
+from o2.util.logger import info, setup_logging
 
 
 def parse_args():
@@ -102,6 +103,18 @@ def parse_args():
         default=False,
         help="Log to TensorBoard (default: False)",
     )
+    parser.add_argument(
+        "--log-file",
+        type=str,
+        default=None,
+        help="Log to a file (default: None)",
+    )
+    parser.add_argument(
+        "--log-level",
+        type=str,
+        default="DEBUG",
+        help="Log level (default: DEBUG)",
+    )
     return parser.parse_args()
 
 
@@ -131,16 +144,16 @@ def calculate_metrics(stores: list[tuple[str, Store]]) -> None:
     center_point = (max_cost, max_time)
     global_hyperarea = calculate_hyperarea(all_solutions_front, center_point)
 
-    print("\n\nMetrics:")
-    print("=========")
-    print("Global Set:")
-    print(f"\t> Solutions Total: {len(all_solutions)}")
-    print(f"\t> Center Point: {center_point}")
-    print(f"\t> Hyperarea: {global_hyperarea}")
-    print("\t> Pareto front:")
-    print(f"\t\t>> size: {len(all_solutions_front)}")
-    print(f"\t\t>> Avg cost: {np.mean([sol.point[0] for sol in all_solutions_front])}")
-    print(f"\t\t>> Avg time: {np.mean([sol.point[1] for sol in all_solutions_front])}")
+    info("\n\nMetrics:")
+    info("=========")
+    info("Global Set:")
+    info(f"\t> Solutions Total: {len(all_solutions)}")
+    info(f"\t> Center Point: {center_point}")
+    info(f"\t> Hyperarea: {global_hyperarea}")
+    info("\t> Pareto front:")
+    info(f"\t\t>> size: {len(all_solutions_front)}")
+    info(f"\t\t>> Avg cost: {np.mean([sol.point[0] for sol in all_solutions_front])}")
+    info(f"\t\t>> Avg time: {np.mean([sol.point[1] for sol in all_solutions_front])}")
 
     for name, store in stores:
         pareto_solutions = store.current_pareto_front.solutions
@@ -153,23 +166,23 @@ def calculate_metrics(stores: list[tuple[str, Store]]) -> None:
         delta = calculate_delta_metric(pareto_solutions, all_solutions_front)
         purity = calculate_purity(pareto_solutions, all_solutions_front)
 
-        print(f"Store: {name}")
-        print(f"\t> Solutions Total: {store.solution_tree.total_solutions}")
-        print(f"\t> Solutions explored: {store.solution_tree.discarded_solutions}")
-        print(f"\t> Solutions left: {store.solution_tree.solutions_left}")
-        print("\t> Pareto front:")
-        print(f"\t\t>> size: {store.current_pareto_front.size}")
-        print(
+        info(f"Store: {name}")
+        info(f"\t> Solutions Total: {store.solution_tree.total_solutions}")
+        info(f"\t> Solutions explored: {store.solution_tree.discarded_solutions}")
+        info(f"\t> Solutions left: {store.solution_tree.solutions_left}")
+        info("\t> Pareto front:")
+        info(f"\t\t>> size: {store.current_pareto_front.size}")
+        info(
             f"\t\t>> Avg {Settings.get_pareto_x_label()}: {store.current_pareto_front.avg_x}"
         )
-        print(
+        info(
             f"\t\t>> Avg {Settings.get_pareto_y_label()}: {store.current_pareto_front.avg_y}"
         )
-        print(f"\t> Hyperarea: {pareto_hyperarea}")
-        print(f"\t> Hyperarea Ratio: {ratio}")
-        print(f"\t> Averaged Hausdorff Distance: {hausdorff_distance}")
-        print(f"\t> Delta Metric: {delta}")
-        print(f"\t> Purity Metric: {purity}")
+        info(f"\t> Hyperarea: {pareto_hyperarea}")
+        info(f"\t> Hyperarea Ratio: {ratio}")
+        info(f"\t> Averaged Hausdorff Distance: {hausdorff_distance}")
+        info(f"\t> Delta Metric: {delta}")
+        info(f"\t> Purity Metric: {purity}")
 
 
 def update_store_settings(
@@ -217,7 +230,7 @@ def solve_store(store: Store, dump_interval: int) -> None:
 
 def collect_data_sequentially(base_store: Store, args) -> None:
     """Collect all possible solutions and the respective Pareto fronts."""
-    print("Setting up Store")
+    info("Setting up Store")
     # Set some global settings
     Settings.SHOW_SIMULATION_ERRORS = True
     Settings.RAISE_SIMULATION_ERRORS = False
@@ -300,6 +313,11 @@ if __name__ == "__main__":
     # Parse CLI arguments
     args = parse_args()
 
+    Settings.LOG_LEVEL = args.log_level
+    Settings.LOG_FILE = args.log_file if args.log_file else None
+
+    setup_logging()
+
     # Loop over the active scenarios provided via CLI
     for scenario in args.active_scenarios:
         if scenario == "Demo":
@@ -332,7 +350,7 @@ if __name__ == "__main__":
             else:
                 raise ValueError(f"Unknown scenario: {scenario}")
 
-            print(f"Loaded Scenario {scenario}")
+            info(f"Loaded Scenario {scenario}")
 
             # Pass the cost and duration functions from CLI arguments.
             store = store_with_baseline_constraints(

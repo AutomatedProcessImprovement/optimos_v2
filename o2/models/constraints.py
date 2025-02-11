@@ -7,8 +7,9 @@ from sympy import Symbol, lambdify
 
 from o2.models.days import DAY
 from o2.models.legacy_constraints import ConstraintsResourcesItem, ResourceConstraints
-from o2.models.timetable import BATCH_TYPE, COMPARATOR, RULE_TYPE, FiringRule
+from o2.models.timetable import BATCH_TYPE, RULE_TYPE, FiringRule
 from o2.util.helper import name_is_clone_of
+from o2.util.logger import warn
 
 if TYPE_CHECKING:
     from o2.models.timetable import TimetableType
@@ -54,7 +55,7 @@ class SizeRuleConstraints(BatchingConstraints, JSONWizard):
         """Check if the firing rule is valid against the constraints."""
         # Special case: Size 0 is always invalid
         if firing_rule.value == 0:
-            print("Warning: Size 0 rule was created!")
+            warn("Warning: Size 0 rule was created!")
             return False
 
         # Special case: If the rule is a <(=) min size, it is invalid if min size is set

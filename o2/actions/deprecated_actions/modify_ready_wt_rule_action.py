@@ -11,11 +11,11 @@ from o2.models.constraints import RULE_TYPE
 from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.state import State
 from o2.models.timetable import (
-    COMPARATOR,
     FiringRule,
     rule_is_ready_wt,
 )
 from o2.store import Store
+from o2.util.logger import warn
 
 SIZE_OF_CHANGE = 100
 
@@ -41,12 +41,12 @@ class ModifyReadyWtRuleAction(BatchingRuleBaseAction, str=False):
 
         index, rule = timetable.get_batching_rule(rule_selector)
         if rule is None or index is None:
-            print(f"BatchingRule not found for {rule_selector}")
+            warn(f"BatchingRule not found for {rule_selector}")
             return state
 
         firing_rule = rule.get_firing_rule(rule_selector)
         if not rule_is_ready_wt(firing_rule):
-            print(f"Firing rule not found for {rule_selector}")
+            warn(f"Firing rule not found for {rule_selector}")
             return state
 
         old_wt = firing_rule.value

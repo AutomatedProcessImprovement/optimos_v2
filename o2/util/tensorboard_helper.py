@@ -1,11 +1,12 @@
 import io
 import os
 import shutil
-import time
 from datetime import datetime
 
 import matplotlib
 import tensorflow as tf
+
+from o2.util.logger import info
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -323,7 +324,7 @@ class TensorBoardHelper:
     @staticmethod
     def move_logs_to_archive_dir() -> None:
         """Move the logs to the archive directory."""
-        print("Archiving TensorBoard logs")
+        info("Archiving TensorBoard logs")
         # Ensure archive dir exists
         os.makedirs(TENSORBOARD_LOG_DIR_ARCHIVE, exist_ok=True)
         if os.path.exists(TENSORBOARD_LOG_DIR):

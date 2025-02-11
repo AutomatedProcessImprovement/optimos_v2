@@ -17,11 +17,11 @@ from o2.models.settings import Settings
 from o2.models.state import State
 from o2.models.time_period import TimePeriod
 from o2.models.timetable import (
-    COMPARATOR,
     BatchingRule,
     FiringRule,
 )
 from o2.store import Store
+from o2.util.logger import info
 
 
 class AddDateTimeRuleBaseActionParamsType(BaseActionParamsType):
@@ -72,7 +72,7 @@ class AddDateTimeRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
         updated_rule = rule.add_firing_rules(new_or_rule)
 
         if enable_prints:
-            print(
+            info(
                 f"\t\t>> Adding rule for {task_id} on {time_period.from_} from {time_period.begin_time} to {time_period.end_time}"
             )
 

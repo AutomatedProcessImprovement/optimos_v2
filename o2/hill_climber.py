@@ -13,6 +13,7 @@ from o2.models.solution import Solution
 from o2.pareto_front import FRONT_STATUS
 from o2.store import SolutionTry, Store
 from o2.util.indented_printer import print_l0, print_l1, print_l2, print_l3
+from o2.util.logger import STATS_LOG_LEVEL
 
 
 class HillClimber:
@@ -48,7 +49,10 @@ class HillClimber:
 
     def solve(self) -> None:
         """Run the hill climber and print the result."""
-        print_l1(f"Initial evaluation: {self.store.base_solution.evaluation}")
+        print_l1(
+            f"Initial evaluation: {self.store.base_solution.evaluation}",
+            log_level=STATS_LOG_LEVEL,
+        )
         generator = self.get_iteration_generator(yield_on_non_acceptance=True)
         for _ in generator:
             if self.store.settings.log_to_tensor_board:
@@ -134,11 +138,17 @@ class HillClimber:
                         print_l2(repr(solution.last_action))
                         if status == FRONT_STATUS.IN_FRONT:
                             print_l3("Pareto front CONTAINS new evaluation.")
-                            print_l3(f"Evaluation: {solution.evaluation}")
+                            print_l3(
+                                f"Evaluation: {solution.evaluation}",
+                                log_level=STATS_LOG_LEVEL,
+                            )
 
                         elif status == FRONT_STATUS.IS_DOMINATED:
                             print_l3("Pareto front IS DOMINATED by new evaluation.")
-                            print_l3(f"New best Evaluation: {solution.evaluation}")
+                            print_l3(
+                                f"New best Evaluation: {solution.evaluation}",
+                                log_level=STATS_LOG_LEVEL,
+                            )
                             self.max_non_improving_iter = (
                                 self.store.settings.max_non_improving_actions
                             )
@@ -161,8 +171,14 @@ class HillClimber:
 
     def _print_result(self):
         print_l0("Final result:")
-        print_l1(f"Best evaluation: \t{self.store.current_evaluation}")
-        print_l1(f"Base evaluation: \t{self.store.base_evaluation}")
+        print_l1(
+            f"Best evaluation: \t{self.store.current_evaluation}",
+            log_level=STATS_LOG_LEVEL,
+        )
+        print_l1(
+            f"Base evaluation: \t{self.store.base_evaluation}",
+            log_level=STATS_LOG_LEVEL,
+        )
         print_l1("Modifications:")
         for action in self.store.base_solution.actions:
             print_l2(repr(action))

@@ -20,6 +20,7 @@ from o2.models.timetable import (
     FiringRule,
 )
 from o2.store import Store
+from o2.util.logger import warn
 
 MARGIN_OF_ERROR = 0.03
 SIZE_OF_CHANGE = 1
@@ -49,12 +50,12 @@ class ModifySizeRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
 
         _, batching_rule = timetable.get_batching_rule(rule_selector)
         if batching_rule is None:
-            print(f"BatchingRule not found for {rule_selector}")
+            warn(f"BatchingRule not found for {rule_selector}")
             return state
 
         firing_rule = batching_rule.get_firing_rule(rule_selector)
         if firing_rule is None:
-            print(f"FiringRule not found for {rule_selector}")
+            warn(f"FiringRule not found for {rule_selector}")
             return state
 
         new_size = firing_rule.value + self.params["size_increment"]

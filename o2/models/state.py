@@ -9,6 +9,7 @@ from prosimos.simulation_setup import SimDiffSetup
 from o2.models.evaluation import Evaluation
 from o2.models.settings import Settings
 from o2.simulation_runner import SimulationRunner
+from o2.util.logger import warn
 from o2.util.sim_diff_setup_fileless import SimDiffSetupFileless
 
 if TYPE_CHECKING:
@@ -38,7 +39,7 @@ class State:
     def evaluate(self) -> Evaluation:
         """Evaluate the current state."""
         if not self.is_valid():
-            print("Trying to evaluate an invalid state.")
+            warn("Trying to evaluate an invalid state.")
             return Evaluation.empty()
         try:
             result = SimulationRunner.run_simulation(self)

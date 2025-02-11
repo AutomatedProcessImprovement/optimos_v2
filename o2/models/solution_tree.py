@@ -8,6 +8,7 @@ from o2.models.settings import Settings
 from o2.models.solution import Solution
 from o2.pareto_front import ParetoFront
 from o2.util.indented_printer import print_l1, print_l3
+from o2.util.logger import warn
 from o2.util.solution_dumper import SolutionDumper
 
 if TYPE_CHECKING:
@@ -61,17 +62,17 @@ class SolutionTree:
                 self.rtree.nearest(pareto_solution.point, 1, objects=True), None
             )
             if item is None:
-                print("WARNING: Got None item from rtree.")
+                warn("WARNING: Got None item from rtree.")
                 continue
             solution = self.solution_lookup[item.id]
 
             if item.id in self.solution_lookup and solution is None:
-                print("WARNING: Got discarded solution from rtree.")
+                warn("WARNING: Got discarded solution from rtree.")
                 self.rtree.delete(item.id, item.bbox)
                 continue
 
             if solution is None:
-                print("WARNING: Got non-existent solution from rtree.")
+                warn("WARNING: Got non-existent solution from rtree.")
                 continue
 
             distance = pareto_solution.evaluation.distance_to(solution.evaluation)

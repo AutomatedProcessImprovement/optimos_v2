@@ -21,6 +21,7 @@ from o2.models.timetable import (
     FiringRule,
 )
 from o2.store import Store
+from o2.util.logger import info
 
 
 class AddReadyLargeWTRuleBaseActionParamsType(BaseActionParamsType):
@@ -106,7 +107,7 @@ class AddReadyLargeWTRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
         updated_rule = rule.add_firing_rules(new_or_rule)
 
         if enable_prints:
-            print(f"\t\t>> Adding rule for {task_id} with large_wt >= {waiting_time}")
+            info(f"\t\t>> Adding rule for {task_id} with large_wt >= {waiting_time}")
 
         return state.replace_timetable(
             batch_processing=timetable.batch_processing[:index]

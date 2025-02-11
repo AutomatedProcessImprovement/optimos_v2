@@ -11,6 +11,7 @@ from o2.actions.base_actions.batching_rule_base_action import (
 from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.state import State
 from o2.store import Store
+from o2.util.logger import warn
 
 
 class RemoveRuleActionParamsType(BatchingRuleBaseActionParamsType):
@@ -35,10 +36,10 @@ class RemoveRuleAction(BatchingRuleBaseAction, str=False):
 
         index, rule = timetable.get_batching_rule(rule_selector)
         if rule is None or index is None:
-            print(f"BatchingRule not found for {rule_selector}")
+            warn(f"BatchingRule not found for {rule_selector}")
             return state
         if enable_prints:
-            print(f"\t\t>> Removing rule {rule_selector}")
+            warn(f"\t\t>> Removing rule {rule_selector}")
 
         new_batching_rule = rule.remove_firing_rule(rule_selector)
         if new_batching_rule is None:

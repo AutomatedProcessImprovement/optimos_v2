@@ -8,6 +8,7 @@ from o2.pareto_front import FRONT_STATUS
 from o2.ppo_utils.ppo_input import PPOInput
 from o2.store import Store
 from o2.util.indented_printer import print_l0, print_l1
+from o2.util.logger import error
 
 StateType = dict[str, Space]
 
@@ -62,7 +63,7 @@ class PPOEnv(Env[StateType, np.int64]):
         try:
             new_solution = Solution.from_parent(self.store.solution, action_obj)
         except Exception as e:
-            print("Error in action:", e)
+            error("Error in action:", e)
             self.store.mark_action_as_tabu(action_obj)
             return self.state, -1, False, False, {}
         chosen_tries, not_chosen_tries = self.store.process_many_solutions(

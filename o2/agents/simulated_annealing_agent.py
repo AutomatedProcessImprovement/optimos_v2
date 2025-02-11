@@ -16,6 +16,7 @@ from o2.models.solution import Solution
 from o2.pareto_front import FRONT_STATUS
 from o2.store import SolutionTry, Store
 from o2.util.indented_printer import print_l1, print_l2
+from o2.util.logger import debug
 
 
 class SimulatedAnnealingAgent(Agent):
@@ -105,9 +106,9 @@ class SimulatedAnnealingAgent(Agent):
                 distance = solution.evaluation.distance_to(
                     self.store.current_evaluation
                 )
-                print("Discarded solution distance:", distance)
+                debug("Discarded solution distance:", distance)
                 if accept_worse_solution(distance, self.temperature):
-                    print("Randomly accepted discarded solution.")
+                    debug("Randomly accepted discarded solution.")
                     return solution
 
         return self._select_new_base_evaluation()

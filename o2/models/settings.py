@@ -180,6 +180,12 @@ class Settings:
     x and y values.
     """
 
+    LOG_LEVEL: ClassVar[str] = "DEBUG"
+    """The log level to use for the application."""
+
+    LOG_FILE: ClassVar[Optional[str]] = None
+    """The log file to use for the application."""
+
     @staticmethod
     def get_pareto_x_label() -> str:
         """Get the label for the x-axis (cost) of the pareto front."""

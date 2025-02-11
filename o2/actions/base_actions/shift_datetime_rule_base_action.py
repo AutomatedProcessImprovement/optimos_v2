@@ -19,6 +19,7 @@ from o2.models.timetable import (
     rule_is_daily_hour,
 )
 from o2.store import Store
+from o2.util.logger import info
 
 
 class ShiftDateTimeRuleBaseActionParamsType(BaseActionParamsType):
@@ -76,7 +77,7 @@ class ShiftDateTimeRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
         )
 
         if enable_prints:
-            print(
+            info(
                 f"\t\t>> Modifying rule {lower_bound_selector.id()} to new time bounds: {new_lower_bound} -> {new_upper_bound}"
             )
 
