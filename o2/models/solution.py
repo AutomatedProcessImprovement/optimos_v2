@@ -48,6 +48,10 @@ class Solution:
         """Check if this solution is dominated by the given solution."""
         return self.evaluation.is_dominated_by(solution.evaluation)
 
+    def has_equal_point(self, solution: "Solution") -> bool:
+        """Check if this solution has the same point as the given solution."""
+        return self.point == solution.point
+
     @property
     def is_valid(self) -> bool:
         """Check if the evaluation is valid."""
@@ -74,6 +78,11 @@ class Solution:
         and evaluate the new state.
         """
         new_state = action.apply(parent.state, enable_prints=False)
+        # If the action did not change the state, we mark the solution as invalid/empty
+        # This is due to the fact that many actions will not change the state, if
+        # the action is not valid.
+        if new_state == parent.state:
+            return Solution.empty(new_state, action)
         evaluation = new_state.evaluate()
         return Solution(
             evaluation=evaluation,
