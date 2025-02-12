@@ -242,7 +242,7 @@ def collect_data_sequentially(base_store: Store, args) -> None:
     SolutionDumper()
 
     # Optionally archive previous TensorBoard logs
-    if base_store.settings.log_to_tensor_board:
+    if base_store.settings.log_to_tensor_board or args.log_to_tensor_board:
         from o2.util.tensorboard_helper import TensorBoardHelper
 
         TensorBoardHelper.move_logs_to_archive_dir()

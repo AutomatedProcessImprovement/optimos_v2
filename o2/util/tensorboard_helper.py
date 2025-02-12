@@ -6,7 +6,7 @@ from datetime import datetime
 import matplotlib
 import tensorflow as tf
 
-from o2.util.logger import info
+from o2.util.logger import debug
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -32,11 +32,14 @@ TENSORBOARD_LOG_DIR_ARCHIVE = f"{TENSORBOARD_LOG_DIR}_archive"
 
 
 class TensorBoardHelper:
+    """Helper class to log data to TensorBoard."""
+
     instance: "TensorBoardHelper"
 
-    def __init__(self, agent: Agent):
+    def __init__(self, agent: Agent) -> None:
+        """Initialize the TensorBoardHelper."""
         self.agent = agent
-        self.store: "Store" = self.agent.store
+        self.store: Store = self.agent.store
         self.name = f"{self.store.settings.agent.name}_{datetime.now().isoformat()}"
         self.writer = tf.summary.create_file_writer(
             f"{TENSORBOARD_LOG_DIR}/{self.name}",
@@ -324,7 +327,7 @@ class TensorBoardHelper:
     @staticmethod
     def move_logs_to_archive_dir() -> None:
         """Move the logs to the archive directory."""
-        info("Archiving TensorBoard logs")
+        debug("Archiving TensorBoard logs")
         # Ensure archive dir exists
         os.makedirs(TENSORBOARD_LOG_DIR_ARCHIVE, exist_ok=True)
         if os.path.exists(TENSORBOARD_LOG_DIR):
