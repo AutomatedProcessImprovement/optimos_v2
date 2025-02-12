@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 from rtree import index
 
 from o2.models.evaluation import Evaluation
+from o2.util.logger import debug
 
 if TYPE_CHECKING:
     from o2.models.solution import Solution
@@ -26,11 +27,8 @@ class ParetoFront:
     """A set of solutions, where no solution is dominated by another solution."""
 
     def __init__(self) -> None:
-        self.rtree = index.Index()
-        self.solutions: list["Solution"] = []
+        self.solutions: list[Solution] = []
         """A list of solutions in the front. They follow the same order as the evaluations."""
-        self.removed_solutions: list["Solution"] = []
-        """A list of solutions that have been removed from the front, because they were dominated."""
 
     @property
     def size(self) -> int:
