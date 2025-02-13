@@ -17,8 +17,8 @@ from o2.models.settings import CostType, Settings
 from o2.models.solution import Solution
 from o2.store import Store
 
-DIAGRAM_DUMP_INTERVAL = (os.cpu_count() or 1) * 100
-SA_CALCULATION_INTERVAL = (os.cpu_count() or 1) * 5
+DIAGRAM_DUMP_INTERVAL = 2000
+SA_CALCULATION_INTERVAL = 100
 
 TENSORBOARD_LOG_DIR = "./logs/optimos_v2_tensorboard"
 TENSORBOARD_LOG_DIR_ARCHIVE = f"{TENSORBOARD_LOG_DIR}_archive"
