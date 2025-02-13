@@ -106,7 +106,7 @@ def base_line_constraints(
                 duration_fn=duration_fn,
                 cost_fn=cost_fn,
                 min_size=1,
-                max_size=10,
+                max_size=100,
             )
             for task_id in task_ids
         ],

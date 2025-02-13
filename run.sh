@@ -12,10 +12,12 @@ conda activate opti2
 conda run -n opti2 python ./o2_evaluation/data_collector.py \
     --active-scenarios Purchasing \
     --models "Tabu Search" \
+    --number-of-cases 1000 \
+    --duration-fn "1/size" \
     --max-iterations 1500 \
     --dump-interval 250 \
     --max-non-improving-actions 1250 \
     --max-threads 24 \
     --log-level DEBUG \
-    --log-file ./logs/optimos_v2_test_run.log \
+    --log-file ./logs/optimos_v2.log \
     --log-to-tensor-board True

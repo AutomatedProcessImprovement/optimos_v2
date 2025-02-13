@@ -220,7 +220,7 @@ class TensorBoardHelper:
             alpha=0.7,
             s=25,
             edgecolors="none",
-            label="Old Pareto Front Solutions",
+            label="Dominated Pareto Front Solutions",
         )
 
         ax.scatter(
