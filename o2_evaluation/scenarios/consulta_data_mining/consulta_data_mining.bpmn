@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8"?><definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" targetNamespace="http://www.omg.org/bpmn20" exporter="ProM. http://www.promtools.org/prom6" exporterVersion="6.3" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd"><process id="proc_1671846437">
+<startEvent id="node_357f490f-ebee-488f-a08f-34fc70b833ae" name=""/>
+<endEvent id="node_84c32237-3fb5-4a1d-89b2-7427cf682e75" name=""/>
+<task id="node_b364a747-709a-4cc2-91f7-880c6da6741e" name="Radicar Solicitud Homologacion">
+<standardLoopCharacteristics testBefore="false"/>
+</task>
+<task id="node_523acb3c-42c9-4ec9-abf6-3b2aa1ffa4df" name="Validar solicitud / pre-homologacion">
+<standardLoopCharacteristics testBefore="false"/>
+</task>
+<task id="node_adb989cc-89d4-485a-b42a-37e51e614fac" name="Validar solicitud">
+<standardLoopCharacteristics testBefore="false"/>
+</task>
+<task id="node_c9548b5e-e4c3-48bf-9735-820576af87c4" name="Evaluacion curso">
+<standardLoopCharacteristics testBefore="false"/>
+</task>
+<task id="node_5762a415-b3bc-4e33-8a9e-f87b99c1a431" name="Cancelar curso">
+<standardLoopCharacteristics testBefore="false"/>
+</task>
+<task id="node_ddb49eb5-d5cc-47ec-b336-1bc5222af729" name="Start">
+<standardLoopCharacteristics testBefore="false"/>
+</task>
+<task id="node_eb4b9314-2740-4005-81dc-a67567417937" name="Recepcion de documentos">
+<standardLoopCharacteristics testBefore="false"/>
+</task>
+<task id="node_4484f320-ce03-48ec-a607-e0849296cb83" name="End">
+<standardLoopCharacteristics testBefore="false"/>
+</task>
+<task id="node_5326c802-8add-4f4d-b70f-bef3cc440c22" name="Cancelar Solicitud">
+<standardLoopCharacteristics testBefore="false"/>
+</task>
+<task id="node_c61e1286-16a3-47bb-8489-2658bc46dc26" name="Revisar curso">
+<standardLoopCharacteristics testBefore="false"/>
+</task>
+<task id="node_79cb5159-de40-42c5-86da-cf1bf1b2d4fb" name="Validacion final">
+<standardLoopCharacteristics testBefore="false"/>
+</task>
+<task id="node_c2b825ad-0231-4917-932e-fb64f515c2b2" name="Notificacion estudiante cancelacion soli">
+<standardLoopCharacteristics testBefore="false"/>
+</task>
+<task id="node_1f63fcbd-2461-4843-ada6-4d2f4b72198b" name="Transferir creditos homologables">
+<standardLoopCharacteristics testBefore="false"/>
+</task>
+<task id="node_3c55a1e6-c461-4d59-baba-24873226a670" name="Visto Bueno Cierre Proceso">
+<standardLoopCharacteristics testBefore="false"/>
+</task>
+<task id="node_16792992-af62-432f-82ed-77264cd826a4" name="Avanzar recepcion documentos">
+<standardLoopCharacteristics testBefore="false"/>
+</task>
+<task id="node_04174a97-8b5d-4557-8547-a8f979916268" name="Traer informacion estudiante - banner">
+<standardLoopCharacteristics testBefore="false"/>
+</task>
+<task id="node_8e736d14-b0ed-4f3f-82e1-7e036fe9fd26" name="Transferir Creditos">
+<standardLoopCharacteristics testBefore="false"/>
+</task>
+<task id="node_950afb24-f4f4-48d5-8ac1-b63c22667f77" name="Homologacion por grupo de cursos">
+<standardLoopCharacteristics testBefore="false"/>
+</task>
+<exclusiveGateway id="node_458c8bcd-feb1-4a7e-b2db-8aa2dc8465fb" name="" gatewayDirection="Converging">
+<incoming>
+node_bc1bc4c9-a6bc-41dc-bfde-2184eb20255c</incoming>
+<incoming>
+node_faee8ba4-0e93-4bc8-bc7b-687979a187b2</incoming>
+<outgoing>
+node_2197a8f7-6a09-4da3-bd00-90237406ecaa</outgoing>
+</exclusiveGateway>
+<exclusiveGateway id="node_6ce5e0a5-f608-47d5-8be8-d6587b52840f" name="" gatewayDirection="Converging">
+<incoming>
+node_833f0a5d-8d46-4ae3-a247-ea64def68c97</incoming>
+<incoming>
+node_a940aa4a-2596-4cfd-8913-648e2e080a19</incoming>
+<outgoing>
+node_e84640fd-12fb-4bd0-beff-5c8a92065c51</outgoing>
+</exclusiveGateway>
+<exclusiveGateway id="node_dc4dd095-914d-4813-a261-f34e5683ccd6" name="" gatewayDirection="Diverging">
+<incoming>
+node_cf72a39d-89ea-4ed1-8292-e79f903e2ce7</incoming>
+<outgoing>
+node_8f39aeba-a1a2-48a2-931c-53e9eef03dac</outgoing>
+<outgoing>
+node_64c76d1a-4956-46c0-86e3-7ac3b89d62dd</outgoing>
+</exclusiveGateway>
+<exclusiveGateway id="node_c66628f9-0b81-4696-9718-a5f01d56dd37" name="" gatewayDirection="Converging">
+<incoming>
+node_2197a8f7-6a09-4da3-bd00-90237406ecaa</incoming>
+<incoming>
+node_6bf29d49-8821-405b-ba9f-caf13468aef4</incoming>
+<incoming>
+node_44f49ff0-42f8-4477-9e1d-ea751eb93bc3</incoming>
+<outgoing>
+node_164e157e-cab4-4f16-830c-eb879fa369bb</outgoing>
+</exclusiveGateway>
+<exclusiveGateway id="node_f1a4a650-c36a-45cc-8139-da2b2952c80d" name="" gatewayDirection="Converging">
+<incoming>
+node_164e157e-cab4-4f16-830c-eb879fa369bb</incoming>
+<incoming>
+node_d0ef4763-0db6-42ab-8a6a-fc9b1dcc0040</incoming>
+<outgoing>
+node_441fef96-7872-4622-a13b-ea9c6a9262c0</outgoing>
+</exclusiveGateway>
+<exclusiveGateway id="node_4e64c39f-ae87-44cc-9d21-79afad362692" name="" gatewayDirection="Diverging">
+<incoming>
+node_eb8c86ac-8b41-461f-9252-3b3ee89eb09d</incoming>
+<outgoing>
+node_6bf29d49-8821-405b-ba9f-caf13468aef4</outgoing>
+<outgoing>
+node_4b83a262-b5b3-4258-8527-60d9a41dc837</outgoing>
+</exclusiveGateway>
+<exclusiveGateway id="node_917dc074-e275-4940-9867-d9b1190493c1" name="" gatewayDirection="Converging">
+<incoming>
+node_4eb2711a-8c47-4ce7-9626-8cc83c574670</incoming>
+<incoming>
+node_4b83a262-b5b3-4258-8527-60d9a41dc837</incoming>
+<outgoing>
+node_bf61970d-1640-4431-8a8b-2cae1b1188f0</outgoing>
+</exclusiveGateway>
+<exclusiveGateway id="node_08b14f61-1e03-44c1-a2bc-c4ca38b3fb98" name="" gatewayDirection="Diverging">
+<incoming>
+node_bc4db93a-c6a1-4c85-9216-90f148f0b118</incoming>
+<outgoing>
+node_2c82758f-d186-4c9d-9db3-6fa3298708b2</outgoing>
+<outgoing>
+node_2a87f205-f6ee-4af7-9b8e-573a1aa15d0b</outgoing>
+</exclusiveGateway>
+<exclusiveGateway id="node_75aef48a-10e1-4dfa-8536-a9d3fd500eca" name="" gatewayDirection="Converging">
+<incoming>
+node_cb3f3e23-27c5-4a92-acbe-8f70e145d4fb</incoming>
+<incoming>
+node_80dee73d-9450-47fa-b875-d1c946990b96</incoming>
+<outgoing>
+node_8f09f764-2b34-4772-9bd7-ebde05855335</outgoing>
+</exclusiveGateway>
+<exclusiveGateway id="node_4bddba3b-55a1-4a66-adff-08fe7326bac1" name="" gatewayDirection="Converging">
+<incoming>
+node_db4d0900-7bb6-4ee8-ac32-d47aaf2b9787</incoming>
+<incoming>
+node_87447fde-4046-43d3-b3cb-14b391219d9d</incoming>
+<outgoing>
+node_60940279-e4dd-4460-83e0-cc93a99a1de7</outgoing>
+</exclusiveGateway>
+<exclusiveGateway id="node_01b0eee3-b500-4e11-a8c8-b4fd4c3b02e2" name="" gatewayDirection="Diverging">
+<incoming>
+node_1aa57fdc-df00-45f5-83ad-0b4c61c8b9c3</incoming>
+<outgoing>
+node_18b8c1fd-c908-4606-a6d4-d47c35c8b89b</outgoing>
+<outgoing>
+node_af30a6f3-189f-49d3-8128-cfa0637a45df</outgoing>
+<outgoing>
+node_1be3e5d6-ec9a-4867-8821-1e73698a3885</outgoing>
+<outgoing>
+node_db4d0900-7bb6-4ee8-ac32-d47aaf2b9787</outgoing>
+</exclusiveGateway>
+<exclusiveGateway id="node_5d422b43-639b-4d63-86f9-dbbee882d091" name="" gatewayDirection="Diverging">
+<incoming>
+node_e2a76cb4-9d14-4357-a663-9b9dda71276d</incoming>
+<outgoing>
+node_7bab4753-c205-429e-a80e-0fa784fa3097</outgoing>
+<outgoing>
+node_bc1bc4c9-a6bc-41dc-bfde-2184eb20255c</outgoing>
+</exclusiveGateway>
+<exclusiveGateway id="node_701f4a45-1130-4e87-9d0f-56210d1d2044" name="" gatewayDirection="Converging">
+<incoming>
+node_ddad21f5-bcb9-45ae-9fa7-648ebd1a2161</incoming>
+<incoming>
+node_64c76d1a-4956-46c0-86e3-7ac3b89d62dd</incoming>
+<outgoing>
+node_02dc5132-8040-495f-816b-cd3d738e0f0d</outgoing>
+</exclusiveGateway>
+<exclusiveGateway id="node_22a8631e-f278-4d20-9f0a-e96293422ec0" name="" gatewayDirection="Converging">
+<incoming>
+node_1be3e5d6-ec9a-4867-8821-1e73698a3885</incoming>
+<incoming>
+node_4d188797-d2e5-4c43-bed2-c5f4d6252744</incoming>
+<outgoing>
+node_a940aa4a-2596-4cfd-8913-648e2e080a19</outgoing>
+</exclusiveGateway>
+<exclusiveGateway id="node_fb129dbd-d0bc-480b-b8d0-1a65d22dbbf2" name="" gatewayDirection="Diverging">
+<incoming>
+node_a18ff9ef-ae70-4100-ac77-a9b822634346</incoming>
+<outgoing>
+node_833f0a5d-8d46-4ae3-a247-ea64def68c97</outgoing>
+<outgoing>
+node_a6e1e839-203e-4123-80c0-3cefc3c5fc20</outgoing>
+<outgoing>
+node_4eb2711a-8c47-4ce7-9626-8cc83c574670</outgoing>
+</exclusiveGateway>
+<exclusiveGateway id="node_054a4623-790d-44e5-aa30-ac00e05f62b4" name="" gatewayDirection="Converging">
+<incoming>
+node_70c6d8b0-dbd3-4618-ba3a-15b69242096b</incoming>
+<incoming>
+node_2a87f205-f6ee-4af7-9b8e-573a1aa15d0b</incoming>
+<outgoing>
+node_faee8ba4-0e93-4bc8-bc7b-687979a187b2</outgoing>
+</exclusiveGateway>
+<exclusiveGateway id="node_24e83b80-eab2-40c3-8df3-1f84bea60f57" name="" gatewayDirection="Diverging">
+<incoming>
+node_fc685ef2-a05e-499c-b090-87dac1a36fd0</incoming>
+<outgoing>
+node_80dee73d-9450-47fa-b875-d1c946990b96</outgoing>
+<outgoing>
+node_87447fde-4046-43d3-b3cb-14b391219d9d</outgoing>
+<outgoing>
+node_344b629d-9f2c-4946-8b60-ac2a716ca962</outgoing>
+</exclusiveGateway>
+<sequenceFlow id="node_42749b4c-ea00-432d-9acf-8dd196e8a667" name="" sourceRef="node_ddb49eb5-d5cc-47ec-b336-1bc5222af729" targetRef="node_04174a97-8b5d-4557-8547-a8f979916268"/>
+<sequenceFlow id="node_9225131b-8493-48d2-a030-3e52d5975236" name="" sourceRef="node_79cb5159-de40-42c5-86da-cf1bf1b2d4fb" targetRef="node_3c55a1e6-c461-4d59-baba-24873226a670"/>
+<sequenceFlow id="node_bdbf0bfb-52f7-4dd1-af97-02f7aa9e7f19" name="" sourceRef="node_4484f320-ce03-48ec-a607-e0849296cb83" targetRef="node_84c32237-3fb5-4a1d-89b2-7427cf682e75"/>
+<sequenceFlow id="node_441a4551-4a5c-4f31-b7d4-a24f88af53c3" name="" sourceRef="node_357f490f-ebee-488f-a08f-34fc70b833ae" targetRef="node_ddb49eb5-d5cc-47ec-b336-1bc5222af729"/>
+<sequenceFlow id="node_5a0cd827-a277-48d6-918c-997a890f0310" name="" sourceRef="node_04174a97-8b5d-4557-8547-a8f979916268" targetRef="node_b364a747-709a-4cc2-91f7-880c6da6741e"/>
+<sequenceFlow id="node_89ff3078-2daf-42ae-9b9d-adfec59ce123" name="" sourceRef="node_8e736d14-b0ed-4f3f-82e1-7e036fe9fd26" targetRef="node_1f63fcbd-2461-4843-ada6-4d2f4b72198b"/>
+<sequenceFlow id="node_fc685ef2-a05e-499c-b090-87dac1a36fd0" name="" sourceRef="node_b364a747-709a-4cc2-91f7-880c6da6741e" targetRef="node_24e83b80-eab2-40c3-8df3-1f84bea60f57"/>
+<sequenceFlow id="node_344b629d-9f2c-4946-8b60-ac2a716ca962" name="" sourceRef="node_24e83b80-eab2-40c3-8df3-1f84bea60f57" targetRef="node_adb989cc-89d4-485a-b42a-37e51e614fac"/>
+<sequenceFlow id="node_1aa57fdc-df00-45f5-83ad-0b4c61c8b9c3" name="" sourceRef="node_adb989cc-89d4-485a-b42a-37e51e614fac" targetRef="node_01b0eee3-b500-4e11-a8c8-b4fd4c3b02e2"/>
+<sequenceFlow id="node_18b8c1fd-c908-4606-a6d4-d47c35c8b89b" name="" sourceRef="node_01b0eee3-b500-4e11-a8c8-b4fd4c3b02e2" targetRef="node_c61e1286-16a3-47bb-8489-2658bc46dc26"/>
+<sequenceFlow id="node_af30a6f3-189f-49d3-8128-cfa0637a45df" name="" sourceRef="node_01b0eee3-b500-4e11-a8c8-b4fd4c3b02e2" targetRef="node_eb4b9314-2740-4005-81dc-a67567417937"/>
+<sequenceFlow id="node_eb8c86ac-8b41-461f-9252-3b3ee89eb09d" name="" sourceRef="node_950afb24-f4f4-48d5-8ac1-b63c22667f77" targetRef="node_4e64c39f-ae87-44cc-9d21-79afad362692"/>
+<sequenceFlow id="node_a18ff9ef-ae70-4100-ac77-a9b822634346" name="" sourceRef="node_c61e1286-16a3-47bb-8489-2658bc46dc26" targetRef="node_fb129dbd-d0bc-480b-b8d0-1a65d22dbbf2"/>
+<sequenceFlow id="node_a6e1e839-203e-4123-80c0-3cefc3c5fc20" name="" sourceRef="node_fb129dbd-d0bc-480b-b8d0-1a65d22dbbf2" targetRef="node_5762a415-b3bc-4e33-8a9e-f87b99c1a431"/>
+<sequenceFlow id="node_cf72a39d-89ea-4ed1-8292-e79f903e2ce7" name="" sourceRef="node_c9548b5e-e4c3-48bf-9735-820576af87c4" targetRef="node_dc4dd095-914d-4813-a261-f34e5683ccd6"/>
+<sequenceFlow id="node_8f39aeba-a1a2-48a2-931c-53e9eef03dac" name="" sourceRef="node_dc4dd095-914d-4813-a261-f34e5683ccd6" targetRef="node_523acb3c-42c9-4ec9-abf6-3b2aa1ffa4df"/>
+<sequenceFlow id="node_e2a76cb4-9d14-4357-a663-9b9dda71276d" name="" sourceRef="node_523acb3c-42c9-4ec9-abf6-3b2aa1ffa4df" targetRef="node_5d422b43-639b-4d63-86f9-dbbee882d091"/>
+<sequenceFlow id="node_7bab4753-c205-429e-a80e-0fa784fa3097" name="" sourceRef="node_5d422b43-639b-4d63-86f9-dbbee882d091" targetRef="node_16792992-af62-432f-82ed-77264cd826a4"/>
+<sequenceFlow id="node_bc4db93a-c6a1-4c85-9216-90f148f0b118" name="" sourceRef="node_3c55a1e6-c461-4d59-baba-24873226a670" targetRef="node_08b14f61-1e03-44c1-a2bc-c4ca38b3fb98"/>
+<sequenceFlow id="node_2c82758f-d186-4c9d-9db3-6fa3298708b2" name="" sourceRef="node_08b14f61-1e03-44c1-a2bc-c4ca38b3fb98" targetRef="node_8e736d14-b0ed-4f3f-82e1-7e036fe9fd26"/>
+<sequenceFlow id="node_70c6d8b0-dbd3-4618-ba3a-15b69242096b" name="" sourceRef="node_1f63fcbd-2461-4843-ada6-4d2f4b72198b" targetRef="node_054a4623-790d-44e5-aa30-ac00e05f62b4"/>
+<sequenceFlow id="node_2a87f205-f6ee-4af7-9b8e-573a1aa15d0b" name="" sourceRef="node_08b14f61-1e03-44c1-a2bc-c4ca38b3fb98" targetRef="node_054a4623-790d-44e5-aa30-ac00e05f62b4"/>
+<sequenceFlow id="node_4d188797-d2e5-4c43-bed2-c5f4d6252744" name="" sourceRef="node_eb4b9314-2740-4005-81dc-a67567417937" targetRef="node_22a8631e-f278-4d20-9f0a-e96293422ec0"/>
+<sequenceFlow id="node_1be3e5d6-ec9a-4867-8821-1e73698a3885" name="" sourceRef="node_01b0eee3-b500-4e11-a8c8-b4fd4c3b02e2" targetRef="node_22a8631e-f278-4d20-9f0a-e96293422ec0"/>
+<sequenceFlow id="node_441fef96-7872-4622-a13b-ea9c6a9262c0" name="" sourceRef="node_f1a4a650-c36a-45cc-8139-da2b2952c80d" targetRef="node_4484f320-ce03-48ec-a607-e0849296cb83"/>
+<sequenceFlow id="node_bf61970d-1640-4431-8a8b-2cae1b1188f0" name="" sourceRef="node_917dc074-e275-4940-9867-d9b1190493c1" targetRef="node_c9548b5e-e4c3-48bf-9735-820576af87c4"/>
+<sequenceFlow id="node_60940279-e4dd-4460-83e0-cc93a99a1de7" name="" sourceRef="node_4bddba3b-55a1-4a66-adff-08fe7326bac1" targetRef="node_5326c802-8add-4f4d-b70f-bef3cc440c22"/>
+<sequenceFlow id="node_02dc5132-8040-495f-816b-cd3d738e0f0d" name="" sourceRef="node_701f4a45-1130-4e87-9d0f-56210d1d2044" targetRef="node_79cb5159-de40-42c5-86da-cf1bf1b2d4fb"/>
+<sequenceFlow id="node_8f09f764-2b34-4772-9bd7-ebde05855335" name="" sourceRef="node_75aef48a-10e1-4dfa-8536-a9d3fd500eca" targetRef="node_c2b825ad-0231-4917-932e-fb64f515c2b2"/>
+<sequenceFlow id="node_e84640fd-12fb-4bd0-beff-5c8a92065c51" name="" sourceRef="node_6ce5e0a5-f608-47d5-8be8-d6587b52840f" targetRef="node_950afb24-f4f4-48d5-8ac1-b63c22667f77"/>
+<sequenceFlow id="node_87447fde-4046-43d3-b3cb-14b391219d9d" name="" sourceRef="node_24e83b80-eab2-40c3-8df3-1f84bea60f57" targetRef="node_4bddba3b-55a1-4a66-adff-08fe7326bac1"/>
+<sequenceFlow id="node_64c76d1a-4956-46c0-86e3-7ac3b89d62dd" name="" sourceRef="node_dc4dd095-914d-4813-a261-f34e5683ccd6" targetRef="node_701f4a45-1130-4e87-9d0f-56210d1d2044"/>
+<sequenceFlow id="node_6bf29d49-8821-405b-ba9f-caf13468aef4" name="" sourceRef="node_4e64c39f-ae87-44cc-9d21-79afad362692" targetRef="node_c66628f9-0b81-4696-9718-a5f01d56dd37"/>
+<sequenceFlow id="node_4b83a262-b5b3-4258-8527-60d9a41dc837" name="" sourceRef="node_4e64c39f-ae87-44cc-9d21-79afad362692" targetRef="node_917dc074-e275-4940-9867-d9b1190493c1"/>
+<sequenceFlow id="node_833f0a5d-8d46-4ae3-a247-ea64def68c97" name="" sourceRef="node_fb129dbd-d0bc-480b-b8d0-1a65d22dbbf2" targetRef="node_6ce5e0a5-f608-47d5-8be8-d6587b52840f"/>
+<sequenceFlow id="node_faee8ba4-0e93-4bc8-bc7b-687979a187b2" name="" sourceRef="node_054a4623-790d-44e5-aa30-ac00e05f62b4" targetRef="node_458c8bcd-feb1-4a7e-b2db-8aa2dc8465fb"/>
+<sequenceFlow id="node_cb3f3e23-27c5-4a92-acbe-8f70e145d4fb" name="" sourceRef="node_5326c802-8add-4f4d-b70f-bef3cc440c22" targetRef="node_75aef48a-10e1-4dfa-8536-a9d3fd500eca"/>
+<sequenceFlow id="node_db4d0900-7bb6-4ee8-ac32-d47aaf2b9787" name="" sourceRef="node_01b0eee3-b500-4e11-a8c8-b4fd4c3b02e2" targetRef="node_4bddba3b-55a1-4a66-adff-08fe7326bac1"/>
+<sequenceFlow id="node_d0ef4763-0db6-42ab-8a6a-fc9b1dcc0040" name="" sourceRef="node_c2b825ad-0231-4917-932e-fb64f515c2b2" targetRef="node_f1a4a650-c36a-45cc-8139-da2b2952c80d"/>
+<sequenceFlow id="node_bc1bc4c9-a6bc-41dc-bfde-2184eb20255c" name="" sourceRef="node_5d422b43-639b-4d63-86f9-dbbee882d091" targetRef="node_458c8bcd-feb1-4a7e-b2db-8aa2dc8465fb"/>
+<sequenceFlow id="node_2197a8f7-6a09-4da3-bd00-90237406ecaa" name="" sourceRef="node_458c8bcd-feb1-4a7e-b2db-8aa2dc8465fb" targetRef="node_c66628f9-0b81-4696-9718-a5f01d56dd37"/>
+<sequenceFlow id="node_4eb2711a-8c47-4ce7-9626-8cc83c574670" name="" sourceRef="node_fb129dbd-d0bc-480b-b8d0-1a65d22dbbf2" targetRef="node_917dc074-e275-4940-9867-d9b1190493c1"/>
+<sequenceFlow id="node_80dee73d-9450-47fa-b875-d1c946990b96" name="" sourceRef="node_24e83b80-eab2-40c3-8df3-1f84bea60f57" targetRef="node_75aef48a-10e1-4dfa-8536-a9d3fd500eca"/>
+<sequenceFlow id="node_a940aa4a-2596-4cfd-8913-648e2e080a19" name="" sourceRef="node_22a8631e-f278-4d20-9f0a-e96293422ec0" targetRef="node_6ce5e0a5-f608-47d5-8be8-d6587b52840f"/>
+<sequenceFlow id="node_44f49ff0-42f8-4477-9e1d-ea751eb93bc3" name="" sourceRef="node_5762a415-b3bc-4e33-8a9e-f87b99c1a431" targetRef="node_c66628f9-0b81-4696-9718-a5f01d56dd37"/>
+<sequenceFlow id="node_164e157e-cab4-4f16-830c-eb879fa369bb" name="" sourceRef="node_c66628f9-0b81-4696-9718-a5f01d56dd37" targetRef="node_f1a4a650-c36a-45cc-8139-da2b2952c80d"/>
+<sequenceFlow id="node_ddad21f5-bcb9-45ae-9fa7-648ebd1a2161" name="" sourceRef="node_16792992-af62-432f-82ed-77264cd826a4" targetRef="node_701f4a45-1130-4e87-9d0f-56210d1d2044"/>
+</process>
+<bpmndi:BPMNDiagram id="id_498485108">
+<bpmndi:BPMNPlane bpmnElement="proc_1671846437"/>
+</bpmndi:BPMNDiagram>
+</definitions>
