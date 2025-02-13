@@ -13,7 +13,7 @@ conda run -n opti2 --no-capture-output python ./o2_evaluation/data_collector.py 
     --active-scenarios "LoanOrigination-MC-LU" \
     --models "Simulated Annealing" \
     --number-of-cases 1000 \
-    --duration-fn "1 / (1 + log_100(x))" \
+    --duration-fn "1 / (1 + (log(size) / log(100)))" \
     --max-batch-size 100 \
     --max-iterations 1500 \
     --dump-interval 250 \

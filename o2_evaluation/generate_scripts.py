@@ -62,7 +62,11 @@ MODELS = ["Tabu Search", "Simulated Annealing", "Proximal Policy Optimization"]
 
 MODES = [
     {"name": "EASY", "duration_fn": "1/size", "max_batch_size": 100},
-    {"name": "MID", "duration_fn": "1 / (1 + log_100(x))", "max_batch_size": 100},
+    {
+        "name": "MID",
+        "duration_fn": "1 / (1 + (log(size) / log(100)))",
+        "max_batch_size": 100,
+    },
     {"name": "HARD", "duration_fn": "1 * size", "max_batch_size": 100},
 ]
 
