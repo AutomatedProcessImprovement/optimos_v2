@@ -54,7 +54,8 @@ SCENARIOS = [
     "LoanOrigination-MC-LU",
     "LoanOrigination-SC-HU",
     "LoanOrigination-SC-LU",
-    "production",
+    # TODO: Get correct production model
+    # "production",
 ]
 
 MODELS = ["Tabu Search", "Simulated Annealing", "Proximal Policy Optimization"]
