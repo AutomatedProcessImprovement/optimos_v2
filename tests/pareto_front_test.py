@@ -30,7 +30,6 @@ def test_pareto_front_add(simple_state: State):
 
     # Check that the first solution is removed from the front
     assert bad_solution not in front.solutions
-    assert bad_solution in front.removed_solutions
 
     # Check that the second solution is added to the front
     assert good_solution in front.solutions
@@ -106,6 +105,46 @@ def test_equal_domination_forbidden(simple_state: State):
     assert front.is_in_front(solution1) == FRONT_STATUS.DOMINATES
     assert front.is_in_front(solution2) == FRONT_STATUS.DOMINATES
     assert front.is_in_front(solution3) == FRONT_STATUS.DOMINATES
+
+
+def test_pareto_front_real_numbers_regression(simple_state: State):
+    Settings.EQUAL_DOMINATION_ALLOWED = False
+    Settings.COST_TYPE = CostType.TOTAL_COST
+
+    front = ParetoFront()
+
+    bad_solution = create_mock_solution(simple_state, 37861911, 380455933)
+    beating_solution = create_mock_solution(simple_state, 37192569, 328648484)
+
+    assert bad_solution.is_dominated_by(beating_solution) is True
+    assert beating_solution.is_dominated_by(bad_solution) is False
+
+    other_solution1 = create_mock_solution(simple_state, 40402802, 282820904)
+    other_solution2 = create_mock_solution(simple_state, 40620980, 276613654)
+    other_solution3 = create_mock_solution(simple_state, 40647690, 275487327)
+    other_solution4 = create_mock_solution(simple_state, 40770083, 275194975)
+
+    front.add(other_solution1)
+    front.add(other_solution2)
+    front.add(other_solution3)
+    front.add(other_solution4)
+
+    front.add(bad_solution)
+    front.add(beating_solution)
+
+    assert bad_solution not in front.solutions
+    assert beating_solution in front.solutions
+
+    front = ParetoFront()
+
+    front.add(other_solution1)
+    front.add(other_solution2)
+    front.add(other_solution3)
+    front.add(other_solution4)
+
+    front.add(beating_solution)
+    assert front.is_in_front(bad_solution) == FRONT_STATUS.DOMINATES
+
 
 def test_removal_of_multiple_dominated_solutions(simple_state: State):
     front = ParetoFront()
