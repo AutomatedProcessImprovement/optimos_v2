@@ -34,7 +34,7 @@ def calculate_averaged_hausdorff_distance(
     total_distance = 0.0
     for solution in pareto_front:
         distances = [distance(solution.point, other.point) for other in global_set]
-        total_distance += min(distances)
+        total_distance += min(distances) if distances else 0.0
 
     # Average over the Pareto front size
     return total_distance / len(pareto_front) if pareto_front else 0.0

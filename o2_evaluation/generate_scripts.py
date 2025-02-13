@@ -2,7 +2,7 @@ import os
 from textwrap import dedent
 
 CORES = 25
-MEMORY_GB = 12
+MEMORY_GB = 32
 MAX_TIME_HOURS = 2
 MAX_ITERATIONS = 1500
 DUMP_INTERVAL = 250
