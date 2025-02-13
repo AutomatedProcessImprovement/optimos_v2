@@ -21,5 +21,5 @@ conda run -n opti2 --no-capture-output python ./o2_evaluation/data_collector.py 
     --max-threads 24 \
     --log-level DEBUG \
     --log-file ./logs/loanorigination-mc-lu_simulated_annealing_easy.log \
-    --log-to-tensor-board True \
-    --archive-tensorboard-logs False
+    --log-to-tensor-board \
+    --no-archive-tensorboard-logs
