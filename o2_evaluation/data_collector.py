@@ -79,6 +79,12 @@ def parse_args():
         help="Duration function (default: '1/size')",
     )
     parser.add_argument(
+        "--max-batch-size",
+        type=int,
+        default=100,
+        help="Maximum size of the batch (default: 100)",
+    )
+    parser.add_argument(
         "--number-of-cases",
         type=int,
         default=100,
@@ -102,6 +108,12 @@ def parse_args():
         type=bool,
         default=False,
         help="Log to TensorBoard (default: False)",
+    )
+    parser.add_argument(
+        "--archive-tensorboard-logs",
+        type=bool,
+        default=True,
+        help="Archive TensorBoard logs (default: True)",
     )
     parser.add_argument(
         "--log-file",
@@ -242,7 +254,9 @@ def collect_data_sequentially(base_store: Store, args) -> None:
     SolutionDumper()
 
     # Optionally archive previous TensorBoard logs
-    if base_store.settings.log_to_tensor_board or args.log_to_tensor_board:
+    if (
+        base_store.settings.log_to_tensor_board or args.log_to_tensor_board
+    ) and args.archive_tensorboard_logs:
         from o2.util.tensorboard_helper import TensorBoardHelper
 
         TensorBoardHelper.move_logs_to_archive_dir()
@@ -354,7 +368,11 @@ if __name__ == "__main__":
 
             # Pass the cost and duration functions from CLI arguments.
             store = store_with_baseline_constraints(
-                timetable_path, bpmn_path, args.duration_fn, args.cost_fn
+                timetable_path,
+                bpmn_path,
+                args.duration_fn,
+                args.cost_fn,
+                args.max_batch_size,
             )
         # Run the simulation/collection for the current scenario
         collect_data_sequentially(store, args)

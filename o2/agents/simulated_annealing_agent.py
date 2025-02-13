@@ -81,7 +81,7 @@ class SimulatedAnnealingAgent(Agent):
             )
 
             print_l1(
-                f"Chose {len(selected_actions)} actions with average rating {avg_rating} to evaluate."  # noqa: E501
+                f"Chose {len(selected_actions)} actions with average rating {avg_rating:.1f} to evaluate."  # noqa: E501
             )
 
             if store.settings.print_chosen_actions:
@@ -106,7 +106,7 @@ class SimulatedAnnealingAgent(Agent):
                 distance = solution.evaluation.distance_to(
                     self.store.current_evaluation
                 )
-                debug("Discarded solution distance:", distance)
+                debug(f"Discarded solution distance: {distance}")
                 if accept_worse_solution(distance, self.temperature):
                     debug("Randomly accepted discarded solution.")
                     return solution

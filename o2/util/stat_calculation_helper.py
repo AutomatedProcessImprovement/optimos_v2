@@ -90,7 +90,7 @@ def store_from_files(
 
 
 def base_line_constraints(
-    bpmn_path: str, duration_fn: str, cost_fn: str
+    bpmn_path: str, duration_fn: str, cost_fn: str, max_batch_size: int = 100
 ) -> ConstraintsType:
     bpmn_root = ET.parse(bpmn_path)
     # Get all the Elements of kind bpmn:task in bpmn:process
@@ -106,7 +106,7 @@ def base_line_constraints(
                 duration_fn=duration_fn,
                 cost_fn=cost_fn,
                 min_size=1,
-                max_size=100,
+                max_size=max_batch_size,
             )
             for task_id in task_ids
         ],
@@ -120,9 +120,10 @@ def store_with_baseline_constraints(
     bpmn_path: str,
     duration_fn: str,
     cost_fn: str,
+    max_batch_size: int = 100,
 ) -> Store:
     """Create a store from the given files and constraints."""
-    constraints = base_line_constraints(bpmn_path, duration_fn, cost_fn)
+    constraints = base_line_constraints(bpmn_path, duration_fn, cost_fn, max_batch_size)
     with open(timetable_path) as f:
         timetable = TimetableType.from_dict(json.load(f))
 

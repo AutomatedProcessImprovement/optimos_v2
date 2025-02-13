@@ -327,6 +327,9 @@ class TensorBoardHelper:
     @staticmethod
     def move_logs_to_archive_dir() -> None:
         """Move the logs to the archive directory."""
+        if not Settings.ARCHIVE_TENSORBOARD_LOGS:
+            debug("Skipping archiving TensorBoard logs, because it is disabled.")
+            return
         debug("Archiving TensorBoard logs")
         # Ensure archive dir exists
         os.makedirs(TENSORBOARD_LOG_DIR_ARCHIVE, exist_ok=True)

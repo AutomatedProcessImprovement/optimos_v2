@@ -186,6 +186,13 @@ class Settings:
     LOG_FILE: ClassVar[Optional[str]] = None
     """The log file to use for the application."""
 
+    ARCHIVE_TENSORBOARD_LOGS: ClassVar[bool] = True
+    """Should the tensorboard logs be archived?
+
+    This is useful to collect logs from multiple runs, but if the runs are
+    run parallel, it might interfere with the runs.
+    """
+
     @staticmethod
     def get_pareto_x_label() -> str:
         """Get the label for the x-axis (cost) of the pareto front."""
