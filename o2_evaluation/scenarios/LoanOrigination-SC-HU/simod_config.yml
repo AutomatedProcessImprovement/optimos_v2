@@ -12,7 +12,7 @@ version: 5
 ##########
 common:
   # Path to the event log in CSV format
-  train_log_path: ./BPI_Challenge_2017.csv
+  train_log_path: ./LoanOrigination-SC-HU.csv
   # Specify the name for each of the columns in the CSV file (XES standard by default)
   log_ids:
     # CaseID,Activity,EnableTimestamp,StartTimestamp,EndTimestamp,Resource

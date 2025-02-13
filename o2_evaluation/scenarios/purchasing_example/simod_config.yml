@@ -19,7 +19,7 @@ common:
     case: "CaseID"
     activity: "Activity"
     resource: "Resource"
-    enabled_time: "EnableTimestamp"  # If not present in the log, automatically computed
+    enabled_time: "EnableTimestamp" # If not present in the log, automatically computed
     start_time: "StartTimestamp"
     end_time: "EndTimestamp"
   # Whether to discover case attributes or not
@@ -72,7 +72,7 @@ resource_model:
   num_evaluations_per_iteration: 3
   # Whether to discover prioritization or batching behavior
   discover_prioritization_rules: false
-  discover_batching_rules: false
+  discover_batching_rules: true
   # Resource profiles configuration
   resource_profiles:
     # Resource profile discovery type
