@@ -105,15 +105,15 @@ def parse_args():
     )
     parser.add_argument(
         "--log-to-tensor-board",
-        type=bool,
+        action=argparse.BooleanOptionalAction,
         default=False,
         help="Log to TensorBoard (default: False)",
     )
     parser.add_argument(
         "--archive-tensorboard-logs",
-        type=bool,
+        action=argparse.BooleanOptionalAction,
         default=True,
-        help="Archive TensorBoard logs (default: True)",
+        help="Archive TensorBoard logs",
     )
     parser.add_argument(
         "--log-file",
@@ -249,6 +249,7 @@ def collect_data_sequentially(base_store: Store, args) -> None:
     Settings.COST_TYPE = CostType.WAITING_TIME_AND_PROCESSING_TIME
     Settings.DUMP_DISCARDED_SOLUTIONS = True
     Settings.NUMBER_OF_CASES = args.number_of_cases
+    Settings.ARCHIVE_TENSORBOARD_LOGS = args.archive_tensorboard_logs
 
     # Initialize the solution dumper
     SolutionDumper()
@@ -256,7 +257,7 @@ def collect_data_sequentially(base_store: Store, args) -> None:
     # Optionally archive previous TensorBoard logs
     if (
         base_store.settings.log_to_tensor_board or args.log_to_tensor_board
-    ) and args.archive_tensorboard_logs:
+    ) and Settings.ARCHIVE_TENSORBOARD_LOGS:
         from o2.util.tensorboard_helper import TensorBoardHelper
 
         TensorBoardHelper.move_logs_to_archive_dir()
@@ -348,21 +349,21 @@ if __name__ == "__main__":
                 bpmn_path = (
                     f"{scenario_folder}/purchasing_example/purchasing_example.bpmn"
                 )
-            elif scenario == "BPI_Challenge_2017":
-                timetable_path = (
-                    f"{scenario_folder}/bpi_challenge_2017/bpi_challenge_2017.json"
-                )
-                bpmn_path = (
-                    f"{scenario_folder}/bpi_challenge_2017/bpi_challenge_2017.bpmn"
-                )
-            elif scenario == "Production":
-                timetable_path = f"{scenario_folder}/production/production.json"
-                bpmn_path = f"{scenario_folder}/production/production.bpmn"
             elif scenario == "TwoTasks":
                 timetable_path = "examples/two_tasks_batching/two_tasks_batching.json"
                 bpmn_path = "examples/two_tasks_batching/two_tasks_batching.bpmn"
             else:
-                raise ValueError(f"Unknown scenario: {scenario}")
+                timetable_path = f"{scenario_folder}/{scenario}/{scenario}.json"
+                bpmn_path = f"{scenario_folder}/{scenario}/{scenario}.bpmn"
+                # Check if the files exist
+                if not os.path.exists(timetable_path):
+                    raise FileNotFoundError(
+                        f"Unknown scenario: {scenario}. Please check the scenario folder."
+                    )
+                if not os.path.exists(bpmn_path):
+                    raise FileNotFoundError(
+                        f"Unknown scenario: {scenario}. Please check the scenario folder."
+                    )
 
             info(f"Loaded Scenario {scenario}")
 

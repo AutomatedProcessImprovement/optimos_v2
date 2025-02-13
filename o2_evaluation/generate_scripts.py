@@ -41,8 +41,8 @@ def generate_script(
         --max-threads {CORES - 1} \\
         --log-level DEBUG \\
         --log-file ./logs/{scenario_name}_{model_name}_{mode_name_sanitized}.log \\
-        --log-to-tensor-board True \\
-        --archive-tensorboard-logs False
+        --log-to-tensor-board \\
+        --no-archive-tensorboard-logs
     """)
 
 
