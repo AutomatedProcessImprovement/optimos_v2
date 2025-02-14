@@ -82,7 +82,7 @@ class Solution:
         # This is due to the fact that many actions will not change the state, if
         # the action is not valid.
         if new_state == parent.state:
-            return Solution.empty(new_state, action)
+            return Solution.empty_from_parent(parent, action)
         evaluation = new_state.evaluate()
         return Solution(
             evaluation=evaluation,
@@ -99,4 +99,16 @@ class Solution:
             state=state,
             parent_state=None,
             actions=[last_action] if last_action else [],
+        )
+
+    @staticmethod
+    def empty_from_parent(
+        parent: "Solution", last_action: Optional["BaseAction"] = None
+    ) -> "Solution":
+        """Create an empty solution from a parent solution."""
+        return Solution(
+            evaluation=Evaluation.empty(),
+            state=parent.state,
+            parent_state=parent.parent_state,
+            actions=parent.actions + [last_action] if last_action else parent.actions,
         )
