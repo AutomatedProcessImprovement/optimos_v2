@@ -36,11 +36,11 @@ class TensorBoardHelper:
 
     instance: "TensorBoardHelper"
 
-    def __init__(self, agent: Agent) -> None:
+    def __init__(self, agent: Agent, name: str) -> None:
         """Initialize the TensorBoardHelper."""
         self.agent = agent
         self.store: Store = self.agent.store
-        self.name = f"{self.store.settings.agent.name}_{datetime.now().isoformat()}"
+        self.name = f"{name.replace(' ', '_').lower()}_{datetime.now().isoformat()}"
         self.writer = tf.summary.create_file_writer(
             f"{TENSORBOARD_LOG_DIR}/{self.name}",
             name=self.name,

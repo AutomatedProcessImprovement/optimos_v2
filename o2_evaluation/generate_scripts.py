@@ -1,3 +1,4 @@
+import datetime
 import os
 from textwrap import dedent
 
@@ -17,6 +18,7 @@ def generate_script(
     model_name = model.replace(" ", "_").lower()
     scenario_name = scenario.replace(" ", "_").lower()
     mode_name_sanitized = mode_name.replace(" ", "_").lower()
+    date_time_iso = datetime.datetime.now().isoformat()
     return dedent(f"""\
     #!/bin/bash
 
@@ -30,6 +32,7 @@ def generate_script(
     conda activate opti2
 
     conda run -n opti2 --no-capture-output python ./o2_evaluation/data_collector.py \\
+        --name "{scenario_name}_{mode_name_sanitized}" \\
         --active-scenarios "{scenario}" \\
         --models "{model}" \\
         --number-of-cases {NUMBER_OF_CASES} \\
@@ -40,7 +43,7 @@ def generate_script(
         --max-non-improving-actions {MAX_NON_IMPROVING_ACTIONS} \\
         --max-threads {CORES - 1} \\
         --log-level DEBUG \\
-        --log-file ./logs/{scenario_name}_{model_name}_{mode_name_sanitized}.log \\
+        --log-file ./logs/{model_name}_{scenario_name}_{mode_name_sanitized}_{date_time_iso}.log \\
         --log-to-tensor-board \\
         --no-archive-tensorboard-logs
     """)

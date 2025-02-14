@@ -24,6 +24,12 @@ def parse_args():
         description="CLI Tool for solving and analyzing simulation scenarios."
     )
     parser.add_argument(
+        "--name",
+        type=str,
+        default=None,
+        help="Name of the run (default: None). Used mainly for logs.",
+    )
+    parser.add_argument(
         "--max-iterations",
         type=int,
         default=1500,
@@ -226,6 +232,7 @@ def solve_store(store: Store, dump_interval: int) -> None:
     hill_climber = HillClimber(store)
     generator = hill_climber.get_iteration_generator(yield_on_non_acceptance=True)
     iteration = 1
+    print(f"Start processing of {store.name}")
     for _ in generator:
         if store.settings.log_to_tensor_board:
             from o2.util.tensorboard_helper import TensorBoardHelper
@@ -267,7 +274,9 @@ def collect_data_sequentially(base_store: Store, args) -> None:
     # Use TABU search
     if "Tabu Search" in args.models:
         tabu_store = Store.from_state_and_constraints(
-            base_store.base_state, base_store.constraints, "Tabu Search"
+            base_store.base_state,
+            base_store.constraints,
+            f"Tabu Search {base_store.name}",
         )
         update_store_settings(
             tabu_store,
@@ -283,7 +292,9 @@ def collect_data_sequentially(base_store: Store, args) -> None:
     # Use Simulated Annealing
     if "Simulated Annealing" in args.models:
         sa_store = Store.from_state_and_constraints(
-            base_store.base_state, base_store.constraints, "Simulated Annealing"
+            base_store.base_state,
+            base_store.constraints,
+            f"Simulated Annealing {base_store.name}",
         )
         update_store_settings(
             sa_store,
@@ -303,7 +314,7 @@ def collect_data_sequentially(base_store: Store, args) -> None:
         ppo_store = Store.from_state_and_constraints(
             base_store.base_state,
             base_store.constraints,
-            "Proximal Policy Optimization",
+            f"Proximal Policy Optimization {base_store.name}",
         )
         update_store_settings(
             ppo_store,
@@ -367,6 +378,11 @@ if __name__ == "__main__":
 
             info(f"Loaded Scenario {scenario}")
 
+            if args.name:
+                name = args.name
+            else:
+                name = scenario.replace("-", "_").replace(" ", "_").lower()
+
             # Pass the cost and duration functions from CLI arguments.
             store = store_with_baseline_constraints(
                 timetable_path,
@@ -374,6 +390,7 @@ if __name__ == "__main__":
                 args.duration_fn,
                 args.cost_fn,
                 args.max_batch_size,
+                name,
             )
         # Run the simulation/collection for the current scenario
         collect_data_sequentially(store, args)

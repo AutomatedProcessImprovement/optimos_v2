@@ -1,5 +1,6 @@
 import json
 import xml.etree.ElementTree as ET
+from typing import Optional
 
 import numpy as np
 
@@ -121,6 +122,7 @@ def store_with_baseline_constraints(
     duration_fn: str,
     cost_fn: str,
     max_batch_size: int = 100,
+    name: Optional[str] = None,
 ) -> Store:
     """Create a store from the given files and constraints."""
     constraints = base_line_constraints(bpmn_path, duration_fn, cost_fn, max_batch_size)
@@ -137,4 +139,5 @@ def store_with_baseline_constraints(
     return Store.from_state_and_constraints(
         initial_state,
         constraints,
+        name=name or "An Optimos Run",
     )

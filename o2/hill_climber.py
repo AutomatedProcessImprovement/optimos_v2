@@ -33,7 +33,7 @@ class HillClimber:
         if self.store.settings.log_to_tensor_board:
             from o2.util.tensorboard_helper import TensorBoardHelper
 
-            TensorBoardHelper(self.agent)
+            TensorBoardHelper(self.agent, self.store.name)
 
     def _init_agent(self):
         """Initialize the agent for the optimization task."""
