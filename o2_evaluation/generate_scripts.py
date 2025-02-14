@@ -3,8 +3,11 @@ import os
 from textwrap import dedent
 
 CORES = 25
+CORES_PPO = 1
 MEMORY_GB = 32
+MEMORY_GB_PPO = 8
 MAX_TIME_HOURS = 2
+MAX_TIME_HOURS_PPO = 8
 MAX_ITERATIONS = 1500
 DUMP_INTERVAL = 250
 MAX_NON_IMPROVING_ACTIONS = 1250
@@ -19,14 +22,21 @@ def generate_script(
     scenario_name = scenario.replace(" ", "_").lower()
     mode_name_sanitized = mode_name.replace(" ", "_").lower()
     date_time_iso = datetime.datetime.now().isoformat()
+    memory_gb = MEMORY_GB if model != "Proximal Policy Optimization" else MEMORY_GB_PPO
+    cores = CORES if model != "Proximal Policy Optimization" else CORES_PPO
+    max_time_hours = (
+        MAX_TIME_HOURS
+        if model != "Proximal Policy Optimization"
+        else MAX_TIME_HOURS_PPO
+    )
     return dedent(f"""\
     #!/bin/bash
 
     #SBATCH --job-name="Optimos V2 Run {scenario} {model} {mode_name}"
     #SBATCH --partition=main
-    #SBATCH --time=0{MAX_TIME_HOURS}:00:00
-    #SBATCH --mem={MEMORY_GB}G
-    #SBATCH --cpus-per-task={CORES}
+    #SBATCH --time={max_time_hours}:00:00
+    #SBATCH --mem={memory_gb}G
+    #SBATCH --cpus-per-task={cores}
 
     module load any/python/3.8.3-conda
     conda activate opti2
