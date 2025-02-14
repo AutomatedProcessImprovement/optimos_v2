@@ -26,8 +26,8 @@ class SolutionDumper:
         # Create folder name with timestamp
         date_str = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         self.folder = f"stores/run_{date_str}"
-        self.solutions_filename = f"{self.folder}/solutions.pkl"
         self.current_store_name = None
+        self.solutions_filename: str
         self.store_filename: str
         self.store_stats_filename: str
         # Create folder if it doesn't exist
@@ -35,11 +35,13 @@ class SolutionDumper:
         # Open files for writing store and solutions
         self.store_file: Optional[BufferedWriter] = None
         self.store_stats_file: Optional[TextIOWrapper] = None
-        self.solutions_file = open(self.solutions_filename, "ab")  # noqa: SIM115
+        self.solutions_file: Optional[BufferedWriter] = None
         SolutionDumper.instance = self
 
     def dump_solution(self, solution: Solution) -> None:
         """Dump a solution to the solutions file."""
+        if self.solutions_file is None:
+            self.solutions_file = open(self.solutions_filename, "ab")  # noqa: SIM115
         pickle.dump(solution, self.solutions_file)
         self.solutions_file.flush()
 
@@ -50,16 +52,21 @@ class SolutionDumper:
                 self.store_file.close()
             if self.store_stats_file is not None:
                 self.store_stats_file.close()
+            if self.solutions_file is not None:
+                self.solutions_file.close()
             sanitized_name = store.name.replace(" ", "_").lower()
             self.store_filename = f"{self.folder}/store_{sanitized_name}.pkl"
             self.store_stats_filename = (
                 f"{self.folder}/store_{sanitized_name}_stats.txt"
             )
+            self.solutions_filename = f"{self.folder}/solutions_{sanitized_name}.pkl"
             self.store_file = open(self.store_filename, "wb")  # noqa: SIM115
             self.store_stats_file = open(self.store_stats_filename, "w")  # noqa: SIM115
+            self.solutions_file = open(self.solutions_filename, "ab")  # noqa: SIM115
             self.current_store_name = store.name
         assert self.store_file is not None
         assert self.store_stats_file is not None
+        assert self.solutions_file is not None
 
         self.store_file.seek(0)
         pickle.dump(store, self.store_file)
@@ -93,7 +100,8 @@ class SolutionDumper:
             self.store_file.close()
         if self.store_stats_file is not None:
             self.store_stats_file.close()
-        self.solutions_file.close()
+        if self.solutions_file is not None:
+            self.solutions_file.close()
 
     def load_store(self) -> "Store":
         """Load the store from the store file."""
