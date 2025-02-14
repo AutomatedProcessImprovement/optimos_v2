@@ -143,9 +143,7 @@ class PPOInput:
 
         batching_waiting_times = np.array(
             [
-                evaluation.total_batching_waiting_time_per_task[task_id]
-                if task_id in evaluation.total_batching_waiting_time_per_task
-                else 0
+                evaluation.total_batching_waiting_time_per_task.get(task_id, 0)
                 for task_id in task_ids
             ]
         )
@@ -202,12 +200,7 @@ class PPOInput:
         )
 
         average_batch_size = np.array(
-            [
-                evaluation.average_batch_size_per_task[task_id]
-                if task_id in evaluation.average_batch_size_per_task
-                else 1
-                for task_id in task_ids
-            ]
+            [evaluation.avg_batch_size_per_task.get(task_id, 1) for task_id in task_ids]
         )
 
         return {
@@ -242,7 +235,7 @@ class PPOInput:
         waiting_times_dict = evaluation.total_batching_waiting_time_per_resource
         waiting_times = np.array(
             [
-                waiting_times_dict[resource.id]
+                waiting_times_dict[resource.id]  # noqa: SIM401
                 if resource.id in waiting_times_dict
                 # TODO: 0 might not be the best default value
                 else 0
@@ -331,7 +324,7 @@ class PPOInput:
 
         for task_id in store.current_timetable.get_task_ids():
             constraints = store.constraints.get_batching_size_rule_constraints(task_id)
-            duration_fn = "1" if not constraints else constraints[0].duration_fn
+            duration_fn = "size" if not constraints else constraints[0].duration_fn
             actions.append(
                 ModifySizeOfSignificantRuleAction(
                     ModifySizeOfSignificantRuleActionParamsType(
@@ -359,6 +352,7 @@ class PPOInput:
                             time_period=TimePeriod.from_start_end(
                                 day=day, start=12, end=13
                             ),
+                            duration_fn=duration_fn,
                         )
                     )
                 )

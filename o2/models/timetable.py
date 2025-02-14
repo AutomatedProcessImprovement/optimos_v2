@@ -964,7 +964,9 @@ class BatchingRule(JSONWizard):
         duration_fn: Optional[str] = None,
     ) -> "BatchingRule":
         """Create a BatchingRule from a task id."""
-        duration_lambda = lambdify(Symbol("size"), duration_fn)
+        duration_lambda = lambdify(
+            Symbol("size"), duration_fn if duration_fn else "size"
+        )
         size_distrib = ([Distribution(key=str(1), value=0.0)] if size != 1 else []) + (
             [Distribution(key=str(new_size), value=1.0) for new_size in range(2, 100)]
             if size is None
