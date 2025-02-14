@@ -58,7 +58,7 @@ class ModifyDailyHourRuleAction(BatchingRuleBaseAction, str=False):
             warn("No change in hours")
             return state
 
-        new_hour = firing_rule.value + hour_increment
+        new_hour = int(firing_rule.value) + hour_increment
         if (new_hour < 0) or (new_hour > 24):
             warn("Hour out of bounds")
             return state
