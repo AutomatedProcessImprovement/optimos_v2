@@ -14,10 +14,9 @@ from o2.models.constraints import RULE_TYPE
 from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.state import State, TabuState
 from o2.models.timetable import (
-    COMPARATOR,
     BatchingRule,
     Distribution,
-    FiringRule,
+    rule_is_size,
 )
 from o2.store import Store
 from o2.util.logger import warn
@@ -58,7 +57,10 @@ class ModifySizeRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
             warn(f"FiringRule not found for {rule_selector}")
             return state
 
-        new_size = firing_rule.value + self.params["size_increment"]
+        if not rule_is_size(firing_rule):
+            return state
+
+        new_size = int(firing_rule.value) + self.params["size_increment"]
         if new_size <= 0:
             return state
 
