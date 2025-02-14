@@ -142,6 +142,10 @@ class PPOAgent(Agent):
             self.model.train()
             self.model.rollout_buffer.reset()
 
+        # If the episode is done, select a new base solution
+        if dones[0]:
+            self.select_new_base_solution()
+
     def step_info_from_try(self, solution_try: SolutionTry) -> tuple[dict, float, bool]:
         """Get the step info from the given SolutionTry."""
         # TODO Improve scores based on how good/bad the solution is
