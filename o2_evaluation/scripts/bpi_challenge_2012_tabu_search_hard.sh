@@ -2,7 +2,7 @@
 
 #SBATCH --job-name="Optimos V2 Run BPI_Challenge_2012 Tabu Search HARD"
 #SBATCH --partition=main
-#SBATCH --time=02:00:00
+#SBATCH --time=03:00:00
 #SBATCH --mem=32G
 #SBATCH --cpus-per-task=25
 

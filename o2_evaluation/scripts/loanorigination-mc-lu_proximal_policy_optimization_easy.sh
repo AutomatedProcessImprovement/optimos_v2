@@ -2,7 +2,7 @@
 
 #SBATCH --job-name="Optimos V2 Run LoanOrigination-MC-LU Proximal Policy Optimization EASY"
 #SBATCH --partition=main
-#SBATCH --time=08:00:00
+#SBATCH --time=027:00:00
 #SBATCH --mem=8G
 #SBATCH --cpus-per-task=1
 
@@ -16,9 +16,9 @@ conda run -n opti2 --no-capture-output python ./o2_evaluation/data_collector.py 
     --number-of-cases 1000 \
     --duration-fn "1/size" \
     --max-batch-size 100 \
-    --max-iterations 9000 \
+    --max-iterations 15000 \
     --dump-interval 100 \
-    --max-non-improving-actions 500 \
+    --max-non-improving-actions 50 \
     --max-threads 24 \
     --log-level DEBUG \
     --log-file ./logs/proximal_policy_optimization_loanorigination-mc-lu_easy.log \
