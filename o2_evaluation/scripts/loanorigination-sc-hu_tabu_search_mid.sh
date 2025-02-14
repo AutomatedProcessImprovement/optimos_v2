@@ -10,6 +10,7 @@ module load any/python/3.8.3-conda
 conda activate opti2
 
 conda run -n opti2 --no-capture-output python ./o2_evaluation/data_collector.py \
+    --name "loanorigination-sc-hu_mid" \
     --active-scenarios "LoanOrigination-SC-HU" \
     --models "Tabu Search" \
     --number-of-cases 1000 \
@@ -20,6 +21,6 @@ conda run -n opti2 --no-capture-output python ./o2_evaluation/data_collector.py 
     --max-non-improving-actions 1250 \
     --max-threads 24 \
     --log-level DEBUG \
-    --log-file ./logs/loanorigination-sc-hu_tabu_search_mid.log \
+    --log-file ./logs/tabu_search_loanorigination-sc-hu_mid_2025-02-14T02:01:54.413383.log \
     --log-to-tensor-board \
     --no-archive-tensorboard-logs

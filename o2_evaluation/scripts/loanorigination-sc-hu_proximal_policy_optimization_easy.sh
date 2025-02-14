@@ -10,6 +10,7 @@ module load any/python/3.8.3-conda
 conda activate opti2
 
 conda run -n opti2 --no-capture-output python ./o2_evaluation/data_collector.py \
+    --name "loanorigination-sc-hu_easy" \
     --active-scenarios "LoanOrigination-SC-HU" \
     --models "Proximal Policy Optimization" \
     --number-of-cases 1000 \
@@ -20,6 +21,6 @@ conda run -n opti2 --no-capture-output python ./o2_evaluation/data_collector.py 
     --max-non-improving-actions 1250 \
     --max-threads 24 \
     --log-level DEBUG \
-    --log-file ./logs/loanorigination-sc-hu_proximal_policy_optimization_easy.log \
+    --log-file ./logs/proximal_policy_optimization_loanorigination-sc-hu_easy_2025-02-14T02:01:54.413931.log \
     --log-to-tensor-board \
     --no-archive-tensorboard-logs
