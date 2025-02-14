@@ -13,6 +13,7 @@ from dataclass_wizard import JSONSerializable
 from typing_extensions import TypedDict
 
 from o2.util.helper import hash_string
+from o2.util.logger import warn
 
 if TYPE_CHECKING:
     from o2.models.self_rating import RATING, SelfRatingInput
@@ -55,8 +56,12 @@ class BaseAction(JSONSerializable, ABC, str=False):
         self, store: "Store", mark_no_change_as_invalid: bool = False
     ) -> bool:
         """Check if the action produces a valid state."""
-        new_state = self.apply(store.current_state, enable_prints=False)
-        if mark_no_change_as_invalid and new_state == store.current_state:
+        try:
+            new_state = self.apply(store.current_state, enable_prints=False)
+            if mark_no_change_as_invalid and new_state == store.current_state:
+                return False
+        except Exception as e:
+            warn(f"Error applying action {self}: {e}")
             return False
         return (
             new_state.is_valid()

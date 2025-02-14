@@ -59,11 +59,14 @@ class ShiftDateTimeRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
         # Modify Start / End
         _, lower_bound_selector, upper_bound_selector = best_selector
         batching_rule = lower_bound_selector.get_batching_rule_from_state(state)
-        assert batching_rule is not None
+        if batching_rule is None:
+            return state
         lower_bound_rule = lower_bound_selector.get_firing_rule_from_state(state)
         upper_bound_rule = upper_bound_selector.get_firing_rule_from_state(state)
-        assert rule_is_daily_hour(lower_bound_rule)
-        assert rule_is_daily_hour(upper_bound_rule)
+        if not rule_is_daily_hour(lower_bound_rule):
+            return state
+        if not rule_is_daily_hour(upper_bound_rule):
+            return state
         new_lower_bound = lower_bound_rule.value - add_to_start
         new_upper_bound = upper_bound_rule.value + add_to_end
         # TODO: Think about what happens < 0 or > 24
