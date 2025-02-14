@@ -21,6 +21,6 @@ conda run -n opti2 --no-capture-output python ./o2_evaluation/data_collector.py 
     --max-non-improving-actions 1250 \
     --max-threads 24 \
     --log-level DEBUG \
-    --log-file ./logs/tabu_search_bpi_challenge_2012_hard_2025-02-14T02:01:54.407953.log \
+    --log-file ./logs/tabu_search_bpi_challenge_2012_hard.log \
     --log-to-tensor-board \
     --no-archive-tensorboard-logs

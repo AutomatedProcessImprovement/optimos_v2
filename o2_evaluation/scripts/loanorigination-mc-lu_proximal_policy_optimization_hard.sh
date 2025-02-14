@@ -2,9 +2,9 @@
 
 #SBATCH --job-name="Optimos V2 Run LoanOrigination-MC-LU Proximal Policy Optimization HARD"
 #SBATCH --partition=main
-#SBATCH --time=02:00:00
-#SBATCH --mem=32G
-#SBATCH --cpus-per-task=25
+#SBATCH --time=08:00:00
+#SBATCH --mem=8G
+#SBATCH --cpus-per-task=1
 
 module load any/python/3.8.3-conda
 conda activate opti2
@@ -21,6 +21,6 @@ conda run -n opti2 --no-capture-output python ./o2_evaluation/data_collector.py 
     --max-non-improving-actions 1250 \
     --max-threads 24 \
     --log-level DEBUG \
-    --log-file ./logs/proximal_policy_optimization_loanorigination-mc-lu_hard_2025-02-14T02:01:54.413162.log \
+    --log-file ./logs/proximal_policy_optimization_loanorigination-mc-lu_hard.log \
     --log-to-tensor-board \
     --no-archive-tensorboard-logs

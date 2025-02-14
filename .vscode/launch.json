@@ -48,6 +48,43 @@
       "purpose": ["debug-test"],
       "console": "integratedTerminal",
       "justMyCode": false
+    },
+    {
+      "name": "Python: Data Collector (Proximal Policy Optimization, BPI Challenge 2012, MID)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/o2_evaluation/data_collector.py",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": false,
+      "args": [
+        "--name",
+        "bpi_challenge_2012_mid",
+        "--active-scenarios",
+        "BPI_Challenge_2012",
+        "--models",
+        "Proximal Policy Optimization",
+        "--number-of-cases",
+        "1000",
+        "--duration-fn",
+        "1 / (1 + (log(size) / log(100)))",
+        "--max-batch-size",
+        "100",
+        "--max-iterations",
+        "1500",
+        "--dump-interval",
+        "250",
+        "--max-non-improving-actions",
+        "1250",
+        "--max-threads",
+        "24",
+        "--log-level",
+        "DEBUG",
+        "--log-file",
+        "./logs/proximal_policy_optimization_bpi_challenge_2012_mid_2025-02-14T02:01:54.408628.log",
+        "--log-to-tensor-board",
+        "--no-archive-tensorboard-logs"
+      ]
     }
   ]
 }

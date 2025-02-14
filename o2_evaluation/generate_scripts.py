@@ -1,4 +1,3 @@
-import datetime
 import os
 from textwrap import dedent
 
@@ -21,7 +20,6 @@ def generate_script(
     model_name = model.replace(" ", "_").lower()
     scenario_name = scenario.replace(" ", "_").lower()
     mode_name_sanitized = mode_name.replace(" ", "_").lower()
-    date_time_iso = datetime.datetime.now().isoformat()
     memory_gb = MEMORY_GB if model != "Proximal Policy Optimization" else MEMORY_GB_PPO
     cores = CORES if model != "Proximal Policy Optimization" else CORES_PPO
     max_time_hours = (
@@ -34,7 +32,7 @@ def generate_script(
 
     #SBATCH --job-name="Optimos V2 Run {scenario} {model} {mode_name}"
     #SBATCH --partition=main
-    #SBATCH --time={max_time_hours}:00:00
+    #SBATCH --time=0{max_time_hours}:00:00
     #SBATCH --mem={memory_gb}G
     #SBATCH --cpus-per-task={cores}
 
@@ -53,7 +51,7 @@ def generate_script(
         --max-non-improving-actions {MAX_NON_IMPROVING_ACTIONS} \\
         --max-threads {CORES - 1} \\
         --log-level DEBUG \\
-        --log-file ./logs/{model_name}_{scenario_name}_{mode_name_sanitized}_{date_time_iso}.log \\
+        --log-file ./logs/{model_name}_{scenario_name}_{mode_name_sanitized}.log \\
         --log-to-tensor-board \\
         --no-archive-tensorboard-logs
     """)

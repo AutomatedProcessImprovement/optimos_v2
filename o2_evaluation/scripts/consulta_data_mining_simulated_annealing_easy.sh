@@ -21,6 +21,6 @@ conda run -n opti2 --no-capture-output python ./o2_evaluation/data_collector.py 
     --max-non-improving-actions 1250 \
     --max-threads 24 \
     --log-level DEBUG \
-    --log-file ./logs/simulated_annealing_consulta_data_mining_easy_2025-02-14T02:01:54.410227.log \
+    --log-file ./logs/simulated_annealing_consulta_data_mining_easy.log \
     --log-to-tensor-board \
     --no-archive-tensorboard-logs
