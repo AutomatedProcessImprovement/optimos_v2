@@ -766,6 +766,10 @@ class BatchingRule(JSONWizard):
         assert rule_selector.firing_rule_index is not None
         or_index = rule_selector.firing_rule_index[0]
         and_index = rule_selector.firing_rule_index[1]
+        if or_index >= len(self.firing_rules) or and_index >= len(
+            self.firing_rules[or_index]
+        ):
+            return self
         and_rules = (
             self.firing_rules[or_index][:and_index]
             + [new_rule]
