@@ -8,8 +8,11 @@ MEMORY_GB_PPO = 8
 MAX_TIME_HOURS = 2
 MAX_TIME_HOURS_PPO = 8
 MAX_ITERATIONS = 1500
+MAX_ITERATIONS_PPO = 9000
 DUMP_INTERVAL = 250
+DUMP_INTERVAL_PPO = 100
 MAX_NON_IMPROVING_ACTIONS = 1250
+MAX_NON_IMPROVING_ACTIONS_PPO = 500
 NUMBER_OF_CASES = 1000
 
 
@@ -27,6 +30,20 @@ def generate_script(
         if model != "Proximal Policy Optimization"
         else MAX_TIME_HOURS_PPO
     )
+    max_iterations = (
+        MAX_ITERATIONS
+        if model != "Proximal Policy Optimization"
+        else MAX_ITERATIONS_PPO
+    )
+    dump_interval = (
+        DUMP_INTERVAL if model != "Proximal Policy Optimization" else DUMP_INTERVAL_PPO
+    )
+    max_non_improving_actions = (
+        MAX_NON_IMPROVING_ACTIONS
+        if model != "Proximal Policy Optimization"
+        else MAX_NON_IMPROVING_ACTIONS_PPO
+    )
+
     return dedent(f"""\
     #!/bin/bash
 
@@ -46,9 +63,9 @@ def generate_script(
         --number-of-cases {NUMBER_OF_CASES} \\
         --duration-fn "{duration_fn}" \\
         --max-batch-size {max_batch_size} \\
-        --max-iterations {MAX_ITERATIONS} \\
-        --dump-interval {DUMP_INTERVAL} \\
-        --max-non-improving-actions {MAX_NON_IMPROVING_ACTIONS} \\
+        --max-iterations {max_iterations} \\
+        --dump-interval {dump_interval} \\
+        --max-non-improving-actions {max_non_improving_actions} \\
         --max-threads {CORES - 1} \\
         --log-level DEBUG \\
         --log-file ./logs/{model_name}_{scenario_name}_{mode_name_sanitized}.log \\

@@ -16,9 +16,9 @@ conda run -n opti2 --no-capture-output python ./o2_evaluation/data_collector.py 
     --number-of-cases 1000 \
     --duration-fn "1/size" \
     --max-batch-size 100 \
-    --max-iterations 1500 \
-    --dump-interval 250 \
-    --max-non-improving-actions 1250 \
+    --max-iterations 9000 \
+    --dump-interval 100 \
+    --max-non-improving-actions 500 \
     --max-threads 24 \
     --log-level DEBUG \
     --log-file ./logs/proximal_policy_optimization_loanorigination-sc-hu_easy.log \
