@@ -149,7 +149,12 @@ class PPOInput:
         )
 
         batching_waiting_times_percentage = np.array(
-            [batching_waiting_times[i] / waiting_times[i] for i in range(len(task_ids))]
+            [
+                (batching_waiting_times[i] / waiting_times[i])
+                if waiting_times[i] != 0
+                else 0
+                for i in range(len(task_ids))
+            ]
         )
 
         idle_times = np.array(
