@@ -40,8 +40,7 @@ class SolutionDumper:
 
     def dump_solution(self, solution: Solution) -> None:
         """Dump a solution to the solutions file."""
-        if self.solutions_file is None:
-            self.solutions_file = open(self.solutions_filename, "ab")  # noqa: SIM115
+        assert self.solutions_file is not None
         pickle.dump(solution, self.solutions_file)
         self.solutions_file.flush()
 

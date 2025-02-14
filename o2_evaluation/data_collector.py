@@ -136,7 +136,9 @@ def parse_args():
     return parser.parse_args()
 
 
-def calculate_metrics(stores: list[tuple[str, Store]]) -> None:
+def calculate_metrics(
+    stores: list[tuple[str, Store]], extra_solutions: list[Solution] = []
+) -> None:
     """Calculate the metrics for the given stores."""
     all_solutions: list[Solution] = []
     for _, store in stores:
@@ -147,8 +149,7 @@ def calculate_metrics(stores: list[tuple[str, Store]]) -> None:
         ]
         all_solutions.extend(solutions)
 
-    all_solutions.extend(SolutionDumper.instance.load_solutions())
-
+    all_solutions.extend(extra_solutions)
     # Find the Pareto front (non-dominated solutions)
     all_solutions_front = [
         solution
@@ -229,6 +230,8 @@ def persist_store(store: Store) -> None:
 
 def solve_store(store: Store, dump_interval: int) -> None:
     """Solve the store with the given agent."""
+    # Persist the initial state of the store
+    persist_store(store)
     hill_climber = HillClimber(store)
     generator = hill_climber.get_iteration_generator(yield_on_non_acceptance=True)
     iteration = 1
@@ -330,7 +333,7 @@ def collect_data_sequentially(base_store: Store, args) -> None:
         stores_to_run.append(("Proximal Policy Optimization", ppo_store))
 
     # Calculate and print metrics
-    calculate_metrics(stores_to_run)
+    calculate_metrics(stores_to_run, SolutionDumper.instance.load_solutions())
 
     SolutionDumper.instance.close()
 
