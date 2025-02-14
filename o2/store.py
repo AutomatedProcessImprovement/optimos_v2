@@ -145,7 +145,7 @@ class Store:
                 not_chosen_tries.append((status, solution))
 
             if not new_baseline_chosen and (
-                status == FRONT_STATUS.IN_FRONT or status == FRONT_STATUS.DOMINATES
+                status == FRONT_STATUS.IN_FRONT or status == FRONT_STATUS.IS_DOMINATED
             ):
                 if choose_new_base_evaluation_callback is not None:
                     self.solution = choose_new_base_evaluation_callback(

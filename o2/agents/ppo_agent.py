@@ -144,7 +144,19 @@ class PPOAgent(Agent):
 
         # If the episode is done, select a new base solution
         if dones[0]:
-            self.select_new_base_solution()
+            tmp_agent = TabuAgent(self.store)
+            while True:
+                self.store.solution = tmp_agent._select_new_base_evaluation(
+                    reinsert_current_solution=False
+                )
+                actions = PPOInput.get_actions_from_store(self.store)
+                action_count = len([a for a in actions if a is not None])
+                if action_count > 0:
+                    break
+                else:
+                    print_l1(
+                        "Still no actions available for next step, selecting new base solution again."
+                    )
 
     def step_info_from_try(self, solution_try: SolutionTry) -> tuple[dict, float, bool]:
         """Get the step info from the given SolutionTry."""
