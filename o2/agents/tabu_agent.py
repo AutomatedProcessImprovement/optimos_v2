@@ -76,7 +76,7 @@ class TabuAgent(Agent):
             )
 
             print_l1(
-                f"Chose {len(selected_actions)} actions with average rating {avg_rating} to evaluate."  # noqa: E501
+                f"Chose {len(selected_actions)} actions with average rating {avg_rating:.1f} to evaluate."  # noqa: E501
             )
 
             if store.settings.print_chosen_actions:

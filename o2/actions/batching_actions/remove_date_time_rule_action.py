@@ -32,7 +32,7 @@ class RemoveDateTimeRuleAction(BaseAction):
 
         if best_selector is None:
             # TODO: Here we should add a new rule
-            return TabuState()
+            return state
 
         day_selector, lower_bound_selector, upper_bound_selector = best_selector
 
@@ -56,6 +56,9 @@ class RemoveDateTimeRuleAction(BaseAction):
         )
         assert upper_bound_selector.firing_rule_index is not None
         or_rules_index = upper_bound_selector.firing_rule_index[0]
+
+        if or_rules_index >= len(batching_rule.firing_rules):
+            return state
 
         new_and_rule = [
             and_rule

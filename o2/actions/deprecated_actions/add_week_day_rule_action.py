@@ -59,9 +59,13 @@ class AddWeekDayRuleAction(BatchingRuleBaseAction, str=False):
 
         assert rule_selector.firing_rule_index is not None
         or_index = rule_selector.firing_rule_index[0]
+        if or_index >= len(rule.firing_rules):
+            return state
         and_rules = rule.firing_rules[or_index]
 
         and_index = rule_selector.firing_rule_index[1]
+        if and_index >= len(and_rules):
+            return state
 
         new_or_rules = (
             rule.firing_rules[: or_index + 1]

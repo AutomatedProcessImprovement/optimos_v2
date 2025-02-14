@@ -54,7 +54,7 @@ class ShiftDateTimeRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
 
         if best_selector is None:
             # TODO: Here we should add a new rule
-            return TabuState()
+            return state
 
         # Modify Start / End
         _, lower_bound_selector, upper_bound_selector = best_selector
