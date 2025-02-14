@@ -50,6 +50,12 @@ class RuleSelector(JSONWizard):
         batching_rule = self.get_batching_rule_from_state(state)
         if batching_rule is None:
             return None
+        if self.firing_rule_index[0] >= len(batching_rule.firing_rules):
+            return None
+        if self.firing_rule_index[1] >= len(
+            batching_rule.firing_rules[self.firing_rule_index[0]]
+        ):
+            return None
         return batching_rule.firing_rules[self.firing_rule_index[0]][
             self.firing_rule_index[1]
         ]
