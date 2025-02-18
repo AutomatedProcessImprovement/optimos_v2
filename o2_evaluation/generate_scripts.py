@@ -79,13 +79,11 @@ def generate_script(
 SCENARIOS = [
     "BPI_Challenge_2012",
     "BPI_Challenge_2017",
+    "callcentre",
     "consulta_data_mining",
-    "LoanOrigination-MC-HU",
-    "LoanOrigination-MC-LU",
-    "LoanOrigination-SC-HU",
-    "LoanOrigination-SC-LU",
-    # TODO: Get correct production model
-    # "production",
+    "insurance",
+    "production",
+    "purchasing_example",
 ]
 
 MODELS = ["Tabu Search", "Simulated Annealing", "Proximal Policy Optimization"]
