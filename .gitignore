@@ -237,7 +237,7 @@ tmp/
 stores/
 **/scenarios/*/outputs/
 
-
 *_event_log.csv
 *_stats.csv
 simulation_warnings.txt
+analyze_stores/
