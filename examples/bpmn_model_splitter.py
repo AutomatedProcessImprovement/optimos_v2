@@ -1,6 +1,11 @@
+import json
 import os
 
 from prosimos.simulation_properties_parser import parse_qbp_simulation_process
+
+from o2.models.state import State
+from o2.models.timetable import TimetableType
+from o2.simulation_runner import SimulationRunner
 
 
 def main() -> None:
@@ -25,6 +30,17 @@ def main() -> None:
             # Process the BPMN file
             parse_qbp_simulation_process(bpmn_path, out_path)
             print(f"Processed {filename} -> {out_filename}")
+
+            # Run test simulation
+            with open(bpmn_path) as f:
+                bpmn_str = f.read()
+
+            # Load generated json timetable
+            with open(out_path) as f:
+                timetable = TimetableType.from_dict(json.load(f))
+
+            state = State(bpmn_str, timetable)
+            SimulationRunner.run_simulation(state)
 
 
 if __name__ == "__main__":
