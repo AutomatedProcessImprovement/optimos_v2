@@ -82,4 +82,9 @@ class BaseAction(JSONSerializable, ABC, str=False):
     @functools.cached_property
     def id(self) -> str:
         """Return a hash of the action."""
-        return hash_string(dumps(self.to_json()))
+        # Iterate over all params, sort them by name and concat them.
+        return hash_string(
+            "|".join(
+                f"{k}={v}" for k, v in sorted(self.params.items(), key=lambda x: x[0])
+            )
+        )

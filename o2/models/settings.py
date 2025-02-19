@@ -1,7 +1,7 @@
 import os
 from dataclasses import dataclass
 from enum import Enum
-from typing import ClassVar, Optional
+from typing import ClassVar, Literal, Optional, Union
 
 from o2.models.legacy_approach import LegacyApproach
 
@@ -59,7 +59,7 @@ class Settings:
     batching_only = False
     """Should only batching rules be optimized?"""
 
-    only_allow_low_last = True
+    only_allow_low_last = False
     """Should `low` rated Actions be tried last?
 
     E.g. ONLY if no other/higher Action is available.
@@ -114,7 +114,7 @@ class Settings:
     sa_cooling_factor = 0.999
     """The cooling factor for the simulated annealing agent."""
 
-    sa_initial_temperature = 10_000_000_000
+    sa_initial_temperature: Union[float, Literal["auto"]] = "auto"
     """The initial temperature for the simulated annealing agent."""
 
     ppo_model_path = "models/ppo_maskable-20241025-075307"
@@ -135,7 +135,7 @@ class Settings:
     Useful for debugging, but should be disabled for production.
     """
 
-    MAX_YIELDS_PER_ACTION: ClassVar[Optional[int]] = 10
+    MAX_YIELDS_PER_ACTION: ClassVar[Optional[int]] = None
     """The maximum number of yields per action.
 
     This can be used esp. in many-task/many-resource scenarios, where

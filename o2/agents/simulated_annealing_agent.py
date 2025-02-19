@@ -25,6 +25,12 @@ class SimulatedAnnealingAgent(Agent):
     def __init__(self, store: Store) -> None:
         super().__init__(store)
         self.temperature = store.settings.sa_initial_temperature
+        if self.temperature == "auto":
+            # Guestimate a good starting temperature, by basically allowing all
+            # points in a circle around the base evaluation.
+            self.temperature = math.sqrt(
+                store.base_evaluation.pareto_x**2 + store.base_evaluation.pareto_y**2
+            )
 
     def select_actions(self, store: Store) -> Optional[list[BaseAction]]:
         """Select the best actions to take next.
@@ -96,6 +102,7 @@ class SimulatedAnnealingAgent(Agent):
         """Select a new base solution."""
         print_l2("Selecting new base evaluation...")
         print_l2(f"Old temperature: {self.temperature:_}")
+        assert isinstance(self.temperature, float)
         self.temperature *= self.store.settings.sa_cooling_factor
         print_l2(f"New temperature: {self.temperature:_}")
         if proposed_solution_try is not None:
@@ -115,6 +122,7 @@ class SimulatedAnnealingAgent(Agent):
 
     def _select_new_base_evaluation(self) -> Solution:
         """Select a new base evaluation."""
+        assert isinstance(self.temperature, float)
         solution = self.store.solution_tree.get_random_solution_near_to_pareto_front(
             self.store.current_pareto_front,
             max_distance=self.temperature,
