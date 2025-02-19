@@ -135,6 +135,14 @@ class Settings:
     Useful for debugging, but should be disabled for production.
     """
 
+    MAX_YIELDS_PER_ACTION: ClassVar[Optional[int]] = 10
+    """The maximum number of yields per action.
+
+    This can be used esp. in many-task/many-resource scenarios, where
+    the number of possible actions is very high. In this case the optimizer will only consider
+    the best X actions.
+    """
+
     ADD_SIZE_RULE_TO_NEW_RULES: ClassVar[bool] = True
     """Should a size rule be added to new rules?
 

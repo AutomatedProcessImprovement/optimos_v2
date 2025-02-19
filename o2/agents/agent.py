@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Optional, Type
+from collections import defaultdict
+from typing import Optional
 
 from o2.actions.base_actions.base_action import BaseAction, RateSelfReturnType
 from o2.actions.batching_actions.add_date_time_rule_by_availability import (
@@ -185,6 +186,7 @@ class Agent(ABC):
         actions = []
         low_actions = []
         generators_queue = action_generators.copy()
+        counter: dict[RateSelfReturnType[BaseAction], int] = defaultdict(int)
 
         while len(generators_queue) > 0:
             action_generator = generators_queue.pop(0)
@@ -200,10 +202,20 @@ class Agent(ABC):
                     continue
                 if store.settings.only_allow_low_last and rating <= RATING.LOW:
                     low_actions.append((rating, action))
+                    counter[action_generator] += 1
                 else:
                     actions.append((rating, action))
+                    counter[action_generator] += 1
                 if len(actions) >= store.settings.max_number_of_actions_to_select:
                     return actions
+                # If the action generator has yielded more than the max,
+                # do not re-add it, thereby forbidding it to yield more
+                if (
+                    store.settings.MAX_YIELDS_PER_ACTION is not None
+                    and counter[action_generator]
+                    >= store.settings.MAX_YIELDS_PER_ACTION
+                ):
+                    break
 
                 generators_queue.append(action_generator)
                 break
