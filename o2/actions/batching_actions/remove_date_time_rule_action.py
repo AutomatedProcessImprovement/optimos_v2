@@ -31,7 +31,6 @@ class RemoveDateTimeRuleAction(BaseAction):
         )
 
         if best_selector is None:
-            # TODO: Here we should add a new rule
             return state
 
         day_selector, lower_bound_selector, upper_bound_selector = best_selector

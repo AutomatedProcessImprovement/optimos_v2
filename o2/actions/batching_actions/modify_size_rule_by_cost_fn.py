@@ -12,6 +12,8 @@ from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.timetable import RULE_TYPE
 from o2.store import Store
 
+LIMIT_OF_OPTIONS = 5
+
 
 class ModifySizeRuleByCostFnParamsType(ModifySizeRuleBaseActionParamsType):
     """Parameter for ModifySizeRuleByCostFn."""
@@ -33,7 +35,7 @@ def rate_self_helper_by_metric_dict(
         task_id_metric_dict.keys(),
         key=lambda task_id: task_id_metric_dict[task_id],
         reverse=True,
-    )
+    )[:LIMIT_OF_OPTIONS]
     for task_id in sorted_metric_task_ids:
         firing_rule_selectors = timetable.get_firing_rule_selectors_for_task(
             task_id, rule_type=RULE_TYPE.SIZE
@@ -178,7 +180,7 @@ class ModifyBatchSizeIfNoCostImprovement(ModifySizeRuleBaseAction):
             task_costs.keys(),
             key=lambda firing_rule_selector: task_costs[firing_rule_selector],
             reverse=True,
-        )
+        )[:LIMIT_OF_OPTIONS]
 
         for rule_selector in sorted_task_costs:
             size_constraint = constraints.get_batching_size_rule_constraints(
@@ -249,7 +251,7 @@ class ModifySizeRuleByCostFnLowCycleTimeImpact(ModifySizeRuleBaseAction):
             cycle_time_impacts.keys(),
             key=lambda firing_rule_selector: cycle_time_impacts[firing_rule_selector],
             reverse=True,
-        )
+        )[:LIMIT_OF_OPTIONS]
 
         for rule_selector in sorted_cycle_time_impacts:
             size_constraint = constraints.get_batching_size_rule_constraints(

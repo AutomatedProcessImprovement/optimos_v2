@@ -9,6 +9,8 @@ from o2.models.self_rating import SelfRatingInput
 from o2.models.timetable import RULE_TYPE
 from o2.store import Store
 
+LIMIT_OF_OPTIONS = 5
+
 
 class ModifySizeRuleByWTActionParamsType(ModifySizeRuleBaseActionParamsType):
     """Parameter for ModifySizeRuleByWTAction."""
@@ -39,7 +41,7 @@ class ModifySizeRuleByWTAction(ModifySizeRuleBaseAction):
             avg_batching_waiting_time_per_task.items(),
             key=lambda x: x[1],
             reverse=True,
-        )
+        )[:LIMIT_OF_OPTIONS]
         for task_id, waiting_time in sorted_tasks:
             if (waiting_time) <= 0:
                 continue

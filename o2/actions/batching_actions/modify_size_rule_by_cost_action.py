@@ -13,6 +13,8 @@ from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.timetable import RULE_TYPE
 from o2.store import Store
 
+LIMIT_OF_OPTIONS = 5
+
 
 class ModifySizeRuleByCostActionParamsType(ModifySizeRuleBaseActionParamsType):
     """Parameter for ModifySizeRuleByCostAction."""
@@ -41,7 +43,8 @@ class ModifySizeRuleByCostAction(ModifySizeRuleBaseAction):
             store.current_evaluation.get_avg_cost_per_task().items(),
             key=lambda x: x[1],
             reverse=True,
-        )
+        )[:LIMIT_OF_OPTIONS]
+
         for task_id, _ in sorted_tasks:
             batching_rules = timetable.get_batching_rules_for_task(task_id)
             for batching_rule in batching_rules:

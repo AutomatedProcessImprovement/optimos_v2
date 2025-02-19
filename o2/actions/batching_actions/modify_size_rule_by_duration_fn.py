@@ -10,6 +10,8 @@ from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.timetable import RULE_TYPE
 from o2.store import Store
 
+LIMIT_OF_OPTIONS = 5
+
 
 class ModifySizeRuleByDurationFnParamsType(ModifySizeRuleBaseActionParamsType):
     """Parameter for ModifySizeRuleByCostFn."""
@@ -63,7 +65,7 @@ class ModifyBatchSizeIfNoDurationImprovement(ModifySizeRuleBaseAction):
             task_costs.keys(),
             key=lambda firing_rule_selector: task_costs[firing_rule_selector],
             reverse=True,
-        )
+        )[:LIMIT_OF_OPTIONS]
 
         for rule_selector in sorted_task_costs:
             size_constraint = constraints.get_batching_size_rule_constraints(
@@ -132,7 +134,7 @@ class ModifySizeRuleByDurationFnCostImpact(ModifySizeRuleBaseAction):
             duration_impacts.keys(),
             key=lambda firing_rule_selector: duration_impacts[firing_rule_selector],
             reverse=True,
-        )
+        )[:LIMIT_OF_OPTIONS]
 
         for rule_selector in sorted_duration_impacts:
             size_constraint = constraints.get_batching_size_rule_constraints(

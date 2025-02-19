@@ -9,6 +9,8 @@ from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.timetable import RULE_TYPE
 from o2.store import Store
 
+LIMIT_OF_OPTIONS = 3
+
 
 class ModifySizeRuleByUtilizationActionParamsType(ModifySizeRuleBaseActionParamsType):
     """Parameter for ModifySizeRuleByUtilizationAction."""
@@ -38,7 +40,7 @@ class ModifySizeRuleByLowUtilizationAction(ModifySizeRuleBaseAction):
         resource_utilizations = evaluation.resource_utilizations
         resources_by_utilization = sorted(
             resource_utilizations.items(), key=lambda x: x[1]
-        )
+        )[:LIMIT_OF_OPTIONS]
 
         for resource_id, utilization in resources_by_utilization:
             if utilization > 0.5:
@@ -94,7 +96,7 @@ class ModifySizeRuleByHighUtilizationAction(ModifySizeRuleBaseAction):
         resource_utilizations = evaluation.resource_utilizations
         resources_by_utilization = sorted(
             resource_utilizations.items(), key=lambda x: x[1], reverse=True
-        )
+        )[:LIMIT_OF_OPTIONS]
 
         for resource_id, utilization in resources_by_utilization:
             if utilization < 0.8:
