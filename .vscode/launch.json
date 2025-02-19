@@ -50,6 +50,15 @@
       "justMyCode": false
     },
     {
+      "name": "Python: Run bpmn_model_splitter.py",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/examples/bpmn_model_splitter.py",
+      "cwd": "${workspaceFolder}/examples",
+      "console": "integratedTerminal",
+      "justMyCode": false
+    },
+    {
       "name": "Python: Data Collector (Proximal Policy Optimization, BPI Challenge 2012, MID)",
       "type": "debugpy",
       "request": "launch",
