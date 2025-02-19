@@ -256,29 +256,45 @@ class TensorBoardHelper:
             )
             # If using Simulated Annealing, draw a circle around the average point with radius equal to self.agent.temperature
             if isinstance(self.agent, SimulatedAnnealingAgent):
-                # Save current axis limits to prevent zooming out when adding the circle.
+                # Save current axis limits to prevent zooming out when adding the rectangle
                 current_xlim = ax.get_xlim()
                 current_ylim = ax.get_ylim()
-                circle = plt.Circle(  # type: ignore
-                    (avg_point[0], avg_point[1]),
-                    self.agent.temperature,
+
+                # Get min/max points and add temperature margin
+                temp = self.agent.temperature
+                x_min, y_min = (
+                    self.store.current_pareto_front.min_x,
+                    self.store.current_pareto_front.min_y,
+                )
+                x_max, y_max = (
+                    self.store.current_pareto_front.max_x,
+                    self.store.current_pareto_front.max_y,
+                )
+                width = (x_max + temp) - (x_min - temp)
+                height = (y_max + temp) - (y_min - temp)
+                rect = plt.Rectangle(  # type: ignore
+                    (x_min - temp, y_min - temp),
+                    width,
+                    height,
                     color="purple",
                     fill=False,
                     linestyle="--",
                     clip_on=True,
                 )
-                ax.add_patch(circle)
-                # Restore the original axis limits.
+                ax.add_patch(rect)
+
+                # Restore the original axis limits
                 ax.set_xlim(current_xlim)
                 ax.set_ylim(current_ylim)
-                # Create a legend patch for the SA radius.
+
+                # Create a legend patch for the SA bounds
                 import matplotlib.patches as mpatches
 
                 sa_patch = mpatches.Patch(
                     edgecolor="purple",
                     facecolor="none",
                     linestyle="--",
-                    label="SA Radius",
+                    label="SA Bounds",
                 )
 
         # Make sure the graph doesn't zoom out when adding the non-pareto solutions
