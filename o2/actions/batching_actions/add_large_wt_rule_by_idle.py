@@ -1,3 +1,4 @@
+import random
 from math import ceil
 
 from o2.actions.base_actions.add_datetime_rule_base_action import (
@@ -15,6 +16,9 @@ from o2.models.self_rating import SelfRatingInput
 from o2.models.timetable import RULE_TYPE
 from o2.store import Store
 from o2.util.waiting_time_helper import BatchInfo
+
+# TODO: See if top 3 makes sense
+LIMIT_OF_OPTIONS = 2
 
 
 class AddLargeWTRuleByIdleActionParamsType(AddReadyLargeWTRuleBaseActionParamsType):
@@ -53,7 +57,15 @@ class AddLargeWTRuleByIdleAction(AddReadyLargeWTRuleBaseAction):
         # Group all batches by activity, only include those with idle time
         batches_by_activity = store.current_evaluation.batches_by_activity_with_idle
 
-        for activity, batch_group in batches_by_activity.items():
+        # Sort the activities by the highest idle time
+        sorted_activities = sorted(
+            batches_by_activity.keys(),
+            key=lambda x: sum(batch["idle_time"] for batch in batches_by_activity[x]),
+            reverse=True,
+        )
+
+        for activity in sorted_activities:
+            batch_group = batches_by_activity[activity]
             # For each activity, look at all resources, which could also
             # do that batch (incl. the one which originally did it)
 

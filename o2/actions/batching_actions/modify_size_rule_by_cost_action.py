@@ -61,7 +61,7 @@ class ModifySizeRuleByCostAction(ModifySizeRuleBaseAction):
                             )
                         ),
                     )
-                # If nothing else helps, try to add a size rule
+        # If nothing else helps, try to add a size rule
         for task_id, _ in sorted_tasks:
             yield (
                 RATING.LOW,
