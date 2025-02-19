@@ -27,10 +27,15 @@ class SimulatedAnnealingAgent(Agent):
         self.temperature = store.settings.sa_initial_temperature
         if self.temperature == "auto":
             # Guestimate a good starting temperature, by basically allowing all
-            # points in a circle around the base evaluation.
-            self.temperature = math.sqrt(
-                store.base_evaluation.pareto_x**2 + store.base_evaluation.pareto_y**2
+            # points in a 10x circle around the base evaluation.
+            self.temperature = (
+                math.sqrt(
+                    store.base_evaluation.pareto_x**2
+                    + store.base_evaluation.pareto_y**2
+                )
+                * 10
             )
+            print_l1(f"Auto-estimated initial temperature: {self.temperature:_}")
 
     def select_actions(self, store: Store) -> Optional[list[BaseAction]]:
         """Select the best actions to take next.
