@@ -1,5 +1,12 @@
+#################################################################################################################
+# Simple configuration example with i) no evaluation of the final BPS model, ii) 20 iterations of control-flow  #
+# discovery, iii) 20 iterations of resource model (differentiated) discovery, and iv) direct discovery of       #
+# extraneous delays.                                                                                            #
+#################################################################################################################
+# - Increase the num_iterations to (potentially) improve the quality of that discovered model                   #
+# - Visit 'complete_configuration.yml' example for a description of all configurable parameters                 #
+#################################################################################################################
 version: 5
-
 ##########
 # Common #
 ##########
@@ -15,86 +22,44 @@ common:
     enabled_time: "EnableTimestamp" # If not present in the log, automatically computed
     start_time: "StartTimestamp"
     end_time: "EndTimestamp"
-  # Use this process model and skip its discovery
-  # process_model_path: ../models/LoanApp_simplified.bpmn
-  # Event log to evaluate the discovered BPS model with
-  test_log_path: ./production.csv
-  # Flag to perform evaluation (if 'test_log_path' not provided) with a test partition of the input log
-  perform_final_evaluation: true
-  # Number of evaluations of the discovered BPS model
-  num_final_evaluations: 10
-  # Metrics to evaluate the discovered BPS model (reported in an output file)
-  evaluation_metrics:
-    - 3_gram_distance
-    - 2_gram_distance
-    - absolute_event_distribution
-    - relative_event_distribution
-    - circadian_event_distribution
-    - arrival_event_distribution
-    - cycle_time_distribution
-  # Whether to simulate the arrival times using the distribution of inter-arrival times observed in the training log,
-  # or fitting a parameterized probabilistic distribution (e.g., norm, expon) with these observed values.
-  use_observed_arrival_distribution: false
-  # Whether to delete all files created during the optimization phases or not
-  clean_intermediate_files: true
-  # Whether to discover global/case/event attributes and their update rules or not
+  # Whether to discover case attributes or not
   discover_data_attributes: false
-
 #################
 # Preprocessing #
 #################
 preprocessing:
-  # If the log has start times, threshold to consider two activities as concurrent when computing the enabled time
-  # (if necessary). Two activities would be considered concurrent if their occurrences happening concurrently divided
-  # by their total occurrences is higher than this threshold.
+  # Threshold to consider two activities as concurrent when computing the enabled time (if necessary)
   enable_time_concurrency_threshold: 0.75
-  # If true, preprocess multitasking (i.e., one resource performing more than one activity at the same time) by
-  # adjusting the timestamps (start/end) of those activities being executed at the same time by the same resource.
-  multitasking: false
-  # Thresholds for the heuristics' concurrency oracle (only used to estimate start times if missing).
-  concurrency_df: 0.9 # Directly-Follows threshold
-  concurrency_l2l: 0.9 # Length 2 loops threshold
-  concurrency_l1l: 0.9 # Length 1 loops threshold
-
 ################
 # Control-flow #
 ################
 control_flow:
   # Metric to guide the optimization process (loss function to minimize)
-  optimization_metric: n_gram_distance
+  optimization_metric: two_gram_distance
   # Number of optimization iterations over the search space
   num_iterations: 20
   # Number of times to evaluate each iteration (using the mean of all of them)
   num_evaluations_per_iteration: 3
-  # Methods for discovering gateway probabilities
-  gateway_probabilities:
-    - equiprobable
-    - discovery
-  # Discover process model with SplitMiner v1 (options: sm1 or sm2)
+  # Method for discovering gateway probabilities
+  gateway_probabilities: discovery
+  # Discover process model with SplitMiner v3
   mining_algorithm: sm1
-  # For Split Miner v1 and v2: Number of concurrent relations between events to be captured (between 0.0 and 1.0)
+  # Number of concurrent relations between events to be captured
   epsilon:
     - 0.05
     - 0.4
-  # Only for Split Miner v1: Threshold for filtering the incoming and outgoing edges (between 0.0 and 1.0)
+  # Threshold for filtering the incoming and outgoing edges
   eta:
     - 0.2
     - 0.7
-  # Only for Split Miner v1: Whether to replace non-trivial OR joins or not (true or false)
+  # Whether to replace non-trivial OR joins or not
   replace_or_joins:
     - true
     - false
-  # Only for Split Miner v1: Whether to prioritize parallelism over loops or not (true or false)
+  # Whether to prioritize parallelism over loops or not
   prioritize_parallelism:
     - true
     - false
-  # Discover data-aware branching rules, i.e., BPMN decision points based on value of data attributes
-  discover_branch_rules: true
-  # Minimum f-score value to consider the discovered data-aware branching rules
-  f_score:
-    - 0.3
-    - 0.9
-
 ##################
 # Resource model #
 ##################
@@ -110,38 +75,25 @@ resource_model:
   discover_batching_rules: true
   # Resource profiles configuration
   resource_profiles:
-    # Resource profile discovery type (fuzzy, differentiated, pool, undifferentiated)
+    # Resource profile discovery type
     discovery_type: differentiated
     # Time granularity (in minutes) for the resource calendar (the higher the density of events in the log, the smaller the granularity can be)
-    granularity:
-      - 15
-      - 60
-    # Minimum confidence of the intervals in the discovered calendar of a resource or set of resources (between 0.0 and 1.0)
+    granularity: 60
+    # Minimum confidence of the intervals in the discovered calendar (of a resource or set of resources)
     confidence:
       - 0.5
       - 0.85
-    # Minimum support of the intervals in the discovered calendar of a resource or set of resources (between 0.0 and 1.0)
+    # Minimum support of the intervals in the discovered calendar (of a resource or set of resources)
     support:
       - 0.05
       - 0.5
-    # Participation of a resource in the process to discover a calendar for them, gathered together otherwise (between 0.0 and 1.0)
-    participation:
-      - 0.2
-      - 0.5
-    # Angle of the fuzzy trapezoid when computing the availability probability for an activity (angle from start to end)
-    fuzzy_angle:
-      - 0.1
-      - 0.9
-
+    # Participation of a resource in the process to discover a calendar for them (gathered together otherwise)
+    participation: 0.4
 #####################
 # Extraneous delays #
 #####################
 extraneous_activity_delays:
-  # Metric to guide the optimization process (loss function to minimize)
-  optimization_metric: relative_emd
-  # Method to compute the extraneous delay (naive or eclipse-aware)
+  # Method to compute the extraneous delay
   discovery_method: eclipse-aware
   # Number of optimization iterations over the search space (1 = direct discovery, no optimization stage)
   num_iterations: 1
-  # Number of times to evaluate each iteration (using the mean of all of them)
-  num_evaluations_per_iteration: 3
