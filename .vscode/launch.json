@@ -94,6 +94,48 @@
         "--log-to-tensor-board",
         "--no-archive-tensorboard-logs"
       ]
+    },
+
+    {
+      "name": "Python: Run production_simulated_annealing_easy.sh",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/o2_evaluation/data_collector.py",
+      "cwd": "${workspaceFolder}/",
+      "console": "integratedTerminal",
+      "justMyCode": false,
+      "args": [
+        "--name",
+        "production_easy",
+        "--active-scenarios",
+        "production",
+        "--models",
+        "Simulated Annealing",
+        "--number-of-cases",
+        "1000",
+        "--duration-fn",
+        "1/size",
+        "--sa-cooling-factor",
+        "0.95",
+        "--sa-initial-temperature",
+        "auto",
+        "--max-batch-size",
+        "100",
+        "--max-iterations",
+        "1001",
+        "--dump-interval",
+        "250",
+        "--max-non-improving-actions",
+        "500",
+        "--max-threads",
+        "24",
+        "--log-level",
+        "DEBUG",
+        "--log-file",
+        "./logs/simulated_annealing_production_easy.log",
+        "--log-to-tensor-board",
+        "--no-archive-tensorboard-logs"
+      ]
     }
   ]
 }
