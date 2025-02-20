@@ -7,11 +7,11 @@ MEMORY_GB = 36
 MEMORY_GB_PPO = 8
 MAX_TIME_HOURS = 3
 MAX_TIME_HOURS_PPO = 3 * 9
-MAX_ITERATIONS = 1501
+MAX_ITERATIONS = 1001
 DUMP_INTERVAL = 250
 # For PPO, because it's only doing one step per iteration,
 # we need to run it for much more iterations to get the same result
-MAX_ITERATIONS_PPO = 1500 * 10 + 1
+MAX_ITERATIONS_PPO = 1000 * 10 + 1
 DUMP_INTERVAL_PPO = 250 * 10
 
 MAX_NON_IMPROVING_ACTIONS = 20 * CORES

@@ -8,6 +8,7 @@ from o2.hill_climber import HillClimber
 from o2.models.settings import AgentType, CostType, Settings
 from o2.models.solution import Solution
 from o2.store import Store
+from o2.util.logger import info, setup_logging
 from o2.util.solution_dumper import SolutionDumper
 from o2.util.stat_calculation_helper import (
     calculate_averaged_hausdorff_distance,
@@ -16,7 +17,6 @@ from o2.util.stat_calculation_helper import (
     calculate_purity,
     store_with_baseline_constraints,
 )
-from o2.util.logger import info, setup_logging
 
 
 def parse_args():
@@ -56,9 +56,9 @@ def parse_args():
     )
     parser.add_argument(
         "--sa-initial-temperature",
-        type=int,
-        default=75000000,
-        help="Initial temperature for Simulated Annealing (default: 75000000)",
+        type=str,
+        default="auto",
+        help="Initial temperature for Simulated Annealing (either number or 'auto' for auto-estimation; default: 'auto')",
     )
     parser.add_argument(
         "--sa-cooling-factor",
@@ -307,7 +307,11 @@ def collect_data_sequentially(base_store: Store, args) -> None:
             args.max_threads,
             args.log_to_tensor_board,
         )
-        sa_store.settings.sa_initial_temperature = args.sa_initial_temperature
+        sa_store.settings.sa_initial_temperature = (
+            float(args.sa_initial_temperature)
+            if args.sa_initial_temperature != "auto"
+            else "auto"
+        )
         sa_store.settings.sa_cooling_factor = args.sa_cooling_factor
         solve_store(sa_store, args.dump_interval)
         stores_to_run.append(("Simulated Annealing", sa_store))
