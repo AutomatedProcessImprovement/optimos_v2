@@ -15,10 +15,12 @@ conda run -n opti2 --no-capture-output python ./o2_evaluation/data_collector.py 
     --models "Proximal Policy Optimization" \
     --number-of-cases 1000 \
     --duration-fn "1/size" \
+    --sa-cooling-factor 0.95 \
+    --sa-initial-temperature auto \
     --max-batch-size 100 \
-    --max-iterations 15000 \
-    --dump-interval 100 \
-    --max-non-improving-actions 50 \
+    --max-iterations 10001 \
+    --dump-interval 2500 \
+    --max-non-improving-actions 20 \
     --max-threads 24 \
     --log-level DEBUG \
     --log-file ./logs/proximal_policy_optimization_insurance_easy.log \

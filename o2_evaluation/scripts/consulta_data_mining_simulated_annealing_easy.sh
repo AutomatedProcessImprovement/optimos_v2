@@ -3,7 +3,7 @@
 #SBATCH --job-name="Optimos V2 Run consulta_data_mining Simulated Annealing EASY"
 #SBATCH --partition=main
 #SBATCH --time=03:00:00
-#SBATCH --mem=32G
+#SBATCH --mem=36G
 #SBATCH --cpus-per-task=25
 
 module load any/python/3.8.3-conda
@@ -15,10 +15,12 @@ conda run -n opti2 --no-capture-output python ./o2_evaluation/data_collector.py 
     --models "Simulated Annealing" \
     --number-of-cases 1000 \
     --duration-fn "1/size" \
+    --sa-cooling-factor 0.95 \
+    --sa-initial-temperature auto \
     --max-batch-size 100 \
-    --max-iterations 1500 \
+    --max-iterations 1001 \
     --dump-interval 250 \
-    --max-non-improving-actions 1250 \
+    --max-non-improving-actions 500 \
     --max-threads 24 \
     --log-level DEBUG \
     --log-file ./logs/simulated_annealing_consulta_data_mining_easy.log \
