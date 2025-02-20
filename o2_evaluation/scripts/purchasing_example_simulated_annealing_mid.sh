@@ -3,7 +3,7 @@
 #SBATCH --job-name="Optimos V2 Run purchasing_example Simulated Annealing MID"
 #SBATCH --partition=main
 #SBATCH --time=03:00:00
-#SBATCH --mem=36G
+#SBATCH --mem=60G
 #SBATCH --cpus-per-task=25
 
 module load any/python/3.8.3-conda
