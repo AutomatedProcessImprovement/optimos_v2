@@ -6,7 +6,7 @@ CORES_PPO = 1
 MEMORY_GB = 36
 MEMORY_GB_PPO = 8
 MAX_TIME_HOURS = 3
-MAX_TIME_HOURS_PPO = 3 * 9
+MAX_TIME_HOURS_PPO = 12
 MAX_ITERATIONS = 1001
 DUMP_INTERVAL = 250
 # For PPO, because it's only doing one step per iteration,

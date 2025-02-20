@@ -2,7 +2,7 @@
 
 #SBATCH --job-name="Optimos V2 Run callcentre Proximal Policy Optimization HARD"
 #SBATCH --partition=main
-#SBATCH --time=027:00:00
+#SBATCH --time=012:00:00
 #SBATCH --mem=8G
 #SBATCH --cpus-per-task=1
 

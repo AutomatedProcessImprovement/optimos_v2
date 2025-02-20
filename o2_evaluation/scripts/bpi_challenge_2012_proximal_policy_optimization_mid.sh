@@ -2,7 +2,7 @@
 
 #SBATCH --job-name="Optimos V2 Run BPI_Challenge_2012 Proximal Policy Optimization MID"
 #SBATCH --partition=main
-#SBATCH --time=027:00:00
+#SBATCH --time=012:00:00
 #SBATCH --mem=8G
 #SBATCH --cpus-per-task=1
 
