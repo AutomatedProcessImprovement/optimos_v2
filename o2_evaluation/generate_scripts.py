@@ -3,19 +3,22 @@ from textwrap import dedent
 
 CORES = 25
 CORES_PPO = 1
-MEMORY_GB = 32
+MEMORY_GB = 36
 MEMORY_GB_PPO = 8
 MAX_TIME_HOURS = 3
 MAX_TIME_HOURS_PPO = 3 * 9
-MAX_ITERATIONS = 1500
+MAX_ITERATIONS = 1001
+DUMP_INTERVAL = 250
 # For PPO, because it's only doing one step per iteration,
 # we need to run it for much more iterations to get the same result
-MAX_ITERATIONS_PPO = 1500 * 10
-DUMP_INTERVAL = 250
-DUMP_INTERVAL_PPO = 100
-MAX_NON_IMPROVING_ACTIONS = 50 * CORES
-MAX_NON_IMPROVING_ACTIONS_PPO = 50 * CORES_PPO
+MAX_ITERATIONS_PPO = 1001 * 10
+DUMP_INTERVAL_PPO = 250 * 10
+
+MAX_NON_IMPROVING_ACTIONS = 20 * CORES
+MAX_NON_IMPROVING_ACTIONS_PPO = 20 * CORES_PPO
 NUMBER_OF_CASES = 1000
+SA_COOLING_FACTOR = 0.95
+SA_INITIAL_TEMPERATURE = "auto"
 
 
 def generate_script(
@@ -64,6 +67,8 @@ def generate_script(
         --models "{model}" \\
         --number-of-cases {NUMBER_OF_CASES} \\
         --duration-fn "{duration_fn}" \\
+        --sa-cooling-factor {SA_COOLING_FACTOR} \\
+        --sa-initial-temperature {SA_INITIAL_TEMPERATURE} \\
         --max-batch-size {max_batch_size} \\
         --max-iterations {max_iterations} \\
         --dump-interval {dump_interval} \\
