@@ -10,6 +10,7 @@ packages = [{ include = "o2" }]
 [tool.poetry.dependencies]
 python = ">=3.10,<3.11"
 numpy = "^1.26.4"
+# pix-framework = { path = "../pix-framework", develop = true }
 prosimos = { git = "https://github.com/sinnaj-r/Prosimos.git", branch = "main" }
 # prosimos = { path = "../Prosimos", develop = true }
 click = "^8.1.7"
