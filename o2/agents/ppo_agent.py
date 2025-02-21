@@ -1,4 +1,7 @@
+import os
 from typing import TYPE_CHECKING, Optional
+
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 import gymnasium as gym
 import numpy as np
