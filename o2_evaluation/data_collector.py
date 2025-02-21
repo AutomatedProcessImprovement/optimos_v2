@@ -4,9 +4,9 @@ import os
 
 import numpy as np
 
-from o2.hill_climber import HillClimber
 from o2.models.settings import AgentType, CostType, Settings
 from o2.models.solution import Solution
+from o2.optimizer import Optimizer
 from o2.store import Store
 from o2.util.logger import info, setup_logging
 from o2.util.solution_dumper import SolutionDumper
@@ -154,7 +154,11 @@ def calculate_metrics(
     all_solutions_front = [
         solution
         for solution in all_solutions
-        if not any(solution.is_dominated_by(other) for other in all_solutions)
+        if not any(
+            solution.is_dominated_by(other)
+            for other in all_solutions
+            if other.point != solution.point
+        )
     ]
 
     # Calculate the hyperarea (using the max cost and time as the center point)
@@ -171,13 +175,17 @@ def calculate_metrics(
     info(f"\t> Hyperarea: {global_hyperarea}")
     info("\t> Pareto front:")
     info(f"\t\t>> size: {len(all_solutions_front)}")
-    info(f"\t\t>> Avg cost: {np.mean([sol.point[0] for sol in all_solutions_front])}")
-    info(f"\t\t>> Avg time: {np.mean([sol.point[1] for sol in all_solutions_front])}")
+    info(
+        f"\t\t>> Avg {Settings.get_pareto_x_label()}: {np.mean([sol.point[0] for sol in all_solutions_front])}"
+    )
+    info(
+        f"\t\t>> Avg {Settings.get_pareto_y_label()}: {np.mean([sol.point[1] for sol in all_solutions_front])}"
+    )
 
     for name, store in stores:
         pareto_solutions = store.current_pareto_front.solutions
         pareto_hyperarea = calculate_hyperarea(pareto_solutions, center_point)
-        ratio = 0.0 if global_hyperarea == 0.0 else pareto_hyperarea / global_hyperarea
+        ratio = 0.0 if global_hyperarea == 0.0 else global_hyperarea / pareto_hyperarea
 
         hausdorff_distance = calculate_averaged_hausdorff_distance(
             pareto_solutions, all_solutions_front
@@ -232,8 +240,8 @@ def solve_store(store: Store, dump_interval: int) -> None:
     """Solve the store with the given agent."""
     # Persist the initial state of the store
     persist_store(store)
-    hill_climber = HillClimber(store)
-    generator = hill_climber.get_iteration_generator(yield_on_non_acceptance=True)
+    optimizer = Optimizer(store)
+    generator = optimizer.get_iteration_generator(yield_on_non_acceptance=True)
     iteration = 1
     print(f"Start processing of {store.name}")
     for _ in generator:
@@ -247,7 +255,7 @@ def solve_store(store: Store, dump_interval: int) -> None:
 
     persist_store(store)
     if not store.settings.disable_parallel_evaluation:
-        hill_climber.executor.shutdown()
+        optimizer.executor.shutdown()
 
 
 def collect_data_sequentially(base_store: Store, args) -> None:
