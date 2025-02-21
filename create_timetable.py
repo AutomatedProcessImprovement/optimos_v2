@@ -52,12 +52,10 @@ state = state.replace_timetable(
             task_id=TimetableGenerator.SECOND_ACTIVITY,
             type=BATCH_TYPE.PARALLEL,
             size_distrib=[Distribution(key=str(1), value=0.0)]
-            + [
-                Distribution(key=str(new_size), value=1.0) for new_size in range(2, 100)
-            ],
+            + [Distribution(key=str(new_size), value=1.0) for new_size in range(2, 50)],
             duration_distrib=[
                 Distribution(key=str(new_size), value=1 / new_size)
-                for new_size in range(1, 100)
+                for new_size in range(1, 50)
             ],
             firing_rules=[
                 [

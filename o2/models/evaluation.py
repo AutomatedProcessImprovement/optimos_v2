@@ -109,8 +109,6 @@ class Evaluation:
     """Get the total fixed cost of each task."""
     avg_fixed_cost_per_case: float
     """Get the average fixed cost per case."""
-    avg_fixed_cost_per_case_by_task: dict[str, float]
-    """Get the average fixed cost by task per case."""
 
     batches_by_activity_with_idle: dict[str, list[SimpleBatchInfo]]
     """Get the batches grouped by activity, only including those with idle time."""
@@ -672,7 +670,6 @@ class Evaluation:
             sum_of_cycle_times=0,
             total_fixed_cost_by_task={},
             avg_fixed_cost_per_case=0,
-            avg_fixed_cost_per_case_by_task={},
             resource_allocation_ratio_task={},
             batches_by_activity_with_idle={},
             avg_batch_size_per_task={},
@@ -734,13 +731,6 @@ class Evaluation:
         )
 
         avg_fixed_cost_per_case = batch_pd.groupby("case")["fixed_cost"].sum().mean()
-
-        avg_fixed_cost_per_case_by_task = (
-            batch_pd.groupby(["activity", "case"])["fixed_cost"]
-            .mean()
-            .fillna(0)
-            .to_dict()
-        )
 
         first_enablement = min(
             [
@@ -842,7 +832,6 @@ class Evaluation:
             total_batching_waiting_time=(batch_pd["batch_waiting_time_seconds"].sum()),
             total_fixed_cost_by_task=total_fixed_cost_by_task,
             avg_fixed_cost_per_case=avg_fixed_cost_per_case,
-            avg_fixed_cost_per_case_by_task=avg_fixed_cost_per_case_by_task,
             batches_by_activity_with_idle=Evaluation.get_batches_by_activity_with_idle(
                 batches_greater_than_one
             ),

@@ -984,14 +984,14 @@ class BatchingRule(JSONWizard):
             Symbol("size"), duration_fn if duration_fn else "size"
         )
         size_distrib = ([Distribution(key=str(1), value=0.0)] if size != 1 else []) + (
-            [Distribution(key=str(new_size), value=1.0) for new_size in range(2, 100)]
+            [Distribution(key=str(new_size), value=1.0) for new_size in range(2, 50)]
             if size is None
             else [Distribution(key=str(size), value=1.0)]
         )
         duration_distrib = (
             [
                 Distribution(key=str(new_size), value=duration_lambda(new_size))
-                for new_size in range(1, 100)
+                for new_size in range(1, 50)
             ]
             if size is None
             else [Distribution(key=str(size), value=duration_lambda(size))]
