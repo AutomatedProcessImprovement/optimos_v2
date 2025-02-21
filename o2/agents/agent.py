@@ -33,6 +33,7 @@ from o2.actions.batching_actions.modify_size_rule_by_cost_fn import (
     ModifySizeRuleByCostFnLowCycleTimeImpact,
     ModifySizeRuleByCostFnLowProcessingTime,
     ModifySizeRuleByCostFnRepetitiveTasks,
+    ModifySizeRuleByManySimilarEnablements,
 )
 from o2.actions.batching_actions.modify_size_rule_by_duration_fn import (
     ModifyBatchSizeIfNoDurationImprovement,
@@ -116,6 +117,7 @@ ACTION_CATALOG_BATCHING_ONLY: list[type[BaseAction]] = [
     ModifySizeRuleByHighUtilizationAction,
     ModifySizeRuleByLowAllocationAction,
     ModifySizeRuleByLowUtilizationAction,
+    ModifySizeRuleByManySimilarEnablements,
     ModifySizeRuleByWTAction,
     # Legacy Rules, that are fallbacks now
     ModifyDailyHourRuleAction,

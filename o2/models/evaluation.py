@@ -122,6 +122,9 @@ class Evaluation:
     resource_started_weekdays: dict[str, dict[DAY, dict[int, int]]]
     """Get the weekdays & hours on which a resource started any task."""
 
+    tasks_by_number_of_duplicate_enablement_dates: dict[str, int]
+    """Get the tasks sorted by the number of duplicate enablement dates."""
+
     @cached_property
     def total_processing_cost_for_tasks(self) -> float:
         """Get the total cost of all tasks."""
@@ -581,6 +584,41 @@ class Evaluation:
         }
 
     @staticmethod
+    def get_tasks_by_number_of_duplicate_enablement_dates(
+        cases: list[Trace],
+    ) -> dict[str, int]:
+        """Get the tasks sorted by the number of duplicate enablement dates.
+
+        Meaning the more often the same task is enabled at the same time, the higher the rank.
+        The granularity is one hour.
+        NOTE: tasks with only one enablement at a given time are not considered.
+        """
+        tasks_with_enablement_dates: dict[str, dict[DAY, dict[int, int]]] = dict()
+        for case in cases:
+            event_list: list[TaskEvent] = case.event_list
+            for event in event_list:
+                if event.task_id not in tasks_with_enablement_dates:
+                    tasks_with_enablement_dates[event.task_id] = {}
+                if event.started_datetime is None:
+                    continue
+                weekday = event.started_datetime.strftime("%A").upper()
+                hour = event.started_datetime.hour
+                tasks_with_enablement_dates[event.task_id][DAY(weekday)][hour] = (
+                    tasks_with_enablement_dates[event.task_id]
+                    .get(DAY(weekday), {})
+                    .get(hour, 0)
+                    + 1
+                )
+
+        return {
+            task_id: sum(
+                sum(count for count in day_counts.values() if count > 1)
+                for day_counts in tasks_with_enablement_dates[task_id].values()
+            )
+            for task_id in tasks_with_enablement_dates
+        }
+
+    @staticmethod
     def get_batches_by_activity_with_idle(
         batches: dict[BatchInfoKey, BatchInfo],
     ) -> dict[str, list[SimpleBatchInfo]]:
@@ -675,6 +713,7 @@ class Evaluation:
             avg_batch_size_per_task={},
             avg_batch_size_for_batch_enabled_tasks=0,
             resource_started_weekdays={},
+            tasks_by_number_of_duplicate_enablement_dates={},
         )
 
     @staticmethod
@@ -842,4 +881,7 @@ class Evaluation:
                 batches_greater_than_one
             ),
             resource_started_weekdays=Evaluation.get_resource_started_weekdays(cases),
+            tasks_by_number_of_duplicate_enablement_dates=Evaluation.get_tasks_by_number_of_duplicate_enablement_dates(
+                cases
+            ),
         )

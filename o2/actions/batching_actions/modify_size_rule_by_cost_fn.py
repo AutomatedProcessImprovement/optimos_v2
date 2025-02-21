@@ -268,3 +268,28 @@ class ModifySizeRuleByCostFnLowCycleTimeImpact(ModifySizeRuleBaseAction):
                     )
                 ),
             )
+
+
+class ModifySizeRuleByManySimilarEnablements(ModifySizeRuleBaseAction):
+    """An Action to modify size batching rules based on the cost fn.
+
+    - Modify those tasks, which have many enablements at the same time
+    """
+
+    params: ModifySizeRuleByCostFnParamsType
+
+    @staticmethod
+    def rate_self(
+        store: "Store", input: SelfRatingInput
+    ) -> RateSelfReturnType["ModifySizeRuleByManySimilarEnablements"]:
+        """Generate a best set of parameters & self-evaluates this action."""
+        evaluation = store.current_evaluation
+
+        tasks_by_number_of_duplicate_enablement_dates = (
+            evaluation.tasks_by_number_of_duplicate_enablement_dates
+        )
+        yield from rate_self_helper_by_metric_dict(
+            store,
+            tasks_by_number_of_duplicate_enablement_dates,
+            ModifySizeRuleByManySimilarEnablements,
+        )
