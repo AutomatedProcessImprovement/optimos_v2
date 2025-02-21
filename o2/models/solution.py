@@ -55,7 +55,11 @@ class Solution:
     @property
     def is_valid(self) -> bool:
         """Check if the evaluation is valid."""
-        return not self.evaluation.is_empty
+        return (
+            not self.evaluation.is_empty
+            and not self.evaluation.pareto_x < 1
+            and not self.evaluation.pareto_y < 1
+        )
 
     @functools.cached_property
     def id(self) -> int:
