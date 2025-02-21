@@ -1,3 +1,4 @@
+import gc
 import glob
 import pickle
 
@@ -6,8 +7,9 @@ from o2.store import Store
 from o2_evaluation.data_collector import calculate_metrics
 
 
-def get_model_from_filename(filename: str) -> str:
-    if not filename.startswith("store_"):
+def get_model_from_filename(path: str) -> str:
+    filename = path.split("/")[-1]
+    if not filename.startswith("store_") and not filename.startswith("solutions_"):
         raise ValueError(f"Invalid filename: {filename}")
     if "tabu_search" in filename:
         return "Tabu Search"
@@ -19,12 +21,14 @@ def get_model_from_filename(filename: str) -> str:
         raise ValueError(f"Invalid filename: {filename}")
 
 
-def get_scenario_from_filename(filename: str) -> str:
-    # store_tabu_search_bpi_challenge_2012_mid.pkl
-    if not filename.startswith("store_"):
+def get_scenario_from_filename(path: str) -> str:
+    # o2_evaluation/analyze_stores/store_simulated_annealing_bpi_challenge_2012_hard.pkl
+    filename = path.split("/")[-1]
+    if not filename.startswith("store_") and not filename.startswith("solutions_"):
         raise ValueError(f"Invalid filename: {filename}")
     return (
         filename.replace("store_", "")
+        .replace("solutions_", "")
         .replace(".pkl", "")
         .replace("tabu_search_", "")
         .replace("simulated_annealing_", "")
@@ -35,16 +39,19 @@ def get_scenario_from_filename(filename: str) -> str:
 
 
 if __name__ == "__main__":
+    gc.disable()
     # Get all subfiles in the analyze_stores directory
     analyze_stores_dir = "o2_evaluation/analyze_stores"
-    analyze_stores_files = glob.glob(f"{analyze_stores_dir}/**/store_*.pkl")
-    solution_files = glob.glob(f"{analyze_stores_dir}/**/solutions_*.pkl")
+    analyze_stores_files = glob.glob(f"{analyze_stores_dir}/**store_*.pkl")
+    solution_files = glob.glob(f"{analyze_stores_dir}/**solutions_*.pkl")
     # Scenario, Model, Store
     stores: list[tuple[str, str, Store]] = []
     solutions: list[tuple[str, str, Solution]] = []
     scenarios: set[str] = set()
     for file in analyze_stores_files:
-        print(f"Loading store from {file}...")
+        print(
+            f"Loading store from {file}... ({get_scenario_from_filename(file)}, {get_model_from_filename(file)})"
+        )
         with open(file, "rb") as f:
             try:
                 store = pickle.load(f)
