@@ -17,7 +17,7 @@ conda run -n opti2 --no-capture-output python ./o2_evaluation/data_collector.py 
     --duration-fn "1 / (1 + (log(size) / log(100)))" \
     --sa-cooling-factor 0.95 \
     --sa-initial-temperature auto \
-    --max-batch-size 100 \
+    --max-batch-size 50 \
     --max-iterations 1001 \
     --dump-interval 250 \
     --max-non-improving-actions 500 \
