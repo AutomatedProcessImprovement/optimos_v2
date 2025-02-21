@@ -1,9 +1,12 @@
 import gc
 import glob
 import pickle
+from collections import defaultdict
 
+from o2.models.settings import CostType, Settings
 from o2.models.solution import Solution
 from o2.store import Store
+from o2.util.logger import info, setup_logging, warn
 from o2_evaluation.data_collector import calculate_metrics
 
 
@@ -39,62 +42,70 @@ def get_scenario_from_filename(path: str) -> str:
 
 
 if __name__ == "__main__":
+    Settings.LOG_LEVEL = "DEBUG"
+    Settings.LOG_FILE = "logs/data_analyzer.log"
+    Settings.COST_TYPE = CostType.WAITING_TIME_AND_PROCESSING_TIME
+    setup_logging()
+
     gc.disable()
     # Get all subfiles in the analyze_stores directory
     analyze_stores_dir = "o2_evaluation/analyze_stores"
-    analyze_stores_files = glob.glob(f"{analyze_stores_dir}/**store_*.pkl")
-    solution_files = glob.glob(f"{analyze_stores_dir}/**solutions_*.pkl")
+    analyze_stores_file_list = glob.glob(f"{analyze_stores_dir}/**store_*.pkl")
+    solution_files_list = glob.glob(f"{analyze_stores_dir}/**solutions_*.pkl")
     # Scenario, Model, Store
-    stores: list[tuple[str, str, Store]] = []
-    solutions: list[tuple[str, str, Solution]] = []
-    scenarios: set[str] = set()
-    for file in analyze_stores_files:
-        print(
-            f"Loading store from {file}... ({get_scenario_from_filename(file)}, {get_model_from_filename(file)})"
-        )
-        with open(file, "rb") as f:
-            try:
-                store = pickle.load(f)
-                stores.append(
-                    (
-                        get_scenario_from_filename(file),
-                        get_model_from_filename(file),
-                        store,
-                    )
-                )
-                scenarios.add(get_scenario_from_filename(file))
-                print(f"Loaded store '{store.name}' from {file}")
-            except Exception as e:
-                print(f"Error loading store from {file}: {e}")
+    stores_files: defaultdict[str, list[str]] = defaultdict(list)
+    solutions_files: defaultdict[str, list[str]] = defaultdict(list)
 
-    for file in solution_files:
-        with open(file, "rb") as f:
-            print(f"Loading solutions from {file}...")
-            while True:
+    for file in analyze_stores_file_list:
+        stores_files[get_scenario_from_filename(file)].append(file)
+
+    for file in solution_files_list:
+        solutions_files[get_scenario_from_filename(file)].append(file)
+
+    scenarios = list(stores_files.keys())
+
+    for scenario in scenarios:
+        if not "bpi" in scenario.lower():
+            continue
+        if not "mid" in scenario.lower():
+            continue
+        info(f"Processing scenario: {scenario}")
+        stores: list[tuple[str, Store]] = []
+        solutions: list[Solution] = []
+        for file in stores_files[scenario]:
+            info(
+                f"Loading store from {file}... ({get_scenario_from_filename(file)}, {get_model_from_filename(file)})"
+            )
+            with open(file, "rb") as f:
                 try:
-                    solution = pickle.load(f)
-                    solutions.append(
+                    store = pickle.load(f)
+                    stores.append(
                         (
-                            get_scenario_from_filename(file),
                             get_model_from_filename(file),
-                            solution,
+                            store,
                         )
                     )
-                except EOFError:
-                    break
+                    info(f"Loaded store '{store.name}' from {file}")
                 except Exception as e:
-                    print(f"Error loading (more) solutions from {file}: {e}")
-                    break
-            print("Done!")
+                    warn(f"Error loading store from {file}: {e}")
 
-    print(f"Loaded {len(stores)} stores and {len(solutions)} solutions")
+        for file in solutions_files[scenario]:
+            with open(file, "rb") as f:
+                info(f"Loading solutions from {file}...")
+                while True:
+                    try:
+                        solution = pickle.load(f)
+                        solutions.append(solution)
+                    except EOFError:
+                        break
+                    except Exception as e:
+                        warn(f"Error loading (more) solutions from {file}: {e}")
+                        break
+                info("Done!")
 
-    # Calculate the metrics for the given stores
-    for scenario in scenarios:
-        stores_of_scenario = [
-            (model, store) for (s, model, store) in stores if s == scenario
-        ]
-        solutions_of_scenario = [
-            solution for (s, _, solution) in solutions if s == scenario
-        ]
-        calculate_metrics(stores_of_scenario, solutions_of_scenario)
+        info(f"Loaded {len(stores)} stores and {len(solutions)} solutions")
+
+        # Calculate the metrics for the given stores
+        calculate_metrics(stores, solutions)
+        info(f"Finished processing scenario: {scenario}; Collecting garbage...")
+        break
