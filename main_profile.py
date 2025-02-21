@@ -1,10 +1,10 @@
 import json
 import sys
 import xml.etree.ElementTree as ElementTree
-import memray
-import yappi
 
-import o2.hill_climber
+import memray
+
+import o2.optimizer
 import o2.store
 from o2.models.constraints import ConstraintsType
 from o2.models.timetable import TimetableType
@@ -51,8 +51,8 @@ def main():
     store.settings.max_number_of_actions_to_select = 5
     store.settings.disable_parallel_evaluation = True
 
-    hill_climber = o2.hill_climber.HillClimber(store)
-    hill_climber.solve()
+    optimizer = o2.optimizer.Optimizer(store)
+    optimizer.solve()
 
 
 # SimulationRunner.run_simulation(store.state)

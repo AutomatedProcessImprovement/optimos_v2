@@ -1,15 +1,15 @@
 import datetime
 import os
-from pprint import pprint
 import uuid
+from pprint import pprint
 from tempfile import mkstemp
 from xml.etree import ElementTree as ET
 from zipfile import ZIP_DEFLATED, ZipFile
 
-from o2.hill_climber import HillClimber
 from o2.models.json_report import JSONReport
 from o2.models.legacy_approach import LegacyApproach
 from o2.models.state import State
+from o2.optimizer import Optimizer
 from o2.store import Store
 from o2_server.types import ProcessingRequest
 
@@ -71,8 +71,8 @@ class OptimosService:
         # Upload initial evaluation
         self.iteration_callback(store)
 
-        hill_climber = HillClimber(store)
-        generator = hill_climber.get_iteration_generator()
+        optimizer = Optimizer(store)
+        generator = optimizer.get_iteration_generator()
         print("Created Store")
         for _ in generator:
             if self.cancelled:

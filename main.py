@@ -1,7 +1,7 @@
 import json
 import xml.etree.ElementTree as ElementTree
 
-import o2.hill_climber
+import o2.optimizer
 import o2.store
 from o2.models.constraints import ConstraintsType
 from o2.models.settings import AgentType
@@ -50,8 +50,8 @@ def main():
     store.settings.sa_cooling_factor = 0.90
     store.settings.agent = AgentType.SIMULATED_ANNEALING
 
-    hill_climber = o2.hill_climber.HillClimber(store)
-    hill_climber.solve()
+    optimizer = o2.optimizer.Optimizer(store)
+    optimizer.solve()
     # SimulationRunner.run_simulation(store.state)
 
 

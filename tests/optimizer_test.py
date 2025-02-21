@@ -1,4 +1,4 @@
-from o2.hill_climber import HillClimber
+from o2.optimizer import Optimizer
 from o2.models.settings import AgentType
 from o2.store import Store
 from tests.fixtures.constraints_generator import ConstraintsGenerator
@@ -6,7 +6,7 @@ from tests.fixtures.test_helpers import replace_constraints, replace_timetable
 from tests.fixtures.timetable_generator import TimetableGenerator
 
 
-def test_hill_climber_simple(one_task_store: Store):
+def test_optimizer_simple(one_task_store: Store):
     store = replace_timetable(
         one_task_store,
         batch_processing=[
@@ -29,15 +29,15 @@ def test_hill_climber_simple(one_task_store: Store):
     store.settings.max_iterations = 3
     store.settings.max_threads = 1
 
-    hill_climber = HillClimber(store)
-    hill_climber.solve()
+    optimizer = Optimizer(store)
+    optimizer.solve()
 
     # 3x Decrease Batching Size (10 -> 9 -> 8 -> 7)
     # TODO: Fix
     # assert len(store.previous_actions) == 3
 
 
-def test_hill_climber_batching(one_task_store: Store):
+def test_optimizer_batching(one_task_store: Store):
     store = replace_timetable(
         one_task_store,
         batch_processing=[
@@ -63,11 +63,11 @@ def test_hill_climber_batching(one_task_store: Store):
 
     store.settings.batching_only = True
 
-    hill_climber = HillClimber(store)
-    hill_climber.solve()
+    optimizer = Optimizer(store)
+    optimizer.solve()
 
 
-def test_hill_climber_ppo(one_task_store: Store):
+def test_optimizer_ppo(one_task_store: Store):
     store = replace_timetable(
         one_task_store,
         batch_processing=[
@@ -93,5 +93,5 @@ def test_hill_climber_ppo(one_task_store: Store):
 
     store.settings.agent = AgentType.PROXIMAL_POLICY_OPTIMIZATION
 
-    hill_climber = HillClimber(store)
-    hill_climber.solve()
+    optimizer = Optimizer(store)
+    optimizer.solve()

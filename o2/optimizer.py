@@ -16,8 +16,8 @@ from o2.util.indented_printer import print_l0, print_l1, print_l2, print_l3
 from o2.util.logger import STATS_LOG_LEVEL
 
 
-class HillClimber:
-    """The Hill Climber class is the main class that runs the optimization process."""
+class Optimizer:
+    """The Optimizer class is the main class that runs the optimization process."""
 
     def __init__(self, store: Store):
         self.store = store

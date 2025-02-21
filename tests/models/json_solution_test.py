@@ -1,5 +1,5 @@
-from o2.hill_climber import HillClimber
 from o2.models.json_report import JSONReport
+from o2.optimizer import Optimizer
 from o2.store import Store
 from tests.fixtures.constraints_generator import ConstraintsGenerator
 from tests.fixtures.test_helpers import replace_constraints
@@ -14,8 +14,8 @@ def test_creating_json_solution(store: Store):
     store.settings.max_iterations = 5
     store.settings.max_threads = 1
 
-    hill_climber = HillClimber(store)
-    generator = hill_climber.get_iteration_generator()
+    optimizer = Optimizer(store)
+    generator = optimizer.get_iteration_generator()
     next(generator)
 
     json_solution = JSONReport.from_store(store)
@@ -34,8 +34,8 @@ def test_creating_json_solution_with_timetable_id(store: Store):
     store.settings.max_iterations = 5
     store.settings.max_threads = 1
 
-    hill_climber = HillClimber(store)
-    generator = hill_climber.get_iteration_generator()
+    optimizer = Optimizer(store)
+    generator = optimizer.get_iteration_generator()
     next(generator)
 
     json_solution = JSONReport.from_store(store)
