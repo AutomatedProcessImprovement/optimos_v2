@@ -5,7 +5,7 @@ from o2.actions.base_actions.modify_size_rule_base_action import (
     ModifySizeRuleBaseAction,
     ModifySizeRuleBaseActionParamsType,
 )
-from o2.models.self_rating import SelfRatingInput
+from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.timetable import RULE_TYPE
 from o2.store import Store
 
@@ -54,7 +54,7 @@ class ModifySizeRuleByWTAction(ModifySizeRuleBaseAction):
                     )
                     duration_fn = "1" if not constraints else constraints[0].duration_fn
                     yield (
-                        ModifySizeRuleBaseAction.get_default_rating(),
+                        RATING.LOW,
                         ModifySizeRuleByWTAction(
                             ModifySizeRuleByWTActionParamsType(
                                 rule=selector,
