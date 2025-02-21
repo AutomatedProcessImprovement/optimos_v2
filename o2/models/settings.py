@@ -170,7 +170,7 @@ class Settings:
     This should only be activated for evaluation, as it will cause IO & processing overhead.
     """
 
-    COST_TYPE: ClassVar[CostType] = CostType.RESOURCE_COST
+    COST_TYPE: ClassVar[CostType] = CostType.WAITING_TIME_AND_PROCESSING_TIME
     """The type of cost to use for the optimization task.
 
     Because this won't differ during the optimization, it's a class variable.
