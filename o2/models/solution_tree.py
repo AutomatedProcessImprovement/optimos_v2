@@ -57,22 +57,31 @@ class SolutionTree:
         """
         nearest_solution: Optional[Solution] = None
         nearest_distance = float("inf")
-        for pareto_solution in reversed(pareto_front.solutions):
+        pareto_solutions = list(reversed(pareto_front.solutions))
+        error_count = 0
+        while len(pareto_solutions) > 0:
+            if error_count > 20:
+                warn("Got too many None items from rtree! Returning None.")
+                break
+            pareto_solution = pareto_solutions[0]
             item = next(
                 self.rtree.nearest(pareto_solution.point, 1, objects=True), None
             )
             if item is None:
                 warn("WARNING: Got None item from rtree.")
+                error_count += 1
                 continue
             solution = self.solution_lookup[item.id]
 
             if item.id in self.solution_lookup and solution is None:
                 warn("WARNING: Got discarded solution from rtree.")
                 self.rtree.delete(item.id, item.bbox)
+                error_count += 1
                 continue
 
             if solution is None:
                 warn("WARNING: Got non-existent solution from rtree.")
+                error_count += 1
                 continue
 
             distance = pareto_solution.evaluation.distance_to(solution.evaluation)
@@ -83,6 +92,7 @@ class SolutionTree:
             if distance < nearest_distance and distance <= max_distance:
                 nearest_solution = solution
                 nearest_distance = distance
+            pareto_solutions.pop(0)
         if nearest_solution is None:
             print_l3(
                 f"NO nearest solution was found in tree, for the given Pareto Front (size: {len(pareto_front.solutions)})."
