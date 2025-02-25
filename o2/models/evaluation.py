@@ -2,7 +2,7 @@ import math
 from collections import Counter
 from dataclasses import dataclass
 from functools import cached_property, reduce
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Callable, cast
 
 import pandas as pd
 from prosimos.execution_info import TaskEvent, Trace
@@ -718,7 +718,7 @@ class Evaluation:
     @staticmethod
     def from_run_simulation_result(
         hourly_rates: HourlyRates,
-        fixed_cost_fns: dict[str, str],
+        fixed_cost_fns: dict[str, Callable[[float], float]],
         batching_rules_exist: bool,
         result: RunSimulationResult,
     ) -> "Evaluation":
@@ -726,7 +726,9 @@ class Evaluation:
         global_kpis, task_kpis, resource_kpis, log_info = result
         cases: list[Trace] = [] if log_info is None else log_info.trace_list
 
-        batches = get_batches_from_event_log(log_info, batching_rules_exist)
+        batches = get_batches_from_event_log(
+            log_info, fixed_cost_fns, batching_rules_exist
+        )
 
         batches_greater_than_one = {
             batch_key: batch
@@ -742,6 +744,7 @@ class Evaluation:
                     "resource": batch["resource"],
                     "batch_size": batch["size"],
                     "batch_waiting_time_seconds": batch["wt_batching"],
+                    "fixed_cost": batch["fixed_cost"],
                 }
                 for batch in batches.values()
             ),
@@ -751,17 +754,8 @@ class Evaluation:
                 "resource",
                 "batch_size",
                 "batch_waiting_time_seconds",
+                "fixed_cost",
             ],
-        )
-
-        fixed_cost_fns_lambdas = lambdify_dict(fixed_cost_fns)
-        # waiting_time_canvas has the batch_size we need to calculate the fixed cost,
-        # so we go over each line and calculate the fixed cost for each task
-        batch_pd["fixed_cost"] = batch_pd.apply(
-            lambda x: fixed_cost_fns_lambdas.get(x["activity"], lambda _: 0)(
-                x["batch_size"]
-            ),
-            axis=1,
         )
 
         total_fixed_cost_by_task = (
