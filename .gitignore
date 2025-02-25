@@ -241,3 +241,7 @@ stores/
 *_stats.csv
 simulation_warnings.txt
 analyze_stores/
+
+/profile*
+/dump*
+/*.bin
