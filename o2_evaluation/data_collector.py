@@ -1,8 +1,15 @@
 #!/usr/bin/env python3
+# import yappi
+
+# yappi.set_clock_type("cpu")  # Use set_clock_type("wall") for wall time
+# yappi.start()
+
 import argparse
 import os
+from collections import defaultdict
 
 import numpy as np
+from typing_extensions import TypedDict
 
 from o2.models.settings import AgentType, CostType, Settings
 from o2.models.solution import Solution
@@ -136,9 +143,22 @@ def parse_args():
     return parser.parse_args()
 
 
+class Metrics(TypedDict):
+    """Metrics for the given store."""
+
+    store_name: str
+    number_of_solutions: int
+    patreto_size: int
+    hyperarea: float
+    hyperarea_ratio: float
+    hausdorff_distance: float
+    delta: float
+    purity: float
+
+
 def calculate_metrics(
     stores: list[tuple[str, Store]], extra_solutions: list[Solution] = []
-) -> None:
+) -> list[Metrics]:
     """Calculate the metrics for the given stores."""
     all_solutions: list[Solution] = []
     for _, store in stores:
@@ -167,6 +187,21 @@ def calculate_metrics(
     center_point = (max_cost, max_time)
     global_hyperarea = calculate_hyperarea(all_solutions_front, center_point)
 
+    metrics: list[Metrics] = []
+
+    metrics.append(
+        {
+            "store_name": "Global",
+            "number_of_solutions": len(all_solutions),
+            "patreto_size": len(all_solutions_front),
+            "hyperarea": global_hyperarea,
+            "hyperarea_ratio": 0.0,
+            "hausdorff_distance": 0.0,
+            "delta": 0.0,
+            "purity": 0.0,
+        }
+    )
+
     info("\n\nMetrics:")
     info("=========")
     info("Global Set:")
@@ -185,7 +220,7 @@ def calculate_metrics(
     for name, store in stores:
         pareto_solutions = store.current_pareto_front.solutions
         pareto_hyperarea = calculate_hyperarea(pareto_solutions, center_point)
-        ratio = 0.0 if global_hyperarea == 0.0 else global_hyperarea / pareto_hyperarea
+        ratio = 0.0 if global_hyperarea == 0.0 else pareto_hyperarea / global_hyperarea
 
         hausdorff_distance = calculate_averaged_hausdorff_distance(
             pareto_solutions, all_solutions_front
@@ -210,6 +245,21 @@ def calculate_metrics(
         info(f"\t> Averaged Hausdorff Distance: {hausdorff_distance}")
         info(f"\t> Delta Metric: {delta}")
         info(f"\t> Purity Metric: {purity}")
+
+        metrics.append(
+            {
+                "store_name": name,
+                "number_of_solutions": store.solution_tree.total_solutions,
+                "patreto_size": store.current_pareto_front.size,
+                "hyperarea": pareto_hyperarea,
+                "hyperarea_ratio": ratio,
+                "hausdorff_distance": hausdorff_distance,
+                "delta": delta,
+                "purity": purity,
+            }
+        )
+
+    return metrics
 
 
 def update_store_settings(
@@ -409,3 +459,36 @@ if __name__ == "__main__":
             )
         # Run the simulation/collection for the current scenario
         collect_data_sequentially(store, args)
+
+    # yappi.stop()
+
+    # func_stats = yappi.get_func_stats()
+    # func_stats.print_all()
+
+    # func_stats.print_all(
+    #     columns={
+    #         0: ("name", 80),
+    #         1: ("ncall", 5),
+    #         2: ("tsub", 8),
+    #         3: ("ttot", 8),
+    #         4: ("tavg", 8),
+    #     }
+    # )
+    # threads = yappi.get_thread_stats()
+    # for thread in threads:
+    #     print(
+    #         "Function stats for (%s) (%d)" % (thread.name, thread.id)
+    #     )  # it is the Thread.__class__.__name__
+    #     yappi.get_func_stats(ctx_id=thread.id).print_all(
+    #         columns={
+    #             0: ("name", 80),
+    #             1: ("ncall", 5),
+    #             2: ("tsub", 8),
+    #             3: ("ttot", 8),
+    #             4: ("tavg", 8),
+    #         }
+    #     )
+
+    # func_stats.save("profile2.ystat")
+    # func_stats.save("profile2.cg", type="callgrind")
+    # func_stats.save("profile2.pt", type="pstat")
