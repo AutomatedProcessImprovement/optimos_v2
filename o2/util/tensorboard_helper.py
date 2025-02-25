@@ -19,6 +19,7 @@ from o2.store import Store
 
 DIAGRAM_DUMP_INTERVAL = 2000
 SA_CALCULATION_INTERVAL = 100
+TENSORBOARD_DUMP_INTERVAL = 10
 
 TENSORBOARD_LOG_DIR = "./logs/optimos_v2_tensorboard"
 TENSORBOARD_LOG_DIR_ARCHIVE = f"{TENSORBOARD_LOG_DIR}_archive"
@@ -51,8 +52,10 @@ class TensorBoardHelper:
 
     def tensor_board_iteration_callback(self, solution: Solution) -> None:
         """Log the current solution to TensorBoard, including a 2D chart of the Pareto front."""
+        self.step += 1
+        if self.step % TENSORBOARD_DUMP_INTERVAL != 0:
+            return
         with self.writer.as_default():
-            self.step += 1
             if isinstance(self.agent, SimulatedAnnealingAgent):
                 tf.summary.scalar(
                     "sa/temperature", self.agent.temperature, step=self.step
@@ -62,7 +65,7 @@ class TensorBoardHelper:
                     solutions_left_for_temperature = len(
                         self.store.solution_tree.get_solutions_near_to_pareto_front(
                             self.store.current_pareto_front,
-                            max_distance=self.agent.temperature,
+                            max_distance=float(self.agent.temperature),
                         )
                     )
                     tf.summary.scalar(
