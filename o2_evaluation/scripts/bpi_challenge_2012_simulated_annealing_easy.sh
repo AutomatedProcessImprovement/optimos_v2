@@ -19,7 +19,7 @@ conda run -n opti2 --no-capture-output python ./o2_evaluation/data_collector.py 
     --sa-initial-temperature auto \
     --max-batch-size 50 \
     --max-iterations 1001 \
-    --dump-interval 250 \
+    --dump-interval 2500 \
     --max-non-improving-actions 500 \
     --max-threads 24 \
     --log-level DEBUG \
