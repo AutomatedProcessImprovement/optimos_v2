@@ -1,3 +1,4 @@
+from datetime import datetime
 from enum import Enum
 
 
@@ -21,6 +22,16 @@ class DAY(str, Enum):
         """Get the previous day."""
         index = DAYS.index(self)
         return DAYS[(index - 1) % len(DAYS)]
+
+    @staticmethod
+    def from_weekday(weekday: int) -> "DAY":
+        """Get the day from the weekday (e.g from datetime.weekday())."""
+        return DAYS[weekday]
+
+    @staticmethod
+    def from_date(date: datetime) -> "DAY":
+        """Get the day from the date."""
+        return DAY.from_weekday(date.weekday())
 
 
 DAYS = [

@@ -1,3 +1,4 @@
+import functools
 import hashlib
 from collections import defaultdict
 from collections.abc import Iterator
@@ -9,6 +10,7 @@ from json import dumps
 from operator import itemgetter
 from typing import (
     TYPE_CHECKING,
+    Callable,
     Generic,
     Literal,
     Optional,
@@ -31,6 +33,7 @@ from o2.util.bit_mask_helper import (
 from o2.util.custom_dumper import CustomDumper, CustomLoader
 from o2.util.helper import (
     CLONE_REGEX,
+    cached_lambdify,
     hash_int,
     hash_string,
     name_is_clone_of,
@@ -339,7 +342,7 @@ class ResourceCalendar(JSONWizard, CustomLoader, CustomDumper):
     def split_time_periods_by_day(self) -> list["TimePeriod"]:
         """Split the time periods by day and sort them."""
         return sorted(
-            (tp for tp in self.time_periods for tp in tp.split_by_day()),
+            (tp for tp in self.time_periods for tp in tp.split_by_day),
             key=lambda tp: tp.from_,
         )
 
@@ -385,7 +388,7 @@ class ResourceCalendar(JSONWizard, CustomLoader, CustomDumper):
     @property
     def max_periods_per_day(self) -> int:
         """Get the maximum number of periods in a day."""
-        return max(len(list(tp.split_by_day())) for tp in self.time_periods)
+        return max(len(list(tp.split_by_day)) for tp in self.time_periods)
 
     @property
     def max_hours_per_day(self) -> int:
@@ -427,7 +430,7 @@ class ResourceCalendar(JSONWizard, CustomLoader, CustomDumper):
                 # and only remove the correct day
                 new_time_periods = [
                     tp
-                    for tp in old_time_period.split_by_day()
+                    for tp in old_time_period.split_by_day
                     if tp.from_ != time_period.from_
                 ]
                 return replace(
@@ -443,8 +446,8 @@ class ResourceCalendar(JSONWizard, CustomLoader, CustomDumper):
             # If the days are different, we need to split the time
             # periods by day, and only replace the time period
             # for the correct day.
-            new_time_periods = time_period.split_by_day()
-            old_time_periods = old_time_period.split_by_day()
+            new_time_periods = time_period.split_by_day
+            old_time_periods = old_time_period.split_by_day
 
             combined_time_periods = new_time_periods + [
                 tp
@@ -1253,10 +1256,10 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
             resource.id: resource.cost_per_hour for resource in self.get_all_resources()
         }
 
-    def get_fixed_cost_fns(self) -> dict[str, str]:
+    def get_fixed_cost_fns(self) -> dict[str, Callable[[float], float]]:
         """Get the fixed cost function for each resource pool (task)."""
         return {
-            resource_profile.id: resource_profile.fixed_cost_fn
+            resource_profile.id: cached_lambdify(resource_profile.fixed_cost_fn)
             for resource_profile in self.resource_profiles
         }
 

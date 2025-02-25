@@ -441,13 +441,13 @@ class Evaluation:
                     weekdays[event.task_id] = {}
                 if event.enabled_datetime is None:
                     continue
-                weekday = event.enabled_datetime.strftime("%A").upper()
+                day = DAY.from_date(event.enabled_datetime)
                 hour = event.enabled_datetime.hour
-                if weekday not in weekdays[event.task_id]:
-                    weekdays[event.task_id][DAY(weekday)] = {}
-                if hour not in weekdays[event.task_id][DAY(weekday)]:
-                    weekdays[event.task_id][DAY(weekday)][hour] = 0
-                weekdays[event.task_id][DAY(weekday)][hour] += 1
+                if day not in weekdays[event.task_id]:
+                    weekdays[event.task_id][day] = {}
+                if hour not in weekdays[event.task_id][day]:
+                    weekdays[event.task_id][day][hour] = 0
+                weekdays[event.task_id][day][hour] += 1
         return weekdays
 
     @staticmethod
@@ -463,13 +463,13 @@ class Evaluation:
                     weekdays[event.task_id] = {}
                 if event.started_datetime is None:
                     continue
-                weekday = event.started_datetime.strftime("%A").upper()
+                day = DAY.from_date(event.started_datetime)
                 hour = event.started_datetime.hour
-                if weekday not in weekdays[event.task_id]:
-                    weekdays[event.task_id][DAY(weekday)] = {}
-                if hour not in weekdays[event.task_id][DAY(weekday)]:
-                    weekdays[event.task_id][DAY(weekday)][hour] = 0
-                weekdays[event.task_id][DAY(weekday)][hour] += 1
+                if day not in weekdays[event.task_id]:
+                    weekdays[event.task_id][day] = {}
+                if hour not in weekdays[event.task_id][day]:
+                    weekdays[event.task_id][day][hour] = 0
+                weekdays[event.task_id][day][hour] += 1
         return weekdays
 
     @staticmethod
@@ -549,13 +549,13 @@ class Evaluation:
                     weekdays[event.resource_id][event.task_id] = {}
                 if event.started_datetime is None:
                     continue
-                weekday = event.started_datetime.strftime("%A").upper()
+                day = DAY.from_date(event.started_datetime)
                 hour = event.started_datetime.hour
-                if weekday not in weekdays[event.resource_id][event.task_id]:
-                    weekdays[event.resource_id][event.task_id][DAY(weekday)] = {}
-                if hour not in weekdays[event.resource_id][event.task_id][DAY(weekday)]:
-                    weekdays[event.resource_id][event.task_id][DAY(weekday)][hour] = 0
-                weekdays[event.resource_id][event.task_id][DAY(weekday)][hour] += 1
+                if day not in weekdays[event.resource_id][event.task_id]:
+                    weekdays[event.resource_id][event.task_id][day] = {}
+                if hour not in weekdays[event.resource_id][event.task_id][day]:
+                    weekdays[event.resource_id][event.task_id][day][hour] = 0
+                weekdays[event.resource_id][event.task_id][day][hour] += 1
         return weekdays
 
     @staticmethod
@@ -601,14 +601,13 @@ class Evaluation:
                     tasks_with_enablement_dates[event.task_id] = {}
                 if event.started_datetime is None:
                     continue
-                weekday = event.started_datetime.strftime("%A").upper()
+                day = DAY.from_date(event.started_datetime)
                 hour = event.started_datetime.hour
-                tasks_with_enablement_dates[event.task_id][DAY(weekday)][hour] = (
-                    tasks_with_enablement_dates[event.task_id]
-                    .get(DAY(weekday), {})
-                    .get(hour, 0)
-                    + 1
-                )
+                if day not in tasks_with_enablement_dates[event.task_id]:
+                    tasks_with_enablement_dates[event.task_id][day] = {}
+                if hour not in tasks_with_enablement_dates[event.task_id][day]:
+                    tasks_with_enablement_dates[event.task_id][day][hour] = 0
+                tasks_with_enablement_dates[event.task_id][day][hour] += 1
 
         return {
             task_id: sum(

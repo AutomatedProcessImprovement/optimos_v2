@@ -164,6 +164,7 @@ class TimePeriod(BaseModel):
             }
         )
 
+    @functools.cached_property
     def split_by_day(self) -> list["TimePeriod"]:
         """Split the time period by day.
 
@@ -171,8 +172,15 @@ class TimePeriod(BaseModel):
         """
         if self.is_empty:
             return []
+        if self.from_ == self.to:
+            return [self]
         return [
-            self.model_copy(update={"from_": day, "to": day})
+            TimePeriod(
+                from_=day,
+                to=day,
+                begin_time=self.begin_time,
+                end_time=self.end_time,
+            )
             for day in day_range(self.from_, self.to)
         ]
 

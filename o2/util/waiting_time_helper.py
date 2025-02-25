@@ -1,11 +1,13 @@
 from collections import defaultdict
 from datetime import datetime
-from typing import TypedDict
+from typing import Callable, TypedDict
 
 from prosimos.simulation_stats_calculator import (
     LogInfo,
     TaskEvent,
 )
+
+from o2.util.helper import lambdify_dict
 
 BatchInfoKey = tuple[str, str, datetime]
 """Activity, resource, start time"""
@@ -45,6 +47,9 @@ class BatchInfo(TypedDict):
     """Ideal processing time without considering idle time, i.e., removing the idle
       time from the real processing"""
     size: int
+    """Number of tasks in the batch"""
+    fixed_cost: float
+    """Fixed cost of the batch"""
 
 
 class SimpleBatchInfo(TypedDict):
@@ -57,7 +62,9 @@ class SimpleBatchInfo(TypedDict):
 
 
 def get_batches_from_event_log(
-    log: LogInfo, batching_rules_exist=True
+    log: LogInfo,
+    fixed_cost_fns: dict[str, Callable[[float], float]],
+    batching_rules_exist=True,
 ) -> dict[BatchInfoKey, BatchInfo]:
     """Identify batches with their key statistics.
 
@@ -128,6 +135,9 @@ def get_batches_from_event_log(
                 if event.enabled_datetime is not None
             ]
         )
+
+        fixed_cost = fixed_cost_fns.get(activity, lambda _: 0)(len(batch))
+
         result[(activity, resource, execution_start)] = {
             "case": case,
             "activity": activity,
@@ -144,6 +154,7 @@ def get_batches_from_event_log(
             "real_proc": processing_time,
             "ideal_proc": ideal_processing_time,
             "size": len(batch),
+            "fixed_cost": fixed_cost,
         }
 
     return result

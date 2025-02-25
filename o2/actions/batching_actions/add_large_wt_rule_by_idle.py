@@ -79,8 +79,8 @@ class AddLargeWTRuleByIdleAction(AddReadyLargeWTRuleBaseAction):
                 if calendar is None:
                     continue
                 for batch in batch_group:
-                    first_enablement_weekday = DAY(
-                        batch["accumulation_begin"].strftime("%A").upper()
+                    first_enablement_weekday = DAY.from_date(
+                        batch["accumulation_begin"]
                     )
                     required_processing_time = ceil(batch["ideal_proc"] / 3600)
 

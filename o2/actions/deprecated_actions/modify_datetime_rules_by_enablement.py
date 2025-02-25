@@ -148,7 +148,7 @@ class ModifyDateTimeRulesByEnablementAction(AddDateTimeRuleBaseAction):
                 enablement = event.enabled_datetime
                 if not isinstance(enablement, datetime):
                     continue
-                day: DAY = DAY[enablement.strftime("%A").upper()]
+                day: DAY = DAY.from_date(enablement)
                 hour = enablement.hour
                 if task_batch_enablement[event.task_id].has_hour_for_day(day, hour):
                     continue
