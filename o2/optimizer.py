@@ -48,7 +48,7 @@ class Optimizer:
         raise ValueError(f"Unknown agent type: {self.store.settings.agent}")
 
     def solve(self) -> None:
-        """Run the hill climber and print the result."""
+        """Run the optimizer and print the result."""
         print_l1(
             f"Initial evaluation: {self.store.base_solution.evaluation}",
             log_level=STATS_LOG_LEVEL,
@@ -70,7 +70,7 @@ class Optimizer:
     def get_iteration_generator(
         self, yield_on_non_acceptance: bool = False
     ) -> Generator[Solution, None, None]:
-        """Run the hill climber and yield optimal Solution.
+        """Run the optimizer and yield optimal Solution.
 
         NOTE: You usually want to use the `solve` method instead of this
         method, but if you want to process the Solution as they come,
