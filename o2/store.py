@@ -129,7 +129,7 @@ class Store:
             self._add_solution(solution, not solution.is_valid)
 
             status = self.current_pareto_front.is_in_front(solution)
-            if solution.evaluation.is_empty:
+            if not solution.is_valid:
                 status = FRONT_STATUS.INVALID
 
             if status == FRONT_STATUS.IN_FRONT:

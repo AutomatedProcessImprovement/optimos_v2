@@ -57,8 +57,10 @@ class Solution:
         """Check if the evaluation is valid."""
         return (
             not self.evaluation.is_empty
-            and not self.evaluation.pareto_x < 1
-            and not self.evaluation.pareto_y < 1
+            # Ensure that there was no error runing the simulation,
+            # that results in a < 1 value.
+            and self.evaluation.pareto_x >= 1
+            and self.evaluation.pareto_y >= 1
         )
 
     @functools.cached_property

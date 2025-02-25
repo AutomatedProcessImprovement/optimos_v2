@@ -117,6 +117,9 @@ class ParetoFront:
         if not self.solutions:
             return FRONT_STATUS.IN_FRONT
 
+        if not solution.is_valid:
+            return FRONT_STATUS.INVALID
+
         self_is_always_dominated = True
         for s in self.solutions:
             if not s.is_dominated_by(solution):
