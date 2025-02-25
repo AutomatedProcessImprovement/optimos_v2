@@ -1,3 +1,4 @@
+import functools
 import random
 import re
 import string
@@ -45,9 +46,15 @@ def hash_string(s: object) -> str:
     return xxhash.xxh32(str(s)).hexdigest()
 
 
+@functools.lru_cache(maxsize=100)
+def cached_lambdify(expr: str) -> Callable[[float], float]:
+    """Lambdify an expression and cache the result."""
+    return functools.lru_cache(maxsize=100)(lambdify(Symbol("size"), expr))
+
+
 def lambdify_dict(d: dict[str, str]) -> dict[str, Callable[[float], float]]:
     """Convert all lambdas in the dictionary to functions."""
-    return {k: lambdify(Symbol("size"), v) for k, v in d.items()}
+    return {k: cached_lambdify(v) for k, v in d.items()}
 
 
 P = ParamSpec("P")
