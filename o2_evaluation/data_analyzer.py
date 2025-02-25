@@ -65,10 +65,6 @@ if __name__ == "__main__":
     scenarios = list(stores_files.keys())
 
     for scenario in scenarios:
-        if not "bpi" in scenario.lower():
-            continue
-        if not "mid" in scenario.lower():
-            continue
         info(f"Processing scenario: {scenario}")
         stores: list[tuple[str, Store]] = []
         solutions: list[Solution] = []
@@ -108,4 +104,3 @@ if __name__ == "__main__":
         # Calculate the metrics for the given stores
         calculate_metrics(stores, solutions)
         info(f"Finished processing scenario: {scenario}; Collecting garbage...")
-        break
