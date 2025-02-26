@@ -29,9 +29,7 @@ def replace_state(store: Store, **kwargs):
     """Updates the state of the store. (not in place)"""
     new_state = replace(store.solution.state, **kwargs)
     evaluation = new_state.evaluate()
-    new_solution = Solution(
-        evaluation=evaluation, state=new_state, parent_state=None, actions=[]
-    )
+    new_solution = Solution(evaluation=evaluation, state=new_state, actions=[])
     return Store(
         solution=new_solution,
         constraints=store.constraints,
@@ -83,7 +81,7 @@ def create_mock_solution(
 
     evaluation = Evaluation.from_run_simulation_result(
         {"_": total_cost},
-        {"_": f"{total_cost}"},
+        {"_": lambda x: total_cost},
         state.timetable.batching_rules_exist,
         (
             kpis,
@@ -93,7 +91,7 @@ def create_mock_solution(
         ),  # type: ignore
     )
     state = replace(state, bpmn_definition=random_string())
-    return Solution(evaluation, state, None, [MockAction()])
+    return Solution(evaluation=evaluation, state=state, actions=[MockAction()])
 
 
 def assert_no_first_valid(

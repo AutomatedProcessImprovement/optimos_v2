@@ -1,12 +1,15 @@
 import functools
+import math
 from dataclasses import dataclass, field
 from json import dumps
 from typing import Optional
 
 from o2.actions.base_actions.base_action import BaseAction
 from o2.models.evaluation import Evaluation
+from o2.models.settings import Settings
 from o2.models.state import State
 from o2.util.helper import hash_int
+from o2.util.solution_dumper import SolutionDumper
 
 
 @dataclass(frozen=True)
@@ -16,18 +19,34 @@ class Solution:
     A solution is a pair of an evaluation, the (new) state, the old,
     parent state, and the actions that led to this solution. With the last
     action being the one that led to this solution.
+
+    NOTE: There are two evaluations defined in the class, with `evaluation` definiton
+    just beeing there to satisfy type checking. The actual evaluation is stored in
+    `_evaluation`, which is loaded from the evaluation file when needed.
     """
 
-    evaluation: Evaluation
     state: State
-    parent_state: Optional[State]
 
     actions: list["BaseAction"] = field(default_factory=list)
     """Actions taken since the base state."""
 
-    def __post_init__(self) -> None:  # noqa: D105
-        if not self.id:
-            self.id = Solution.hash_action_list(self.actions)  # type: ignore
+    evaluation: Evaluation  # type: ignore
+    _evaluation: Optional[Evaluation] = field(init=False, repr=False, default=None)
+
+    @property
+    def evaluation(self) -> Evaluation:
+        """Return the evaluation of the solution."""
+        if self._evaluation is None and Settings.ARCHIVE_SOLUTIONS:
+            self.__dict__["_evaluation"] = SolutionDumper.instance.load_evaluation(
+                self.id
+            )
+        assert self._evaluation is not None
+        return self._evaluation
+
+    @evaluation.setter
+    def evaluation(self, value: Evaluation) -> None:
+        """Set the evaluation of the solution."""
+        self.__dict__["_evaluation"] = value
 
     @property
     def is_base_solution(self) -> bool:
@@ -39,10 +58,27 @@ class Solution:
         """Return the last action taken."""
         return self.actions[-1]
 
-    @property
+    @functools.cached_property
     def point(self) -> tuple[float, float]:
         """Return the evaluation as a point."""
         return self.evaluation.to_tuple()
+
+    @functools.cached_property
+    def pareto_x(self) -> float:
+        """Return the pareto x of the solution."""
+        return self.evaluation.pareto_x
+
+    @functools.cached_property
+    def pareto_y(self) -> float:
+        """Return the pareto y of the solution."""
+        return self.evaluation.pareto_y
+
+    def distance_to(self, other: "Solution") -> float:
+        """Calculate the euclidean distance between two evaluations."""
+        return math.sqrt(
+            (self.pareto_x - other.pareto_x) ** 2
+            + (self.pareto_y - other.pareto_y) ** 2
+        )
 
     def is_dominated_by(self, solution: "Solution") -> bool:
         """Check if this solution is dominated by the given solution."""
@@ -52,15 +88,31 @@ class Solution:
         """Check if this solution has the same point as the given solution."""
         return self.point == solution.point
 
-    @property
+    def archive(self) -> None:
+        """Archive the solution."""
+        if not Settings.ARCHIVE_SOLUTIONS:
+            return
+        # Solution is already archived
+        if self._evaluation is None:
+            return
+        SolutionDumper.instance.dump_evaluation(self.id, self.evaluation)
+        self.__dict__["_evaluation"] = None
+
+    def __eq__(self, value: object) -> bool:
+        """Check if this solution is equal to the given object."""
+        if not isinstance(value, Solution):
+            return False
+        return self.id == value.id
+
+    @functools.cached_property
     def is_valid(self) -> bool:
         """Check if the evaluation is valid."""
         return (
             not self.evaluation.is_empty
             # Ensure that there was no error runing the simulation,
             # that results in a < 1 value.
-            and self.evaluation.pareto_x >= 1
-            and self.evaluation.pareto_y >= 1
+            and self.pareto_x >= 1
+            and self.pareto_y >= 1
         )
 
     @functools.cached_property
@@ -74,6 +126,8 @@ class Solution:
     @staticmethod
     def hash_action_list(actions: list["BaseAction"]) -> int:
         """Hash a list of actions."""
+        if not actions:
+            return 0
         return hash_int(dumps([a.id for a in actions]))
 
     @staticmethod
@@ -93,7 +147,6 @@ class Solution:
         return Solution(
             evaluation=evaluation,
             state=new_state,
-            parent_state=parent.state,
             actions=parent.actions + [action],
         )
 
@@ -103,7 +156,6 @@ class Solution:
         return Solution(
             evaluation=Evaluation.empty(),
             state=state,
-            parent_state=None,
             actions=[last_action] if last_action else [],
         )
 
@@ -115,6 +167,5 @@ class Solution:
         return Solution(
             evaluation=Evaluation.empty(),
             state=parent.state,
-            parent_state=parent.parent_state,
             actions=parent.actions + [last_action] if last_action else parent.actions,
         )

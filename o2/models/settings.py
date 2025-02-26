@@ -201,6 +201,21 @@ class Settings:
     run parallel, it might interfere with the runs.
     """
 
+    ARCHIVE_SOLUTIONS: ClassVar[bool] = True
+    """Should the solutions be archived?
+
+    This is useful for large models, because keeping all solutions in memory
+    might cause memory issues. When enabled, the solutions will be archived
+    to the file system via pickle and loaded on demand.
+    """
+
+    DELETE_LOADED_SOLUTIONS: ClassVar[bool] = False
+    """If an archived solution is loaded, should it be deleted?
+
+    This will save (some) disk space, but will be slower, as a solution might
+    need to be delted & rewritten to disk multiple times.
+    """
+
     @staticmethod
     def get_pareto_x_label() -> str:
         """Get the label for the x-axis (cost) of the pareto front."""
