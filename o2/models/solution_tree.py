@@ -38,7 +38,7 @@ class SolutionTree:
         """Add a solution to the tree."""
         self.solution_lookup[solution.id] = solution
         self.rtree.insert(solution.id, solution.point)
-        if archive and Settings.ARCHIVE_SOLUTIONS:
+        if archive and not solution.is_base_solution and Settings.ARCHIVE_SOLUTIONS:
             solution.archive()
 
     def add_solution_as_discarded(self, solution: "Solution") -> None:

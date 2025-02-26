@@ -108,6 +108,8 @@ if __name__ == "__main__":
     Settings.LOG_LEVEL = "DEBUG"
     Settings.LOG_FILE = "logs/data_analyzer.log"
     Settings.COST_TYPE = CostType.WAITING_TIME_AND_PROCESSING_TIME
+    Settings.ARCHIVE_SOLUTIONS = True
+    Settings.DELETE_LOADED_SOLUTION_ARCHIVES = False
     setup_logging()
 
     gc.disable()

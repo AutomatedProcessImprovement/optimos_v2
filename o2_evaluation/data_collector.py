@@ -314,6 +314,8 @@ def collect_data_sequentially(base_store: Store, args) -> None:
     Settings.DUMP_DISCARDED_SOLUTIONS = True
     Settings.NUMBER_OF_CASES = args.number_of_cases
     Settings.ARCHIVE_TENSORBOARD_LOGS = args.archive_tensorboard_logs
+    Settings.ARCHIVE_SOLUTIONS = True
+    Settings.DELETE_LOADED_SOLUTION_ARCHIVES = False
 
     # Optionally archive previous TensorBoard logs
     if (

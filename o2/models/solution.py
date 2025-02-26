@@ -25,8 +25,6 @@ class Solution:
     `_evaluation`, which is loaded from the evaluation file when needed.
     """
 
-    state: State
-
     actions: list["BaseAction"] = field(default_factory=list)
     """Actions taken since the base state."""
 
@@ -47,6 +45,22 @@ class Solution:
     def evaluation(self, value: Evaluation) -> None:
         """Set the evaluation of the solution."""
         self.__dict__["_evaluation"] = value
+
+    state: State  # type: ignore
+    _state: Optional[State] = field(init=False, repr=False, default=None)
+
+    @property
+    def state(self) -> State:
+        """Return the state of the solution."""
+        if self._state is None and Settings.ARCHIVE_SOLUTIONS:
+            self.__dict__["_state"] = SolutionDumper.instance.load_state(self.id)
+        assert self._state is not None
+        return self._state
+
+    @state.setter
+    def state(self, value: State) -> None:
+        """Set the state of the solution."""
+        self.__dict__["_state"] = value
 
     @property
     def is_base_solution(self) -> bool:
@@ -93,10 +107,12 @@ class Solution:
         if not Settings.ARCHIVE_SOLUTIONS:
             return
         # Solution is already archived
-        if self._evaluation is None:
-            return
-        SolutionDumper.instance.dump_evaluation(self.id, self.evaluation)
-        self.__dict__["_evaluation"] = None
+        if self._evaluation is not None:
+            SolutionDumper.instance.dump_evaluation(self.id, self.evaluation)
+            self.__dict__["_evaluation"] = None
+        if self._state is not None:
+            SolutionDumper.instance.dump_state(self.id, self.state)
+            self.__dict__["_state"] = None
 
     def __eq__(self, value: object) -> bool:
         """Check if this solution is equal to the given object."""

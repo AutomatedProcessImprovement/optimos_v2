@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Optional
 
 from o2.models.evaluation import Evaluation
 from o2.models.settings import Settings
+from o2.models.state import State
 
 if TYPE_CHECKING:
     from o2.models.solution import Solution
@@ -26,8 +27,10 @@ class SolutionDumper:
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         self.folder = os.path.join("stores", f"run_{timestamp}")
         self.evaluation_folder = os.path.join(self.folder, "evaluations")
+        self.state_folder = os.path.join(self.folder, "states")
         os.makedirs(self.folder, exist_ok=True)
         os.makedirs(self.evaluation_folder, exist_ok=True)
+        os.makedirs(self.state_folder, exist_ok=True)
 
         # Filenames and file handles (initialized later)
         self.current_store_name: Optional[str] = None
@@ -153,7 +156,7 @@ class SolutionDumper:
         )
         # As we identify the solution by its id, we don't need to dump the
         # evaluation if it already exists.
-        if os.path.exists(filename) and not Settings.DELETE_LOADED_SOLUTIONS:
+        if os.path.exists(filename) and not Settings.DELETE_LOADED_SOLUTION_ARCHIVES:
             return
         with open(filename, "wb") as f:
             pickle.dump(evaluation, f)
@@ -166,6 +169,29 @@ class SolutionDumper:
         )
         with open(filename, "rb") as f:
             evaluation = pickle.load(f)
-        if Settings.DELETE_LOADED_SOLUTIONS:
+        if Settings.DELETE_LOADED_SOLUTION_ARCHIVES:
             os.remove(filename)
         return evaluation
+
+    def dump_state(self, solution_id: int, state: State) -> None:
+        """Dump the current state of the solution dumper to disk."""
+        filename = os.path.join(
+            self.state_folder,
+            f"state_{self.sanitized_current_store_name}_{solution_id}.pkl",
+        )
+        if os.path.exists(filename) and not Settings.DELETE_LOADED_SOLUTION_ARCHIVES:
+            return
+        with open(filename, "wb") as f:
+            pickle.dump(state, f)
+
+    def load_state(self, solution_id: int) -> State:
+        """Load the current state of the solution dumper from disk."""
+        filename = os.path.join(
+            self.state_folder,
+            f"state_{self.sanitized_current_store_name}_{solution_id}.pkl",
+        )
+        with open(filename, "rb") as f:
+            state = pickle.load(f)
+        if Settings.DELETE_LOADED_SOLUTION_ARCHIVES:
+            os.remove(filename)
+        return state
