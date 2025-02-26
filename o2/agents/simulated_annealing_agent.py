@@ -115,9 +115,7 @@ class SimulatedAnnealingAgent(Agent):
             # Maybe accept bad solution
             if status == FRONT_STATUS.DOMINATES:
                 # TODO: Min Distance to front
-                distance = solution.evaluation.distance_to(
-                    self.store.current_evaluation
-                )
+                distance = solution.distance_to(self.store.solution)
                 debug(f"Discarded solution distance: {distance}")
                 if accept_worse_solution(distance, self.temperature):
                     debug("Randomly accepted discarded solution.")
@@ -135,7 +133,7 @@ class SimulatedAnnealingAgent(Agent):
         if solution is None:
             raise NoNewBaseSolutionFoundError("No new baseline evaluation found.")
 
-        distance = self.store.current_pareto_front.avg_distance_to(solution.evaluation)
+        distance = self.store.current_pareto_front.avg_distance_to(solution)
         print_l2(f"Selected new random base solution with distance: {distance:_}")
         self.store.solution_tree.remove_solution(solution)
         return solution
