@@ -22,6 +22,7 @@ conda run -n opti2 --no-capture-output python ./o2_evaluation/data_collector.py 
     --dump-interval 1000 \
     --max-non-improving-actions 40 \
     --max-threads 24 \
+    --max-number-of-actions-to-select 24 \
     --log-level DEBUG \
     --log-file ./logs/proximal_policy_optimization_bpi_challenge_2012_hard.log \
     --log-to-tensor-board \

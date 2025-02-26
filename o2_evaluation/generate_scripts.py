@@ -74,6 +74,7 @@ def generate_script(
         --dump-interval {dump_interval} \\
         --max-non-improving-actions {max_non_improving_actions} \\
         --max-threads {CORES - 1} \\
+        --max-number-of-actions-to-select {CORES - 1} \\
         --log-level DEBUG \\
         --log-file ./logs/{model_name}_{scenario_name}_{mode_name_sanitized}.log \\
         --log-to-tensor-board \\

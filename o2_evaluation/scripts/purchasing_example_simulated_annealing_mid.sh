@@ -22,6 +22,7 @@ conda run -n opti2 --no-capture-output python ./o2_evaluation/data_collector.py 
     --dump-interval 2500 \
     --max-non-improving-actions 500 \
     --max-threads 24 \
+    --max-number-of-actions-to-select 24 \
     --log-level DEBUG \
     --log-file ./logs/simulated_annealing_purchasing_example_mid.log \
     --log-to-tensor-board \
