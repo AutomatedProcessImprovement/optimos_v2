@@ -34,7 +34,14 @@ class Solution:
     @property
     def evaluation(self) -> Evaluation:
         """Return the evaluation of the solution."""
-        if self._evaluation is None and Settings.ARCHIVE_SOLUTIONS:
+        if (
+            self._evaluation is None
+            and "evaluation" in self.__dict__
+            and self.__dict__["evaluation"] is not None
+        ):
+            self.__dict__["_evaluation"] = self.__dict__["evaluation"]
+            return self.__dict__["_evaluation"]
+        elif self._evaluation is None and Settings.ARCHIVE_SOLUTIONS:
             self.__dict__["_evaluation"] = SolutionDumper.instance.load_evaluation(
                 self.id
             )
