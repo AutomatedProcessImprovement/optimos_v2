@@ -8,7 +8,7 @@ from o2.actions.base_actions.base_action import BaseAction
 from o2.agents.agent import Agent, NoActionsLeftError, NoNewBaseSolutionFoundError
 from o2.agents.simulated_annealing_agent import SimulatedAnnealingAgent
 from o2.agents.tabu_agent import TabuAgent
-from o2.models.settings import AgentType
+from o2.models.settings import AgentType, Settings
 from o2.models.solution import Solution
 from o2.pareto_front import FRONT_STATUS
 from o2.store import SolutionTry, Store
@@ -139,14 +139,14 @@ class Optimizer:
                         if status == FRONT_STATUS.IN_FRONT:
                             print_l3("Pareto front CONTAINS new evaluation.")
                             print_l3(
-                                f"Evaluation: {solution.evaluation}",
+                                f"Evaluation: {Settings.get_pareto_x_label()}: {solution.pareto_x:2f}; {Settings.get_pareto_y_label()}: {solution.pareto_y:2f}",
                                 log_level=STATS_LOG_LEVEL,
                             )
 
                         elif status == FRONT_STATUS.IS_DOMINATED:
                             print_l3("Pareto front IS DOMINATED by new evaluation.")
                             print_l3(
-                                f"New best Evaluation: {solution.evaluation}",
+                                f"New best Evaluation: {Settings.get_pareto_x_label()}: {solution.pareto_x:2f}; {Settings.get_pareto_y_label()}: {solution.pareto_y:2f}",
                                 log_level=STATS_LOG_LEVEL,
                             )
                             self.max_non_improving_iter = (
