@@ -2,7 +2,7 @@
 
 #SBATCH --job-name="Optimos V2 Run purchasing_example Tabu Search EASY"
 #SBATCH --partition=main
-#SBATCH --time=03:00:00
+#SBATCH --time=05:00:00
 #SBATCH --mem=60G
 #SBATCH --cpus-per-task=25
 
