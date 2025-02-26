@@ -2,7 +2,7 @@
 
 #SBATCH --job-name="Optimos V2 Run callcentre Tabu Search MID"
 #SBATCH --partition=main
-#SBATCH --time=03:00:00
+#SBATCH --time=05:00:00
 #SBATCH --mem=60G
 #SBATCH --cpus-per-task=25
 

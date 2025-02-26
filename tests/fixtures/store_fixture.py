@@ -37,9 +37,7 @@ def one_task_state():
 @pytest.fixture(scope="function")
 def one_task_solution(one_task_state: State):
     evaluation = one_task_state.evaluate()
-    return Solution(
-        evaluation=evaluation, state=one_task_state, parent_state=None, actions=[]
-    )
+    return Solution(evaluation=evaluation, state=one_task_state, actions=[])
 
 
 @pytest.fixture(scope="function")
@@ -65,9 +63,7 @@ def two_tasks_state():
 @pytest.fixture(scope="function")
 def two_tasks_solution(two_tasks_state: State):
     evaluation = two_tasks_state.evaluate()
-    return Solution(
-        evaluation=evaluation, state=two_tasks_state, parent_state=None, actions=[]
-    )
+    return Solution(evaluation=evaluation, state=two_tasks_state, actions=[])
 
 
 @pytest.fixture(scope="function")
@@ -101,9 +97,7 @@ def constraints():
 @pytest.fixture(scope="function")
 def batching_solution(batching_state: State):
     evaluation = batching_state.evaluate()
-    return Solution(
-        evaluation=evaluation, state=batching_state, parent_state=None, actions=[]
-    )
+    return Solution(evaluation=evaluation, state=batching_state, actions=[])
 
 
 @pytest.fixture(scope="function")

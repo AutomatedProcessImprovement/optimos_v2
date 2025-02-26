@@ -34,14 +34,18 @@ class SolutionTree:
         self.rtree = rtree.index.Index()
         self.solution_lookup: OrderedDict[int, Optional[Solution]] = OrderedDict()
 
-    def add_solution(self, solution: "Solution") -> None:
+    def add_solution(self, solution: "Solution", archive: bool = True) -> None:
         """Add a solution to the tree."""
         self.solution_lookup[solution.id] = solution
         self.rtree.insert(solution.id, solution.point)
+        if archive and not solution.is_base_solution and Settings.ARCHIVE_SOLUTIONS:
+            solution.archive()
 
     def add_solution_as_discarded(self, solution: "Solution") -> None:
         """Add a solution to the tree as discarded."""
         self.solution_lookup[solution.id] = None
+        if Settings.DUMP_DISCARDED_SOLUTIONS:
+            SolutionDumper.instance.dump_solution(solution)
 
     def get_nearest_solution(
         self, pareto_front: ParetoFront, max_distance: float = float("inf")
@@ -84,7 +88,7 @@ class SolutionTree:
                 error_count += 1
                 continue
 
-            distance = pareto_solution.evaluation.distance_to(solution.evaluation)
+            distance = pareto_solution.distance_to(solution)
             # Early exit if we find a pareto solution.
             # Because of reversed, it will be the most recent
             if distance == 0:

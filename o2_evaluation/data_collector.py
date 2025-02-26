@@ -1,8 +1,4 @@
 #!/usr/bin/env python3
-# import yappi
-
-# yappi.set_clock_type("cpu")  # Use set_clock_type("wall") for wall time
-# yappi.start()
 
 import argparse
 import os
@@ -325,9 +321,8 @@ def collect_data_sequentially(base_store: Store, args) -> None:
     Settings.DUMP_DISCARDED_SOLUTIONS = True
     Settings.NUMBER_OF_CASES = args.number_of_cases
     Settings.ARCHIVE_TENSORBOARD_LOGS = args.archive_tensorboard_logs
-
-    # Initialize the solution dumper
-    SolutionDumper()
+    Settings.ARCHIVE_SOLUTIONS = True
+    Settings.DELETE_LOADED_SOLUTION_ARCHIVES = False
 
     # Optionally archive previous TensorBoard logs
     if (
@@ -420,6 +415,9 @@ if __name__ == "__main__":
 
     setup_logging()
 
+    # Initialize the solution dumper
+    SolutionDumper()
+
     # Loop over the active scenarios provided via CLI
     for scenario in args.active_scenarios:
         if scenario == "Demo":
@@ -468,38 +466,6 @@ if __name__ == "__main__":
                 args.max_batch_size,
                 name,
             )
+
         # Run the simulation/collection for the current scenario
         collect_data_sequentially(store, args)
-
-    # yappi.stop()
-
-    # func_stats = yappi.get_func_stats()
-    # func_stats.print_all()
-
-    # func_stats.print_all(
-    #     columns={
-    #         0: ("name", 80),
-    #         1: ("ncall", 5),
-    #         2: ("tsub", 8),
-    #         3: ("ttot", 8),
-    #         4: ("tavg", 8),
-    #     }
-    # )
-    # threads = yappi.get_thread_stats()
-    # for thread in threads:
-    #     print(
-    #         "Function stats for (%s) (%d)" % (thread.name, thread.id)
-    #     )  # it is the Thread.__class__.__name__
-    #     yappi.get_func_stats(ctx_id=thread.id).print_all(
-    #         columns={
-    #             0: ("name", 80),
-    #             1: ("ncall", 5),
-    #             2: ("tsub", 8),
-    #             3: ("ttot", 8),
-    #             4: ("tavg", 8),
-    #         }
-    #     )
-
-    # func_stats.save("profile2.ystat")
-    # func_stats.save("profile2.cg", type="callgrind")
-    # func_stats.save("profile2.pt", type="pstat")

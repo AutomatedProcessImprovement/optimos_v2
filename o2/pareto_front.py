@@ -90,12 +90,9 @@ class ParetoFront:
         """Return the average point of the front."""
         return self.avg_x, self.avg_y
 
-    def avg_distance_to(self, evaluation: Evaluation) -> float:
+    def avg_distance_to(self, solution: "Solution") -> float:
         """Return the average distance to the given evaluation."""
-        return (
-            sum(s.evaluation.distance_to(evaluation) for s in self.solutions)
-            / self.size
-        )
+        return sum(s.distance_to(solution) for s in self.solutions) / self.size
 
     def add(self, solution: "Solution") -> None:
         """Add a new solution to the front.

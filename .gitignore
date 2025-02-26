@@ -245,3 +245,5 @@ analyze_stores/
 /profile*
 /dump*
 /*.bin
+viztracer*
+result.json

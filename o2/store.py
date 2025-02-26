@@ -40,7 +40,7 @@ class Store:
         self.pareto_fronts[0].add(solution)
 
         self.solution_tree = SolutionTree()
-        self.solution_tree.add_solution(solution)
+        self.solution_tree.add_solution(solution, archive=False)
 
         self.solution = solution
         """The current solution of the optimization process.
@@ -90,20 +90,21 @@ class Store:
         """Return the current state of the solution."""
         return self.solution.state
 
-    def _add_solution(self, solution: Solution, mark_as_invalid: bool) -> None:
+    def _add_solution(
+        self, solution: Solution, mark_as_invalid: bool, archive: bool = True
+    ) -> None:
         """Add an action and state to the store."""
         if mark_as_invalid:
             self.solution_tree.add_solution_as_discarded(solution)
         else:
-            self.solution_tree.add_solution(solution)
+            self.solution_tree.add_solution(solution, archive=archive)
 
     def mark_action_as_tabu(self, action: "BaseAction") -> None:
         """Mark an action as tabu."""
         solution = Solution(
-            Evaluation.empty(),
-            self.solution.state,
-            self.solution.state,
-            [*self.solution.actions, action],
+            evaluation=Evaluation.empty(),
+            state=self.solution.state,
+            actions=[*self.solution.actions, action],
         )
 
         self.solution_tree.add_solution(solution)
@@ -126,11 +127,20 @@ class Store:
         not_chosen_tries = []
         new_baseline_chosen = False
         for solution in solutions:
-            self._add_solution(solution, not solution.is_valid)
-
             status = self.current_pareto_front.is_in_front(solution)
             if not solution.is_valid:
                 status = FRONT_STATUS.INVALID
+
+            self._add_solution(
+                solution,
+                not solution.is_valid,
+                # We directly archive the solutions that are not in the front
+                # because we most likely will not need them again.
+                archive=(
+                    status != FRONT_STATUS.IN_FRONT
+                    and status != FRONT_STATUS.IS_DOMINATED
+                ),
+            )
 
             if status == FRONT_STATUS.IN_FRONT:
                 chosen_tries.append((status, solution))
@@ -197,5 +207,5 @@ class Store:
             state, timetable=state.timetable.init_fixed_cost_fns(constraints)
         )
         evaluation = updated_state.evaluate()
-        solution = Solution(evaluation, updated_state, None)
+        solution = Solution(evaluation=evaluation, state=updated_state, actions=[])
         return Store(solution, constraints, name)
