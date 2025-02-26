@@ -117,6 +117,12 @@ def parse_args():
         help="Maximum number of threads (default: cpu_count)",
     )
     parser.add_argument(
+        "--max-number-of-actions-to-select",
+        type=int,
+        default=None,
+        help="Maximum number of actions to select (default: max-threads -- which is cpu_count by default)",
+    )
+    parser.add_argument(
         "--log-to-tensor-board",
         action=argparse.BooleanOptionalAction,
         default=False,
@@ -268,6 +274,7 @@ def update_store_settings(
     max_iterations: int,
     max_non_improving_actions: int,
     max_threads: int,
+    max_number_of_actions_to_select: int,
     log_to_tensor_board: bool,
 ) -> None:
     """Update the store settings for the given agent."""
@@ -277,7 +284,7 @@ def update_store_settings(
     store.settings.max_non_improving_actions = max_non_improving_actions
     store.settings.agent = agent
     store.settings.max_threads = max_threads
-    store.settings.max_number_of_actions_to_select = max_threads
+    store.settings.max_number_of_actions_to_select = max_number_of_actions_to_select
     store.settings.log_to_tensor_board = log_to_tensor_board
 
 
@@ -345,6 +352,7 @@ def collect_data_sequentially(base_store: Store, args) -> None:
             args.max_iterations,
             args.max_non_improving_actions,
             args.max_threads,
+            args.max_number_of_actions_to_select or args.max_threads,
             args.log_to_tensor_board,
         )
         solve_store(tabu_store, args.dump_interval)
@@ -363,6 +371,7 @@ def collect_data_sequentially(base_store: Store, args) -> None:
             args.max_iterations,
             args.max_non_improving_actions,
             args.max_threads,
+            args.max_number_of_actions_to_select or args.max_threads,
             args.log_to_tensor_board,
         )
         sa_store.settings.sa_initial_temperature = (
@@ -387,10 +396,12 @@ def collect_data_sequentially(base_store: Store, args) -> None:
             args.max_iterations,
             args.max_non_improving_actions,
             args.max_threads,
+            args.max_number_of_actions_to_select or args.max_threads,
             args.log_to_tensor_board,
         )
         ppo_store.settings.disable_parallel_evaluation = True
         ppo_store.settings.max_threads = 1
+        ppo_store.settings.max_number_of_actions_to_select = 1
         solve_store(ppo_store, args.dump_interval)
         stores_to_run.append(("Proximal Policy Optimization", ppo_store))
 
