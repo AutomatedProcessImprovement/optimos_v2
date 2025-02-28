@@ -1,3 +1,4 @@
+import glob
 import os
 import pickle
 from datetime import datetime
@@ -18,16 +19,33 @@ class SolutionDumper:
 
     instance: "SolutionDumper"
 
-    def __init__(self) -> None:
+    def __init__(self, analysis_mode: bool = False) -> None:
         """Initialize the solution dumper.
 
         Creates a folder with the current date and time, and initializes file handles.
         Also sets the singleton instance.
         """
-        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        self.folder = os.path.join("stores", f"run_{timestamp}")
-        self.evaluation_folder = os.path.join(self.folder, "evaluations")
-        self.state_folder = os.path.join(self.folder, "states")
+        self.analysis_mode = analysis_mode
+        if self.analysis_mode:
+            self.evaluation_paths = glob.glob(
+                "evaluation_*.pkl", root_dir="./evaluations"
+            )
+            self.state_paths = glob.glob("state_*.pkl", root_dir="./states")
+            print(f"Found {len(self.evaluation_paths)} evaluation paths.")
+            print(f"Found {len(self.state_paths)} state paths.")
+            self.folder = os.path.join("o2_evaluation", "redumped_stores")
+
+        else:
+            timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            self.folder = os.path.join("stores", f"run_{timestamp}")
+        self.evaluation_folder = (
+            "/Users/jannis/Dropbox/Uni/Master/BP-Optimization/optimos_v2/evaluations/"
+        )
+        # os.path.join(self.folder, "evaluations")
+        self.state_folder = (
+            "/Users/jannis/Dropbox/Uni/Master/BP-Optimization/optimos_v2/states/"
+        )
+        # os.path.join(self.folder, "states")
         os.makedirs(self.folder, exist_ok=True)
         os.makedirs(self.evaluation_folder, exist_ok=True)
         os.makedirs(self.state_folder, exist_ok=True)
@@ -55,6 +73,17 @@ class SolutionDumper:
         pickle.dump(solution, self.solutions_file)
         self.solutions_file.flush()
 
+    def update_store_name(self, store_name: str) -> None:
+        """Update the store name."""
+        self._reset_files(store_name)
+
+    def _open_files(self, store_name: str) -> None:
+        # Open new files.
+        self.store_file = open(self.store_filename, "wb")  # noqa: SIM115
+        if not self.analysis_mode:
+            self.store_stats_file = open(self.store_stats_filename, "w")  # noqa: SIM115
+            self.solutions_file = open(self.solutions_filename, "ab")  # noqa: SIM115
+
     def _reset_files(self, store_name: str) -> None:
         """Close existing files and open new ones based on the new store name."""
         # Close existing files if open.
@@ -70,10 +99,8 @@ class SolutionDumper:
             self.folder, f"solutions_{sanitized_name}.pkl"
         )
 
-        # Open new files.
-        self.store_file = open(self.store_filename, "wb")  # noqa: SIM115
-        self.store_stats_file = open(self.store_stats_filename, "w")  # noqa: SIM115
-        self.solutions_file = open(self.solutions_filename, "ab")  # noqa: SIM115
+        if not self.analysis_mode:
+            self._open_files(store_name)
 
         self.current_store_name = store_name
         self.sanitized_current_store_name = sanitized_name
@@ -90,7 +117,11 @@ class SolutionDumper:
             or self.store_stats_file is None
             or self.solutions_file is None
         ):
-            raise RuntimeError("File handles are not properly initialized.")
+            if self.analysis_mode:
+                self._open_files(store.name)
+                assert self.store_file is not None
+            else:
+                raise RuntimeError("File handles are not properly initialized.")
 
         # Dump the store object.
         self.store_file.seek(0)
@@ -114,10 +145,15 @@ class SolutionDumper:
             f"{timetable_json}"
         )
 
-        # Write the store statistics.
-        self.store_stats_file.seek(0)
-        self.store_stats_file.write(stats)
-        self.store_stats_file.flush()
+        if not self.analysis_mode:
+            assert self.store_stats_file is not None
+            # Write the store statistics.
+            self.store_stats_file.seek(0)
+            self.store_stats_file.write(stats)
+            self.store_stats_file.flush()
+
+        if self.analysis_mode:
+            self.close()
 
     def close(self) -> None:
         """Close any open file handles."""
@@ -156,17 +192,54 @@ class SolutionDumper:
         )
         # As we identify the solution by its id, we don't need to dump the
         # evaluation if it already exists.
-        if os.path.exists(filename) and not Settings.DELETE_LOADED_SOLUTION_ARCHIVES:
+        if (
+            os.path.exists(filename)
+            and not Settings.OVERWRITE_EXISTING_SOLUTION_ARCHIVES
+        ):
             return
         with open(filename, "wb") as f:
             pickle.dump(evaluation, f)
 
+    def _find_evaluation_filename(self, solution_id: int) -> str:
+        """Find the filename of the evaluation for a given solution id."""
+        best_guess_name = (
+            f"evaluation_{self.sanitized_current_store_name}_{solution_id}.pkl"
+        )
+
+        if os.path.exists(os.path.join(self.evaluation_folder, best_guess_name)):
+            return os.path.join(self.evaluation_folder, best_guess_name)
+
+        path = next(
+            (p for p in self.evaluation_paths if p.endswith(f"{solution_id}.pkl")),
+            None,
+        )
+        if path is None:
+            raise FileNotFoundError(f"Evaluation for solution {solution_id} not found.")
+        return os.path.join(self.evaluation_folder, path)
+
+    def _find_state_filename(self, solution_id: int) -> str:
+        """Find the filename of the state for a given solution id."""
+        best_guess_name = f"state_{self.sanitized_current_store_name}_{solution_id}.pkl"
+        if os.path.exists(os.path.join(self.state_folder, best_guess_name)):
+            return os.path.join(self.state_folder, best_guess_name)
+
+        path = next(
+            (p for p in self.state_paths if p.endswith(f"{solution_id}.pkl")),
+            None,
+        )
+        if path is None:
+            raise FileNotFoundError(f"State for solution {solution_id} not found.")
+        return os.path.join(self.state_folder, path)
+
     def load_evaluation(self, solution_id: int) -> Evaluation:
         """Load an evaluation from the evaluation file."""
-        filename = os.path.join(
-            self.evaluation_folder,
-            f"evaluation_{self.sanitized_current_store_name}_{solution_id}.pkl",
-        )
+        if self.analysis_mode:
+            filename = self._find_evaluation_filename(solution_id)
+        else:
+            filename = os.path.join(
+                self.evaluation_folder,
+                f"evaluation_{self.sanitized_current_store_name}_{solution_id}.pkl",
+            )
         with open(filename, "rb") as f:
             evaluation = pickle.load(f)
         if Settings.DELETE_LOADED_SOLUTION_ARCHIVES:
@@ -179,17 +252,23 @@ class SolutionDumper:
             self.state_folder,
             f"state_{self.sanitized_current_store_name}_{solution_id}.pkl",
         )
-        if os.path.exists(filename) and not Settings.DELETE_LOADED_SOLUTION_ARCHIVES:
+        if (
+            os.path.exists(filename)
+            and not Settings.OVERWRITE_EXISTING_SOLUTION_ARCHIVES
+        ):
             return
         with open(filename, "wb") as f:
             pickle.dump(state, f)
 
     def load_state(self, solution_id: int) -> State:
         """Load the current state of the solution dumper from disk."""
-        filename = os.path.join(
-            self.state_folder,
-            f"state_{self.sanitized_current_store_name}_{solution_id}.pkl",
-        )
+        if self.analysis_mode:
+            filename = self._find_state_filename(solution_id)
+        else:
+            filename = os.path.join(
+                self.state_folder,
+                f"state_{self.sanitized_current_store_name}_{solution_id}.pkl",
+            )
         with open(filename, "rb") as f:
             state = pickle.load(f)
         if Settings.DELETE_LOADED_SOLUTION_ARCHIVES:
