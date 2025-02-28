@@ -209,6 +209,7 @@ def store_from_files(
 def base_line_constraints(
     bpmn_path: str, duration_fn: str, cost_fn: str, max_batch_size: int = 100
 ) -> ConstraintsType:
+    """Create some baseline constraints."""
     bpmn_root = ET.parse(bpmn_path)
     # Get all the Elements of kind bpmn:task in bpmn:process
     tasks = bpmn_root.findall(".//{http://www.omg.org/spec/BPMN/20100524/MODEL}task")
@@ -228,7 +229,6 @@ def base_line_constraints(
             for task_id in task_ids
         ],
     )
-    # TODO: Add more constraints
     return constraints
 
 

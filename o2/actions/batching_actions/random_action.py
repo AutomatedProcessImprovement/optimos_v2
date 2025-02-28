@@ -2,10 +2,12 @@ import random
 from collections import Counter
 
 from o2.actions.base_actions.add_datetime_rule_base_action import (
+    AddDateTimeRuleAction,
     AddDateTimeRuleBaseAction,
     AddDateTimeRuleBaseActionParamsType,
 )
 from o2.actions.base_actions.add_ready_large_wt_rule_base_action import (
+    AddReadyLargeWTRuleAction,
     AddReadyLargeWTRuleBaseAction,
     AddReadyLargeWTRuleBaseActionParamsType,
 )
@@ -16,6 +18,7 @@ from o2.actions.base_actions.base_action import (
 )
 from o2.actions.base_actions.batching_rule_base_action import BatchingRuleBaseAction
 from o2.actions.base_actions.modify_size_rule_base_action import (
+    ModifySizeRuleAction,
     ModifySizeRuleBaseAction,
     ModifySizeRuleBaseActionParamsType,
 )
@@ -34,10 +37,10 @@ from o2.models.timetable import RULE_TYPE, rule_is_daily_hour
 from o2.store import Store
 
 ACTIONS: list[type[BatchingRuleBaseAction]] = [
-    AddDateTimeRuleBaseAction,
-    AddReadyLargeWTRuleBaseAction,
+    AddDateTimeRuleAction,
+    AddReadyLargeWTRuleAction,
     ModifyDailyHourRuleAction,
-    ModifySizeRuleBaseAction,
+    ModifySizeRuleAction,
     RemoveRuleAction,
 ]
 
@@ -67,7 +70,7 @@ class RandomAction(BaseAction):
             # Randomly select an action
             action = random.choice(ACTIONS)
 
-            if action == AddDateTimeRuleBaseAction:
+            if action == AddDateTimeRuleAction:
                 task_id = random.choice(timetable.get_task_ids())
                 random_day = random.choice(DAYS)
                 random_start_time = random.randint(0, 23)
@@ -82,7 +85,7 @@ class RandomAction(BaseAction):
                     time_period=time_period,
                     duration_fn=duration_fn,
                 )
-            elif action == AddReadyLargeWTRuleBaseAction:
+            elif action == AddReadyLargeWTRuleAction:
                 task_id = random.choice(timetable.get_task_ids())
                 waiting_time = random.randint(1, 24 * 60 * 60)
                 rule_type = random.choice([RULE_TYPE.LARGE_WT, RULE_TYPE.READY_WT])
@@ -107,7 +110,7 @@ class RandomAction(BaseAction):
                     rule=random_rule_selector,
                     hour_increment=hour_increment,
                 )
-            elif action == ModifySizeRuleBaseAction:
+            elif action == ModifySizeRuleAction:
                 all_size_rule_selectors = [
                     rule_selector
                     for batching_rule in timetable.batch_processing

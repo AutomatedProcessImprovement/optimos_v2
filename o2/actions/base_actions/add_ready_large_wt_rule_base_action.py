@@ -126,3 +126,14 @@ class AddReadyLargeWTRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
     def get_default_rating() -> RATING:
         """Return the default rating for this action."""
         return RATING.MEDIUM
+
+
+class AddReadyLargeWTRuleAction(AddReadyLargeWTRuleBaseAction):
+    """AddReadyLargeWTRuleAction will add a new day of week and time of day rule."""
+
+    params: AddReadyLargeWTRuleBaseActionParamsType
+
+    @staticmethod
+    def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
+        """Generate a best set of parameters & self-evaluates this action."""
+        raise NotImplementedError("rate_self is not implemented")
