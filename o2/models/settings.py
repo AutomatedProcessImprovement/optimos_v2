@@ -218,6 +218,22 @@ class Settings:
     need to be delted & rewritten to disk multiple times.
     """
 
+    OVERWRITE_EXISTING_SOLUTION_ARCHIVES: ClassVar[bool] = True
+    """If an archived solution is loaded, should it be overwritten?
+
+    This will save (some) disk space, but will be slower, as a solution might
+    need to be delted & rewritten to disk multiple times.
+    """
+
+    CHECK_FOR_TIMETABLE_EQUALITY: ClassVar[bool] = False
+    """Should the equality of timetables be checked when comparing solutions?
+
+    This includes unordered comparison of firing rules.
+
+    This should be enabled for analysis, but might be to slow for actual
+    optimization runs.
+    """
+
     @staticmethod
     def get_pareto_x_label() -> str:
         """Get the label for the x-axis (cost) of the pareto front."""
