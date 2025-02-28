@@ -138,12 +138,18 @@ class Solution:
         if self._evaluation is not None or (
             "evaluation" in self.__dict__ and self.__dict__["evaluation"] is not None
         ):
+            # Make sure the computed fields are triggered
+            self.pareto_x  # noqa: B018
+            self.pareto_y  # noqa: B018
+            self.point  # noqa: B018
             SolutionDumper.instance.dump_evaluation(self.id, self.evaluation)
             self.__dict__["_evaluation"] = None
             self.__dict__["evaluation"] = None
         if self._state is not None or (
             "state" in self.__dict__ and self.__dict__["state"] is not None
         ):
+            # Make sure the computed fields are triggered
+            self.__hash__()  # noqa: B018
             SolutionDumper.instance.dump_state(self.id, self.state)
             self.__dict__["_state"] = None
             # Make sure that the legacy state is removed from __dict__
