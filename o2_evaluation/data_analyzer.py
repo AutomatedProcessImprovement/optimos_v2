@@ -2,15 +2,138 @@ import gc
 import glob
 import pickle
 from collections import defaultdict
+from typing import TypedDict
 
 from o2.models.settings import CostType, Settings
 from o2.models.solution import Solution
 from o2.store import Store
-from o2.util.logger import info, setup_logging, warn
-from o2_evaluation.data_collector import Metrics, calculate_metrics
+from o2.util.logger import debug, info, setup_logging, stats, warn
+from o2.util.solution_dumper import SolutionDumper
+from o2.util.stat_calculation_helper import (
+    calculate_averaged_hausdorff_distance,
+    calculate_delta_metric,
+    calculate_hyperarea,
+    calculate_purity,
+)
 
 
-def get_model_from_filename(path: str) -> str:
+class Metrics(TypedDict):
+    """Metrics for the given store."""
+
+    store_name: str
+    scenario: str
+    agent: str
+    mode: str
+    number_of_solutions: int
+    patreto_size: int
+    hyperarea: float
+    hyperarea_ratio: float
+    hausdorff_distance: float
+    delta: float
+    purity: float
+
+
+EMPTY_METRIC: Metrics = {
+    "store_name": "Empty",
+    "scenario": "Empty",
+    "agent": "Empty",
+    "mode": "Empty",
+    "number_of_solutions": -1,
+    "patreto_size": -1,
+    "hyperarea": -1.0,
+    "hyperarea_ratio": -1.0,
+    "hausdorff_distance": -1.0,
+    "delta": -1.0,
+    "purity": -1.0,
+}
+
+
+def calculate_metrics(
+    scenario: str,
+    mode: str,
+    stores: list[tuple[str, Store]],
+    extra_solutions: list[Solution] = [],
+) -> list[Metrics]:
+    """Calculate the metrics for the given stores."""
+    info(f"Calculating metrics for {scenario} ({mode})")
+    all_solutions: set[Solution] = set()
+    for _, store in stores:
+        solutions = [
+            solution
+            for solution in store.solution_tree.solution_lookup.values()
+            if solution is not None
+        ]
+        all_solutions.update(solutions)
+
+    all_solutions.update(extra_solutions)
+    # Find the Pareto front (non-dominated solutions)
+    all_solutions_front = [
+        solution
+        for solution in all_solutions
+        if not any(
+            solution.is_dominated_by(other)
+            for other in all_solutions
+            if other.point != solution.point
+        )
+    ]
+    debug(f"Calculated reference front with {len(all_solutions_front)} solutions")
+    # Calculate the hyperarea (using the max cost and time as the center point)
+    max_cost = max(solution.pareto_x for solution in all_solutions)
+    max_time = max(solution.pareto_y for solution in all_solutions)
+    center_point = (max_cost, max_time)
+    global_hyperarea = calculate_hyperarea(all_solutions_front, center_point)
+
+    metrics: list[Metrics] = []
+
+    metrics.append(
+        {
+            "store_name": f"Global {scenario}",
+            "scenario": scenario,
+            "agent": "Global",
+            "mode": mode,
+            "number_of_solutions": len(all_solutions),
+            "patreto_size": len(all_solutions_front),
+            "hyperarea": global_hyperarea,
+            "hyperarea_ratio": -1.0,
+            "hausdorff_distance": -1.0,
+            "delta": -1.0,
+            "purity": -1.0,
+        }
+    )
+
+    for name, store in stores:
+        agent = get_agent_from_store_name(store.name)
+        pareto_solutions = store.current_pareto_front.solutions
+        pareto_hyperarea = calculate_hyperarea(pareto_solutions, center_point)
+        ratio = 0.0 if global_hyperarea == 0.0 else pareto_hyperarea / global_hyperarea
+
+        hausdorff_distance = calculate_averaged_hausdorff_distance(
+            pareto_solutions, all_solutions_front
+        )
+        delta = calculate_delta_metric(pareto_solutions, all_solutions_front)
+        purity = calculate_purity(pareto_solutions, all_solutions_front)
+
+        metrics.append(
+            {
+                "store_name": store.name,
+                "scenario": scenario,
+                "agent": agent,
+                "mode": mode,
+                "number_of_solutions": store.solution_tree.total_solutions,
+                "patreto_size": store.current_pareto_front.size,
+                "hyperarea": pareto_hyperarea,
+                "hyperarea_ratio": ratio,
+                "hausdorff_distance": hausdorff_distance,
+                "delta": delta,
+                "purity": purity,
+            }
+        )
+        debug(f"Calculated metrics for agent {agent} ({scenario} {mode})")
+
+    return metrics
+
+
+def get_agent_from_filename(path: str) -> str:
     filename = path.split("/")[-1]
     if not filename.startswith("store_") and not filename.startswith("solutions_"):
         raise ValueError(f"Invalid filename: {filename}")
@@ -25,7 +148,6 @@ def get_model_from_filename(path: str) -> str:
 
 
 def get_scenario_from_filename(path: str) -> str:
-    # o2_evaluation/analyze_stores/store_simulated_annealing_bpi_challenge_2012_hard.pkl
     filename = path.split("/")[-1]
     if not filename.startswith("store_") and not filename.startswith("solutions_"):
         raise ValueError(f"Invalid filename: {path}")
@@ -36,6 +158,7 @@ def get_scenario_from_filename(path: str) -> str:
         .replace("tabu_search_", "")
         .replace("simulated_annealing_", "")
         .replace("proximal_policy_optimization_", "")
+        .replace("global_", "")
         .replace("_", " ")
         .title()
     )
@@ -43,8 +166,70 @@ def get_scenario_from_filename(path: str) -> str:
 
 def get_scenario_without_mode(scenario: str) -> str:
     return (
-        scenario.lower().replace("_easy", "").replace("_mid", "").replace("_hard", "")
+        scenario.lower()
+        .replace(" easy", "")
+        .replace(" mid", "")
+        .replace(" hard", "")
+        .title()
     )
+
+
+def get_mode_from_scenario(scenario: str) -> str:
+    scenario = scenario.lower()
+    if "global" in scenario:
+        return "global"
+    elif "_easy" in scenario or " easy" in scenario:
+        return "easy"
+    elif "_mid" in scenario or " mid" in scenario:
+        return "mid"
+    elif "_hard" in scenario or " hard" in scenario:
+        return "hard"
+    else:
+        raise ValueError(f"Invalid scenario: {scenario}")
+
+
+def get_agent_from_store_name(store_name: str) -> str:
+    if "tabu search" in store_name.lower():
+        return "Tabu Search"
+    elif "simulated annealing" in store_name.lower():
+        return "Simulated Annealing"
+    elif "proximal policy optimization" in store_name.lower():
+        return "Proximal Policy Optimization"
+    else:
+        raise ValueError(f"Invalid store name: {store_name}")
+
+
+def get_scenario_from_store_name(store_name: str) -> str:
+    return (
+        store_name.lower()
+        .replace("tabu search ", "")
+        .replace("simulated annealing ", "")
+        .replace("proximal policy optimization ", "")
+        .replace("global ", "")
+        .replace("_global", "")
+        .replace("_easy", "")
+        .replace("_mid", "")
+        .replace("_hard", "")
+        .title()
+    )
+
+
+def get_metrics_for_agent(
+    metrics: list[Metrics], agent: str
+) -> tuple[Metrics, Metrics, Metrics]:
+    easy = next(
+        (m for m in metrics if m["agent"] == agent and m["mode"] == "easy"),
+        EMPTY_METRIC,
+    )
+    mid = next(
+        (m for m in metrics if m["agent"] == agent and m["mode"] == "mid"),
+        EMPTY_METRIC,
+    )
+    hard = next(
+        (m for m in metrics if m["agent"] == agent and m["mode"] == "hard"),
+        EMPTY_METRIC,
+    )
+    return easy, mid, hard
 
 
 def print_metrics_in_google_sheet_format(metrics: list[Metrics]) -> None:
@@ -54,54 +239,62 @@ def print_metrics_in_google_sheet_format(metrics: list[Metrics]) -> None:
     # Group solutions, that have the same scenario (but different _easy, _mid, _hard)
     grouped_metrics = defaultdict(list)
     for metric in metrics:
-        grouped_metrics[get_scenario_without_mode(metric["store_name"])].append(metric)
+        grouped_metrics[metric["scenario"]].append(metric)
 
-    result = "Pareto Metrics\tEasy\tMid\tHard"
+    result = ""
     for scenario, metrics in grouped_metrics.items():
-        print(f"Sheet: {scenario}")
-        assert len(metrics) == 4
-        reference = next(m for m in metrics if "Reference" in m["store_name"])
-        hard = next(m for m in metrics if "hard" in m["store_name"])
-        mid = next(m for m in metrics if "mid" in m["store_name"])
-        easy = next(m for m in metrics if "easy" in m["store_name"])
+        result += "----------------------------------------\n"
+        result += f"Sheet: {scenario}\n"
+        result += "----------------------------------------\n\n"
+        result += "Pareto Metrics;;Easy;Mid;Hard\n"
+        reference_easy, reference_mid, reference_hard = get_metrics_for_agent(
+            metrics, "Global"
+        )
 
-        result += f"\n{scenario}\t{len(easy)}\t{len(mid)}\t{len(hard)}\n\n"
+        ppo_easy, ppo_mid, ppo_hard = get_metrics_for_agent(
+            metrics, "Proximal Policy Optimization"
+        )
+
+        sa_easy, sa_mid, sa_hard = get_metrics_for_agent(metrics, "Simulated Annealing")
+
+        tabu_search_easy, tabu_search_mid, tabu_search_hard = get_metrics_for_agent(
+            metrics, "Tabu Search"
+        )
+
+        result += "Solutions\n"
+        result += f";no. of unique solutions;{reference_easy['number_of_solutions']};{reference_mid['number_of_solutions']};{reference_hard['number_of_solutions']}\n"
+        result += f";SA no. of solutions;{sa_easy['number_of_solutions']};{sa_mid['number_of_solutions']};{sa_hard['number_of_solutions']}\n"
+        result += f";Tabu no. of solutions Search;{tabu_search_easy['number_of_solutions']};{tabu_search_mid['number_of_solutions']};{tabu_search_hard['number_of_solutions']}\n"
+        result += f";PPO no. of solutions;{ppo_easy['number_of_solutions']};{ppo_mid['number_of_solutions']};{ppo_hard['number_of_solutions']}\n\n"
+
         result += "Pareto Size\n"
-        result += f"\tReference\t{reference['patreto_size']}\t{mid['patreto_size']}\t{hard['patreto_size']}\n"
-        result += f"\tSA\t{easy['patreto_size']}\t{mid['patreto_size']}\t{hard['patreto_size']}\n"
-        result += f"\tTabu Search\t{easy['patreto_size']}\t{mid['patreto_size']}\t{hard['patreto_size']}\n"
-        result += f"\tPPO\t{easy['patreto_size']}\t{mid['patreto_size']}\t{hard['patreto_size']}\n\n"
-        result += "Hyperarea\n"
-        result += f"\tReference\t{reference['hyperarea']}\t{mid['hyperarea']}\t{hard['hyperarea']}\n"
-        result += (
-            f"\tSA\t{easy['hyperarea']}\t{mid['hyperarea']}\t{hard['hyperarea']}\n"
-        )
-        result += f"\tTabu Search\t{easy['hyperarea']}\t{mid['hyperarea']}\t{hard['hyperarea']}\n"
-        result += (
-            f"\tPPO\t{easy['hyperarea']}\t{mid['hyperarea']}\t{hard['hyperarea']}\n\n"
-        )
+        result += f";Reference;{reference_easy['patreto_size']};{reference_mid['patreto_size']};{reference_hard['patreto_size']}\n"
+        result += f";SA;{sa_easy['patreto_size']};{sa_mid['patreto_size']};{sa_hard['patreto_size']}\n"
+        result += f";Tabu Search;{tabu_search_easy['patreto_size']};{tabu_search_mid['patreto_size']};{tabu_search_hard['patreto_size']}\n"
+        result += f";PPO;{ppo_easy['patreto_size']};{ppo_mid['patreto_size']};{ppo_hard['patreto_size']}\n\n"
+
+        result += "Hyperarea Ratio\n"
+        result += f";SA;{sa_easy['hyperarea_ratio']};{sa_mid['hyperarea_ratio']};{sa_hard['hyperarea_ratio']}\n"
+        result += f";Tabu Search;{tabu_search_easy['hyperarea_ratio']};{tabu_search_mid['hyperarea_ratio']};{tabu_search_hard['hyperarea_ratio']}\n"
+        result += f";PPO;{ppo_easy['hyperarea_ratio']};{ppo_mid['hyperarea_ratio']};{ppo_hard['hyperarea_ratio']}\n\n"
+
         result += "Hausdorff\n"
-        result += f"\tReference\t{reference['hausdorff_distance']}\t{mid['hausdorff_distance']}\t{hard['hausdorff_distance']}\n"
-        result += f"\tSA\t{easy['hausdorff_distance']}\t{mid['hausdorff_distance']}\t{hard['hausdorff_distance']}\n"
-        result += f"\tTabu Search\t{easy['hausdorff_distance']}\t{mid['hausdorff_distance']}\t{hard['hausdorff_distance']}\n"
-        result += f"\tPPO\t{easy['hausdorff_distance']}\t{mid['hausdorff_distance']}\t{hard['hausdorff_distance']}\n\n"
+        result += f";SA;{sa_easy['hausdorff_distance']};{sa_mid['hausdorff_distance']};{sa_hard['hausdorff_distance']}\n"
+        result += f";Tabu Search;{tabu_search_easy['hausdorff_distance']};{tabu_search_mid['hausdorff_distance']};{tabu_search_hard['hausdorff_distance']}\n"
+        result += f";PPO;{ppo_easy['hausdorff_distance']};{ppo_mid['hausdorff_distance']};{ppo_hard['hausdorff_distance']}\n\n"
+
         result += "Delta\n"
-        result += (
-            f"\tReference\t{reference['delta']}\t{mid['delta']}\t{hard['delta']}\n"
-        )
-        result += f"\tSA\t{easy['delta']}\t{mid['delta']}\t{hard['delta']}\n"
-        result += f"\tTabu Search\t{easy['delta']}\t{mid['delta']}\t{hard['delta']}\n"
-        result += f"\tPPO\t{easy['delta']}\t{mid['delta']}\t{hard['delta']}\n\n"
+        result += f";SA;{sa_easy['delta']};{sa_mid['delta']};{sa_hard['delta']}\n"
+        result += f";Tabu Search;{tabu_search_easy['delta']};{tabu_search_mid['delta']};{tabu_search_hard['delta']}\n"
+        result += f";PPO;{ppo_easy['delta']};{ppo_mid['delta']};{ppo_hard['delta']}\n\n"
+
         result += "Purity\n"
+        result += f";SA;{sa_easy['purity']};{sa_mid['purity']};{sa_hard['purity']}\n"
+        result += f";Tabu Search;{tabu_search_easy['purity']};{tabu_search_mid['purity']};{tabu_search_hard['purity']}\n"
         result += (
-            f"\tReference\t{reference['purity']}\t{mid['purity']}\t{hard['purity']}\n"
+            f";PPO;{ppo_easy['purity']};{ppo_mid['purity']};{ppo_hard['purity']}\n\n"
         )
-        result += f"\tSA\t{easy['purity']}\t{mid['purity']}\t{hard['purity']}\n"
-        result += (
-            f"\tTabu Search\t{easy['purity']}\t{mid['purity']}\t{hard['purity']}\n"
-        )
-        result += f"\tPPO\t{easy['purity']}\t{mid['purity']}\t{hard['purity']}\n\n"
-    print(result)
+    print(result.replace(".", ","))
 
 
 if __name__ == "__main__":
@@ -110,13 +303,19 @@ if __name__ == "__main__":
     Settings.COST_TYPE = CostType.WAITING_TIME_AND_PROCESSING_TIME
     Settings.ARCHIVE_SOLUTIONS = True
     Settings.DELETE_LOADED_SOLUTION_ARCHIVES = False
+    Settings.OVERWRITE_EXISTING_SOLUTION_ARCHIVES = False
+    Settings.CHECK_FOR_TIMETABLE_EQUALITY = True
     setup_logging()
 
+    SolutionDumper(analysis_mode=True)
+
     gc.disable()
-    # Get all subfiles in the analyze_stores directory
-    analyze_stores_dir = "o2_evaluation/analyze_stores"
+    # Get the redumped stores for better performance
+    analyze_stores_dir = "o2_evaluation/redumped_stores"
+    # Get the solutions for the old analyze_stores folder
+    analyze_solutions_dir = "o2_evaluation/redumped_stores"
     analyze_stores_file_list = glob.glob(f"{analyze_stores_dir}/**store_*.pkl")
-    solution_files_list = glob.glob(f"{analyze_stores_dir}/**solutions_*.pkl")
+    solution_files_list = glob.glob(f"{analyze_solutions_dir}/**solutions_*.pkl")
     # Scenario, Model, Store
     stores_files: defaultdict[str, list[str]] = defaultdict(list)
     solutions_files: defaultdict[str, list[str]] = defaultdict(list)
@@ -131,32 +330,32 @@ if __name__ == "__main__":
     all_metrics: list[Metrics] = []
 
     for scenario in scenarios:
-        # Skip callcentre scenarios for now
-        if "callcentre" in scenario.lower():
-            continue
-        info(f"Processing scenario: {scenario}")
+        mode = get_mode_from_scenario(scenario)
+        scenario_without_mode = get_scenario_without_mode(scenario)
+
+        stats(f"Processing scenario: {scenario_without_mode} ({mode})")
         stores: list[tuple[str, Store]] = []
         solutions: list[Solution] = []
         for file in stores_files[scenario]:
-            info(
-                f"Loading store from {file}... ({get_scenario_from_filename(file)}, {get_model_from_filename(file)})"
+            debug(
+                f"Loading store from {file}... ({get_scenario_from_filename(file)}, {get_agent_from_filename(file)})"
             )
             with open(file, "rb") as f:
                 try:
                     store = pickle.load(f)
                     stores.append(
                         (
-                            get_model_from_filename(file),
+                            get_agent_from_filename(file),
                             store,
                         )
                     )
-                    info(f"Loaded store '{store.name}' from {file}")
+                    debug(f"Loaded store '{store.name}' from {file}")
                 except Exception as e:
                     warn(f"Error loading store from {file}: {e}")
 
         for file in solutions_files[scenario]:
             with open(file, "rb") as f:
-                info(f"Loading solutions from {file}...")
+                debug(f"Loading solutions from {file}...")
                 while True:
                     try:
                         solution = pickle.load(f)
@@ -166,12 +365,18 @@ if __name__ == "__main__":
                     except Exception as e:
                         warn(f"Error loading (more) solutions from {file}: {e}")
                         break
-                info("Done!")
+                debug(f"Loaded solutions from {file}")
 
         info(f"Loaded {len(stores)} stores and {len(solutions)} solutions")
 
         # Calculate the metrics for the given stores
-        metrics = calculate_metrics(stores, solutions)
+        metrics = calculate_metrics(
+            scenario_without_mode,
+            mode,
+            stores,
+            solutions,
+        )
+
         all_metrics.extend(metrics)
 
     pickle.dump(all_metrics, open("all_metrics.pkl", "wb"))

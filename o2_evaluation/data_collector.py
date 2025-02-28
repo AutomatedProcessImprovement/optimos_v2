@@ -145,125 +145,6 @@ def parse_args():
     return parser.parse_args()
 
 
-class Metrics(TypedDict):
-    """Metrics for the given store."""
-
-    store_name: str
-    number_of_solutions: int
-    patreto_size: int
-    hyperarea: float
-    hyperarea_ratio: float
-    hausdorff_distance: float
-    delta: float
-    purity: float
-
-
-def calculate_metrics(
-    stores: list[tuple[str, Store]], extra_solutions: list[Solution] = []
-) -> list[Metrics]:
-    """Calculate the metrics for the given stores."""
-    all_solutions: list[Solution] = []
-    for _, store in stores:
-        solutions = [
-            solution
-            for solution in store.solution_tree.solution_lookup.values()
-            if solution is not None
-        ]
-        all_solutions.extend(solutions)
-
-    all_solutions.extend(extra_solutions)
-    # Find the Pareto front (non-dominated solutions)
-    all_solutions_front = [
-        solution
-        for solution in all_solutions
-        if not any(
-            solution.is_dominated_by(other)
-            for other in all_solutions
-            if other.point != solution.point
-        )
-    ]
-
-    # Calculate the hyperarea (using the max cost and time as the center point)
-    max_cost = max(solution.point[0] for solution in all_solutions)
-    max_time = max(solution.point[1] for solution in all_solutions)
-    center_point = (max_cost, max_time)
-    global_hyperarea = calculate_hyperarea(all_solutions_front, center_point)
-
-    metrics: list[Metrics] = []
-
-    metrics.append(
-        {
-            "store_name": "Global",
-            "number_of_solutions": len(all_solutions),
-            "patreto_size": len(all_solutions_front),
-            "hyperarea": global_hyperarea,
-            "hyperarea_ratio": 0.0,
-            "hausdorff_distance": 0.0,
-            "delta": 0.0,
-            "purity": 0.0,
-        }
-    )
-
-    info("\n\nMetrics:")
-    info("=========")
-    info("Global Set:")
-    info(f"\t> Solutions Total: {len(all_solutions)}")
-    info(f"\t> Center Point: {center_point}")
-    info(f"\t> Hyperarea: {global_hyperarea}")
-    info("\t> Pareto front:")
-    info(f"\t\t>> size: {len(all_solutions_front)}")
-    info(
-        f"\t\t>> Avg {Settings.get_pareto_x_label()}: {np.mean([sol.point[0] for sol in all_solutions_front])}"
-    )
-    info(
-        f"\t\t>> Avg {Settings.get_pareto_y_label()}: {np.mean([sol.point[1] for sol in all_solutions_front])}"
-    )
-
-    for name, store in stores:
-        pareto_solutions = store.current_pareto_front.solutions
-        pareto_hyperarea = calculate_hyperarea(pareto_solutions, center_point)
-        ratio = 0.0 if global_hyperarea == 0.0 else pareto_hyperarea / global_hyperarea
-
-        hausdorff_distance = calculate_averaged_hausdorff_distance(
-            pareto_solutions, all_solutions_front
-        )
-        delta = calculate_delta_metric(pareto_solutions, all_solutions_front)
-        purity = calculate_purity(pareto_solutions, all_solutions_front)
-
-        info(f"Store: {name}")
-        info(f"\t> Solutions Total: {store.solution_tree.total_solutions}")
-        info(f"\t> Solutions explored: {store.solution_tree.discarded_solutions}")
-        info(f"\t> Solutions left: {store.solution_tree.solutions_left}")
-        info("\t> Pareto front:")
-        info(f"\t\t>> size: {store.current_pareto_front.size}")
-        info(
-            f"\t\t>> Avg {Settings.get_pareto_x_label()}: {store.current_pareto_front.avg_x}"
-        )
-        info(
-            f"\t\t>> Avg {Settings.get_pareto_y_label()}: {store.current_pareto_front.avg_y}"
-        )
-        info(f"\t> Hyperarea: {pareto_hyperarea}")
-        info(f"\t> Hyperarea Ratio: {ratio}")
-        info(f"\t> Averaged Hausdorff Distance: {hausdorff_distance}")
-        info(f"\t> Delta Metric: {delta}")
-        info(f"\t> Purity Metric: {purity}")
-
-        metrics.append(
-            {
-                "store_name": name,
-                "number_of_solutions": store.solution_tree.total_solutions,
-                "patreto_size": store.current_pareto_front.size,
-                "hyperarea": pareto_hyperarea,
-                "hyperarea_ratio": ratio,
-                "hausdorff_distance": hausdorff_distance,
-                "delta": delta,
-                "purity": purity,
-            }
-        )
-
-    return metrics
-
-
 def update_store_settings(
     store: Store,
     agent: AgentType,
@@ -323,6 +204,7 @@ def collect_data_sequentially(base_store: Store, args) -> None:
     Settings.ARCHIVE_TENSORBOARD_LOGS = args.archive_tensorboard_logs
     Settings.ARCHIVE_SOLUTIONS = True
     Settings.DELETE_LOADED_SOLUTION_ARCHIVES = False
+    Settings.OVERWRITE_EXISTING_SOLUTION_ARCHIVES = False
 
     # Optionally archive previous TensorBoard logs
     if (
@@ -399,9 +281,6 @@ def collect_data_sequentially(base_store: Store, args) -> None:
         ppo_store.settings.max_number_of_actions_to_select = 1
         solve_store(ppo_store, args.dump_interval)
         stores_to_run.append(("Proximal Policy Optimization", ppo_store))
-
-    # Calculate and print metrics
-    calculate_metrics(stores_to_run, SolutionDumper.instance.load_solutions())
 
     SolutionDumper.instance.close()
 
