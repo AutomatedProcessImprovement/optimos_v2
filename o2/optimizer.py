@@ -45,6 +45,16 @@ class Optimizer:
             return PPOAgent(self.store)
         elif self.store.settings.agent == AgentType.SIMULATED_ANNEALING:
             return SimulatedAnnealingAgent(self.store)
+        elif self.store.settings.agent == AgentType.TABU_SEARCH_RANDOM:
+            from o2.agents.tabu_agent_random import TabuAgentRandom
+
+            return TabuAgentRandom(self.store)
+        elif self.store.settings.agent == AgentType.SIMULATED_ANNEALING_RANDOM:
+            from o2.agents.simulated_annealing_agent_random import (
+                SimulatedAnnealingAgentRandom,
+            )
+
+            return SimulatedAnnealingAgentRandom(self.store)
         raise ValueError(f"Unknown agent type: {self.store.settings.agent}")
 
     def solve(self) -> None:

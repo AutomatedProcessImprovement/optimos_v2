@@ -46,6 +46,7 @@ from o2.actions.batching_actions.modify_size_rule_by_utilization import (
 from o2.actions.batching_actions.modify_size_rule_by_wt_action import (
     ModifySizeRuleByWTAction,
 )
+from o2.actions.batching_actions.random_action import RandomAction
 from o2.actions.batching_actions.remove_rule_action import RemoveRuleAction
 from o2.actions.deprecated_actions.add_week_day_rule_action import AddWeekDayRuleAction
 from o2.actions.deprecated_actions.modify_large_wt_rule_action import (
@@ -123,6 +124,9 @@ ACTION_CATALOG_BATCHING_ONLY: list[type[BaseAction]] = [
     ModifyDailyHourRuleAction,
     RemoveRuleAction,
 ]
+
+
+ACTION_CATALOG_RANDOM: list[type[BaseAction]] = [RandomAction]
 
 
 class NoNewBaseSolutionFoundError(Exception):

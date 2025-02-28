@@ -28,6 +28,17 @@ class TabuAgent(Agent):
     support the simulated annealing.
     """
 
+    def __init__(self, store: Store) -> None:
+        super().__init__(store)
+
+        self.catalog = (
+            ACTION_CATALOG_LEGACY
+            if store.settings.optimos_legacy_mode
+            else ACTION_CATALOG_BATCHING_ONLY
+            if store.settings.batching_only
+            else ACTION_CATALOG
+        )
+
     def select_actions(self, store: Store) -> Optional[list[BaseAction]]:  # noqa: D102
         while True:
             evaluations = TabuAgent.evaluate_rules(store)
@@ -37,16 +48,10 @@ class TabuAgent(Agent):
                 rating_input = SelfRatingInput.from_base_solution(store.solution)
 
             print_l1("Choosing best action...")
-            catalog = (
-                ACTION_CATALOG_LEGACY
-                if store.settings.optimos_legacy_mode
-                else ACTION_CATALOG_BATCHING_ONLY
-                if store.settings.batching_only
-                else ACTION_CATALOG
-            )
+
             # Get a list rating generators for all actions
             action_generators: list[RateSelfReturnType[BaseAction]] = [
-                Action.rate_self(store, rating_input) for Action in catalog
+                Action.rate_self(store, rating_input) for Action in self.catalog
             ]
 
             # Get valid actions from the generators, even multiple per generator,

@@ -12,6 +12,8 @@ class AgentType(Enum):
     TABU_SEARCH = "tabu_search"
     SIMULATED_ANNEALING = "simulated_annealing"
     PROXIMAL_POLICY_OPTIMIZATION = "proximal_policy_optimization"
+    TABU_SEARCH_RANDOM = "tabu_search_random"
+    SIMULATED_ANNEALING_RANDOM = "simulated_annealing_random"
 
 
 class CostType(Enum):

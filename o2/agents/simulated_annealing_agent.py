@@ -24,6 +24,15 @@ class SimulatedAnnealingAgent(Agent):
 
     def __init__(self, store: Store) -> None:
         super().__init__(store)
+
+        self.catalog = (
+            ACTION_CATALOG_LEGACY
+            if store.settings.optimos_legacy_mode
+            else ACTION_CATALOG_BATCHING_ONLY
+            if store.settings.batching_only
+            else ACTION_CATALOG
+        )
+
         self.temperature = store.settings.sa_initial_temperature
         if self.temperature == "auto":
             # Guestimate a good starting temperature, by basically allowing all
@@ -53,16 +62,10 @@ class SimulatedAnnealingAgent(Agent):
                 rating_input = SelfRatingInput.from_base_solution(store.solution)
 
             print_l1("Choosing best action...")
-            catalog = (
-                ACTION_CATALOG_LEGACY
-                if store.settings.optimos_legacy_mode
-                else ACTION_CATALOG_BATCHING_ONLY
-                if store.settings.batching_only
-                else ACTION_CATALOG
-            )
+
             # Get a list rating generators for all actions
             action_generators: list[RateSelfReturnType[BaseAction]] = [
-                Action.rate_self(store, rating_input) for Action in catalog
+                Action.rate_self(store, rating_input) for Action in self.catalog
             ]
 
             # Get valid actions from the generators, even multiple per generator,
