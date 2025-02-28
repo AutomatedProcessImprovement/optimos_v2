@@ -38,14 +38,8 @@ class SolutionDumper:
         else:
             timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
             self.folder = os.path.join("stores", f"run_{timestamp}")
-        self.evaluation_folder = (
-            "/Users/jannis/Dropbox/Uni/Master/BP-Optimization/optimos_v2/evaluations/"
-        )
-        # os.path.join(self.folder, "evaluations")
-        self.state_folder = (
-            "/Users/jannis/Dropbox/Uni/Master/BP-Optimization/optimos_v2/states/"
-        )
-        # os.path.join(self.folder, "states")
+        self.evaluation_folder = "evaluations/"
+        self.state_folder = "states/"
         os.makedirs(self.folder, exist_ok=True)
         os.makedirs(self.evaluation_folder, exist_ok=True)
         os.makedirs(self.state_folder, exist_ok=True)
