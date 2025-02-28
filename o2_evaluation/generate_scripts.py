@@ -64,7 +64,7 @@ def generate_script(
     conda run -n opti2 --no-capture-output python ./o2_evaluation/data_collector.py \\
         --name "{scenario_name}_{mode_name_sanitized}" \\
         --active-scenarios "{scenario}" \\
-        --models "{model}" \\
+        --agents "{model}" \\
         --number-of-cases {NUMBER_OF_CASES} \\
         --duration-fn "{duration_fn}" \\
         --sa-cooling-factor {SA_COOLING_FACTOR} \\
@@ -92,7 +92,13 @@ SCENARIOS = [
     "purchasing_example",
 ]
 
-MODELS = ["Tabu Search", "Simulated Annealing", "Proximal Policy Optimization"]
+MODELS = [
+    "Tabu Search",
+    "Simulated Annealing",
+    "Proximal Policy Optimization",
+    "Tabu Search Random",
+    "Simulated Annealing Random",
+]
 
 MODES = [
     {"name": "EASY", "duration_fn": "1/size", "max_batch_size": 50},

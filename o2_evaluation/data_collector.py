@@ -100,11 +100,17 @@ def parse_args():
         help="Number of cases (default: 100)",
     )
     parser.add_argument(
-        "--models",
+        "--agents",
         type=str,
         nargs="+",
-        default=["Tabu Search", "Simulated Annealing", "Proximal Policy Optimization"],
-        help="List of models to run (e.g. 'Tabu Search', 'Simulated Annealing', 'Proximal Policy Optimization')",
+        default=[
+            "Tabu Search",
+            "Simulated Annealing",
+            "Proximal Policy Optimization",
+            "Tabu Search Random",
+            "Simulated Annealing Random",
+        ],
+        help="List of agents to run (e.g. 'Tabu Search', 'Simulated Annealing', 'Proximal Policy Optimization')",
     )
     parser.add_argument(
         "--max-threads",
@@ -217,7 +223,7 @@ def collect_data_sequentially(base_store: Store, args) -> None:
     stores_to_run = []
 
     # Use TABU search
-    if "Tabu Search" in args.models:
+    if "Tabu Search" in args.agents or "Tabu Search Random" in args.agents:
         tabu_store = Store.from_state_and_constraints(
             base_store.base_state,
             base_store.constraints,
@@ -225,7 +231,9 @@ def collect_data_sequentially(base_store: Store, args) -> None:
         )
         update_store_settings(
             tabu_store,
-            AgentType.TABU_SEARCH,
+            AgentType.TABU_SEARCH
+            if "Tabu Search" in args.agents
+            else AgentType.TABU_SEARCH_RANDOM,
             args.max_iterations,
             args.max_non_improving_actions,
             args.max_threads,
@@ -236,7 +244,10 @@ def collect_data_sequentially(base_store: Store, args) -> None:
         stores_to_run.append(("Tabu Search", tabu_store))
 
     # Use Simulated Annealing
-    if "Simulated Annealing" in args.models:
+    if (
+        "Simulated Annealing" in args.agents
+        or "Simulated Annealing Random" in args.agents
+    ):
         sa_store = Store.from_state_and_constraints(
             base_store.base_state,
             base_store.constraints,
@@ -244,7 +255,9 @@ def collect_data_sequentially(base_store: Store, args) -> None:
         )
         update_store_settings(
             sa_store,
-            AgentType.SIMULATED_ANNEALING,
+            AgentType.SIMULATED_ANNEALING
+            if "Simulated Annealing" in args.agents
+            else AgentType.SIMULATED_ANNEALING_RANDOM,
             args.max_iterations,
             args.max_non_improving_actions,
             args.max_threads,
@@ -261,7 +274,7 @@ def collect_data_sequentially(base_store: Store, args) -> None:
         stores_to_run.append(("Simulated Annealing", sa_store))
 
     # Use Proximal Policy Optimization (PPO)
-    if "Proximal Policy Optimization" in args.models:
+    if "Proximal Policy Optimization" in args.agents:
         ppo_store = Store.from_state_and_constraints(
             base_store.base_state,
             base_store.constraints,
