@@ -24,6 +24,7 @@ from sympy import Symbol, lambdify
 
 from o2.models.legacy_constraints import WorkMasks
 from o2.models.rule_selector import RuleSelector
+from o2.models.settings import Settings
 from o2.models.time_period import TimePeriod
 from o2.util.bit_mask_helper import (
     any_has_overlap,
@@ -528,7 +529,7 @@ class Distribution(JSONWizard):
 V = TypeVar("V", DAY, int)
 
 
-@dataclass(frozen=True, eq=True)
+@dataclass(frozen=True, eq=True, order=True)
 class FiringRule(JSONWizard, Generic[V]):
     """A rule for when to fire (activate) a batching rule."""
 
@@ -655,9 +656,77 @@ class BatchingRule(JSONWizard):
     duration_distrib: list[Distribution]
     firing_rules: OrRules
 
-    def id(self):
-        # TODO Use a more performant hash function
-        return hashlib.md5(str(dumps(asdict(self))).encode()).hexdigest()
+    def __post_init__(self):
+        """Post-init hook to create a normalized representation of the firing rules."""
+        if not Settings.CHECK_FOR_TIMETABLE_EQUALITY:
+            return
+        # Create a normalized representation:
+        #  - Each inner list is sorted (ignoring its original order)
+        #  - The collection of rows is also sorted so that their order doesn't matter.
+        # Using tuple of tuples makes it hashable.
+        normalized = tuple(sorted(tuple(sorted(row)) for row in self.firing_rules))  # type: ignore
+        object.__setattr__(self, "_normalized", normalized)
+
+    def __eq__(self, other: object) -> bool:
+        """Check if two batching rules are equal."""
+        if not Settings.CHECK_FOR_TIMETABLE_EQUALITY:
+            return isinstance(other, BatchingRule) and (
+                self.task_id,
+                self.type,
+                self.size_distrib,
+                self.duration_distrib,
+                self.firing_rules,
+            ) == (
+                other.task_id,
+                other.type,
+                other.size_distrib,
+                other.duration_distrib,
+                other.firing_rules,
+            )
+        if not isinstance(other, BatchingRule):
+            return NotImplemented
+
+        # TODO: This is due to some timetable objects beeing pickled before the normalization implementation.
+        if not "_normalized" in self.__dict__:
+            normalized = tuple(sorted(tuple(sorted(row)) for row in self.firing_rules))  # type: ignore
+            object.__setattr__(self, "_normalized", normalized)
+
+        if not "_normalized" in other.__dict__:
+            normalized = tuple(sorted(tuple(sorted(row)) for row in other.firing_rules))  # type: ignore
+            object.__setattr__(other, "_normalized", normalized)
+
+        return (
+            self._normalized == other._normalized  # type: ignore
+            and self.task_id == other.task_id
+            and self.type == other.type
+            and self.size_distrib == other.size_distrib
+            and self.duration_distrib == other.duration_distrib
+        )
+
+    def __hash__(self) -> int:
+        """Hash the batching rule."""
+        if not Settings.CHECK_FOR_TIMETABLE_EQUALITY:
+            return hash(
+                (
+                    self.task_id,
+                    self.type,
+                    self.size_distrib,
+                    self.duration_distrib,
+                    self.firing_rules,
+                )
+            )
+        return hash(
+            (
+                self.task_id,
+                self.type,
+                self.size_distrib,
+                self.duration_distrib,
+                self._normalized,  # type: ignore
+            )
+        )
+
+    def id(self) -> str:
+        return hash_string(str(dumps(asdict(self))).encode())
 
     def get_firing_rule_selectors(
         self, type: Optional[RULE_TYPE] = None
@@ -1008,7 +1077,7 @@ class BatchingRule(JSONWizard):
         )
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=True)
 class TimetableType(JSONWizard, CustomLoader, CustomDumper):
     resource_profiles: list[ResourcePool]
     arrival_time_distribution: ArrivalTimeDistribution
@@ -1637,3 +1706,7 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
         return all(calendar.is_valid() for calendar in self.resource_calendars) and all(
             rule.is_valid() for rule in self.batch_processing
         )
+
+    def __hash__(self) -> int:
+        """Hash the timetable."""
+        return hash_int(self.to_json())
