@@ -223,17 +223,16 @@ def collect_data_sequentially(base_store: Store, args) -> None:
     stores_to_run = []
 
     # Use TABU search
-    if "Tabu Search" in args.agents or "Tabu Search Random" in args.agents:
+    if "Tabu Search" in args.agents:
+        store_name = f"Tabu Search {base_store.name}"
         tabu_store = Store.from_state_and_constraints(
             base_store.base_state,
             base_store.constraints,
-            f"Tabu Search {base_store.name}",
+            store_name,
         )
         update_store_settings(
             tabu_store,
-            AgentType.TABU_SEARCH
-            if "Tabu Search" in args.agents
-            else AgentType.TABU_SEARCH_RANDOM,
+            AgentType.TABU_SEARCH,
             args.max_iterations,
             args.max_non_improving_actions,
             args.max_threads,
@@ -242,22 +241,36 @@ def collect_data_sequentially(base_store: Store, args) -> None:
         )
         solve_store(tabu_store, args.dump_interval)
         stores_to_run.append(("Tabu Search", tabu_store))
+    if "Tabu Search Random" in args.agents:
+        store_name = f"Tabu Search Random {base_store.name}"
+        tabu_store = Store.from_state_and_constraints(
+            base_store.base_state,
+            base_store.constraints,
+            store_name,
+        )
+        update_store_settings(
+            tabu_store,
+            AgentType.TABU_SEARCH_RANDOM,
+            args.max_iterations,
+            args.max_non_improving_actions,
+            args.max_threads,
+            args.max_number_of_actions_to_select or args.max_threads,
+            args.log_to_tensor_board,
+        )
+        solve_store(tabu_store, args.dump_interval)
+        stores_to_run.append(("Tabu Search Random", tabu_store))
 
     # Use Simulated Annealing
-    if (
-        "Simulated Annealing" in args.agents
-        or "Simulated Annealing Random" in args.agents
-    ):
+    if "Simulated Annealing" in args.agents:
+        store_name = f"Simulated Annealing {base_store.name}"
         sa_store = Store.from_state_and_constraints(
             base_store.base_state,
             base_store.constraints,
-            f"Simulated Annealing {base_store.name}",
+            store_name,
         )
         update_store_settings(
             sa_store,
-            AgentType.SIMULATED_ANNEALING
-            if "Simulated Annealing" in args.agents
-            else AgentType.SIMULATED_ANNEALING_RANDOM,
+            AgentType.SIMULATED_ANNEALING,
             args.max_iterations,
             args.max_non_improving_actions,
             args.max_threads,
@@ -272,6 +285,31 @@ def collect_data_sequentially(base_store: Store, args) -> None:
         sa_store.settings.sa_cooling_factor = args.sa_cooling_factor
         solve_store(sa_store, args.dump_interval)
         stores_to_run.append(("Simulated Annealing", sa_store))
+
+    if "Simulated Annealing Random" in args.agents:
+        store_name = f"Simulated Annealing Random {base_store.name}"
+        sa_store = Store.from_state_and_constraints(
+            base_store.base_state,
+            base_store.constraints,
+            store_name,
+        )
+        update_store_settings(
+            sa_store,
+            AgentType.SIMULATED_ANNEALING_RANDOM,
+            args.max_iterations,
+            args.max_non_improving_actions,
+            args.max_threads,
+            args.max_number_of_actions_to_select or args.max_threads,
+            args.log_to_tensor_board,
+        )
+        sa_store.settings.sa_initial_temperature = (
+            float(args.sa_initial_temperature)
+            if args.sa_initial_temperature != "auto"
+            else "auto"
+        )
+        sa_store.settings.sa_cooling_factor = args.sa_cooling_factor
+        solve_store(sa_store, args.dump_interval)
+        stores_to_run.append(("Simulated Annealing Random", sa_store))
 
     # Use Proximal Policy Optimization (PPO)
     if "Proximal Policy Optimization" in args.agents:
