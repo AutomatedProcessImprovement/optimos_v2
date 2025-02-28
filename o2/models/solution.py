@@ -34,6 +34,9 @@ class Solution:
     @property
     def evaluation(self) -> Evaluation:
         """Return the evaluation of the solution."""
+
+        # In case this is a pre-archived solution (e.g. from a previous run),
+        # we can take the evaluation from __dict__['evaluation']
         if (
             self._evaluation is None
             and "evaluation" in self.__dict__
@@ -41,6 +44,7 @@ class Solution:
         ):
             self.__dict__["_evaluation"] = self.__dict__["evaluation"]
             return self.__dict__["_evaluation"]
+        # Else we just load the evaluation from the evaluation file
         elif self._evaluation is None and Settings.ARCHIVE_SOLUTIONS:
             self.__dict__["_evaluation"] = SolutionDumper.instance.load_evaluation(
                 self.id
@@ -59,7 +63,18 @@ class Solution:
     @property
     def state(self) -> State:
         """Return the state of the solution."""
-        if self._state is None and Settings.ARCHIVE_SOLUTIONS:
+
+        # In case this is a pre-archived solution (e.g. from a previous run),
+        # we can take the state from __dict__['state']
+        if (
+            self._state is None
+            and "state" in self.__dict__
+            and self.__dict__["state"] is not None
+        ):
+            self.__dict__["_state"] = self.__dict__["state"]
+            return self.__dict__["_state"]
+        # Else we just load the state from the state file
+        elif self._state is None and Settings.ARCHIVE_SOLUTIONS:
             self.__dict__["_state"] = SolutionDumper.instance.load_state(self.id)
         assert self._state is not None
         return self._state
@@ -101,31 +116,61 @@ class Solution:
             + (self.pareto_y - other.pareto_y) ** 2
         )
 
-    def is_dominated_by(self, solution: "Solution") -> bool:
+    def is_dominated_by(self, other: "Solution") -> bool:
         """Check if this solution is dominated by the given solution."""
-        return self.evaluation.is_dominated_by(solution.evaluation)
+        if not Settings.EQUAL_DOMINATION_ALLOWED:
+            return other.pareto_x <= self.pareto_x and other.pareto_y <= self.pareto_y
+        return other.pareto_x < self.pareto_x and other.pareto_y < self.pareto_y
 
     def has_equal_point(self, solution: "Solution") -> bool:
         """Check if this solution has the same point as the given solution."""
         return self.point == solution.point
 
     def archive(self) -> None:
-        """Archive the solution."""
+        """Archive the solution.
+
+        For downwards compatibility, we need to check `__dict__['evaluation']`
+        and `__dict__['state']` as well.
+        """
         if not Settings.ARCHIVE_SOLUTIONS:
             return
         # Solution is already archived
-        if self._evaluation is not None:
+        if self._evaluation is not None or (
+            "evaluation" in self.__dict__ and self.__dict__["evaluation"] is not None
+        ):
             SolutionDumper.instance.dump_evaluation(self.id, self.evaluation)
             self.__dict__["_evaluation"] = None
-        if self._state is not None:
+            self.__dict__["evaluation"] = None
+        if self._state is not None or (
+            "state" in self.__dict__ and self.__dict__["state"] is not None
+        ):
             SolutionDumper.instance.dump_state(self.id, self.state)
             self.__dict__["_state"] = None
+            # Make sure that the legacy state is removed from __dict__
+            self.__dict__["state"] = None
+        # If we still got the parent state (from a previous run), we need to remove it
+        if "parent_state" in self.__dict__:
+            self.__dict__["parent_state"] = None
 
     def __eq__(self, value: object) -> bool:
         """Check if this solution is equal to the given object."""
         if not isinstance(value, Solution):
             return False
+        if Settings.CHECK_FOR_TIMETABLE_EQUALITY:
+            return self.__hash__() == value.__hash__()
         return self.id == value.id
+
+    def __hash__(self) -> int:
+        """Hash the solution (possibly by id or state).
+
+        Also we cache the hash in a __dict__ field.
+        (manually as functools.cached_property does not work with __hash__)
+        """
+        if Settings.CHECK_FOR_TIMETABLE_EQUALITY:
+            if "_state_hash" not in self.__dict__:
+                self.__dict__["_state_hash"] = hash(self.state)
+            return self.__dict__["_state_hash"]
+        return self.id
 
     @functools.cached_property
     def is_valid(self) -> bool:
