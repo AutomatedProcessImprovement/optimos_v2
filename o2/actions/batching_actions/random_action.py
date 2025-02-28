@@ -89,10 +89,12 @@ class RandomAction(BaseAction):
                 task_id = random.choice(timetable.get_task_ids())
                 waiting_time = random.randint(1, 24 * 60 * 60)
                 rule_type = random.choice([RULE_TYPE.LARGE_WT, RULE_TYPE.READY_WT])
+                duration_fn = store.constraints.get_duration_fn_for_task(task_id)
                 params = AddReadyLargeWTRuleBaseActionParamsType(
                     task_id=task_id,
                     waiting_time=waiting_time,
                     type=rule_type,  # type: ignore
+                    duration_fn=duration_fn,
                 )
             elif action == ModifyDailyHourRuleAction:
                 all_daily_hour_rule_selectors = [
