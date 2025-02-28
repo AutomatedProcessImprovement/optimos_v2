@@ -38,42 +38,42 @@ class ParetoFront:
     @property
     def avg_y(self) -> float:
         """Return the average y of the front."""
-        return sum(s.evaluation.pareto_y for s in self.solutions) / self.size
+        return sum(s.pareto_y for s in self.solutions) / self.size
 
     @property
     def avg_x(self) -> float:
         """Return the average x of the front."""
-        return sum(s.evaluation.pareto_x for s in self.solutions) / self.size
+        return sum(s.pareto_x for s in self.solutions) / self.size
 
     @property
     def median_y(self) -> float:
         """Return the median y of the front."""
-        return sorted(s.evaluation.pareto_y for s in self.solutions)[self.size // 2]
+        return sorted(s.pareto_y for s in self.solutions)[self.size // 2]
 
     @property
     def median_x(self) -> float:
         """Return the median x of the front."""
-        return sorted(s.evaluation.pareto_x for s in self.solutions)[self.size // 2]
+        return sorted(s.pareto_x for s in self.solutions)[self.size // 2]
 
     @property
     def min_y(self) -> float:
         """Return the minimum y of the front."""
-        return min(s.evaluation.pareto_y for s in self.solutions)
+        return min(s.pareto_y for s in self.solutions)
 
     @property
     def min_x(self) -> float:
         """Return the minimum x of the front."""
-        return min(s.evaluation.pareto_x for s in self.solutions)
+        return min(s.pareto_x for s in self.solutions)
 
     @property
     def max_y(self) -> float:
         """Return the maximum y of the front."""
-        return max(s.evaluation.pareto_y for s in self.solutions)
+        return max(s.pareto_y for s in self.solutions)
 
     @property
     def max_x(self) -> float:
         """Return the maximum x of the front."""
-        return max(s.evaluation.pareto_x for s in self.solutions)
+        return max(s.pareto_x for s in self.solutions)
 
     @property
     def avg_per_case_cost(self) -> float:
@@ -137,8 +137,8 @@ class ParetoFront:
 
     def get_bounding_rect(self) -> tuple[float, float, float, float]:
         """Get the bounding rectangle of the front."""
-        min_x = min(s.evaluation.pareto_x for s in self.solutions)
-        max_x = max(s.evaluation.pareto_x for s in self.solutions)
-        min_y = min(s.evaluation.pareto_y for s in self.solutions)
-        max_y = max(s.evaluation.pareto_y for s in self.solutions)
+        min_x = min(s.pareto_x for s in self.solutions)
+        max_x = max(s.pareto_x for s in self.solutions)
+        min_y = min(s.pareto_y for s in self.solutions)
+        max_y = max(s.pareto_y for s in self.solutions)
         return min_x, min_y, max_x, max_y
