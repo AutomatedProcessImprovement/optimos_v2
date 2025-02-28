@@ -12,7 +12,7 @@ conda activate opti2
 conda run -n opti2 --no-capture-output python ./o2_evaluation/data_collector.py \
     --name "bpi_challenge_2017_mid" \
     --active-scenarios "BPI_Challenge_2017" \
-    --models "Simulated Annealing" \
+    --agents "Simulated Annealing" \
     --number-of-cases 1000 \
     --duration-fn "1 / (1 + (log(size) / log(100)))" \
     --sa-cooling-factor 0.95 \

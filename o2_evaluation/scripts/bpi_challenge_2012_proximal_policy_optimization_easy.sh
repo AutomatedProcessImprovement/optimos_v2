@@ -12,7 +12,7 @@ conda activate opti2
 conda run -n opti2 --no-capture-output python ./o2_evaluation/data_collector.py \
     --name "bpi_challenge_2012_easy" \
     --active-scenarios "BPI_Challenge_2012" \
-    --models "Proximal Policy Optimization" \
+    --agents "Proximal Policy Optimization" \
     --number-of-cases 1000 \
     --duration-fn "1/size" \
     --sa-cooling-factor 0.95 \

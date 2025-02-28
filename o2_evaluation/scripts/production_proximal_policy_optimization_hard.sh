@@ -12,7 +12,7 @@ conda activate opti2
 conda run -n opti2 --no-capture-output python ./o2_evaluation/data_collector.py \
     --name "production_hard" \
     --active-scenarios "production" \
-    --models "Proximal Policy Optimization" \
+    --agents "Proximal Policy Optimization" \
     --number-of-cases 1000 \
     --duration-fn "1 * size" \
     --sa-cooling-factor 0.95 \

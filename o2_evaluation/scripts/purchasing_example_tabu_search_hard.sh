@@ -12,7 +12,7 @@ conda activate opti2
 conda run -n opti2 --no-capture-output python ./o2_evaluation/data_collector.py \
     --name "purchasing_example_hard" \
     --active-scenarios "purchasing_example" \
-    --models "Tabu Search" \
+    --agents "Tabu Search" \
     --number-of-cases 1000 \
     --duration-fn "1 * size" \
     --sa-cooling-factor 0.95 \
