@@ -18,7 +18,7 @@ from o2.models.evaluation import Evaluation
 from o2.models.solution import Solution
 from o2.store import Store
 from o2.util.helper import random_string
-from tests.fixtures.mock_action import MockAction
+from tests.fixtures.mock_action import MockAction, MockActionParamsType
 from tests.fixtures.timetable_generator import TimetableGenerator
 
 if TYPE_CHECKING:
@@ -56,7 +56,11 @@ def first_calendar_first_period_id(store: Store):
 
 
 def create_mock_solution(
-    state: "State", total_cycle_time: int, total_cost: int, total_waiting_time=0
+    state: "State",
+    total_cycle_time: int,
+    total_cost: int,
+    total_waiting_time=0,
+    force_uniqueness: bool = True,
 ):
     kpis = KPIMap()
     kpis.cycle_time = KPIInfo()
@@ -90,8 +94,19 @@ def create_mock_solution(
             log_info,
         ),  # type: ignore
     )
-    state = replace(state, bpmn_definition=random_string())
-    return Solution(evaluation=evaluation, state=state, actions=[MockAction()])
+
+    if force_uniqueness:
+        # Add random string to the state to make it unique
+        state = replace(state, bpmn_definition=random_string())
+        params = MockActionParamsType(random_string=random_string())
+    else:
+        params = MockActionParamsType(random_string="STRING")
+
+    return Solution(
+        evaluation=evaluation,
+        state=state,
+        actions=[MockAction(params=params)],
+    )
 
 
 def assert_no_first_valid(

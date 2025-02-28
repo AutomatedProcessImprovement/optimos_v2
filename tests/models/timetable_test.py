@@ -4,6 +4,7 @@ from dataclasses import replace
 from o2.models.days import DAY
 from o2.models.legacy_constraints import WorkMasks
 from o2.models.rule_selector import RuleSelector
+from o2.models.settings import Settings
 from o2.models.state import State
 from o2.models.timetable import (
     COMPARATOR,
@@ -13,6 +14,7 @@ from o2.models.timetable import (
     Resource,
     ResourceCalendar,
     TimePeriod,
+    TimetableType,
 )
 from o2.util.bit_mask_helper import (
     bitmask_to_string,
@@ -21,7 +23,11 @@ from o2.util.bit_mask_helper import (
     string_to_bitmask,
 )
 from o2.util.helper import name_is_clone_of
-from tests.fixtures.test_helpers import count_occurrences, generate_ranges
+from tests.fixtures.test_helpers import (
+    count_occurrences,
+    generate_ranges,
+    replace_timetable,
+)
 from tests.fixtures.timetable_generator import TimetableGenerator
 
 
@@ -900,3 +906,107 @@ def test_batching_rule_date_time_merging_with_size():
         FiringRule.gte(RULE_TYPE.DAILY_HOUR, 10),
         FiringRule.lt(RULE_TYPE.DAILY_HOUR, 18),
     ]
+
+
+def test_equality_of_timetables_simple(one_task_state: State):
+    timetable = one_task_state.timetable
+    clone = replace(timetable)
+
+    assert timetable == clone
+    assert hash(timetable) == hash(clone)
+
+    # Change the clone
+    new_resource_clone = clone.clone_resource(
+        TimetableGenerator.RESOURCE_ID, [TimetableGenerator.FIRST_ACTIVITY]
+    )
+
+    assert timetable != new_resource_clone
+
+    # Remove the added resource
+    resource_id = new_resource_clone.resource_profiles[0].resource_list[1].id
+    removed_resource_clone = new_resource_clone.remove_resource(resource_id)
+
+    assert timetable == removed_resource_clone
+
+
+def test_equality_of_timetables_json(batching_state: State):
+    timetable = batching_state.timetable
+    json_timetable = timetable.to_json()
+    clone = TimetableType.from_json(json_timetable)
+
+    assert timetable == clone
+
+
+def test_equality_of_timetables_batching_rule_change(one_task_state: State):
+    Settings.CHECK_FOR_TIMETABLE_EQUALITY = True
+    state = one_task_state.replace_timetable(
+        batch_processing=[
+            TimetableGenerator.ready_wt_rule(TimetableGenerator.FIRST_ACTIVITY, 5 * 60)
+        ],
+    )
+    timetable = state.timetable
+    clone = replace(timetable)
+
+    assert timetable == clone
+
+    # Change the clone
+    new_firing_rule = FiringRule.eq(RULE_TYPE.READY_WT, 10 * 60)
+    new_batching_rule_clone = clone.add_firing_rule(
+        RuleSelector.from_batching_rule(clone.batch_processing[0], (0, 0)),
+        new_firing_rule,
+    )
+
+    assert timetable != new_batching_rule_clone
+
+    # Remove the added firing rule
+    batching_rule = new_batching_rule_clone.batch_processing[0]
+    batching_rule = batching_rule.remove_firing_rule(
+        RuleSelector.from_batching_rule(batching_rule, (1, 0))
+    )
+    assert batching_rule is not None
+
+    restored_clone = new_batching_rule_clone.replace_batching_rule(
+        RuleSelector.from_batching_rule(batching_rule, (0, 0)), batching_rule
+    )
+
+    assert timetable == restored_clone
+    Settings.CHECK_FOR_TIMETABLE_EQUALITY = False
+
+
+def test_equality_batching_rules():
+    Settings.CHECK_FOR_TIMETABLE_EQUALITY = True
+    firing_rules = [
+        FiringRule.eq(RULE_TYPE.WEEK_DAY, DAY.MONDAY),
+        FiringRule.gte(RULE_TYPE.DAILY_HOUR, 10),
+        FiringRule.lt(RULE_TYPE.DAILY_HOUR, 12),
+    ]
+    batching_rule = BatchingRule.from_task_id(
+        TimetableGenerator.FIRST_ACTIVITY,
+        firing_rules=firing_rules,
+    )
+
+    firing_rules2 = [
+        FiringRule.lt(RULE_TYPE.DAILY_HOUR, 12),
+        FiringRule.eq(RULE_TYPE.WEEK_DAY, DAY.MONDAY),
+        FiringRule.gte(RULE_TYPE.DAILY_HOUR, 10),
+    ]
+    batching_rule2 = BatchingRule.from_task_id(
+        TimetableGenerator.FIRST_ACTIVITY,
+        firing_rules=firing_rules2,
+    )
+
+    assert batching_rule == batching_rule2
+
+    # Add new firing rule to the end
+    batching_rule = batching_rule.add_firing_rule(
+        FiringRule.eq(RULE_TYPE.SIZE, "10"),
+    )
+
+    # Add new firing rule to the start
+    batching_rule2 = replace(
+        batching_rule2,
+        firing_rules=[[FiringRule.eq(RULE_TYPE.SIZE, "10")], firing_rules2],
+    )
+
+    assert batching_rule == batching_rule2
+    Settings.CHECK_FOR_TIMETABLE_EQUALITY = False
