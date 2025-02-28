@@ -31,6 +31,8 @@ class Metrics(TypedDict):
     hausdorff_distance: float
     delta: float
     purity: float
+    best_x: float
+    best_y: float
 
 
 EMPTY_METRIC: Metrics = {
@@ -45,6 +47,8 @@ EMPTY_METRIC: Metrics = {
     "hausdorff_distance": -1.0,
     "delta": -1.0,
     "purity": -1.0,
+    "best_x": -1.0,
+    "best_y": -1.0,
 }
 
 
@@ -98,6 +102,8 @@ def calculate_metrics(
             "hausdorff_distance": -1.0,
             "delta": -1.0,
             "purity": -1.0,
+            "best_x": -1.0,
+            "best_y": -1.0,
         }
     )
 
@@ -126,6 +132,8 @@ def calculate_metrics(
                 "hausdorff_distance": hausdorff_distance,
                 "delta": delta,
                 "purity": purity,
+                "best_x": store.current_pareto_front.min_x,
+                "best_y": store.current_pareto_front.min_y,
             }
         )
         debug(f"Calculated metrics for agent {agent} ({scenario} {mode})")
@@ -325,6 +333,24 @@ def print_metrics_in_google_sheet_format(metrics: list[Metrics]) -> None:
         )
         result += f";Tabu Random;{tabu_search_random_easy['purity']};{tabu_search_random_mid['purity']};{tabu_search_random_hard['purity']}\n"
         result += f";SA Random;{simulated_annealing_random_easy['purity']};{simulated_annealing_random_mid['purity']};{simulated_annealing_random_hard['purity']}\n\n"
+
+        result += f"Best {Settings.get_pareto_x_label()}\n"
+        result += f";SA;{sa_easy['best_x']};{sa_mid['best_x']};{sa_hard['best_x']}\n"
+        result += f";Tabu Search;{tabu_search_easy['best_x']};{tabu_search_mid['best_x']};{tabu_search_hard['best_x']}\n"
+        result += (
+            f";PPO;{ppo_easy['best_x']};{ppo_mid['best_x']};{ppo_hard['best_x']}\n"
+        )
+        result += f";Tabu Random;{tabu_search_random_easy['best_x']};{tabu_search_random_mid['best_x']};{tabu_search_random_hard['best_x']}\n"
+        result += f";SA Random;{simulated_annealing_random_easy['best_x']};{simulated_annealing_random_mid['best_x']};{simulated_annealing_random_hard['best_x']}\n\n"
+
+        result += f"Best {Settings.get_pareto_y_label()}\n"
+        result += f";SA;{sa_easy['best_y']};{sa_mid['best_y']};{sa_hard['best_y']}\n"
+        result += f";Tabu Search;{tabu_search_easy['best_y']};{tabu_search_mid['best_y']};{tabu_search_hard['best_y']}\n"
+        result += (
+            f";PPO;{ppo_easy['best_y']};{ppo_mid['best_y']};{ppo_hard['best_y']}\n"
+        )
+        result += f";Tabu Random;{tabu_search_random_easy['best_y']};{tabu_search_random_mid['best_y']};{tabu_search_random_hard['best_y']}\n"
+        result += f";SA Random;{simulated_annealing_random_easy['best_y']};{simulated_annealing_random_mid['best_y']};{simulated_annealing_random_hard['best_y']}\n\n"
 
     print(result.replace(".", ","))
 
