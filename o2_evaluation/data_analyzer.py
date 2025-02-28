@@ -137,7 +137,11 @@ def get_agent_from_filename(path: str) -> str:
     filename = path.split("/")[-1]
     if not filename.startswith("store_") and not filename.startswith("solutions_"):
         raise ValueError(f"Invalid filename: {filename}")
-    if "tabu_search" in filename:
+    if "tabu_search_random" in filename:
+        return "Tabu Search Random"
+    elif "simulated_annealing_random" in filename:
+        return "Simulated Annealing Random"
+    elif "tabu_search" in filename:
         return "Tabu Search"
     elif "simulated_annealing" in filename:
         return "Simulated Annealing"
@@ -155,6 +159,9 @@ def get_scenario_from_filename(path: str) -> str:
         filename.replace("store_", "")
         .replace("solutions_", "")
         .replace(".pkl", "")
+        .replace("tabu_search_random_", "")
+        .replace("simulated_annealing_random_", "")
+        .replace("proximal_policy_optimization_random_", "")
         .replace("tabu_search_", "")
         .replace("simulated_annealing_", "")
         .replace("proximal_policy_optimization_", "")
@@ -189,7 +196,11 @@ def get_mode_from_scenario(scenario: str) -> str:
 
 
 def get_agent_from_store_name(store_name: str) -> str:
-    if "tabu search" in store_name.lower():
+    if "tabu search random" in store_name.lower():
+        return "Tabu Search Random"
+    elif "simulated annealing random" in store_name.lower():
+        return "Simulated Annealing Random"
+    elif "tabu search" in store_name.lower():
         return "Tabu Search"
     elif "simulated annealing" in store_name.lower():
         return "Simulated Annealing"
@@ -254,46 +265,67 @@ def print_metrics_in_google_sheet_format(metrics: list[Metrics]) -> None:
         ppo_easy, ppo_mid, ppo_hard = get_metrics_for_agent(
             metrics, "Proximal Policy Optimization"
         )
-
         sa_easy, sa_mid, sa_hard = get_metrics_for_agent(metrics, "Simulated Annealing")
 
         tabu_search_easy, tabu_search_mid, tabu_search_hard = get_metrics_for_agent(
             metrics, "Tabu Search"
         )
 
-        result += "Solutions\n"
-        result += f";no. of unique solutions;{reference_easy['number_of_solutions']};{reference_mid['number_of_solutions']};{reference_hard['number_of_solutions']}\n"
-        result += f";SA no. of solutions;{sa_easy['number_of_solutions']};{sa_mid['number_of_solutions']};{sa_hard['number_of_solutions']}\n"
-        result += f";Tabu no. of solutions Search;{tabu_search_easy['number_of_solutions']};{tabu_search_mid['number_of_solutions']};{tabu_search_hard['number_of_solutions']}\n"
-        result += f";PPO no. of solutions;{ppo_easy['number_of_solutions']};{ppo_mid['number_of_solutions']};{ppo_hard['number_of_solutions']}\n\n"
+        tabu_search_random_easy, tabu_search_random_mid, tabu_search_random_hard = (
+            get_metrics_for_agent(metrics, "Tabu Search Random")
+        )
+        (
+            simulated_annealing_random_easy,
+            simulated_annealing_random_mid,
+            simulated_annealing_random_hard,
+        ) = get_metrics_for_agent(metrics, "Simulated Annealing Random")
+
+        result += "# Solutions\n"
+        result += f";Total Unique;{reference_easy['number_of_solutions']};{reference_mid['number_of_solutions']};{reference_hard['number_of_solutions']}\n"
+        result += f";SA;{sa_easy['number_of_solutions']};{sa_mid['number_of_solutions']};{sa_hard['number_of_solutions']}\n"
+        result += f";Tabu Search;{tabu_search_easy['number_of_solutions']};{tabu_search_mid['number_of_solutions']};{tabu_search_hard['number_of_solutions']}\n"
+        result += f";PPO;{ppo_easy['number_of_solutions']};{ppo_mid['number_of_solutions']};{ppo_hard['number_of_solutions']}\n"
+        result += f";Tabu Random;{tabu_search_random_easy['number_of_solutions']};{tabu_search_random_mid['number_of_solutions']};{tabu_search_random_hard['number_of_solutions']}\n"
+        result += f";SA Random;{simulated_annealing_random_easy['number_of_solutions']};{simulated_annealing_random_mid['number_of_solutions']};{simulated_annealing_random_hard['number_of_solutions']}\n\n"
 
         result += "Pareto Size\n"
         result += f";Reference;{reference_easy['patreto_size']};{reference_mid['patreto_size']};{reference_hard['patreto_size']}\n"
         result += f";SA;{sa_easy['patreto_size']};{sa_mid['patreto_size']};{sa_hard['patreto_size']}\n"
         result += f";Tabu Search;{tabu_search_easy['patreto_size']};{tabu_search_mid['patreto_size']};{tabu_search_hard['patreto_size']}\n"
-        result += f";PPO;{ppo_easy['patreto_size']};{ppo_mid['patreto_size']};{ppo_hard['patreto_size']}\n\n"
+        result += f";PPO;{ppo_easy['patreto_size']};{ppo_mid['patreto_size']};{ppo_hard['patreto_size']}\n"
+        result += f";Tabu Random;{tabu_search_random_easy['patreto_size']};{tabu_search_random_mid['patreto_size']};{tabu_search_random_hard['patreto_size']}\n"
+        result += f";SA Random;{simulated_annealing_random_easy['patreto_size']};{simulated_annealing_random_mid['patreto_size']};{simulated_annealing_random_hard['patreto_size']}\n\n"
 
         result += "Hyperarea Ratio\n"
         result += f";SA;{sa_easy['hyperarea_ratio']};{sa_mid['hyperarea_ratio']};{sa_hard['hyperarea_ratio']}\n"
         result += f";Tabu Search;{tabu_search_easy['hyperarea_ratio']};{tabu_search_mid['hyperarea_ratio']};{tabu_search_hard['hyperarea_ratio']}\n"
-        result += f";PPO;{ppo_easy['hyperarea_ratio']};{ppo_mid['hyperarea_ratio']};{ppo_hard['hyperarea_ratio']}\n\n"
+        result += f";PPO;{ppo_easy['hyperarea_ratio']};{ppo_mid['hyperarea_ratio']};{ppo_hard['hyperarea_ratio']}\n"
+        result += f";Tabu Random;{tabu_search_random_easy['hyperarea_ratio']};{tabu_search_random_mid['hyperarea_ratio']};{tabu_search_random_hard['hyperarea_ratio']}\n"
+        result += f";SA Random;{simulated_annealing_random_easy['hyperarea_ratio']};{simulated_annealing_random_mid['hyperarea_ratio']};{simulated_annealing_random_hard['hyperarea_ratio']}\n\n"
 
         result += "Hausdorff\n"
         result += f";SA;{sa_easy['hausdorff_distance']};{sa_mid['hausdorff_distance']};{sa_hard['hausdorff_distance']}\n"
         result += f";Tabu Search;{tabu_search_easy['hausdorff_distance']};{tabu_search_mid['hausdorff_distance']};{tabu_search_hard['hausdorff_distance']}\n"
-        result += f";PPO;{ppo_easy['hausdorff_distance']};{ppo_mid['hausdorff_distance']};{ppo_hard['hausdorff_distance']}\n\n"
+        result += f";PPO;{ppo_easy['hausdorff_distance']};{ppo_mid['hausdorff_distance']};{ppo_hard['hausdorff_distance']}\n"
+        result += f";Tabu Random;{tabu_search_random_easy['hausdorff_distance']};{tabu_search_random_mid['hausdorff_distance']};{tabu_search_random_hard['hausdorff_distance']}\n"
+        result += f";SA Random;{simulated_annealing_random_easy['hausdorff_distance']};{simulated_annealing_random_mid['hausdorff_distance']};{simulated_annealing_random_hard['hausdorff_distance']}\n\n"
 
         result += "Delta\n"
         result += f";SA;{sa_easy['delta']};{sa_mid['delta']};{sa_hard['delta']}\n"
         result += f";Tabu Search;{tabu_search_easy['delta']};{tabu_search_mid['delta']};{tabu_search_hard['delta']}\n"
-        result += f";PPO;{ppo_easy['delta']};{ppo_mid['delta']};{ppo_hard['delta']}\n\n"
+        result += f";PPO;{ppo_easy['delta']};{ppo_mid['delta']};{ppo_hard['delta']}\n"
+        result += f";Tabu Random;{tabu_search_random_easy['delta']};{tabu_search_random_mid['delta']};{tabu_search_random_hard['delta']}\n"
+        result += f";SA Random;{simulated_annealing_random_easy['delta']};{simulated_annealing_random_mid['delta']};{simulated_annealing_random_hard['delta']}\n\n"
 
         result += "Purity\n"
         result += f";SA;{sa_easy['purity']};{sa_mid['purity']};{sa_hard['purity']}\n"
         result += f";Tabu Search;{tabu_search_easy['purity']};{tabu_search_mid['purity']};{tabu_search_hard['purity']}\n"
         result += (
-            f";PPO;{ppo_easy['purity']};{ppo_mid['purity']};{ppo_hard['purity']}\n\n"
+            f";PPO;{ppo_easy['purity']};{ppo_mid['purity']};{ppo_hard['purity']}\n"
         )
+        result += f";Tabu Random;{tabu_search_random_easy['purity']};{tabu_search_random_mid['purity']};{tabu_search_random_hard['purity']}\n"
+        result += f";SA Random;{simulated_annealing_random_easy['purity']};{simulated_annealing_random_mid['purity']};{simulated_annealing_random_hard['purity']}\n\n"
+
     print(result.replace(".", ","))
 
 
