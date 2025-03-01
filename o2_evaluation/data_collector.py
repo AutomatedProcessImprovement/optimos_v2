@@ -11,7 +11,7 @@ from o2.models.settings import AgentType, CostType, Settings
 from o2.models.solution import Solution
 from o2.optimizer import Optimizer
 from o2.store import Store
-from o2.util.logger import info, setup_logging
+from o2.util.logger import info, setup_logging, stats
 from o2.util.solution_dumper import SolutionDumper
 from o2.util.stat_calculation_helper import (
     calculate_averaged_hausdorff_distance,
@@ -399,3 +399,4 @@ if __name__ == "__main__":
 
         # Run the simulation/collection for the current scenario
         collect_data_sequentially(store, args)
+        stats("All Done!")
