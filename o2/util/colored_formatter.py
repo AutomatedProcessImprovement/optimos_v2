@@ -11,6 +11,7 @@ class ColoredFormatter(logging.Formatter):
     """Custom formatter with colors."""
 
     COLORS = {
+        5: Style.DIM + Fore.BLUE,
         logging.DEBUG: Style.DIM + Fore.CYAN,
         logging.INFO: Style.DIM + Fore.WHITE,
         logging.WARNING: Style.BRIGHT + Fore.YELLOW,

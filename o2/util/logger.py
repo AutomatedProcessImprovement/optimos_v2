@@ -7,9 +7,10 @@ from o2.util.colored_formatter import ColoredFormatter
 from o2.util.helper import withSignatureFrom
 
 STATS_LOG_LEVEL = 25
+IO_LOG_LEVEL = 5
 
 logging.addLevelName(STATS_LOG_LEVEL, "STATS")
-
+logging.addLevelName(IO_LOG_LEVEL, "IO")
 logger = logging.getLogger("optimos_v2")
 # Convenience functions
 debug = logger.debug
@@ -20,10 +21,16 @@ critical = logger.critical
 log = logger.log
 
 
-# @withSignatureFrom(logger.debug)
+@withSignatureFrom(logger.debug)
 def stats(*args, **kwargs):  # noqa: ANN002, ANN003, ANN201
     """Log a message at the STATS log level."""
     return logger.log(STATS_LOG_LEVEL, *args, **kwargs)
+
+
+@withSignatureFrom(logger.debug)
+def log_io(*args, **kwargs) -> None:  # noqa: ANN002, ANN003, ANN201
+    """Log a message at the IO log level."""
+    return logger.log(IO_LOG_LEVEL, *args, **kwargs)
 
 
 def setup_logging() -> None:

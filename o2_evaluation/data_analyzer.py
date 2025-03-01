@@ -7,7 +7,7 @@ from typing import TypedDict
 from o2.models.settings import CostType, Settings
 from o2.models.solution import Solution
 from o2.store import Store
-from o2.util.logger import debug, info, setup_logging, stats, warn
+from o2.util.logger import IO_LOG_LEVEL, debug, info, setup_logging, stats, warn
 from o2.util.solution_dumper import SolutionDumper
 from o2.util.stat_calculation_helper import (
     calculate_averaged_hausdorff_distance,
@@ -31,8 +31,19 @@ class Metrics(TypedDict):
     hausdorff_distance: float
     delta: float
     purity: float
+
+    base_x: float
+    base_y: float
+
     best_x: float
     best_y: float
+
+    avg_x: float
+    avg_y: float
+
+    best_cycle_time: float
+    pareto_avg_cycle_time: float
+    base_cycle_time: float
 
 
 EMPTY_METRIC: Metrics = {
@@ -47,8 +58,15 @@ EMPTY_METRIC: Metrics = {
     "hausdorff_distance": -1.0,
     "delta": -1.0,
     "purity": -1.0,
+    "base_x": -1.0,
+    "base_y": -1.0,
     "best_x": -1.0,
     "best_y": -1.0,
+    "avg_x": -1.0,
+    "avg_y": -1.0,
+    "best_cycle_time": -1.0,
+    "pareto_avg_cycle_time": -1.0,
+    "base_cycle_time": -1.0,
 }
 
 
@@ -87,6 +105,21 @@ def calculate_metrics(
     center_point = (max_cost, max_time)
     global_hyperarea = calculate_hyperarea(all_solutions_front, center_point)
 
+    avg_x = sum(solution.pareto_x for solution in all_solutions) / len(all_solutions)
+    avg_y = sum(solution.pareto_y for solution in all_solutions) / len(all_solutions)
+
+    avg_cycle_time = sum(
+        solution.evaluation.total_cycle_time for solution in all_solutions
+    ) / len(all_solutions)
+
+    best_cycle_time = min(
+        solution.evaluation.total_cycle_time for solution in all_solutions
+    )
+
+    base_cycle_time = stores[0][1].base_evaluation.total_cycle_time
+    base_x = stores[0][1].base_solution.pareto_x
+    base_y = stores[0][1].base_solution.pareto_y
+
     metrics: list[Metrics] = []
 
     metrics.append(
@@ -102,8 +135,15 @@ def calculate_metrics(
             "hausdorff_distance": -1.0,
             "delta": -1.0,
             "purity": -1.0,
+            "base_x": base_x,
+            "base_y": base_y,
             "best_x": -1.0,
             "best_y": -1.0,
+            "avg_x": avg_x,
+            "avg_y": avg_y,
+            "best_cycle_time": best_cycle_time,
+            "pareto_avg_cycle_time": avg_cycle_time,
+            "base_cycle_time": base_cycle_time,
         }
     )
 
@@ -119,6 +159,24 @@ def calculate_metrics(
         delta = calculate_delta_metric(pareto_solutions, all_solutions_front)
         purity = calculate_purity(pareto_solutions, all_solutions_front)
 
+        best_x = store.current_pareto_front.min_x
+        best_y = store.current_pareto_front.min_y
+
+        avg_x = sum(solution.pareto_x for solution in pareto_solutions) / len(
+            pareto_solutions
+        )
+        avg_y = sum(solution.pareto_y for solution in pareto_solutions) / len(
+            pareto_solutions
+        )
+
+        avg_cycle_time = sum(
+            solution.evaluation.total_cycle_time for solution in pareto_solutions
+        ) / len(pareto_solutions)
+
+        best_cycle_time = min(
+            solution.evaluation.total_cycle_time for solution in pareto_solutions
+        )
+
         metrics.append(
             {
                 "store_name": store.name,
@@ -132,8 +190,15 @@ def calculate_metrics(
                 "hausdorff_distance": hausdorff_distance,
                 "delta": delta,
                 "purity": purity,
-                "best_x": store.current_pareto_front.min_x,
-                "best_y": store.current_pareto_front.min_y,
+                "base_x": base_x,
+                "base_y": base_y,
+                "best_x": best_x,
+                "best_y": best_y,
+                "avg_x": avg_x,
+                "avg_y": avg_y,
+                "pareto_avg_cycle_time": avg_cycle_time,
+                "base_cycle_time": base_cycle_time,
+                "best_cycle_time": best_cycle_time,
             }
         )
         debug(f"Calculated metrics for agent {agent} ({scenario} {mode})")
@@ -334,7 +399,24 @@ def print_metrics_in_google_sheet_format(metrics: list[Metrics]) -> None:
         result += f";Tabu Random;{tabu_search_random_easy['purity']};{tabu_search_random_mid['purity']};{tabu_search_random_hard['purity']}\n"
         result += f";SA Random;{simulated_annealing_random_easy['purity']};{simulated_annealing_random_mid['purity']};{simulated_annealing_random_hard['purity']}\n\n"
 
+        result += "Avg Cycle Time\n"
+        result += f";Base;{reference_easy['base_cycle_time']};{reference_mid['base_cycle_time']};{reference_hard['base_cycle_time']}\n"
+        result += f";SA;{sa_easy['pareto_avg_cycle_time']};{sa_mid['pareto_avg_cycle_time']};{sa_hard['pareto_avg_cycle_time']}\n"
+        result += f";Tabu Search;{tabu_search_easy['pareto_avg_cycle_time']};{tabu_search_mid['pareto_avg_cycle_time']};{tabu_search_hard['pareto_avg_cycle_time']}\n"
+        result += f";PPO;{ppo_easy['pareto_avg_cycle_time']};{ppo_mid['pareto_avg_cycle_time']};{ppo_hard['pareto_avg_cycle_time']}\n"
+        result += f";Tabu Random;{tabu_search_random_easy['pareto_avg_cycle_time']};{tabu_search_random_mid['pareto_avg_cycle_time']};{tabu_search_random_hard['pareto_avg_cycle_time']}\n"
+        result += f";SA Random;{simulated_annealing_random_easy['pareto_avg_cycle_time']};{simulated_annealing_random_mid['pareto_avg_cycle_time']};{simulated_annealing_random_hard['pareto_avg_cycle_time']}\n\n"
+
+        result += "Best Cycle Time\n"
+        result += f";Base;{reference_easy['best_cycle_time']};{reference_mid['best_cycle_time']};{reference_hard['best_cycle_time']}\n"
+        result += f";SA;{sa_easy['best_cycle_time']};{sa_mid['best_cycle_time']};{sa_hard['best_cycle_time']}\n"
+        result += f";Tabu Search;{tabu_search_easy['best_cycle_time']};{tabu_search_mid['best_cycle_time']};{tabu_search_hard['best_cycle_time']}\n"
+        result += f";PPO;{ppo_easy['best_cycle_time']};{ppo_mid['best_cycle_time']};{ppo_hard['best_cycle_time']}\n"
+        result += f";Tabu Random;{tabu_search_random_easy['best_cycle_time']};{tabu_search_random_mid['best_cycle_time']};{tabu_search_random_hard['best_cycle_time']}\n"
+        result += f";SA Random;{simulated_annealing_random_easy['best_cycle_time']};{simulated_annealing_random_mid['best_cycle_time']};{simulated_annealing_random_hard['best_cycle_time']}\n\n"
+
         result += f"Best {Settings.get_pareto_x_label()}\n"
+        result += f";Base;{reference_easy['base_x']};{reference_mid['base_x']};{reference_hard['base_x']}\n"
         result += f";SA;{sa_easy['best_x']};{sa_mid['best_x']};{sa_hard['best_x']}\n"
         result += f";Tabu Search;{tabu_search_easy['best_x']};{tabu_search_mid['best_x']};{tabu_search_hard['best_x']}\n"
         result += (
@@ -344,6 +426,7 @@ def print_metrics_in_google_sheet_format(metrics: list[Metrics]) -> None:
         result += f";SA Random;{simulated_annealing_random_easy['best_x']};{simulated_annealing_random_mid['best_x']};{simulated_annealing_random_hard['best_x']}\n\n"
 
         result += f"Best {Settings.get_pareto_y_label()}\n"
+        result += f";Base;{reference_easy['base_y']};{reference_mid['base_y']};{reference_hard['base_y']}\n"
         result += f";SA;{sa_easy['best_y']};{sa_mid['best_y']};{sa_hard['best_y']}\n"
         result += f";Tabu Search;{tabu_search_easy['best_y']};{tabu_search_mid['best_y']};{tabu_search_hard['best_y']}\n"
         result += (
@@ -352,11 +435,21 @@ def print_metrics_in_google_sheet_format(metrics: list[Metrics]) -> None:
         result += f";Tabu Random;{tabu_search_random_easy['best_y']};{tabu_search_random_mid['best_y']};{tabu_search_random_hard['best_y']}\n"
         result += f";SA Random;{simulated_annealing_random_easy['best_y']};{simulated_annealing_random_mid['best_y']};{simulated_annealing_random_hard['best_y']}\n\n"
 
+        result += f"Avg {Settings.get_pareto_x_label()}\n"
+        result += f";SA;{sa_easy['avg_x']};{sa_mid['avg_x']};{sa_hard['avg_x']}\n"
+        result += f";Tabu Search;{tabu_search_easy['avg_x']};{tabu_search_mid['avg_x']};{tabu_search_hard['avg_x']}\n"
+        result += f";PPO;{ppo_easy['avg_x']};{ppo_mid['avg_x']};{ppo_hard['avg_x']}\n"
+
+        result += f"Avg {Settings.get_pareto_y_label()}\n"
+        result += f";SA;{sa_easy['avg_y']};{sa_mid['avg_y']};{sa_hard['avg_y']}\n"
+        result += f";Tabu Search;{tabu_search_easy['avg_y']};{tabu_search_mid['avg_y']};{tabu_search_hard['avg_y']}\n"
+        result += f";PPO;{ppo_easy['avg_y']};{ppo_mid['avg_y']};{ppo_hard['avg_y']}\n"
+
     print(result.replace(".", ","))
 
 
 if __name__ == "__main__":
-    Settings.LOG_LEVEL = "DEBUG"
+    Settings.LOG_LEVEL = "IO"
     Settings.LOG_FILE = "logs/data_analyzer.log"
     Settings.COST_TYPE = CostType.WAITING_TIME_AND_PROCESSING_TIME
     Settings.ARCHIVE_SOLUTIONS = True

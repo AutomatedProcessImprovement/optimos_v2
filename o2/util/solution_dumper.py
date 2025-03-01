@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Optional
 from o2.models.evaluation import Evaluation
 from o2.models.settings import Settings
 from o2.models.state import State
+from o2.util.logger import log_io
 
 if TYPE_CHECKING:
     from o2.models.solution import Solution
@@ -178,22 +179,6 @@ class SolutionDumper:
                     break
         return solutions
 
-    def dump_evaluation(self, solution_id: int, evaluation: Evaluation) -> None:
-        """Dump an evaluation to the evaluation file."""
-        filename = os.path.join(
-            self.evaluation_folder,
-            f"evaluation_{self.sanitized_current_store_name}_{solution_id}.pkl",
-        )
-        # As we identify the solution by its id, we don't need to dump the
-        # evaluation if it already exists.
-        if (
-            os.path.exists(filename)
-            and not Settings.OVERWRITE_EXISTING_SOLUTION_ARCHIVES
-        ):
-            return
-        with open(filename, "wb") as f:
-            pickle.dump(evaluation, f)
-
     def _find_evaluation_filename(self, solution_id: int) -> str:
         """Find the filename of the evaluation for a given solution id."""
         best_guess_name = (
@@ -204,7 +189,11 @@ class SolutionDumper:
             return os.path.join(self.evaluation_folder, best_guess_name)
 
         path = next(
-            (p for p in self.evaluation_paths if p.endswith(f"{solution_id}.pkl")),
+            (
+                p
+                for p in self.evaluation_paths
+                if p.endswith(f"{self.sanitized_current_store_name}_{solution_id}.pkl")
+            ),
             None,
         )
         if path is None:
@@ -218,12 +207,33 @@ class SolutionDumper:
             return os.path.join(self.state_folder, best_guess_name)
 
         path = next(
-            (p for p in self.state_paths if p.endswith(f"{solution_id}.pkl")),
+            (
+                p
+                for p in self.state_paths
+                if p.endswith(f"{self.sanitized_current_store_name}_{solution_id}.pkl")
+            ),
             None,
         )
         if path is None:
             raise FileNotFoundError(f"State for solution {solution_id} not found.")
         return os.path.join(self.state_folder, path)
+
+    def dump_evaluation(self, solution_id: int, evaluation: Evaluation) -> None:
+        """Dump an evaluation to the evaluation file."""
+        filename = os.path.join(
+            self.evaluation_folder,
+            f"evaluation_{self.sanitized_current_store_name}_{solution_id}.pkl",
+        )
+        # As we identify the solution by its id, we don't need to dump the
+        # evaluation if it already exists.
+        if (
+            os.path.exists(filename)
+            and not Settings.OVERWRITE_EXISTING_SOLUTION_ARCHIVES
+        ):
+            return
+        log_io(f"Dumping evaluation to {filename}")
+        with open(filename, "wb") as f:
+            pickle.dump(evaluation, f)
 
     def load_evaluation(self, solution_id: int) -> Evaluation:
         """Load an evaluation from the evaluation file."""
@@ -234,6 +244,7 @@ class SolutionDumper:
                 self.evaluation_folder,
                 f"evaluation_{self.sanitized_current_store_name}_{solution_id}.pkl",
             )
+        log_io(f"Loading evaluation from {filename}")
         with open(filename, "rb") as f:
             evaluation = pickle.load(f)
         if Settings.DELETE_LOADED_SOLUTION_ARCHIVES:
@@ -251,6 +262,7 @@ class SolutionDumper:
             and not Settings.OVERWRITE_EXISTING_SOLUTION_ARCHIVES
         ):
             return
+        log_io(f"Dumping state to {filename}")
         with open(filename, "wb") as f:
             pickle.dump(state, f)
 
@@ -263,6 +275,7 @@ class SolutionDumper:
                 self.state_folder,
                 f"state_{self.sanitized_current_store_name}_{solution_id}.pkl",
             )
+        log_io(f"Loading state from {filename}")
         with open(filename, "rb") as f:
             state = pickle.load(f)
         if Settings.DELETE_LOADED_SOLUTION_ARCHIVES:
