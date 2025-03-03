@@ -46,9 +46,7 @@ class Solution:
             return self.__dict__["_evaluation"]
         # Else we just load the evaluation from the evaluation file
         elif self._evaluation is None and Settings.ARCHIVE_SOLUTIONS:
-            self.__dict__["_evaluation"] = SolutionDumper.instance.load_evaluation(
-                self.id
-            )
+            self.__dict__["_evaluation"] = SolutionDumper.instance.load_evaluation(self)
         assert self._evaluation is not None
         return self._evaluation
 
@@ -75,7 +73,7 @@ class Solution:
             return self.__dict__["_state"]
         # Else we just load the state from the state file
         elif self._state is None and Settings.ARCHIVE_SOLUTIONS:
-            self.__dict__["_state"] = SolutionDumper.instance.load_state(self.id)
+            self.__dict__["_state"] = SolutionDumper.instance.load_state(self)
         assert self._state is not None
         return self._state
 
@@ -182,11 +180,10 @@ class Solution:
     def is_valid(self) -> bool:
         """Check if the evaluation is valid."""
         return (
-            not self.evaluation.is_empty
             # Ensure that there was no error runing the simulation,
-            # that results in a < 1 value.
-            and self.pareto_x >= 1
-            and self.pareto_y >= 1
+            # that results in a <= 0 value.
+            # Or that the solution is empty
+            self.pareto_x > 0 and self.pareto_y > 0
         )
 
     @functools.cached_property
