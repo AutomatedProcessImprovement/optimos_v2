@@ -9,31 +9,12 @@ from o2.store import Store
 from o2.util.logger import error, info, setup_logging
 from o2.util.solution_dumper import SolutionDumper
 
-SKIP = [
-    "store_simulated_annealing_bpi_challenge_2012_hard.pkl",
-    "store_simulated_annealing_callcentre_mid.pkl",
-    "store_tabu_search_callcentre_hard.pkl",
-    "store_simulated_annealing_callcentre_hard.pkl",
-    "store_proximal_policy_optimization_callcentre_easy.pkl",
-    "store_proximal_policy_optimization_callcentre_hard.pkl",
-    "store_tabu_search_callcentre_mid.pkl",
-    "store_proximal_policy_optimization_callcentre_mid.pkl",
-    "store_simulated_annealing_callcentre_easy.pkl",
-    "store_tabu_search_callcentre_easy.pkl",
-    "store_simulated_annealing_production_mid.pkl",
-    "store_proximal_policy_optimization_bpi_challenge_2017_easy",
-    "store_tabu_search_bpi_challenge_2017_hard",  # <--- TODO: ERRROR !!!!
-    "store_proximal_policy_optimization_bpi_challenge_2017_mid",
-    "store_tabu_search_bpi_challenge_2017_easy.pkl",
-    "store_proximal_policy_optimization_bpi_challenge_2017_hard.pkl",
-    "store_tabu_search_bpi_challenge_2017_mid.pkl",  # <--- TODO: ERRROR !!!!
-    "store_simulated_annealing_bpi_challenge_2017_easy.pkl",  # <--- TODO: ERRROR !!!!
-]
+SKIP = []
 
 if __name__ == "__main__":
     Settings.LOG_LEVEL = "DEBUG"
     Settings.LOG_FILE = "logs/redumper.log"
-    Settings.COST_TYPE = CostType.WAITING_TIME_AND_PROCESSING_TIME
+    Settings.COST_TYPE = CostType.AVG_WT_AND_PT_PER_TASK_INSTANCE
     Settings.ARCHIVE_SOLUTIONS = True
     Settings.DELETE_LOADED_SOLUTION_ARCHIVES = False
     Settings.OVERWRITE_EXISTING_SOLUTION_ARCHIVES = False  # TDOO
@@ -53,12 +34,12 @@ if __name__ == "__main__":
                 info(f"Skipping file: {file}")
                 continue
 
-            info(f"Loading file: {file}...")
             file_name = file.split("/")[-1]
             if os.path.exists(os.path.join(dump_dir, file_name)):
                 info(f"File already exists: {file_name}")
                 continue
 
+            info(f"Loading file: {file}...")
             with open(file, "rb") as f:
                 store: Store = pickle.load(f)
             info(f"Updating store name to: {store.name}...")

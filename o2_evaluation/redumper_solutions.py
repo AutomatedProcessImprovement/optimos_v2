@@ -13,7 +13,7 @@ SKIP = []
 if __name__ == "__main__":
     Settings.LOG_LEVEL = "DEBUG"
     Settings.LOG_FILE = "logs/redumper.log"
-    Settings.COST_TYPE = CostType.WAITING_TIME_AND_PROCESSING_TIME
+    Settings.COST_TYPE = CostType.AVG_WT_AND_PT_PER_TASK_INSTANCE
     Settings.ARCHIVE_SOLUTIONS = True
     Settings.CHECK_FOR_TIMETABLE_EQUALITY = True
     Settings.DELETE_LOADED_SOLUTION_ARCHIVES = True

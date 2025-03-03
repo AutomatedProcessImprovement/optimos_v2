@@ -204,7 +204,7 @@ def collect_data_sequentially(base_store: Store, args) -> None:
     # Set some global settings
     Settings.SHOW_SIMULATION_ERRORS = True
     Settings.RAISE_SIMULATION_ERRORS = False
-    Settings.COST_TYPE = CostType.WAITING_TIME_AND_PROCESSING_TIME
+    Settings.COST_TYPE = CostType.AVG_WT_AND_PT_PER_TASK_INSTANCE
     Settings.DUMP_DISCARDED_SOLUTIONS = True
     Settings.NUMBER_OF_CASES = args.number_of_cases
     Settings.ARCHIVE_TENSORBOARD_LOGS = args.archive_tensorboard_logs

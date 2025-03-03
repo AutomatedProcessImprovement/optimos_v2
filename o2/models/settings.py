@@ -33,6 +33,10 @@ class CostType(Enum):
     """Instead of using an financial cost use
     waiting time (incl. idle time) and processing time"""
 
+    AVG_WT_AND_PT_PER_TASK_INSTANCE = "avg_wt_pt_per_task_instance"
+    """Instead of using an financial cost use average
+    waiting time (incl. idle time) and processing time per task instance"""
+
 
 @dataclass()
 class Settings:
@@ -172,7 +176,7 @@ class Settings:
     This should only be activated for evaluation, as it will cause IO & processing overhead.
     """
 
-    COST_TYPE: ClassVar[CostType] = CostType.WAITING_TIME_AND_PROCESSING_TIME
+    COST_TYPE: ClassVar[CostType] = CostType.AVG_WT_AND_PT_PER_TASK_INSTANCE
     """The type of cost to use for the optimization task.
 
     Because this won't differ during the optimization, it's a class variable.
@@ -245,6 +249,8 @@ class Settings:
             return "Resource Cost"
         elif Settings.COST_TYPE == CostType.TOTAL_COST:
             return "Total Cost"
+        elif Settings.COST_TYPE == CostType.AVG_WT_AND_PT_PER_TASK_INSTANCE:
+            return "Avg. Processing Time"
         else:
             raise ValueError(f"Unknown cost type: {Settings.COST_TYPE}")
 
@@ -253,4 +259,7 @@ class Settings:
         """Get the label for the y-axis (duration) of the pareto front."""
         if Settings.COST_TYPE == CostType.WAITING_TIME_AND_PROCESSING_TIME:
             return "Waiting Time"
-        return "Total Duration"
+        elif Settings.COST_TYPE == CostType.AVG_WT_AND_PT_PER_TASK_INSTANCE:
+            return "Avg. Waiting Time"
+        else:
+            return "Total Duration"

@@ -422,7 +422,7 @@ def print_metrics_in_google_sheet_format(metrics: list[Metrics]) -> None:
         result += f";SA Random;{simulated_annealing_random_easy['pareto_avg_cycle_time']};{simulated_annealing_random_mid['pareto_avg_cycle_time']};{simulated_annealing_random_hard['pareto_avg_cycle_time']}\n\n"
 
         result += "Best Cycle Time\n"
-        result += f";Base;{reference_easy['best_cycle_time']};{reference_mid['best_cycle_time']};{reference_hard['best_cycle_time']}\n"
+        result += f";Base;{reference_easy['base_cycle_time']};{reference_mid['base_cycle_time']};{reference_hard['base_cycle_time']}\n"
         result += f";Reference;{reference_easy['best_cycle_time']};{reference_mid['best_cycle_time']};{reference_hard['best_cycle_time']}\n"
         result += f";SA;{sa_easy['best_cycle_time']};{sa_mid['best_cycle_time']};{sa_hard['best_cycle_time']}\n"
         result += f";Tabu Search;{tabu_search_easy['best_cycle_time']};{tabu_search_mid['best_cycle_time']};{tabu_search_hard['best_cycle_time']}\n"
@@ -472,7 +472,7 @@ def print_metrics_in_google_sheet_format(metrics: list[Metrics]) -> None:
 if __name__ == "__main__":
     Settings.LOG_LEVEL = "IO"
     Settings.LOG_FILE = "logs/data_analyzer.log"
-    Settings.COST_TYPE = CostType.WAITING_TIME_AND_PROCESSING_TIME
+    Settings.COST_TYPE = CostType.AVG_WT_AND_PT_PER_TASK_INSTANCE
     Settings.ARCHIVE_SOLUTIONS = True
     Settings.DELETE_LOADED_SOLUTION_ARCHIVES = False
     Settings.OVERWRITE_EXISTING_SOLUTION_ARCHIVES = False
@@ -502,6 +502,8 @@ if __name__ == "__main__":
     all_metrics: list[Metrics] = []
 
     for scenario in scenarios:
+        if not "Bpi Challenge 2012" in scenario:
+            continue
         mode = get_mode_from_scenario(scenario)
         scenario_without_mode = get_scenario_without_mode(scenario)
 
