@@ -27,6 +27,9 @@ class TimePeriod(BaseModel):
     end_time: str = Field(...)
     """The end time of the time period (24h format, e.g. 17:00)"""
 
+    probability: Optional[float] = None
+    """The probability of the time period."""
+
     class Config:  # noqa: D106
         frozen = True
 

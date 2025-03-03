@@ -948,6 +948,7 @@ def test_equality_of_timetables_batching_rule_change(one_task_state: State):
     clone = replace(timetable)
 
     assert timetable == clone
+    assert hash(timetable) == hash(clone)
 
     # Change the clone
     new_firing_rule = FiringRule.eq(RULE_TYPE.READY_WT, 10 * 60)
@@ -957,6 +958,7 @@ def test_equality_of_timetables_batching_rule_change(one_task_state: State):
     )
 
     assert timetable != new_batching_rule_clone
+    assert hash(timetable) != hash(new_batching_rule_clone)
 
     # Remove the added firing rule
     batching_rule = new_batching_rule_clone.batch_processing[0]
@@ -970,6 +972,7 @@ def test_equality_of_timetables_batching_rule_change(one_task_state: State):
     )
 
     assert timetable == restored_clone
+    assert hash(timetable) == hash(restored_clone)
     Settings.CHECK_FOR_TIMETABLE_EQUALITY = False
 
 

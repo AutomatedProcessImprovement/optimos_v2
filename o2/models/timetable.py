@@ -185,6 +185,71 @@ class ResourcePool(JSONWizard):
 
 
 @dataclass(frozen=True)
+class ParallelTaskProbability(JSONWizard):
+    """The probability of a resource to be used for a certain number of parallel tasks."""
+
+    parallel_tasks: int
+    probability: float
+
+
+@dataclass(frozen=True)
+class TimePeriodWithParallelTaskProbability(JSONWizard):
+    """A time period with information about the probability of parallel tasks."""
+
+    from_: "DAY"
+    """The start of the time period (day, uppercase, e.g. MONDAY)
+
+    NOTE: In the json the field is called `from` (from is a reserved keyword in Python)
+    """
+
+    to: "DAY"
+    """The end of the time period (day, uppercase, e.g. FRIDAY)"""
+
+    begin_time: str
+    """The start time of the time period (24h format, e.g. 08:00)"""
+    end_time: str
+    """The end time of the time period (24h format, e.g. 17:00)"""
+    multitask_info: Optional[list[ParallelTaskProbability]] = None
+
+    class _(JSONWizard.Meta):
+        json_key_to_field = {
+            "__all__": True,  # type: ignore
+            "from": "from_",
+            "beginTime": "begin_time",
+            "endTime": "end_time",
+        }
+
+
+@dataclass(frozen=True)
+class MultitaskResourceInfo(JSONWizard):
+    """The information about a resource that can handle multiple tasks in parallel."""
+
+    resource_id: str
+    r_workload: float
+    multitask_info: Optional[list[ParallelTaskProbability]] = None
+    weekly_probability: Optional[list[list[TimePeriodWithParallelTaskProbability]]] = (
+        None
+    )
+
+
+@dataclass(frozen=True)
+class Multitask(JSONWizard):
+    """The information about all resources that can handle multiple tasks in parallel."""
+
+    type: str
+    values: list[MultitaskResourceInfo]
+
+
+@dataclass(frozen=True)
+class GranuleSize(JSONWizard):
+    value: int = 60
+    time_unit: Literal["MINUTES"] = "MINUTES"
+
+    class _(JSONWizard.Meta):
+        skip_defaults = False
+
+
+@dataclass(frozen=True)
 class DistributionParameter(JSONWizard):
     value: Union[float, int]
 
@@ -317,6 +382,7 @@ class ResourceCalendar(JSONWizard, CustomLoader, CustomDumper):
     id: str
     name: str
     time_periods: list["TimePeriod"]
+    workload_ratio: Optional[list["TimePeriod"]] = None
 
     def is_valid(self) -> bool:
         """Check if the calendar is valid.
@@ -324,6 +390,10 @@ class ResourceCalendar(JSONWizard, CustomLoader, CustomDumper):
         The calendar is valid if all time periods have a begin time before the end time.
         And if the time periods are not overlapping.
         """
+        # We do not check for valid time periods if the time periods have a probability
+        if any(tp.probability is not None for tp in self.time_periods):
+            return True
+
         grouped_time_periods = self.split_group_by_day()
         for _, time_periods_iter in grouped_time_periods:
             time_periods = list(time_periods_iter)
@@ -1089,9 +1159,13 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
     batch_processing: list[BatchingRule] = field(default_factory=list)
     start_time: str = "2000-01-01T00:00:00Z"
     total_cases: int = 1000
+    multitask: Optional[Multitask] = None
+    model_type: Optional[Literal["FUZZY", "CRISP"]] = None
+    granule_size: Optional[GranuleSize] = None
 
     class _(JSONWizard.Meta):
         key_transform_with_dump = "SNAKE"
+        skip_defaults = True
 
     def init_fixed_cost_fns(self, constraints: "ConstraintsType") -> "TimetableType":
         """Initialize the fixed cost fn for all resources."""
