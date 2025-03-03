@@ -726,6 +726,12 @@ class Evaluation:
         global_kpis, task_kpis, resource_kpis, log_info = result
         cases: list[Trace] = [] if log_info is None else log_info.trace_list
 
+        all_cases_are_non_empty = all(
+            [len(trace.event_list) > 0 for trace in log_info.trace_list]
+        )
+        if not all_cases_are_non_empty:
+            return Evaluation.empty()
+
         batches = get_batches_from_event_log(
             log_info, fixed_cost_fns, batching_rules_exist
         )
