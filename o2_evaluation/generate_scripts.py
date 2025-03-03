@@ -90,6 +90,10 @@ SCENARIOS = [
     "insurance",
     "production",
     "purchasing_example",
+    "POC",
+    "AC-CRD",
+    "GOV",
+    "WK-ORD",
 ]
 
 MODELS = [
