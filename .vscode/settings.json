@@ -12,5 +12,23 @@
     "node_modules/@mantine/core/styles.css"
   ],
   "cSpell.words": ["dynamik", "Fileless", "hyperarea", "pytz"],
-  "python.analysis.exclude": ["stores/", "evaluations/"]
+  "python.analysis.exclude": [
+    "stores/",
+    "evaluations/",
+    "stores_windows/",
+    "stores_hpc/",
+    "tmp",
+    "states/",
+    "tmp/",
+    "logs/"
+  ],
+  "files.exclude": {
+    "evaluations/": true,
+    "states/": true
+  },
+  "search.exclude": {
+    "evaluations/": true,
+    "states/": true
+  },
+  "python.analysis.ignore": ["states/", "evaluations/"]
 }

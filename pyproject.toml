@@ -44,6 +44,7 @@ build-backend = "poetry.core.masonry.api"
 source = ["o2"]
 
 [tool.pytest.ini_options]
+addopts = "--ignore=states --ignore=evaluations"
 # addopts = "--cov --cov-report=lcov:lcov.info --cov-report=term"
 pythonpath = ["."]
 

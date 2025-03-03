@@ -241,9 +241,14 @@ stores/
 *_stats.csv
 simulation_warnings.txt
 analyze_stores/
+redumped_stores/
+stores_hpc/
+stores_windows/
 
 /profile*
 /dump*
 /*.bin
 viztracer*
 result.json
+/states
+/evaluations
