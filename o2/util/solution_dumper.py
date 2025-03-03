@@ -179,44 +179,45 @@ class SolutionDumper:
                     break
         return solutions
 
-    def _find_evaluation_filename(self, solution_id: int) -> str:
+    def _find_evaluation_filenames(self, solution_id: int) -> list[str]:
         """Find the filename of the evaluation for a given solution id."""
         best_guess_name = (
             f"evaluation_{self.sanitized_current_store_name}_{solution_id}.pkl"
         )
 
         if os.path.exists(os.path.join(self.evaluation_folder, best_guess_name)):
-            return os.path.join(self.evaluation_folder, best_guess_name)
+            return [best_guess_name]
 
-        path = next(
-            (
-                p
-                for p in self.evaluation_paths
-                if p.endswith(f"{self.sanitized_current_store_name}_{solution_id}.pkl")
-            ),
-            None,
-        )
-        if path is None:
+        result = [
+            p
+            for p in self.evaluation_paths
+            if p.endswith(f"{self.sanitized_current_store_name}_{solution_id}.pkl")
+        ]
+        if len(result) == 0:
+            result = [
+                p for p in self.evaluation_paths if p.endswith(f"{solution_id}.pkl")
+            ]
+        if len(result) == 0:
             raise FileNotFoundError(f"Evaluation for solution {solution_id} not found.")
-        return os.path.join(self.evaluation_folder, path)
+        return result
 
-    def _find_state_filename(self, solution_id: int) -> str:
+    def _find_state_filenames(self, solution_id: int) -> list[str]:
         """Find the filename of the state for a given solution id."""
         best_guess_name = f"state_{self.sanitized_current_store_name}_{solution_id}.pkl"
-        if os.path.exists(os.path.join(self.state_folder, best_guess_name)):
-            return os.path.join(self.state_folder, best_guess_name)
 
-        path = next(
-            (
-                p
-                for p in self.state_paths
-                if p.endswith(f"{self.sanitized_current_store_name}_{solution_id}.pkl")
-            ),
-            None,
-        )
-        if path is None:
+        if os.path.exists(os.path.join(self.state_folder, best_guess_name)):
+            return [best_guess_name]
+
+        result = [
+            p
+            for p in self.state_paths
+            if p.endswith(f"{self.sanitized_current_store_name}_{solution_id}.pkl")
+        ]
+        if len(result) == 0:
+            result = [p for p in self.state_paths if p.endswith(f"{solution_id}.pkl")]
+        if len(result) == 0:
             raise FileNotFoundError(f"State for solution {solution_id} not found.")
-        return os.path.join(self.state_folder, path)
+        return result
 
     def dump_evaluation(self, solution_id: int, evaluation: Evaluation) -> None:
         """Dump an evaluation to the evaluation file."""
@@ -235,21 +236,35 @@ class SolutionDumper:
         with open(filename, "wb") as f:
             pickle.dump(evaluation, f)
 
-    def load_evaluation(self, solution_id: int) -> Evaluation:
+    def load_evaluation(self, solution: "Solution") -> Evaluation:
         """Load an evaluation from the evaluation file."""
         if self.analysis_mode:
-            filename = self._find_evaluation_filename(solution_id)
+            filenames = self._find_evaluation_filenames(solution.id)
         else:
-            filename = os.path.join(
-                self.evaluation_folder,
-                f"evaluation_{self.sanitized_current_store_name}_{solution_id}.pkl",
-            )
-        log_io(f"Loading evaluation from {filename}")
-        with open(filename, "rb") as f:
-            evaluation = pickle.load(f)
-        if Settings.DELETE_LOADED_SOLUTION_ARCHIVES:
-            os.remove(filename)
-        return evaluation
+            filenames = [
+                f"evaluation_{self.sanitized_current_store_name}_{solution.id}.pkl",
+            ]
+        duplicated = 0
+        for filename in filenames:
+            full_path = os.path.join(self.evaluation_folder, filename)
+            with open(full_path, "rb") as f:
+                evaluation = pickle.load(f)
+                if Settings.DELETE_LOADED_SOLUTION_ARCHIVES:
+                    os.remove(filename)
+                if (
+                    "_pareto_x" in solution.__dict__
+                    and evaluation.pareto_x != solution.pareto_x
+                ) or (
+                    "_pareto_y" in solution.__dict__
+                    and evaluation.pareto_y != solution.pareto_y
+                ):
+                    duplicated += 1
+                    continue
+                log_io(
+                    f"Loaded evaluation from {full_path} (duplicated {duplicated} times)"
+                )
+                return evaluation
+        raise FileNotFoundError(f"Evaluation for solution {solution.id} not found.")
 
     def dump_state(self, solution_id: int, state: State) -> None:
         """Dump the current state of the solution dumper to disk."""
@@ -266,18 +281,28 @@ class SolutionDumper:
         with open(filename, "wb") as f:
             pickle.dump(state, f)
 
-    def load_state(self, solution_id: int) -> State:
+    def load_state(self, solution: "Solution") -> State:
         """Load the current state of the solution dumper from disk."""
         if self.analysis_mode:
-            filename = self._find_state_filename(solution_id)
+            filenames = self._find_state_filenames(solution.id)
         else:
-            filename = os.path.join(
-                self.state_folder,
-                f"state_{self.sanitized_current_store_name}_{solution_id}.pkl",
-            )
-        log_io(f"Loading state from {filename}")
-        with open(filename, "rb") as f:
-            state = pickle.load(f)
-        if Settings.DELETE_LOADED_SOLUTION_ARCHIVES:
-            os.remove(filename)
-        return state
+            filenames = [
+                f"state_{self.sanitized_current_store_name}_{solution.id}.pkl",
+            ]
+        duplicated = 0
+        for filename in filenames:
+            full_path = os.path.join(self.state_folder, filename)
+            with open(full_path, "rb") as f:
+                state = pickle.load(f)
+                state_hash = hash(state)
+                if Settings.DELETE_LOADED_SOLUTION_ARCHIVES:
+                    os.remove(filename)
+                if (
+                    "_state_hash" in solution.__dict__
+                    and state_hash != solution.__dict__["_state_hash"]
+                ):
+                    duplicated += 1
+                    continue
+                log_io(f"Loaded state from {full_path} (duplicated {duplicated} times)")
+                return state
+        raise FileNotFoundError(f"State for solution {solution.id} not found.")
