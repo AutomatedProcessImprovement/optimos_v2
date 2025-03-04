@@ -36,8 +36,16 @@ class Store:
 
         self.constraints = constraints
 
+        # This is the base Pareto Front
         self.pareto_fronts: list[ParetoFront] = [ParetoFront()]
         self.pareto_fronts[0].add(solution)
+
+        # Add another Pareto Front for the current iteration
+        # We need to do that, as the base solution might otherwise be dominated
+        # by a new solution and thereby self.pareto_fronts[0].solutions[0]
+        # will be changed.
+        self.pareto_fronts.append(ParetoFront())
+        self.pareto_fronts[-1].add(solution)
 
         self.solution_tree = SolutionTree()
         self.solution_tree.add_solution(solution, archive=False)
