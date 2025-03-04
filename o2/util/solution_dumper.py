@@ -20,52 +20,88 @@ class SolutionDumper:
 
     instance: "SolutionDumper"
 
-    def __init__(self) -> None:
+    def __init__(self, global_mode: bool = False) -> None:
         """Initialize the solution dumper.
 
         Creates a folder with the current date and time, and initializes file handles.
         Also sets the singleton instance.
+
+        If global_mode is True, the solution dumper will use the global folders
+        for all dumps and switch to a read-only mode. This is used by the
+        analysis scripts.
         """
+        self.global_mode = global_mode
+        if self.global_mode:
+            log_io("Using global folders to load states and evaluations.")
+            self.use_global_folders()
+            SolutionDumper.instance = self
+            return
+
         timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M-%S-%f")
         self.folder = os.path.join("stores", f"run_{timestamp}")
         self.evaluation_folder = os.path.join(self.folder, "evaluations")
         self.state_folder = os.path.join(self.folder, "states")
+
         os.makedirs(self.folder, exist_ok=True)
         os.makedirs(self.evaluation_folder, exist_ok=True)
         os.makedirs(self.state_folder, exist_ok=True)
+
+        log_io(f"Initialized solution dumper in folder: {self.folder}")
 
         # Filenames and file handles (initialized later)
         self.current_store_name: Optional[str] = None
         self.sanitized_current_store_name: str = ""
         self.store_filename: str = ""
         self.store_file: Optional[BufferedWriter] = None
+        self.solutions_filename: str = ""
+        self.solutions_file: Optional[BufferedWriter] = None
 
         # Set singleton instance
         SolutionDumper.instance = self
 
+    def use_global_folders(self) -> None:
+        """Use global folders for all dumps."""
+        self.close()
+
+        self.global_mode = True
+        self.evaluation_folder = "evaluations/"
+        self.state_folder = "states/"
+
     def update_store_name(self, store_name: str) -> None:
         """Update the store name."""
+        assert not self.global_mode
+
+        log_io(f"Updating store name to: {store_name}")
+
         self._reset_files(store_name)
 
     def _reset_files(self, store_name: str) -> None:
         """Close existing files and open new ones based on the new store name."""
+        assert not self.global_mode
+
         # Close existing files if open.
         self.close()
 
         # Sanitize the store name for filenames.
         sanitized_name = store_name.replace(" ", "_").lower()
         self.store_filename = os.path.join(self.folder, f"store_{sanitized_name}.pkl")
+        self.solutions_filename = os.path.join(
+            self.folder, f"solutions_{sanitized_name}.pkl"
+        )
 
         self.store_file = open(self.store_filename, "wb")  # noqa: SIM115
+        self.solutions_file = open(self.solutions_filename, "wb")  # noqa: SIM115
 
         self.current_store_name = store_name
         self.sanitized_current_store_name = sanitized_name
 
     def dump_store(self, store: "Store") -> None:
         """Dump the current store state to disk."""
+        assert not self.global_mode
+
         # Reset file handles if the store name has changed.
         if store.name != self.current_store_name or self.store_file is None:
-            self._reset_files(store.name)
+            self.update_store_name(store.name)
 
         # Ensure file handles are available.
         assert self.store_file is not None
@@ -75,14 +111,22 @@ class SolutionDumper:
         pickle.dump(store, self.store_file)
         self.store_file.flush()
 
-    def close(self) -> None:
-        """Close any open file handles."""
-        if self.store_file is not None:
-            self.store_file.close()
-            self.store_file = None
+    def dump_solution(self, solution: "Solution") -> None:
+        """Dump a solution to the solutions file."""
+        assert not self.global_mode
+
+        assert self.solutions_file is not None
+
+        # Make sure, that the solution is archived.
+        solution.archive()
+
+        pickle.dump(solution, self.solutions_file)
+        self.solutions_file.flush()
 
     def dump_evaluation(self, solution: "Solution") -> None:
         """Dump an evaluation to the evaluation file."""
+        assert not self.global_mode
+
         filename = os.path.join(
             self.evaluation_folder,
             f"evaluation_{self.sanitized_current_store_name}_{solution.id}.pkl",
@@ -124,6 +168,8 @@ class SolutionDumper:
 
     def dump_state(self, solution: "Solution") -> None:
         """Dump the current state of the solution dumper to disk."""
+        assert not self.global_mode
+
         filename = os.path.join(
             self.state_folder,
             f"state_{self.sanitized_current_store_name}_{solution.id}.pkl",
@@ -154,3 +200,13 @@ class SolutionDumper:
 
         log_io(f"Loaded state from {full_path}")
         return state
+
+    def close(self) -> None:
+        """Close any open file handles."""
+
+        if self.store_file is not None:
+            self.store_file.close()
+            self.store_file = None
+        if self.solutions_file is not None:
+            self.solutions_file.close()
+            self.solutions_file = None

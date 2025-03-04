@@ -479,7 +479,7 @@ if __name__ == "__main__":
     Settings.CHECK_FOR_TIMETABLE_EQUALITY = True
     setup_logging()
 
-    SolutionDumper(analysis_mode=True)
+    SolutionDumper(global_mode=True)
 
     gc.disable()
     # Get the redumped stores for better performance
@@ -502,8 +502,6 @@ if __name__ == "__main__":
     all_metrics: list[Metrics] = []
 
     for scenario in scenarios:
-        if not "Bpi Challenge 2012" in scenario:
-            continue
         mode = get_mode_from_scenario(scenario)
         scenario_without_mode = get_scenario_without_mode(scenario)
 
