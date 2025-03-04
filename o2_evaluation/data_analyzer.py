@@ -160,8 +160,10 @@ def calculate_metrics(
         }
     )
 
-    for name, store in stores:
-        agent = get_agent_from_store_name(store.name)
+    for agent, store in stores:
+        # Make sure dumper is initialized for the store
+        SolutionDumper.instance.update_store_name(store.name)
+
         pareto_solutions = store.current_pareto_front.solutions
         pareto_hyperarea = calculate_hyperarea(pareto_solutions, center_point)
         ratio = 0.0 if global_hyperarea == 0.0 else pareto_hyperarea / global_hyperarea

@@ -65,9 +65,9 @@ def parse_args():
     )
     parser.add_argument(
         "--sa-cooling-factor",
-        type=float,
-        default=0.995,
-        help="Cooling factor for Simulated Annealing (default: 0.995)",
+        type=str,
+        default="auto",
+        help="Cooling factor for Simulated Annealing (either number or 'auto' for auto-estimation; default: 'auto')",
     )
     parser.add_argument(
         "--fixed-cost-fn",
@@ -307,7 +307,11 @@ def collect_data_sequentially(base_store: Store, args) -> None:
             if args.sa_initial_temperature != "auto"
             else "auto"
         )
-        sa_store.settings.sa_cooling_factor = args.sa_cooling_factor
+        sa_store.settings.sa_cooling_factor = (
+            float(args.sa_cooling_factor)
+            if args.sa_cooling_factor != "auto"
+            else "auto"
+        )
         solve_store(sa_store, args.dump_interval)
         stores_to_run.append(("Simulated Annealing Random", sa_store))
 

@@ -69,9 +69,12 @@ class SolutionDumper:
 
     def update_store_name(self, store_name: str) -> None:
         """Update the store name."""
-        assert not self.global_mode
 
         log_io(f"Updating store name to: {store_name}")
+
+        self.current_store_name = store_name
+        # Sanitize the store name for filenames.
+        self.sanitized_current_store_name = store_name.replace(" ", "_").lower()
 
         self._reset_files(store_name)
 
@@ -82,18 +85,17 @@ class SolutionDumper:
         # Close existing files if open.
         self.close()
 
-        # Sanitize the store name for filenames.
-        sanitized_name = store_name.replace(" ", "_").lower()
-        self.store_filename = os.path.join(self.folder, f"store_{sanitized_name}.pkl")
+        assert self.sanitized_current_store_name != ""
+
+        self.store_filename = os.path.join(
+            self.folder, f"store_{self.sanitized_current_store_name}.pkl"
+        )
         self.solutions_filename = os.path.join(
-            self.folder, f"solutions_{sanitized_name}.pkl"
+            self.folder, f"solutions_{self.sanitized_current_store_name}.pkl"
         )
 
         self.store_file = open(self.store_filename, "wb")  # noqa: SIM115
         self.solutions_file = open(self.solutions_filename, "wb")  # noqa: SIM115
-
-        self.current_store_name = store_name
-        self.sanitized_current_store_name = sanitized_name
 
     def dump_store(self, store: "Store") -> None:
         """Dump the current store state to disk."""
@@ -120,6 +122,10 @@ class SolutionDumper:
         # Make sure, that the solution is archived.
         solution.archive()
 
+        # We write the store name into the solution object, so we can
+        # identify it later.
+        solution.__dict__["_store_name"] = self.current_store_name
+
         pickle.dump(solution, self.solutions_file)
         self.solutions_file.flush()
 
@@ -144,7 +150,15 @@ class SolutionDumper:
 
     def load_evaluation(self, solution: "Solution") -> Evaluation:
         """Load an evaluation from the evaluation file."""
-        filename = f"evaluation_{self.sanitized_current_store_name}_{solution.id}.pkl"
+
+        # If the solution was dumped, it may not be processed in the context
+        # of the current store, so we override the store name.
+        if "_store_name" in solution.__dict__:
+            store_name = solution.__dict__["_store_name"]
+        else:
+            store_name = self.current_store_name
+
+        filename = f"evaluation_{store_name}_{solution.id}.pkl"
 
         full_path = os.path.join(self.evaluation_folder, filename)
         with open(full_path, "rb") as f:
@@ -185,7 +199,15 @@ class SolutionDumper:
 
     def load_state(self, solution: "Solution") -> State:
         """Load the current state of the solution dumper from disk."""
-        filename = f"state_{self.sanitized_current_store_name}_{solution.id}.pkl"
+
+        # If the solution was dumped, it may not be processed in the context
+        # of the current store, so we override the store name.
+        if "_store_name" in solution.__dict__:
+            store_name = solution.__dict__["_store_name"]
+        else:
+            store_name = self.current_store_name
+
+        filename = f"state_{store_name}_{solution.id}.pkl"
         full_path = os.path.join(self.state_folder, filename)
         with open(full_path, "rb") as f:
             state = pickle.load(f)
