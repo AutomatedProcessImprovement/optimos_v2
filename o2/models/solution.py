@@ -8,7 +8,7 @@ from o2.actions.base_actions.base_action import BaseAction
 from o2.models.evaluation import Evaluation
 from o2.models.settings import Settings
 from o2.models.state import State
-from o2.util.helper import hash_int
+from o2.util.helper import hash_string, hex_id
 from o2.util.solution_dumper import SolutionDumper
 
 
@@ -147,7 +147,7 @@ class Solution:
             "state" in self.__dict__ and self.__dict__["state"] is not None
         ):
             # Make sure the computed fields are triggered
-            self.__hash__()  # noqa: B018
+            self._cache_timetable_hash()  # noqa: B018
             SolutionDumper.instance.dump_state(self)
             self.__dict__["_state"] = None
             # Make sure that the legacy state is removed from __dict__
@@ -164,6 +164,10 @@ class Solution:
             return self.__hash__() == value.__hash__()
         return self.id == value.id
 
+    def _cache_timetable_hash(self) -> None:
+        """Cache the state hash."""
+        self.__dict__["_timetable_hash"] = hash(self.state.timetable)
+
     def __hash__(self) -> int:
         """Hash the solution (possibly by id or state).
 
@@ -171,10 +175,10 @@ class Solution:
         (manually as functools.cached_property does not work with __hash__)
         """
         if Settings.CHECK_FOR_TIMETABLE_EQUALITY:
-            if "_state_hash" not in self.__dict__:
-                self.__dict__["_state_hash"] = hash(self.state)
-            return self.__dict__["_state_hash"]
-        return self.id
+            if "_timetable_hash" not in self.__dict__:
+                self._cache_timetable_hash()
+            return self.__dict__["_timetable_hash"]
+        return int(self.id, 16)
 
     @functools.cached_property
     def is_valid(self) -> bool:
@@ -187,19 +191,24 @@ class Solution:
         )
 
     @functools.cached_property
-    def id(self) -> int:
+    def id(self) -> str:
         """A unique identifier for the solution.
 
         Generated only based on the actions.
         """
+        # When we are the base_solution, we have no actions
+        # -> we cant hash them -> we hash the timetable
+        if not self.actions:
+            self._cache_timetable_hash()
+            return hex_id(self.__dict__["_timetable_hash"])
         return Solution.hash_action_list(self.actions)
 
     @staticmethod
-    def hash_action_list(actions: list["BaseAction"]) -> int:
+    def hash_action_list(actions: list["BaseAction"]) -> str:
         """Hash a list of actions."""
         if not actions:
-            return 0
-        return hash_int(dumps([a.id for a in actions]))
+            return ""
+        return hash_string(dumps([a.id for a in actions]))
 
     @staticmethod
     def from_parent(parent: "Solution", action: "BaseAction") -> "Solution":

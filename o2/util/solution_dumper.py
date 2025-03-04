@@ -31,6 +31,15 @@ class SolutionDumper:
         analysis scripts.
         """
         self.global_mode = global_mode
+
+        # Filenames and file handles (initialized later)
+        self.current_store_name: Optional[str] = None
+        self.sanitized_current_store_name: str = ""
+        self.store_filename: str = ""
+        self.store_file: Optional[BufferedWriter] = None
+        self.solutions_filename: str = ""
+        self.solutions_file: Optional[BufferedWriter] = None
+
         if self.global_mode:
             log_io("Using global folders to load states and evaluations.")
             self.use_global_folders()
@@ -47,14 +56,6 @@ class SolutionDumper:
         os.makedirs(self.state_folder, exist_ok=True)
 
         log_io(f"Initialized solution dumper in folder: {self.folder}")
-
-        # Filenames and file handles (initialized later)
-        self.current_store_name: Optional[str] = None
-        self.sanitized_current_store_name: str = ""
-        self.store_filename: str = ""
-        self.store_file: Optional[BufferedWriter] = None
-        self.solutions_filename: str = ""
-        self.solutions_file: Optional[BufferedWriter] = None
 
         # Set singleton instance
         SolutionDumper.instance = self
@@ -74,9 +75,13 @@ class SolutionDumper:
 
         self.current_store_name = store_name
         # Sanitize the store name for filenames.
-        self.sanitized_current_store_name = store_name.replace(" ", "_").lower()
+        self.sanitized_current_store_name = self._sanitize_store_name(store_name)
 
         self._reset_files(store_name)
+
+    def _sanitize_store_name(self, store_name: str) -> str:
+        """Sanitize the store name for filenames."""
+        return store_name.replace(" ", "_").lower()
 
     def _reset_files(self, store_name: str) -> None:
         """Close existing files and open new ones based on the new store name."""
@@ -158,6 +163,9 @@ class SolutionDumper:
         else:
             store_name = self.current_store_name
 
+        assert store_name is not None
+        store_name = self._sanitize_store_name(store_name)
+
         filename = f"evaluation_{store_name}_{solution.id}.pkl"
 
         full_path = os.path.join(self.evaluation_folder, filename)
@@ -207,16 +215,19 @@ class SolutionDumper:
         else:
             store_name = self.current_store_name
 
+        assert store_name is not None
+        store_name = self._sanitize_store_name(store_name)
+
         filename = f"state_{store_name}_{solution.id}.pkl"
         full_path = os.path.join(self.state_folder, filename)
         with open(full_path, "rb") as f:
             state = pickle.load(f)
-            state_hash = hash(state)
+            timetable_hash = hash(state.timetable)
             if Settings.DELETE_LOADED_SOLUTION_ARCHIVES:
                 os.remove(filename)
             if (
-                "_state_hash" in solution.__dict__
-                and state_hash != solution.__dict__["_state_hash"]
+                "_timetable_hash" in solution.__dict__
+                and timetable_hash != solution.__dict__["_timetable_hash"]
             ):
                 raise RuntimeError(f"State for solution {solution.id} has changed.")
 

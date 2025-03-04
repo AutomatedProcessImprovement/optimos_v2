@@ -60,14 +60,10 @@ class RuleSelector(JSONWizard):
             self.firing_rule_index[1]
         ]
 
-    def id(self):
+    def id(self) -> str:
         if self.firing_rule_index is None:
             return f"#{self.batching_rule_task_id}"
-        return "#{}-{}-{}".format(
-            self.batching_rule_task_id,
-            self.firing_rule_index[0],
-            self.firing_rule_index[1],
-        )
+        return f"#{self.batching_rule_task_id}-{self.firing_rule_index[0]}-{self.firing_rule_index[1]}"
 
     def __str__(self):
         if self.firing_rule_index is not None:

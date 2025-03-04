@@ -80,12 +80,11 @@ def calculate_metrics(
     info(f"Calculating metrics for {scenario} ({mode})")
     all_solutions: set[Solution] = set()
     for _, store in stores:
-        solutions = [
-            solution
-            for solution in store.solution_tree.solution_lookup.values()
-            if solution is not None and solution.is_valid
-        ]
-        all_solutions.update(solutions)
+        for solution in store.solution_tree.solution_lookup.values():
+            if solution is not None and solution.is_valid:
+                # Add store name so we can load the evaluation and state later
+                solution.__dict__["_store_name"] = store.name
+                all_solutions.add(solution)
 
     all_solutions.update(
         [
@@ -161,9 +160,6 @@ def calculate_metrics(
     )
 
     for agent, store in stores:
-        # Make sure dumper is initialized for the store
-        SolutionDumper.instance.update_store_name(store.name)
-
         pareto_solutions = store.current_pareto_front.solutions
         pareto_hyperarea = calculate_hyperarea(pareto_solutions, center_point)
         ratio = 0.0 if global_hyperarea == 0.0 else pareto_hyperarea / global_hyperarea

@@ -7,6 +7,7 @@ import rtree
 from o2.models.settings import Settings
 from o2.models.solution import Solution
 from o2.pareto_front import ParetoFront
+from o2.util.helper import hex_id
 from o2.util.indented_printer import print_l1, print_l3
 from o2.util.logger import warn
 from o2.util.solution_dumper import SolutionDumper
@@ -32,12 +33,12 @@ class SolutionTree:
         self,
     ) -> None:
         self.rtree = rtree.index.Index()
-        self.solution_lookup: OrderedDict[int, Optional[Solution]] = OrderedDict()
+        self.solution_lookup: OrderedDict[str, Optional[Solution]] = OrderedDict()
 
     def add_solution(self, solution: "Solution", archive: bool = True) -> None:
         """Add a solution to the tree."""
         self.solution_lookup[solution.id] = solution
-        self.rtree.insert(solution.id, solution.point)
+        self.rtree.insert(int(solution.id, 16), solution.point)
         if archive and not solution.is_base_solution and Settings.ARCHIVE_SOLUTIONS:
             solution.archive()
 
@@ -75,9 +76,10 @@ class SolutionTree:
                 warn("WARNING: Got None item from rtree.")
                 error_count += 1
                 continue
-            solution = self.solution_lookup[item.id]
+            item_id = hex_id(item.id)
+            solution = self.solution_lookup[item_id]
 
-            if item.id in self.solution_lookup and solution is None:
+            if item_id in self.solution_lookup and solution is None:
                 warn("WARNING: Got discarded solution from rtree.")
                 self.rtree.delete(item.id, item.bbox)
                 error_count += 1
@@ -163,9 +165,9 @@ class SolutionTree:
         )
         items = self.rtree.intersection(bounding_rect_with_distance, objects=True)
         solutions: list["Solution"] = [
-            cast(Solution, self.solution_lookup[item.id])
+            cast(Solution, self.solution_lookup[hex_id(item.id)])
             for item in items
-            if self.solution_lookup[item.id] is not None
+            if self.solution_lookup[hex_id(item.id)] is not None
         ]
 
         return solutions
@@ -185,7 +187,7 @@ class SolutionTree:
 
     def remove_solution(self, solution: Solution) -> None:
         """Remove a solution from the tree."""
-        self.rtree.delete(solution.id, solution.point)
+        self.rtree.delete(int(solution.id, 16), solution.point)
         self.solution_lookup[solution.id] = None
 
         if Settings.DUMP_DISCARDED_SOLUTIONS:

@@ -1784,5 +1784,13 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
         )
 
     def __hash__(self) -> int:
-        """Hash the timetable."""
-        return hash_int(self.to_json())
+        """Hash the timetable.
+
+        NOTE: We cache the hash in a __dict__ field, because we need to
+        make sure that the hash is only computed once. functools don't
+        work for __hash__.
+        """
+        if "_hash" in self.__dict__:
+            return self.__dict__["_hash"]
+        self.__dict__["_hash"] = hash_int(self.to_json())
+        return self.__dict__["_hash"]
