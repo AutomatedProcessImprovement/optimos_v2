@@ -86,6 +86,16 @@ class ParetoFront:
         return sum(s.evaluation.total_cost for s in self.solutions) / self.size
 
     @property
+    def avg_cycle_time(self) -> float:
+        """Return the average cycle time of the front."""
+        return sum(s.evaluation.total_cycle_time for s in self.solutions) / self.size
+
+    @property
+    def min_cycle_time(self) -> float:
+        """Return the minimum cycle time of the front."""
+        return min(s.evaluation.total_cycle_time for s in self.solutions)
+
+    @property
     def avg_point(self) -> tuple[float, float]:
         """Return the average point of the front."""
         return self.avg_x, self.avg_y

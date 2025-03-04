@@ -75,6 +75,12 @@ class TensorBoardHelper:
                     )
 
             tf.summary.scalar(
+                "current_base/cycle_time",
+                self.store.current_evaluation.total_cycle_time,
+                step=self.step,
+            )
+
+            tf.summary.scalar(
                 "current_base/total_cost",
                 self.store.current_evaluation.total_cost,
                 step=self.step,
@@ -98,50 +104,69 @@ class TensorBoardHelper:
                 step=self.step,
             )
 
+            x_label = (
+                Settings.get_pareto_x_label().replace(" ", "_").replace(".", "").lower()
+            )
+            y_label = (
+                Settings.get_pareto_y_label().replace(" ", "_").replace(".", "").lower()
+            )
+
             tf.summary.scalar(
-                "front/avg_" + Settings.get_pareto_x_label().replace(" ", "_").lower(),
+                f"front/avg_{x_label}",
                 self.store.current_pareto_front.avg_x,
                 step=self.step,
             )
             tf.summary.scalar(
-                "front/avg_" + Settings.get_pareto_y_label().replace(" ", "_").lower(),
+                f"front/avg_{y_label}",
                 self.store.current_pareto_front.avg_y,
                 step=self.step,
             )
 
             tf.summary.scalar(
-                "front/max_" + Settings.get_pareto_x_label().replace(" ", "_").lower(),
+                f"front/max_{x_label}",
                 self.store.current_pareto_front.max_x,
                 step=self.step,
             )
             tf.summary.scalar(
-                "front/max_" + Settings.get_pareto_y_label().replace(" ", "_").lower(),
+                f"front/max_{y_label}",
                 self.store.current_pareto_front.max_y,
                 step=self.step,
             )
 
             tf.summary.scalar(
-                "front/min_" + Settings.get_pareto_x_label().replace(" ", "_").lower(),
+                f"front/min_{x_label}",
                 self.store.current_pareto_front.min_x,
                 step=self.step,
             )
             tf.summary.scalar(
-                "front/min_" + Settings.get_pareto_y_label().replace(" ", "_").lower(),
+                f"front/min_{y_label}",
                 self.store.current_pareto_front.min_y,
                 step=self.step,
             )
 
             # Median
             tf.summary.scalar(
-                "front/median_"
-                + Settings.get_pareto_x_label().replace(" ", "_").lower(),
+                f"front/median_{x_label}",
                 self.store.current_pareto_front.median_x,
                 step=self.step,
             )
             tf.summary.scalar(
-                "front/median_"
-                + Settings.get_pareto_y_label().replace(" ", "_").lower(),
+                f"front/median_{y_label}",
                 self.store.current_pareto_front.median_y,
+                step=self.step,
+            )
+
+            # Cycle Time
+            tf.summary.scalar(
+                "front/avg_cycle_time",
+                self.store.current_pareto_front.avg_cycle_time,
+                step=self.step,
+            )
+
+            # Min Cycle Time
+            tf.summary.scalar(
+                "front/min_cycle_time",
+                self.store.current_pareto_front.min_cycle_time,
                 step=self.step,
             )
 
