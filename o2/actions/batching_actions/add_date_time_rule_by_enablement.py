@@ -9,7 +9,7 @@ from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.time_period import TimePeriod
 from o2.store import Store
 
-LIMIT_OF_OPTIONS = 3
+LIMIT_OF_OPTIONS = 5
 
 
 class AddDateTimeRuleByEnablementActionParamsType(AddDateTimeRuleBaseActionParamsType):
@@ -55,7 +55,10 @@ class AddDateTimeRuleByEnablementAction(AddDateTimeRuleBaseAction):
             for task_id, dict in task_enablement_weekdays.items()
         }
 
-        for task_id, _ in sorted_tasks:
+        for task_id, waiting_time in sorted_tasks:
+            # If we got no waiting time, we can stop
+            if waiting_time < 1:
+                break
             task_enablement_pairs = task_enablements[task_id][:LIMIT_OF_OPTIONS]
             for _, day, hour in task_enablement_pairs:
                 yield (

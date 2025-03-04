@@ -12,7 +12,7 @@ from o2.models.time_period import TimePeriod
 from o2.store import Store
 
 # TODO: See if top 3 makes sense
-LIMIT_OF_OPTIONS = 3
+LIMIT_OF_OPTIONS = 5
 
 
 class AddDateTimeRuleByStartActionParamsType(AddDateTimeRuleBaseActionParamsType):
@@ -48,7 +48,11 @@ class AddDateTimeRuleByStartAction(AddDateTimeRuleBaseAction):
             reverse=True,
         )
 
-        for task_id, _ in sorted_tasks:
+        for task_id, waiting_time in sorted_tasks:
+            # If we got no waiting time, we can stop
+            if waiting_time < 1:
+                break
+
             resources_ids = timetable.get_resources_assigned_to_task(task_id)
             if not resources_ids:
                 continue

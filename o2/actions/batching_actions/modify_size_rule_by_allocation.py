@@ -14,7 +14,7 @@ from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.timetable import RULE_TYPE
 from o2.store import Store
 
-LIMIT_OF_OPTIONS = 3
+LIMIT_OF_OPTIONS = 5
 
 
 class ModifySizeRuleByAllocationActionParamsType(ModifySizeRuleBaseActionParamsType):

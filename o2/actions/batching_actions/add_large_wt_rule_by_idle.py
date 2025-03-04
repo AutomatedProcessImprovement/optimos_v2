@@ -17,8 +17,8 @@ from o2.models.timetable import RULE_TYPE
 from o2.store import Store
 from o2.util.waiting_time_helper import BatchInfo
 
-# TODO: See if top 3 makes sense
-LIMIT_OF_OPTIONS = 2
+# TODO: See if top 5 makes sense
+LIMIT_OF_OPTIONS = 5
 
 
 class AddLargeWTRuleByIdleActionParamsType(AddReadyLargeWTRuleBaseActionParamsType):
@@ -91,6 +91,8 @@ class AddLargeWTRuleByIdleAction(AddReadyLargeWTRuleBaseAction):
                         last_start_time=batch["start"].hour + required_processing_time,
                     )
 
+                    proposed_waiting_times = set()
+
                     for period in time_periods:
                         required_large_wt = (
                             period.begin_time_hour - batch["accumulation_begin"].hour
@@ -100,12 +102,18 @@ class AddLargeWTRuleByIdleAction(AddReadyLargeWTRuleBaseAction):
                         if required_large_wt <= 0:
                             continue
 
+                        waiting_time = ceil(required_large_wt) * 3600
+                        # If we already proposed this waiting time, skip
+                        if waiting_time in proposed_waiting_times:
+                            continue
+                        proposed_waiting_times.add(waiting_time)
+
                         yield (
                             AddLargeWTRuleByIdleAction.get_default_rating(),
                             AddLargeWTRuleByIdleAction(
                                 AddLargeWTRuleByIdleActionParamsType(
                                     task_id=activity,
-                                    waiting_time=ceil(required_large_wt) * 3600,
+                                    waiting_time=waiting_time,
                                     type=RULE_TYPE.LARGE_WT,
                                 )
                             ),
