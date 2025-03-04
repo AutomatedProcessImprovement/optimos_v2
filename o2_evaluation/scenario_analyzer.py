@@ -24,6 +24,7 @@ class ScenarioStats(TypedDict):
     sim_time: float
     parallel_gateways: int
     exclusive_gateways: int
+    inclusive_gateways: int
 
 
 SCENARIOS = [
@@ -38,6 +39,9 @@ SCENARIOS = [
     "AC-CRD",
     "GOV",
     "WK-ORD",
+    "BPIC2019_DAS",
+    "Sepsis_DAS",
+    "Trafic_DAS",
 ]
 
 
@@ -66,7 +70,7 @@ def get_arcs_from_bpmn(bpmn_string: str) -> list[str]:
     return [arc.attrib["id"] for arc in arcs]
 
 
-def get_gateways_from_bpmn(bpmn_string: str) -> tuple[int, int]:
+def get_gateways_from_bpmn(bpmn_string: str) -> tuple[int, int, int]:
     """Get the gateways from the BPMN file."""
     file_io = io.StringIO()
     file_io.write(bpmn_string)
@@ -79,7 +83,10 @@ def get_gateways_from_bpmn(bpmn_string: str) -> tuple[int, int]:
     exclusive_gateways = bpmn_root.findall(
         ".//{http://www.omg.org/spec/BPMN/20100524/MODEL}exclusiveGateway"
     )
-    return len(parallel_gateways), len(exclusive_gateways)
+    inclusive_gateways = bpmn_root.findall(
+        ".//{http://www.omg.org/spec/BPMN/20100524/MODEL}inclusiveGateway"
+    )
+    return len(parallel_gateways), len(exclusive_gateways), len(inclusive_gateways)
 
 
 def get_scenario_stats(scenario: str) -> ScenarioStats:
@@ -132,7 +139,9 @@ def get_scenario_stats(scenario: str) -> ScenarioStats:
         sim_time += end_time - start_time
     sim_time /= 10
 
-    parallel_gateways, exclusive_gateways = get_gateways_from_bpmn(bpmn_definition)
+    parallel_gateways, exclusive_gateways, inclusive_gateways = get_gateways_from_bpmn(
+        bpmn_definition
+    )
 
     return {
         "scenario": scenario,
@@ -143,6 +152,7 @@ def get_scenario_stats(scenario: str) -> ScenarioStats:
         "arcs": arcs,
         "parallel_gateways": parallel_gateways,
         "exclusive_gateways": exclusive_gateways,
+        "inclusive_gateways": inclusive_gateways,
         "sim_time": sim_time,
     }
 
@@ -155,6 +165,7 @@ ROWS = [
     "arcs",
     "parallel_gateways",
     "exclusive_gateways",
+    "inclusive_gateways",
     "sim_time",
 ]
 ROW_NAMES = [
@@ -165,6 +176,7 @@ ROW_NAMES = [
     "Arcs",
     "Parallel Gateways",
     "Exclusive Gateways",
+    "Inclusive Gateways",
     "Simulation Time",
 ]
 
