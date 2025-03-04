@@ -15,7 +15,7 @@ conda run -n opti2 --no-capture-output python ./o2_evaluation/data_collector.py 
     --agents "Simulated Annealing Random" \
     --number-of-cases 1000 \
     --duration-fn "1/size" \
-    --sa-cooling-factor 0.95 \
+    --sa-cooling-factor auto \
     --sa-initial-temperature auto \
     --max-batch-size 50 \
     --max-iterations 1001 \
