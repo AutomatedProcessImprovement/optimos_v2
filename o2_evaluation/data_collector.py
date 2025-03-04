@@ -282,7 +282,11 @@ def collect_data_sequentially(base_store: Store, args) -> None:
             if args.sa_initial_temperature != "auto"
             else "auto"
         )
-        sa_store.settings.sa_cooling_factor = args.sa_cooling_factor
+        sa_store.settings.sa_cooling_factor = (
+            float(args.sa_cooling_factor)
+            if args.sa_cooling_factor != "auto"
+            else "auto"
+        )
         solve_store(sa_store, args.dump_interval)
         stores_to_run.append(("Simulated Annealing", sa_store))
 
