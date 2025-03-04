@@ -94,6 +94,9 @@ SCENARIOS = [
     "AC-CRD",
     "GOV",
     "WK-ORD",
+    "BPIC2019_DAS",
+    "Sepsis_DAS",
+    "Trafic_DAS",
 ]
 
 MODELS = [

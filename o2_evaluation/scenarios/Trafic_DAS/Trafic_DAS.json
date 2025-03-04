@@ -1,0 +1,4995 @@
+{
+  "process_model": "D:\\_est\\Simod\\Simod\\outputs\\20240524_153304_172D2614_EEBD_4289_8823_040CE8EBABB7\\best_result\\Trafic_train.bpmn",
+  "gateway_branching_probabilities": [
+    {
+      "gateway_id": "node30",
+      "probabilities": [
+        {
+          "path_id": "edge6",
+          "value": "0.11",
+          "condition_id": "edge6"
+        },
+        {
+          "path_id": "edge30",
+          "value": "0.89",
+          "condition_id": "edge30"
+        }
+      ]
+    },
+    {
+      "gateway_id": "node9",
+      "probabilities": [
+        {
+          "path_id": "edge29",
+          "value": "0.47",
+          "condition_id": "edge29"
+        },
+        {
+          "path_id": "edge42",
+          "value": "0.53",
+          "condition_id": "edge42"
+        }
+      ]
+    },
+    {
+      "gateway_id": "node10",
+      "probabilities": [
+        {
+          "path_id": "edge10",
+          "value": "0.05"
+        },
+        {
+          "path_id": "edge34",
+          "value": "0.51"
+        },
+        {
+          "path_id": "edge48",
+          "value": "0.44"
+        }
+      ]
+    },
+    {
+      "gateway_id": "node34",
+      "probabilities": [
+        {
+          "path_id": "edge52",
+          "value": "0.96",
+          "condition_id": "edge52"
+        },
+        {
+          "path_id": "edge53",
+          "value": "0.04",
+          "condition_id": "edge53"
+        }
+      ]
+    },
+    {
+      "gateway_id": "node27",
+      "probabilities": [
+        {
+          "path_id": "edge56",
+          "value": "0.99",
+          "condition_id": "edge56"
+        },
+        {
+          "path_id": "edge57",
+          "value": "0.01"
+        }
+      ]
+    },
+    {
+      "gateway_id": "node21",
+      "probabilities": [
+        {
+          "path_id": "edge24",
+          "value": "0.12",
+          "condition_id": "edge24"
+        },
+        {
+          "path_id": "edge46",
+          "value": "0.87",
+          "condition_id": "edge46"
+        },
+        {
+          "path_id": "edge59",
+          "value": "0.01"
+        }
+      ]
+    },
+    {
+      "gateway_id": "node8",
+      "probabilities": [
+        {
+          "path_id": "edge23",
+          "value": "0.13",
+          "condition_id": "edge23"
+        },
+        {
+          "path_id": "edge47",
+          "value": "0.03"
+        },
+        {
+          "path_id": "edge49",
+          "value": "0.84",
+          "condition_id": "edge49"
+        }
+      ]
+    },
+    {
+      "gateway_id": "node25",
+      "probabilities": [
+        {
+          "path_id": "edge13",
+          "value": "0.55"
+        },
+        {
+          "path_id": "edge36",
+          "value": "0.44"
+        },
+        {
+          "path_id": "edge58",
+          "value": "0.01"
+        }
+      ]
+    },
+    {
+      "gateway_id": "node32",
+      "probabilities": [
+        {
+          "path_id": "edge15",
+          "value": "0.01"
+        },
+        {
+          "path_id": "edge38",
+          "value": "0.99",
+          "condition_id": "edge38"
+        }
+      ]
+    }
+  ],
+  "arrival_time_calendar": [
+    {
+      "from": "MONDAY",
+      "to": "MONDAY",
+      "beginTime": "23:00:00",
+      "endTime": "23:59:59.999000"
+    },
+    {
+      "from": "TUESDAY",
+      "to": "TUESDAY",
+      "beginTime": "23:00:00",
+      "endTime": "23:59:59.999000"
+    },
+    {
+      "from": "WEDNESDAY",
+      "to": "WEDNESDAY",
+      "beginTime": "23:00:00",
+      "endTime": "23:59:59.999000"
+    },
+    {
+      "from": "THURSDAY",
+      "to": "THURSDAY",
+      "beginTime": "23:00:00",
+      "endTime": "23:59:59.999000"
+    },
+    {
+      "from": "FRIDAY",
+      "to": "FRIDAY",
+      "beginTime": "23:00:00",
+      "endTime": "23:59:59.999000"
+    },
+    {
+      "from": "SATURDAY",
+      "to": "SATURDAY",
+      "beginTime": "23:00:00",
+      "endTime": "23:59:59.999000"
+    },
+    {
+      "from": "SUNDAY",
+      "to": "SUNDAY",
+      "beginTime": "23:00:00",
+      "endTime": "23:59:59.999000"
+    }
+  ],
+  "arrival_time_distribution": {
+    "distribution_name": "fix",
+    "distribution_params": [
+      {
+        "value": 0.0
+      }
+    ]
+  },
+  "resource_profiles": [
+    {
+      "id": "Role 1_profile",
+      "name": "Role 1_profile",
+      "resource_list": [
+        {
+          "id": "Officer 27",
+          "name": "Officer 27",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 1_profile_calendar",
+          "assignedTasks": ["node4", "node12"]
+        },
+        {
+          "id": "Officer 10",
+          "name": "Officer 10",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 1_profile_calendar",
+          "assignedTasks": ["node4", "node12"]
+        },
+        {
+          "id": "Officer 29",
+          "name": "Officer 29",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 1_profile_calendar",
+          "assignedTasks": ["node4", "node12"]
+        },
+        {
+          "id": "Officer 11",
+          "name": "Officer 11",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 1_profile_calendar",
+          "assignedTasks": ["node4", "node12"]
+        },
+        {
+          "id": "Officer 26",
+          "name": "Officer 26",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 1_profile_calendar",
+          "assignedTasks": ["node4", "node12"]
+        },
+        {
+          "id": "Officer 17",
+          "name": "Officer 17",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 1_profile_calendar",
+          "assignedTasks": ["node4", "node12"]
+        },
+        {
+          "id": "Officer 13",
+          "name": "Officer 13",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 1_profile_calendar",
+          "assignedTasks": ["node4", "node12"]
+        },
+        {
+          "id": "Officer 20",
+          "name": "Officer 20",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 1_profile_calendar",
+          "assignedTasks": ["node4", "node12"]
+        },
+        {
+          "id": "Officer 22",
+          "name": "Officer 22",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 1_profile_calendar",
+          "assignedTasks": ["node4", "node12"]
+        },
+        {
+          "id": "Officer 21",
+          "name": "Officer 21",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 1_profile_calendar",
+          "assignedTasks": ["node4", "node12"]
+        },
+        {
+          "id": "Officer 18",
+          "name": "Officer 18",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 1_profile_calendar",
+          "assignedTasks": ["node4", "node12"]
+        },
+        {
+          "id": "Officer 23",
+          "name": "Officer 23",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 1_profile_calendar",
+          "assignedTasks": ["node4", "node12"]
+        },
+        {
+          "id": "Officer 19",
+          "name": "Officer 19",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 1_profile_calendar",
+          "assignedTasks": ["node4", "node12"]
+        },
+        {
+          "id": "Officer 28",
+          "name": "Officer 28",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 1_profile_calendar",
+          "assignedTasks": ["node4", "node12"]
+        },
+        {
+          "id": "Officer 15",
+          "name": "Officer 15",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 1_profile_calendar",
+          "assignedTasks": ["node4", "node12"]
+        },
+        {
+          "id": "Officer 14",
+          "name": "Officer 14",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 1_profile_calendar",
+          "assignedTasks": ["node4", "node12"]
+        },
+        {
+          "id": "Officer 12",
+          "name": "Officer 12",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 1_profile_calendar",
+          "assignedTasks": ["node4", "node12"]
+        },
+        {
+          "id": "Officer 16",
+          "name": "Officer 16",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 1_profile_calendar",
+          "assignedTasks": ["node4", "node12"]
+        },
+        {
+          "id": "Officer 24",
+          "name": "Officer 24",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 1_profile_calendar",
+          "assignedTasks": ["node4", "node12"]
+        },
+        {
+          "id": "Officer 25",
+          "name": "Officer 25",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 1_profile_calendar",
+          "assignedTasks": ["node4", "node12"]
+        }
+      ]
+    },
+    {
+      "id": "Role 2_profile",
+      "name": "Role 2_profile",
+      "resource_list": [
+        {
+          "id": "Worker 1",
+          "name": "Worker 1",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 2_profile_calendar",
+          "assignedTasks": [
+            "node13",
+            "node2",
+            "node7",
+            "node15",
+            "node1",
+            "node11",
+            "node26",
+            "node0",
+            "node28"
+          ]
+        },
+        {
+          "id": "Worker 9",
+          "name": "Worker 9",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 2_profile_calendar",
+          "assignedTasks": [
+            "node13",
+            "node2",
+            "node7",
+            "node15",
+            "node1",
+            "node11",
+            "node26",
+            "node0",
+            "node28"
+          ]
+        },
+        {
+          "id": "Worker 8",
+          "name": "Worker 8",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 2_profile_calendar",
+          "assignedTasks": [
+            "node13",
+            "node2",
+            "node7",
+            "node15",
+            "node1",
+            "node11",
+            "node26",
+            "node0",
+            "node28"
+          ]
+        },
+        {
+          "id": "Worker 5",
+          "name": "Worker 5",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 2_profile_calendar",
+          "assignedTasks": [
+            "node13",
+            "node2",
+            "node7",
+            "node15",
+            "node1",
+            "node11",
+            "node26",
+            "node0",
+            "node28"
+          ]
+        },
+        {
+          "id": "Worker 3",
+          "name": "Worker 3",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 2_profile_calendar",
+          "assignedTasks": [
+            "node13",
+            "node2",
+            "node7",
+            "node15",
+            "node1",
+            "node11",
+            "node26",
+            "node0",
+            "node28"
+          ]
+        },
+        {
+          "id": "Worker 2",
+          "name": "Worker 2",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 2_profile_calendar",
+          "assignedTasks": [
+            "node13",
+            "node2",
+            "node7",
+            "node15",
+            "node1",
+            "node11",
+            "node26",
+            "node0",
+            "node28"
+          ]
+        },
+        {
+          "id": "Worker 7",
+          "name": "Worker 7",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 2_profile_calendar",
+          "assignedTasks": [
+            "node13",
+            "node2",
+            "node7",
+            "node15",
+            "node1",
+            "node11",
+            "node26",
+            "node0",
+            "node28"
+          ]
+        },
+        {
+          "id": "Worker 6",
+          "name": "Worker 6",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 2_profile_calendar",
+          "assignedTasks": [
+            "node13",
+            "node2",
+            "node7",
+            "node15",
+            "node1",
+            "node11",
+            "node26",
+            "node0",
+            "node28"
+          ]
+        },
+        {
+          "id": "Worker 4",
+          "name": "Worker 4",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 2_profile_calendar",
+          "assignedTasks": [
+            "node13",
+            "node2",
+            "node7",
+            "node15",
+            "node1",
+            "node11",
+            "node26",
+            "node0",
+            "node28"
+          ]
+        }
+      ]
+    }
+  ],
+  "resource_calendars": [
+    {
+      "id": "Role 1_profile_calendar",
+      "name": "Role 1_profile_calendar",
+      "time_periods": [
+        {
+          "from": "MONDAY",
+          "to": "MONDAY",
+          "beginTime": "23:00:00",
+          "endTime": "23:59:59.999000"
+        },
+        {
+          "from": "TUESDAY",
+          "to": "TUESDAY",
+          "beginTime": "23:00:00",
+          "endTime": "23:59:59.999000"
+        },
+        {
+          "from": "WEDNESDAY",
+          "to": "WEDNESDAY",
+          "beginTime": "23:00:00",
+          "endTime": "23:59:59.999000"
+        },
+        {
+          "from": "THURSDAY",
+          "to": "THURSDAY",
+          "beginTime": "23:00:00",
+          "endTime": "23:59:59.999000"
+        },
+        {
+          "from": "FRIDAY",
+          "to": "FRIDAY",
+          "beginTime": "23:00:00",
+          "endTime": "23:59:59.999000"
+        },
+        {
+          "from": "SATURDAY",
+          "to": "SATURDAY",
+          "beginTime": "23:00:00",
+          "endTime": "23:59:59.999000"
+        },
+        {
+          "from": "SUNDAY",
+          "to": "SUNDAY",
+          "beginTime": "23:00:00",
+          "endTime": "23:59:59.999000"
+        }
+      ]
+    },
+    {
+      "id": "Role 2_profile_calendar",
+      "name": "Role 2_profile_calendar",
+      "time_periods": [
+        {
+          "from": "MONDAY",
+          "to": "MONDAY",
+          "beginTime": "23:00:00",
+          "endTime": "23:59:59.999000"
+        },
+        {
+          "from": "TUESDAY",
+          "to": "TUESDAY",
+          "beginTime": "23:00:00",
+          "endTime": "23:59:59.999000"
+        },
+        {
+          "from": "WEDNESDAY",
+          "to": "WEDNESDAY",
+          "beginTime": "23:00:00",
+          "endTime": "23:59:59.999000"
+        },
+        {
+          "from": "THURSDAY",
+          "to": "THURSDAY",
+          "beginTime": "23:00:00",
+          "endTime": "23:59:59.999000"
+        },
+        {
+          "from": "FRIDAY",
+          "to": "FRIDAY",
+          "beginTime": "23:00:00",
+          "endTime": "23:59:59.999000"
+        },
+        {
+          "from": "SATURDAY",
+          "to": "SATURDAY",
+          "beginTime": "23:00:00",
+          "endTime": "23:59:59.999000"
+        },
+        {
+          "from": "SUNDAY",
+          "to": "SUNDAY",
+          "beginTime": "23:00:00",
+          "endTime": "23:59:59.999000"
+        }
+      ]
+    }
+  ],
+  "task_resource_distribution": [
+    {
+      "task_id": "node12",
+      "resources": [
+        {
+          "resource_id": "Officer 27",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 2543.47826228261
+            },
+            {
+              "value": 14731587.918069875
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 16200.000009000069
+            }
+          ]
+        },
+        {
+          "resource_id": "Officer 10",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 2543.47826228261
+            },
+            {
+              "value": 14731587.918069875
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 16200.000009000069
+            }
+          ]
+        },
+        {
+          "resource_id": "Officer 29",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 2543.47826228261
+            },
+            {
+              "value": 14731587.918069875
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 16200.000009000069
+            }
+          ]
+        },
+        {
+          "resource_id": "Officer 11",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 2543.47826228261
+            },
+            {
+              "value": 14731587.918069875
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 16200.000009000069
+            }
+          ]
+        },
+        {
+          "resource_id": "Officer 26",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 2543.47826228261
+            },
+            {
+              "value": 14731587.918069875
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 16200.000009000069
+            }
+          ]
+        },
+        {
+          "resource_id": "Officer 17",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 2543.47826228261
+            },
+            {
+              "value": 14731587.918069875
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 16200.000009000069
+            }
+          ]
+        },
+        {
+          "resource_id": "Officer 13",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 2543.47826228261
+            },
+            {
+              "value": 14731587.918069875
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 16200.000009000069
+            }
+          ]
+        },
+        {
+          "resource_id": "Officer 20",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 2543.47826228261
+            },
+            {
+              "value": 14731587.918069875
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 16200.000009000069
+            }
+          ]
+        },
+        {
+          "resource_id": "Officer 22",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 2543.47826228261
+            },
+            {
+              "value": 14731587.918069875
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 16200.000009000069
+            }
+          ]
+        },
+        {
+          "resource_id": "Officer 21",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 2543.47826228261
+            },
+            {
+              "value": 14731587.918069875
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 16200.000009000069
+            }
+          ]
+        },
+        {
+          "resource_id": "Officer 18",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 2543.47826228261
+            },
+            {
+              "value": 14731587.918069875
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 16200.000009000069
+            }
+          ]
+        },
+        {
+          "resource_id": "Officer 23",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 2543.47826228261
+            },
+            {
+              "value": 14731587.918069875
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 16200.000009000069
+            }
+          ]
+        },
+        {
+          "resource_id": "Officer 19",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 2543.47826228261
+            },
+            {
+              "value": 14731587.918069875
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 16200.000009000069
+            }
+          ]
+        },
+        {
+          "resource_id": "Officer 28",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 2543.47826228261
+            },
+            {
+              "value": 14731587.918069875
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 16200.000009000069
+            }
+          ]
+        },
+        {
+          "resource_id": "Officer 15",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 2543.47826228261
+            },
+            {
+              "value": 14731587.918069875
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 16200.000009000069
+            }
+          ]
+        },
+        {
+          "resource_id": "Officer 14",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 2543.47826228261
+            },
+            {
+              "value": 14731587.918069875
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 16200.000009000069
+            }
+          ]
+        },
+        {
+          "resource_id": "Officer 12",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 2543.47826228261
+            },
+            {
+              "value": 14731587.918069875
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 16200.000009000069
+            }
+          ]
+        },
+        {
+          "resource_id": "Officer 16",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 2543.47826228261
+            },
+            {
+              "value": 14731587.918069875
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 16200.000009000069
+            }
+          ]
+        },
+        {
+          "resource_id": "Officer 24",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 2543.47826228261
+            },
+            {
+              "value": 14731587.918069875
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 16200.000009000069
+            }
+          ]
+        },
+        {
+          "resource_id": "Officer 25",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 2543.47826228261
+            },
+            {
+              "value": 14731587.918069875
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 16200.000009000069
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "task_id": "node4",
+      "resources": [
+        {
+          "resource_id": "Officer 27",
+          "distribution_name": "lognorm",
+          "distribution_params": [
+            {
+              "value": 1586.1463423446091
+            },
+            {
+              "value": 49635671.54593241
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 340200.0001890287
+            }
+          ]
+        },
+        {
+          "resource_id": "Officer 10",
+          "distribution_name": "lognorm",
+          "distribution_params": [
+            {
+              "value": 1586.1463423446091
+            },
+            {
+              "value": 49635671.54593241
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 340200.0001890287
+            }
+          ]
+        },
+        {
+          "resource_id": "Officer 29",
+          "distribution_name": "lognorm",
+          "distribution_params": [
+            {
+              "value": 1586.1463423446091
+            },
+            {
+              "value": 49635671.54593241
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 340200.0001890287
+            }
+          ]
+        },
+        {
+          "resource_id": "Officer 11",
+          "distribution_name": "lognorm",
+          "distribution_params": [
+            {
+              "value": 1586.1463423446091
+            },
+            {
+              "value": 49635671.54593241
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 340200.0001890287
+            }
+          ]
+        },
+        {
+          "resource_id": "Officer 26",
+          "distribution_name": "lognorm",
+          "distribution_params": [
+            {
+              "value": 1586.1463423446091
+            },
+            {
+              "value": 49635671.54593241
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 340200.0001890287
+            }
+          ]
+        },
+        {
+          "resource_id": "Officer 17",
+          "distribution_name": "lognorm",
+          "distribution_params": [
+            {
+              "value": 1586.1463423446091
+            },
+            {
+              "value": 49635671.54593241
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 340200.0001890287
+            }
+          ]
+        },
+        {
+          "resource_id": "Officer 13",
+          "distribution_name": "lognorm",
+          "distribution_params": [
+            {
+              "value": 1586.1463423446091
+            },
+            {
+              "value": 49635671.54593241
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 340200.0001890287
+            }
+          ]
+        },
+        {
+          "resource_id": "Officer 20",
+          "distribution_name": "lognorm",
+          "distribution_params": [
+            {
+              "value": 1586.1463423446091
+            },
+            {
+              "value": 49635671.54593241
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 340200.0001890287
+            }
+          ]
+        },
+        {
+          "resource_id": "Officer 22",
+          "distribution_name": "lognorm",
+          "distribution_params": [
+            {
+              "value": 1586.1463423446091
+            },
+            {
+              "value": 49635671.54593241
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 340200.0001890287
+            }
+          ]
+        },
+        {
+          "resource_id": "Officer 21",
+          "distribution_name": "lognorm",
+          "distribution_params": [
+            {
+              "value": 1586.1463423446091
+            },
+            {
+              "value": 49635671.54593241
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 340200.0001890287
+            }
+          ]
+        },
+        {
+          "resource_id": "Officer 18",
+          "distribution_name": "lognorm",
+          "distribution_params": [
+            {
+              "value": 1586.1463423446091
+            },
+            {
+              "value": 49635671.54593241
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 340200.0001890287
+            }
+          ]
+        },
+        {
+          "resource_id": "Officer 23",
+          "distribution_name": "lognorm",
+          "distribution_params": [
+            {
+              "value": 1586.1463423446091
+            },
+            {
+              "value": 49635671.54593241
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 340200.0001890287
+            }
+          ]
+        },
+        {
+          "resource_id": "Officer 19",
+          "distribution_name": "lognorm",
+          "distribution_params": [
+            {
+              "value": 1586.1463423446091
+            },
+            {
+              "value": 49635671.54593241
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 340200.0001890287
+            }
+          ]
+        },
+        {
+          "resource_id": "Officer 28",
+          "distribution_name": "lognorm",
+          "distribution_params": [
+            {
+              "value": 1586.1463423446091
+            },
+            {
+              "value": 49635671.54593241
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 340200.0001890287
+            }
+          ]
+        },
+        {
+          "resource_id": "Officer 15",
+          "distribution_name": "lognorm",
+          "distribution_params": [
+            {
+              "value": 1586.1463423446091
+            },
+            {
+              "value": 49635671.54593241
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 340200.0001890287
+            }
+          ]
+        },
+        {
+          "resource_id": "Officer 14",
+          "distribution_name": "lognorm",
+          "distribution_params": [
+            {
+              "value": 1586.1463423446091
+            },
+            {
+              "value": 49635671.54593241
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 340200.0001890287
+            }
+          ]
+        },
+        {
+          "resource_id": "Officer 12",
+          "distribution_name": "lognorm",
+          "distribution_params": [
+            {
+              "value": 1586.1463423446091
+            },
+            {
+              "value": 49635671.54593241
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 340200.0001890287
+            }
+          ]
+        },
+        {
+          "resource_id": "Officer 16",
+          "distribution_name": "lognorm",
+          "distribution_params": [
+            {
+              "value": 1586.1463423446091
+            },
+            {
+              "value": 49635671.54593241
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 340200.0001890287
+            }
+          ]
+        },
+        {
+          "resource_id": "Officer 24",
+          "distribution_name": "lognorm",
+          "distribution_params": [
+            {
+              "value": 1586.1463423446091
+            },
+            {
+              "value": 49635671.54593241
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 340200.0001890287
+            }
+          ]
+        },
+        {
+          "resource_id": "Officer 25",
+          "distribution_name": "lognorm",
+          "distribution_params": [
+            {
+              "value": 1586.1463423446091
+            },
+            {
+              "value": 49635671.54593241
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 340200.0001890287
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "task_id": "node15",
+      "resources": [
+        {
+          "resource_id": "Worker 1",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 360.8089889644931
+            },
+            {
+              "value": 725322.4924105053
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 9000.000005000038
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 9",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 360.8089889644931
+            },
+            {
+              "value": 725322.4924105053
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 9000.000005000038
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 8",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 360.8089889644931
+            },
+            {
+              "value": 725322.4924105053
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 9000.000005000038
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 5",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 360.8089889644931
+            },
+            {
+              "value": 725322.4924105053
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 9000.000005000038
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 3",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 360.8089889644931
+            },
+            {
+              "value": 725322.4924105053
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 9000.000005000038
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 2",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 360.8089889644931
+            },
+            {
+              "value": 725322.4924105053
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 9000.000005000038
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 7",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 360.8089889644931
+            },
+            {
+              "value": 725322.4924105053
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 9000.000005000038
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 6",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 360.8089889644931
+            },
+            {
+              "value": 725322.4924105053
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 9000.000005000038
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 4",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 360.8089889644931
+            },
+            {
+              "value": 725322.4924105053
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 9000.000005000038
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "task_id": "node1",
+      "resources": [
+        {
+          "resource_id": "Worker 1",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 625.9615388092931
+            },
+            {
+              "value": 1482595.2309372635
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 9000.000005000038
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 9",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 625.9615388092931
+            },
+            {
+              "value": 1482595.2309372635
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 9000.000005000038
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 8",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 625.9615388092931
+            },
+            {
+              "value": 1482595.2309372635
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 9000.000005000038
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 5",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 625.9615388092931
+            },
+            {
+              "value": 1482595.2309372635
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 9000.000005000038
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 3",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 625.9615388092931
+            },
+            {
+              "value": 1482595.2309372635
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 9000.000005000038
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 2",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 625.9615388092931
+            },
+            {
+              "value": 1482595.2309372635
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 9000.000005000038
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 7",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 625.9615388092931
+            },
+            {
+              "value": 1482595.2309372635
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 9000.000005000038
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 6",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 625.9615388092931
+            },
+            {
+              "value": 1482595.2309372635
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 9000.000005000038
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 4",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 625.9615388092931
+            },
+            {
+              "value": 1482595.2309372635
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 9000.000005000038
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "task_id": "node7",
+      "resources": [
+        {
+          "resource_id": "Worker 1",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 292.1497858604772
+            },
+            {
+              "value": 661244.4881117252
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 10800.000006000046
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 9",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 292.1497858604772
+            },
+            {
+              "value": 661244.4881117252
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 10800.000006000046
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 8",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 292.1497858604772
+            },
+            {
+              "value": 661244.4881117252
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 10800.000006000046
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 5",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 292.1497858604772
+            },
+            {
+              "value": 661244.4881117252
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 10800.000006000046
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 3",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 292.1497858604772
+            },
+            {
+              "value": 661244.4881117252
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 10800.000006000046
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 2",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 292.1497858604772
+            },
+            {
+              "value": 661244.4881117252
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 10800.000006000046
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 7",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 292.1497858604772
+            },
+            {
+              "value": 661244.4881117252
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 10800.000006000046
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 6",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 292.1497858604772
+            },
+            {
+              "value": 661244.4881117252
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 10800.000006000046
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 4",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 292.1497858604772
+            },
+            {
+              "value": 661244.4881117252
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 10800.000006000046
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "task_id": "node0",
+      "resources": [
+        {
+          "resource_id": "Worker 1",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 1155.7894743263128
+            },
+            {
+              "value": 2381624.379377551
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 7200.0000040000305
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 9",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 1155.7894743263128
+            },
+            {
+              "value": 2381624.379377551
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 7200.0000040000305
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 8",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 1155.7894743263128
+            },
+            {
+              "value": 2381624.379377551
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 7200.0000040000305
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 5",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 1155.7894743263128
+            },
+            {
+              "value": 2381624.379377551
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 7200.0000040000305
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 3",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 1155.7894743263128
+            },
+            {
+              "value": 2381624.379377551
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 7200.0000040000305
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 2",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 1155.7894743263128
+            },
+            {
+              "value": 2381624.379377551
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 7200.0000040000305
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 7",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 1155.7894743263128
+            },
+            {
+              "value": 2381624.379377551
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 7200.0000040000305
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 6",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 1155.7894743263128
+            },
+            {
+              "value": 2381624.379377551
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 7200.0000040000305
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 4",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 1155.7894743263128
+            },
+            {
+              "value": 2381624.379377551
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 7200.0000040000305
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "task_id": "node13",
+      "resources": [
+        {
+          "resource_id": "Worker 1",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 615.9049945103365
+            },
+            {
+              "value": 1552430.7355680717
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 12600.000007000053
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 9",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 615.9049945103365
+            },
+            {
+              "value": 1552430.7355680717
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 12600.000007000053
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 8",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 615.9049945103365
+            },
+            {
+              "value": 1552430.7355680717
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 12600.000007000053
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 5",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 615.9049945103365
+            },
+            {
+              "value": 1552430.7355680717
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 12600.000007000053
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 3",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 615.9049945103365
+            },
+            {
+              "value": 1552430.7355680717
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 12600.000007000053
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 2",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 615.9049945103365
+            },
+            {
+              "value": 1552430.7355680717
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 12600.000007000053
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 7",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 615.9049945103365
+            },
+            {
+              "value": 1552430.7355680717
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 12600.000007000053
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 6",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 615.9049945103365
+            },
+            {
+              "value": 1552430.7355680717
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 12600.000007000053
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 4",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 615.9049945103365
+            },
+            {
+              "value": 1552430.7355680717
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 12600.000007000053
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "task_id": "node26",
+      "resources": [
+        {
+          "resource_id": "Worker 1",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 934.8837214496099
+            },
+            {
+              "value": 2114829.6399917766
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 7200.0000040000305
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 9",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 934.8837214496099
+            },
+            {
+              "value": 2114829.6399917766
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 7200.0000040000305
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 8",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 934.8837214496099
+            },
+            {
+              "value": 2114829.6399917766
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 7200.0000040000305
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 5",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 934.8837214496099
+            },
+            {
+              "value": 2114829.6399917766
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 7200.0000040000305
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 3",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 934.8837214496099
+            },
+            {
+              "value": 2114829.6399917766
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 7200.0000040000305
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 2",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 934.8837214496099
+            },
+            {
+              "value": 2114829.6399917766
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 7200.0000040000305
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 7",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 934.8837214496099
+            },
+            {
+              "value": 2114829.6399917766
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 7200.0000040000305
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 6",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 934.8837214496099
+            },
+            {
+              "value": 2114829.6399917766
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 7200.0000040000305
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 4",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 934.8837214496099
+            },
+            {
+              "value": 2114829.6399917766
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 7200.0000040000305
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "task_id": "node11",
+      "resources": [
+        {
+          "resource_id": "Worker 1",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 446.2562398485843
+            },
+            {
+              "value": 1100089.9788248162
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 9000.000005000038
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 9",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 446.2562398485843
+            },
+            {
+              "value": 1100089.9788248162
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 9000.000005000038
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 8",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 446.2562398485843
+            },
+            {
+              "value": 1100089.9788248162
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 9000.000005000038
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 5",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 446.2562398485843
+            },
+            {
+              "value": 1100089.9788248162
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 9000.000005000038
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 3",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 446.2562398485843
+            },
+            {
+              "value": 1100089.9788248162
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 9000.000005000038
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 2",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 446.2562398485843
+            },
+            {
+              "value": 1100089.9788248162
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 9000.000005000038
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 7",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 446.2562398485843
+            },
+            {
+              "value": 1100089.9788248162
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 9000.000005000038
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 6",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 446.2562398485843
+            },
+            {
+              "value": 1100089.9788248162
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 9000.000005000038
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 4",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 446.2562398485843
+            },
+            {
+              "value": 1100089.9788248162
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 9000.000005000038
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "task_id": "node2",
+      "resources": [
+        {
+          "resource_id": "Worker 1",
+          "distribution_name": "fix",
+          "distribution_params": [
+            {
+              "value": 0.0
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 9",
+          "distribution_name": "fix",
+          "distribution_params": [
+            {
+              "value": 0.0
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 8",
+          "distribution_name": "fix",
+          "distribution_params": [
+            {
+              "value": 0.0
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 5",
+          "distribution_name": "fix",
+          "distribution_params": [
+            {
+              "value": 0.0
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 3",
+          "distribution_name": "fix",
+          "distribution_params": [
+            {
+              "value": 0.0
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 2",
+          "distribution_name": "fix",
+          "distribution_params": [
+            {
+              "value": 0.0
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 7",
+          "distribution_name": "fix",
+          "distribution_params": [
+            {
+              "value": 0.0
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 6",
+          "distribution_name": "fix",
+          "distribution_params": [
+            {
+              "value": 0.0
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 4",
+          "distribution_name": "fix",
+          "distribution_params": [
+            {
+              "value": 0.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "task_id": "node28",
+      "resources": [
+        {
+          "resource_id": "Worker 1",
+          "distribution_name": "fix",
+          "distribution_params": [
+            {
+              "value": 0.0
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 9",
+          "distribution_name": "fix",
+          "distribution_params": [
+            {
+              "value": 0.0
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 8",
+          "distribution_name": "fix",
+          "distribution_params": [
+            {
+              "value": 0.0
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 5",
+          "distribution_name": "fix",
+          "distribution_params": [
+            {
+              "value": 0.0
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 3",
+          "distribution_name": "fix",
+          "distribution_params": [
+            {
+              "value": 0.0
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 2",
+          "distribution_name": "fix",
+          "distribution_params": [
+            {
+              "value": 0.0
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 7",
+          "distribution_name": "fix",
+          "distribution_params": [
+            {
+              "value": 0.0
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 6",
+          "distribution_name": "fix",
+          "distribution_params": [
+            {
+              "value": 0.0
+            }
+          ]
+        },
+        {
+          "resource_id": "Worker 4",
+          "distribution_name": "fix",
+          "distribution_params": [
+            {
+              "value": 0.0
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "event_distribution": [
+    {
+      "activity": "Add penalty",
+      "event_id": "Event_fb82d357-9dde-4e41-8590-95b71ae1a911",
+      "distribution_name": "lognorm",
+      "distribution_params": [
+        {
+          "value": 5587322.9662921345
+        },
+        {
+          "value": 13653731858245.584
+        },
+        {
+          "value": 0.0
+        },
+        {
+          "value": 29721600.0
+        }
+      ]
+    },
+    {
+      "activity": "Appeal to Judge",
+      "event_id": "Event_bd3cd89c-b9b5-48c1-bd0b-84a51b2545d8",
+      "distribution_name": "expon",
+      "distribution_params": [
+        {
+          "value": 4564173.9130434785
+        },
+        {
+          "value": 0.0
+        },
+        {
+          "value": 22118400.0
+        }
+      ]
+    },
+    {
+      "activity": "Insert Date Appeal to Prefecture",
+      "event_id": "Event_fc6ea90a-921b-4c3c-86d6-f5d9be6243bb",
+      "distribution_name": "gamma",
+      "distribution_params": [
+        {
+          "value": 3629076.923076923
+        },
+        {
+          "value": 11083503578698.225
+        },
+        {
+          "value": 0.0
+        },
+        {
+          "value": 27043200.0
+        }
+      ]
+    },
+    {
+      "activity": "Insert Fine Notification",
+      "event_id": "Event_a050e812-db78-4119-9f6f-81b99964aea8",
+      "distribution_name": "gamma",
+      "distribution_params": [
+        {
+          "value": 2583901.827205053
+        },
+        {
+          "value": 13573547975816.648
+        },
+        {
+          "value": 0.0
+        },
+        {
+          "value": 39916800.0
+        }
+      ]
+    },
+    {
+      "activity": "Notify Result Appeal to Offender",
+      "event_id": "Event_39598373-a2cc-4932-9466-3086b4b88c01",
+      "distribution_name": "gamma",
+      "distribution_params": [
+        {
+          "value": 3780682.1052631577
+        },
+        {
+          "value": 26628017703995.56
+        },
+        {
+          "value": 0.0
+        },
+        {
+          "value": 24451200.0
+        }
+      ]
+    },
+    {
+      "activity": "Payment",
+      "event_id": "Event_dbd1c77c-9f0e-4b31-b0c5-3acc85aca3e5",
+      "distribution_name": "gamma",
+      "distribution_params": [
+        {
+          "value": 5448641.798324674
+        },
+        {
+          "value": 161482365043295.84
+        },
+        {
+          "value": 0.0
+        },
+        {
+          "value": 76118400.0
+        }
+      ]
+    },
+    {
+      "activity": "Receive Result Appeal from Prefecture",
+      "event_id": "Event_b720b494-9c8e-44f2-a0e6-e931a9818b04",
+      "distribution_name": "expon",
+      "distribution_params": [
+        {
+          "value": 6571758.139534884
+        },
+        {
+          "value": 0.0
+        },
+        {
+          "value": 43200000.0
+        }
+      ]
+    },
+    {
+      "activity": "Send Appeal to Prefecture",
+      "event_id": "Event_8e618a64-b225-4b09-99ec-852d25cd2f62",
+      "distribution_name": "gamma",
+      "distribution_params": [
+        {
+          "value": 9054748.752079867
+        },
+        {
+          "value": 276116623890085.8
+        },
+        {
+          "value": 0.0
+        },
+        {
+          "value": 83980800.0
+        }
+      ]
+    },
+    {
+      "activity": "Send Fine",
+      "event_id": "Event_67e8ed53-1f3b-4616-b3a3-1a86049655c1",
+      "distribution_name": "gamma",
+      "distribution_params": [
+        {
+          "value": 3136311.902530459
+        },
+        {
+          "value": 15645477680874.771
+        },
+        {
+          "value": 0.0
+        },
+        {
+          "value": 37756800.0
+        }
+      ]
+    },
+    {
+      "activity": "Send for Credit Collection",
+      "event_id": "Event_b02c04d1-82a0-4baa-8b4b-a815d7187efb",
+      "distribution_name": "norm",
+      "distribution_params": [
+        {
+          "value": 50487894.85714286
+        },
+        {
+          "value": 19693441.878668338
+        },
+        {
+          "value": 0.0
+        },
+        {
+          "value": 131414400.0
+        }
+      ]
+    }
+  ],
+  "model_type": "CRISP",
+  "granule_size": {
+    "value": 60,
+    "time_unit": "MINUTES"
+  },
+  "global_attributes": [
+    {
+      "name": "dismissal",
+      "type": "discrete",
+      "values": [
+        {
+          "key": "",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "name": "expense",
+      "type": "continuous",
+      "values": {
+        "distribution_name": "fix",
+        "distribution_params": [
+          {
+            "value": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "pointsDeducted",
+      "type": "continuous",
+      "values": {
+        "distribution_name": "fix",
+        "distribution_params": [
+          {
+            "value": 0
+          }
+        ]
+      }
+    }
+  ],
+  "case_attributes": [
+    {
+      "name": "vehicleRegistrationNumber",
+      "type": "continuous",
+      "values": {
+        "distribution_name": "fix",
+        "distribution_params": [
+          {
+            "value": 0.0
+          }
+        ]
+      }
+    }
+  ],
+  "event_attributes": [
+    {
+      "event_id": "node4",
+      "attributes": [
+        {
+          "name": "dismissal",
+          "type": "discrete",
+          "values": [
+            {
+              "key": "5",
+              "value": 0.0003252032520325203
+            },
+            {
+              "key": "I",
+              "value": 0.00010840108401084011
+            },
+            {
+              "key": "NIL",
+              "value": 0.9995663956639567
+            }
+          ]
+        },
+        {
+          "name": "vehicleClass",
+          "type": "discrete",
+          "values": [
+            {
+              "key": "A",
+              "value": 0.9775609756097561
+            },
+            {
+              "key": "C",
+              "value": 0.011273712737127371
+            },
+            {
+              "key": "M",
+              "value": 0.011165311653116532
+            }
+          ]
+        },
+        {
+          "name": "amount",
+          "type": "expression",
+          "values": "amount + lognorm(50.86942222222222, 4925.076951763733, 0.0, 4351.0)"
+        },
+        {
+          "name": "pointsDeducted",
+          "type": "continuous",
+          "values": {
+            "distribution_name": "fix",
+            "distribution_params": [
+              {
+                "value": 0.0
+              }
+            ]
+          }
+        },
+        {
+          "name": "totalPaymentAmount",
+          "type": "expression",
+          "values": "totalPaymentAmount + fix(0.0)"
+        },
+        {
+          "name": "violationType",
+          "type": "expression",
+          "values": "violationType + norm(89.17355013550136, 75.86826633705316, 7.0, 401.0)"
+        }
+      ]
+    },
+    {
+      "event_id": "node12",
+      "attributes": [
+        {
+          "name": "dismissal",
+          "type": "discrete",
+          "values": [
+            {
+              "key": "G",
+              "value": 0.043478260869565216
+            },
+            {
+              "key": "NIL",
+              "value": 0.9565217391304348
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "event_id": "node11",
+      "attributes": [
+        {
+          "name": "dismissal",
+          "type": "discrete",
+          "values": [
+            {
+              "key": "#",
+              "value": 0.5933333333333334
+            },
+            {
+              "key": "$",
+              "value": 0.0033333333333333335
+            },
+            {
+              "key": "NIL",
+              "value": 0.4033333333333333
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "event_id": "node7",
+      "attributes": [
+        {
+          "name": "lastSent",
+          "type": "discrete",
+          "values": [
+            {
+              "key": "",
+              "value": 0.015339499210466952
+            },
+            {
+              "key": "C",
+              "value": 0.034739454094292806
+            },
+            {
+              "key": "P",
+              "value": 0.9499210466952402
+            }
+          ]
+        },
+        {
+          "name": "notificationType",
+          "type": "discrete",
+          "values": [
+            {
+              "key": "C",
+              "value": 0.0020302278366794496
+            },
+            {
+              "key": "P",
+              "value": 0.9979697721633205
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "event_id": "node15",
+      "attributes": [
+        {
+          "name": "amount",
+          "type": "expression",
+          "values": "amount + expon(89.60750112359551, 23.0, 3451.5)"
+        }
+      ]
+    },
+    {
+      "event_id": "node2",
+      "attributes": [
+        {
+          "name": "expense",
+          "type": "dtree",
+          "values": [
+            [
+              ["expense <= 2.799999952316284"],
+              "expense * 0.046736039221286774 + 3.3426141067590134"
+            ],
+            [
+              ["expense > 2.799999952316284", "expense <= 14.25"],
+              "expense * 0.09628982096910477 + 12.35171405190295"
+            ],
+            [
+              ["expense > 14.25", "expense <= 15.5"],
+              "expense * 0.007400165311992168 + 15.607355018964231"
+            ],
+            [
+              ["expense > 15.5", "expense <= 24.890000343322754"],
+              "expense * -0.27361413836479187 + 21.112821149008788"
+            ],
+            [
+              ["expense > 24.890000343322754", "expense <= 25.5"],
+              "expense * 0.024742869660258293 + 20.966304343443042"
+            ],
+            [
+              ["expense > 25.5", "expense <= 28.0"],
+              "expense * 0.09998540580272675 + 13.37325052475593"
+            ],
+            [
+              ["expense > 28.0"],
+              "expense * 0.10318136215209961 + 17.83255431974883"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "event_id": "node13",
+      "attributes": [
+        {
+          "name": "paymentAmount",
+          "type": "expression",
+          "values": "paymentAmount + lognorm(50.57319406150584, 1579.2216458743235, -112.5, 798.0)"
+        },
+        {
+          "name": "totalPaymentAmount",
+          "type": "expression",
+          "values": "totalPaymentAmount + lognorm(54.89247083775186, 1812.334520999945, 8.0, 798.0)"
+        }
+      ]
+    }
+  ],
+  "branch_rules": [
+    {
+      "id": "edge30",
+      "rules": [
+        [
+          {
+            "attribute": "vehicleClass",
+            "comparison": "<=",
+            "value": "0.5"
+          },
+          {
+            "attribute": "totalPaymentAmount",
+            "comparison": "<=",
+            "value": "11.5"
+          },
+          {
+            "attribute": "notificationType",
+            "comparison": "<=",
+            "value": "0.5"
+          },
+          {
+            "attribute": "expense",
+            "comparison": "<=",
+            "value": "6.75"
+          }
+        ],
+        [
+          {
+            "attribute": "vehicleClass",
+            "comparison": "<=",
+            "value": "0.5"
+          },
+          {
+            "attribute": "totalPaymentAmount",
+            "comparison": "<=",
+            "value": "11.5"
+          },
+          {
+            "attribute": "notificationType",
+            "comparison": "<=",
+            "value": "0.5"
+          },
+          {
+            "attribute": "expense",
+            "comparison": ">",
+            "value": "6.75"
+          }
+        ],
+        [
+          {
+            "attribute": "vehicleClass",
+            "comparison": "<=",
+            "value": "0.5"
+          },
+          {
+            "attribute": "totalPaymentAmount",
+            "comparison": "<=",
+            "value": "11.5"
+          },
+          {
+            "attribute": "notificationType",
+            "comparison": ">",
+            "value": "0.5"
+          }
+        ],
+        [
+          {
+            "attribute": "vehicleClass",
+            "comparison": "<=",
+            "value": "0.5"
+          },
+          {
+            "attribute": "totalPaymentAmount",
+            "comparison": ">",
+            "value": "11.5"
+          }
+        ],
+        [
+          {
+            "attribute": "vehicleClass",
+            "comparison": ">",
+            "value": "0.5"
+          },
+          {
+            "attribute": "pointsDeducted",
+            "comparison": "<=",
+            "value": "1.0"
+          },
+          {
+            "attribute": "violationType",
+            "comparison": "<=",
+            "value": "175.0"
+          },
+          {
+            "attribute": "amount",
+            "comparison": "<=",
+            "value": "24.5"
+          }
+        ],
+        [
+          {
+            "attribute": "vehicleClass",
+            "comparison": ">",
+            "value": "0.5"
+          },
+          {
+            "attribute": "pointsDeducted",
+            "comparison": "<=",
+            "value": "1.0"
+          },
+          {
+            "attribute": "violationType",
+            "comparison": "<=",
+            "value": "175.0"
+          },
+          {
+            "attribute": "amount",
+            "comparison": ">",
+            "value": "24.5"
+          }
+        ],
+        [
+          {
+            "attribute": "vehicleClass",
+            "comparison": ">",
+            "value": "0.5"
+          },
+          {
+            "attribute": "pointsDeducted",
+            "comparison": "<=",
+            "value": "1.0"
+          },
+          {
+            "attribute": "violationType",
+            "comparison": ">",
+            "value": "175.0"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": "<=",
+            "value": "37.25"
+          }
+        ],
+        [
+          {
+            "attribute": "vehicleClass",
+            "comparison": ">",
+            "value": "0.5"
+          },
+          {
+            "attribute": "pointsDeducted",
+            "comparison": "<=",
+            "value": "1.0"
+          },
+          {
+            "attribute": "violationType",
+            "comparison": ">",
+            "value": "175.0"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": ">",
+            "value": "37.25"
+          }
+        ],
+        [
+          {
+            "attribute": "vehicleClass",
+            "comparison": ">",
+            "value": "0.5"
+          },
+          {
+            "attribute": "pointsDeducted",
+            "comparison": ">",
+            "value": "1.0"
+          },
+          {
+            "attribute": "expense",
+            "comparison": "<=",
+            "value": "14.25"
+          },
+          {
+            "attribute": "violationType",
+            "comparison": ">",
+            "value": "143.5"
+          }
+        ],
+        [
+          {
+            "attribute": "vehicleClass",
+            "comparison": ">",
+            "value": "0.5"
+          },
+          {
+            "attribute": "pointsDeducted",
+            "comparison": ">",
+            "value": "1.0"
+          },
+          {
+            "attribute": "expense",
+            "comparison": ">",
+            "value": "14.25"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": "<=",
+            "value": "39.75"
+          }
+        ],
+        [
+          {
+            "attribute": "vehicleClass",
+            "comparison": ">",
+            "value": "0.5"
+          },
+          {
+            "attribute": "pointsDeducted",
+            "comparison": ">",
+            "value": "1.0"
+          },
+          {
+            "attribute": "expense",
+            "comparison": ">",
+            "value": "14.25"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": ">",
+            "value": "39.75"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "edge6",
+      "rules": [
+        [
+          {
+            "attribute": "vehicleClass",
+            "comparison": ">",
+            "value": "0.5"
+          },
+          {
+            "attribute": "pointsDeducted",
+            "comparison": ">",
+            "value": "1.0"
+          },
+          {
+            "attribute": "expense",
+            "comparison": "<=",
+            "value": "14.25"
+          },
+          {
+            "attribute": "violationType",
+            "comparison": "<=",
+            "value": "143.5"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "edge42",
+      "rules": [
+        [
+          {
+            "attribute": "amount",
+            "comparison": "<=",
+            "value": "11.5"
+          },
+          {
+            "attribute": "violationType",
+            "comparison": "<=",
+            "value": "3.5"
+          },
+          {
+            "attribute": "expense",
+            "comparison": "<=",
+            "value": "2.799999952316284"
+          },
+          {
+            "attribute": "notificationType",
+            "comparison": "<=",
+            "value": "0.5"
+          },
+          {
+            "attribute": "totalPaymentAmount",
+            "comparison": "<=",
+            "value": "12.300000190734863"
+          }
+        ],
+        [
+          {
+            "attribute": "amount",
+            "comparison": "<=",
+            "value": "11.5"
+          },
+          {
+            "attribute": "violationType",
+            "comparison": "<=",
+            "value": "3.5"
+          },
+          {
+            "attribute": "expense",
+            "comparison": "<=",
+            "value": "2.799999952316284"
+          },
+          {
+            "attribute": "notificationType",
+            "comparison": "<=",
+            "value": "0.5"
+          },
+          {
+            "attribute": "totalPaymentAmount",
+            "comparison": ">",
+            "value": "12.300000190734863"
+          }
+        ],
+        [
+          {
+            "attribute": "amount",
+            "comparison": "<=",
+            "value": "11.5"
+          },
+          {
+            "attribute": "violationType",
+            "comparison": "<=",
+            "value": "3.5"
+          },
+          {
+            "attribute": "expense",
+            "comparison": "<=",
+            "value": "2.799999952316284"
+          },
+          {
+            "attribute": "notificationType",
+            "comparison": ">",
+            "value": "0.5"
+          },
+          {
+            "attribute": "totalPaymentAmount",
+            "comparison": ">",
+            "value": "50.25"
+          }
+        ],
+        [
+          {
+            "attribute": "amount",
+            "comparison": "<=",
+            "value": "11.5"
+          },
+          {
+            "attribute": "violationType",
+            "comparison": "<=",
+            "value": "3.5"
+          },
+          {
+            "attribute": "expense",
+            "comparison": ">",
+            "value": "2.799999952316284"
+          },
+          {
+            "attribute": "expense",
+            "comparison": "<=",
+            "value": "15.5"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": "<=",
+            "value": "18.25"
+          }
+        ],
+        [
+          {
+            "attribute": "amount",
+            "comparison": "<=",
+            "value": "11.5"
+          },
+          {
+            "attribute": "violationType",
+            "comparison": "<=",
+            "value": "3.5"
+          },
+          {
+            "attribute": "expense",
+            "comparison": ">",
+            "value": "2.799999952316284"
+          },
+          {
+            "attribute": "expense",
+            "comparison": "<=",
+            "value": "15.5"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": ">",
+            "value": "18.25"
+          }
+        ],
+        [
+          {
+            "attribute": "amount",
+            "comparison": "<=",
+            "value": "11.5"
+          },
+          {
+            "attribute": "violationType",
+            "comparison": "<=",
+            "value": "3.5"
+          },
+          {
+            "attribute": "expense",
+            "comparison": ">",
+            "value": "15.5"
+          },
+          {
+            "attribute": "expense",
+            "comparison": "<=",
+            "value": "17.550000190734863"
+          }
+        ],
+        [
+          {
+            "attribute": "amount",
+            "comparison": "<=",
+            "value": "11.5"
+          },
+          {
+            "attribute": "violationType",
+            "comparison": "<=",
+            "value": "3.5"
+          },
+          {
+            "attribute": "expense",
+            "comparison": ">",
+            "value": "17.550000190734863"
+          }
+        ],
+        [
+          {
+            "attribute": "amount",
+            "comparison": ">",
+            "value": "11.5"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "edge29",
+      "rules": [
+        [
+          {
+            "attribute": "amount",
+            "comparison": "<=",
+            "value": "11.5"
+          },
+          {
+            "attribute": "violationType",
+            "comparison": "<=",
+            "value": "3.5"
+          },
+          {
+            "attribute": "expense",
+            "comparison": "<=",
+            "value": "2.799999952316284"
+          },
+          {
+            "attribute": "notificationType",
+            "comparison": ">",
+            "value": "0.5"
+          },
+          {
+            "attribute": "totalPaymentAmount",
+            "comparison": "<=",
+            "value": "50.25"
+          }
+        ],
+        [
+          {
+            "attribute": "amount",
+            "comparison": "<=",
+            "value": "11.5"
+          },
+          {
+            "attribute": "violationType",
+            "comparison": ">",
+            "value": "3.5"
+          },
+          {
+            "attribute": "totalPaymentAmount",
+            "comparison": "<=",
+            "value": "11.5"
+          }
+        ],
+        [
+          {
+            "attribute": "amount",
+            "comparison": "<=",
+            "value": "11.5"
+          },
+          {
+            "attribute": "violationType",
+            "comparison": ">",
+            "value": "3.5"
+          },
+          {
+            "attribute": "totalPaymentAmount",
+            "comparison": ">",
+            "value": "11.5"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "edge52",
+      "rules": [
+        [
+          {
+            "attribute": "paymentAmount",
+            "comparison": "<=",
+            "value": "20.5"
+          },
+          {
+            "attribute": "totalPaymentAmount",
+            "comparison": "<=",
+            "value": "96.25"
+          }
+        ],
+        [
+          {
+            "attribute": "paymentAmount",
+            "comparison": ">",
+            "value": "20.5"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": "<=",
+            "value": "27.5"
+          },
+          {
+            "attribute": "totalPaymentAmount",
+            "comparison": "<=",
+            "value": "96.25"
+          }
+        ],
+        [
+          {
+            "attribute": "paymentAmount",
+            "comparison": ">",
+            "value": "27.5"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": "<=",
+            "value": "37.75"
+          },
+          {
+            "attribute": "totalPaymentAmount",
+            "comparison": ">",
+            "value": "35.75"
+          },
+          {
+            "attribute": "totalPaymentAmount",
+            "comparison": "<=",
+            "value": "96.25"
+          }
+        ],
+        [
+          {
+            "attribute": "paymentAmount",
+            "comparison": ">",
+            "value": "37.75"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": "<=",
+            "value": "44.5"
+          },
+          {
+            "attribute": "totalPaymentAmount",
+            "comparison": "<=",
+            "value": "38.95000076293945"
+          }
+        ],
+        [
+          {
+            "attribute": "paymentAmount",
+            "comparison": ">",
+            "value": "37.75"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": "<=",
+            "value": "44.5"
+          },
+          {
+            "attribute": "totalPaymentAmount",
+            "comparison": ">",
+            "value": "38.95000076293945"
+          },
+          {
+            "attribute": "totalPaymentAmount",
+            "comparison": "<=",
+            "value": "96.25"
+          }
+        ],
+        [
+          {
+            "attribute": "paymentAmount",
+            "comparison": ">",
+            "value": "37.25"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": "<=",
+            "value": "44.5"
+          },
+          {
+            "attribute": "totalPaymentAmount",
+            "comparison": ">",
+            "value": "96.25"
+          }
+        ],
+        [
+          {
+            "attribute": "paymentAmount",
+            "comparison": ">",
+            "value": "44.5"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": "<=",
+            "value": "56.5"
+          },
+          {
+            "attribute": "totalPaymentAmount",
+            "comparison": "<=",
+            "value": "191.0"
+          },
+          {
+            "attribute": "expense",
+            "comparison": "<=",
+            "value": "14.25"
+          }
+        ],
+        [
+          {
+            "attribute": "paymentAmount",
+            "comparison": ">",
+            "value": "44.5"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": "<=",
+            "value": "56.5"
+          },
+          {
+            "attribute": "totalPaymentAmount",
+            "comparison": "<=",
+            "value": "191.0"
+          },
+          {
+            "attribute": "expense",
+            "comparison": ">",
+            "value": "14.25"
+          },
+          {
+            "attribute": "expense",
+            "comparison": "<=",
+            "value": "17.050000190734863"
+          }
+        ],
+        [
+          {
+            "attribute": "paymentAmount",
+            "comparison": ">",
+            "value": "44.5"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": "<=",
+            "value": "56.5"
+          },
+          {
+            "attribute": "totalPaymentAmount",
+            "comparison": "<=",
+            "value": "191.0"
+          },
+          {
+            "attribute": "expense",
+            "comparison": ">",
+            "value": "17.050000190734863"
+          }
+        ],
+        [
+          {
+            "attribute": "paymentAmount",
+            "comparison": ">",
+            "value": "56.5"
+          },
+          {
+            "attribute": "totalPaymentAmount",
+            "comparison": "<=",
+            "value": "63.0"
+          }
+        ],
+        [
+          {
+            "attribute": "paymentAmount",
+            "comparison": ">",
+            "value": "56.5"
+          },
+          {
+            "attribute": "totalPaymentAmount",
+            "comparison": ">",
+            "value": "63.0"
+          },
+          {
+            "attribute": "totalPaymentAmount",
+            "comparison": "<=",
+            "value": "64.5"
+          }
+        ],
+        [
+          {
+            "attribute": "paymentAmount",
+            "comparison": ">",
+            "value": "56.5"
+          },
+          {
+            "attribute": "totalPaymentAmount",
+            "comparison": ">",
+            "value": "64.5"
+          },
+          {
+            "attribute": "totalPaymentAmount",
+            "comparison": "<=",
+            "value": "91.25"
+          }
+        ],
+        [
+          {
+            "attribute": "paymentAmount",
+            "comparison": ">",
+            "value": "56.5"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": "<=",
+            "value": "75.5"
+          },
+          {
+            "attribute": "totalPaymentAmount",
+            "comparison": ">",
+            "value": "91.25"
+          },
+          {
+            "attribute": "totalPaymentAmount",
+            "comparison": "<=",
+            "value": "176.25"
+          }
+        ],
+        [
+          {
+            "attribute": "paymentAmount",
+            "comparison": ">",
+            "value": "75.5"
+          },
+          {
+            "attribute": "totalPaymentAmount",
+            "comparison": ">",
+            "value": "91.25"
+          },
+          {
+            "attribute": "vehicleClass",
+            "comparison": "=",
+            "value": "A"
+          }
+        ],
+        [
+          {
+            "attribute": "paymentAmount",
+            "comparison": ">",
+            "value": "75.5"
+          },
+          {
+            "attribute": "totalPaymentAmount",
+            "comparison": ">",
+            "value": "91.25"
+          },
+          {
+            "attribute": "vehicleClass",
+            "comparison": "=",
+            "value": "C"
+          }
+        ],
+        [
+          {
+            "attribute": "paymentAmount",
+            "comparison": ">",
+            "value": "75.5"
+          },
+          {
+            "attribute": "totalPaymentAmount",
+            "comparison": ">",
+            "value": "91.25"
+          },
+          {
+            "attribute": "vehicleClass",
+            "comparison": "=",
+            "value": "M"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "edge53",
+      "rules": [
+        [
+          {
+            "attribute": "paymentAmount",
+            "comparison": ">",
+            "value": "27.5"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": "<=",
+            "value": "37.75"
+          },
+          {
+            "attribute": "totalPaymentAmount",
+            "comparison": "<=",
+            "value": "35.75"
+          }
+        ],
+        [
+          {
+            "attribute": "paymentAmount",
+            "comparison": "<=",
+            "value": "37.25"
+          },
+          {
+            "attribute": "totalPaymentAmount",
+            "comparison": ">",
+            "value": "96.25"
+          }
+        ],
+        [
+          {
+            "attribute": "paymentAmount",
+            "comparison": ">",
+            "value": "44.5"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": "<=",
+            "value": "56.5"
+          },
+          {
+            "attribute": "totalPaymentAmount",
+            "comparison": ">",
+            "value": "191.0"
+          }
+        ],
+        [
+          {
+            "attribute": "paymentAmount",
+            "comparison": ">",
+            "value": "56.5"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": "<=",
+            "value": "75.5"
+          },
+          {
+            "attribute": "totalPaymentAmount",
+            "comparison": ">",
+            "value": "176.25"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "edge56",
+      "rules": [
+        [
+          {
+            "attribute": "paymentAmount",
+            "comparison": "<=",
+            "value": "50.75"
+          }
+        ],
+        [
+          {
+            "attribute": "paymentAmount",
+            "comparison": ">",
+            "value": "50.75"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": "<=",
+            "value": "51.75"
+          }
+        ],
+        [
+          {
+            "attribute": "paymentAmount",
+            "comparison": ">",
+            "value": "51.75"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "edge46",
+      "rules": [
+        [
+          {
+            "attribute": "dismissal",
+            "comparison": "<=",
+            "value": "0.5"
+          },
+          {
+            "attribute": "amount",
+            "comparison": "<=",
+            "value": "309.25"
+          },
+          {
+            "attribute": "expense",
+            "comparison": "<=",
+            "value": "6.75"
+          }
+        ],
+        [
+          {
+            "attribute": "dismissal",
+            "comparison": "<=",
+            "value": "0.5"
+          },
+          {
+            "attribute": "amount",
+            "comparison": "<=",
+            "value": "309.25"
+          },
+          {
+            "attribute": "expense",
+            "comparison": ">",
+            "value": "6.75"
+          },
+          {
+            "attribute": "expense",
+            "comparison": "<=",
+            "value": "25.5"
+          }
+        ],
+        [
+          {
+            "attribute": "amount",
+            "comparison": "<=",
+            "value": "309.25"
+          },
+          {
+            "attribute": "expense",
+            "comparison": "<=",
+            "value": "25.5"
+          },
+          {
+            "attribute": "dismissal",
+            "comparison": "=",
+            "value": "#"
+          }
+        ],
+        [
+          {
+            "attribute": "amount",
+            "comparison": "<=",
+            "value": "309.25"
+          },
+          {
+            "attribute": "expense",
+            "comparison": ">",
+            "value": "25.5"
+          },
+          {
+            "attribute": "dismissal",
+            "comparison": "=",
+            "value": "#"
+          }
+        ],
+        [
+          {
+            "attribute": "amount",
+            "comparison": ">",
+            "value": "309.25"
+          },
+          {
+            "attribute": "dismissal",
+            "comparison": "=",
+            "value": "#"
+          }
+        ],
+        [
+          {
+            "attribute": "violationType",
+            "comparison": "<=",
+            "value": "111.0"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": "<=",
+            "value": "12.0"
+          },
+          {
+            "attribute": "dismissal",
+            "comparison": "=",
+            "value": "$"
+          }
+        ],
+        [
+          {
+            "attribute": "violationType",
+            "comparison": "<=",
+            "value": "111.0"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": "<=",
+            "value": "12.0"
+          },
+          {
+            "attribute": "dismissal",
+            "comparison": "=",
+            "value": "G"
+          }
+        ],
+        [
+          {
+            "attribute": "violationType",
+            "comparison": "<=",
+            "value": "111.0"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": "<=",
+            "value": "12.0"
+          },
+          {
+            "attribute": "dismissal",
+            "comparison": "=",
+            "value": "NIL"
+          }
+        ],
+        [
+          {
+            "attribute": "violationType",
+            "comparison": "<=",
+            "value": "111.0"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": ">",
+            "value": "12.0"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": "<=",
+            "value": "38.5"
+          },
+          {
+            "attribute": "dismissal",
+            "comparison": "=",
+            "value": "$"
+          }
+        ],
+        [
+          {
+            "attribute": "violationType",
+            "comparison": "<=",
+            "value": "111.0"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": ">",
+            "value": "12.0"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": "<=",
+            "value": "38.5"
+          },
+          {
+            "attribute": "dismissal",
+            "comparison": "=",
+            "value": "G"
+          }
+        ],
+        [
+          {
+            "attribute": "violationType",
+            "comparison": "<=",
+            "value": "111.0"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": ">",
+            "value": "12.0"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": "<=",
+            "value": "38.5"
+          },
+          {
+            "attribute": "dismissal",
+            "comparison": "=",
+            "value": "NIL"
+          }
+        ],
+        [
+          {
+            "attribute": "violationType",
+            "comparison": "<=",
+            "value": "111.0"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": "<=",
+            "value": "38.5"
+          },
+          {
+            "attribute": "amount",
+            "comparison": "<=",
+            "value": "38.5"
+          },
+          {
+            "attribute": "dismissal",
+            "comparison": "=",
+            "value": "$"
+          }
+        ],
+        [
+          {
+            "attribute": "violationType",
+            "comparison": "<=",
+            "value": "111.0"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": "<=",
+            "value": "38.5"
+          },
+          {
+            "attribute": "amount",
+            "comparison": "<=",
+            "value": "38.5"
+          },
+          {
+            "attribute": "dismissal",
+            "comparison": "=",
+            "value": "G"
+          }
+        ],
+        [
+          {
+            "attribute": "violationType",
+            "comparison": "<=",
+            "value": "111.0"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": "<=",
+            "value": "38.5"
+          },
+          {
+            "attribute": "amount",
+            "comparison": "<=",
+            "value": "38.5"
+          },
+          {
+            "attribute": "dismissal",
+            "comparison": "=",
+            "value": "NIL"
+          }
+        ],
+        [
+          {
+            "attribute": "violationType",
+            "comparison": "<=",
+            "value": "111.0"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": "<=",
+            "value": "38.5"
+          },
+          {
+            "attribute": "amount",
+            "comparison": ">",
+            "value": "38.5"
+          },
+          {
+            "attribute": "dismissal",
+            "comparison": "=",
+            "value": "$"
+          }
+        ],
+        [
+          {
+            "attribute": "violationType",
+            "comparison": "<=",
+            "value": "111.0"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": "<=",
+            "value": "38.5"
+          },
+          {
+            "attribute": "amount",
+            "comparison": ">",
+            "value": "38.5"
+          },
+          {
+            "attribute": "dismissal",
+            "comparison": "=",
+            "value": "G"
+          }
+        ],
+        [
+          {
+            "attribute": "violationType",
+            "comparison": "<=",
+            "value": "111.0"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": "<=",
+            "value": "38.5"
+          },
+          {
+            "attribute": "amount",
+            "comparison": ">",
+            "value": "38.5"
+          },
+          {
+            "attribute": "dismissal",
+            "comparison": "=",
+            "value": "NIL"
+          }
+        ],
+        [
+          {
+            "attribute": "violationType",
+            "comparison": "<=",
+            "value": "111.0"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": ">",
+            "value": "50.5"
+          },
+          {
+            "attribute": "expense",
+            "comparison": "<=",
+            "value": "7.5"
+          },
+          {
+            "attribute": "dismissal",
+            "comparison": "=",
+            "value": "$"
+          }
+        ],
+        [
+          {
+            "attribute": "violationType",
+            "comparison": "<=",
+            "value": "111.0"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": ">",
+            "value": "50.5"
+          },
+          {
+            "attribute": "expense",
+            "comparison": "<=",
+            "value": "7.5"
+          },
+          {
+            "attribute": "dismissal",
+            "comparison": "=",
+            "value": "G"
+          }
+        ],
+        [
+          {
+            "attribute": "violationType",
+            "comparison": "<=",
+            "value": "111.0"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": ">",
+            "value": "50.5"
+          },
+          {
+            "attribute": "expense",
+            "comparison": "<=",
+            "value": "7.5"
+          },
+          {
+            "attribute": "dismissal",
+            "comparison": "=",
+            "value": "NIL"
+          }
+        ],
+        [
+          {
+            "attribute": "violationType",
+            "comparison": "<=",
+            "value": "111.0"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": ">",
+            "value": "38.5"
+          },
+          {
+            "attribute": "expense",
+            "comparison": ">",
+            "value": "7.5"
+          },
+          {
+            "attribute": "dismissal",
+            "comparison": "=",
+            "value": "$"
+          }
+        ],
+        [
+          {
+            "attribute": "violationType",
+            "comparison": "<=",
+            "value": "111.0"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": ">",
+            "value": "38.5"
+          },
+          {
+            "attribute": "expense",
+            "comparison": ">",
+            "value": "7.5"
+          },
+          {
+            "attribute": "dismissal",
+            "comparison": "=",
+            "value": "G"
+          }
+        ],
+        [
+          {
+            "attribute": "violationType",
+            "comparison": "<=",
+            "value": "111.0"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": ">",
+            "value": "38.5"
+          },
+          {
+            "attribute": "expense",
+            "comparison": ">",
+            "value": "7.5"
+          },
+          {
+            "attribute": "dismissal",
+            "comparison": "=",
+            "value": "NIL"
+          }
+        ],
+        [
+          {
+            "attribute": "violationType",
+            "comparison": ">",
+            "value": "111.0"
+          },
+          {
+            "attribute": "violationType",
+            "comparison": "<=",
+            "value": "157.5"
+          },
+          {
+            "attribute": "dismissal",
+            "comparison": "=",
+            "value": "$"
+          }
+        ],
+        [
+          {
+            "attribute": "violationType",
+            "comparison": ">",
+            "value": "111.0"
+          },
+          {
+            "attribute": "violationType",
+            "comparison": "<=",
+            "value": "157.5"
+          },
+          {
+            "attribute": "dismissal",
+            "comparison": "=",
+            "value": "G"
+          }
+        ],
+        [
+          {
+            "attribute": "violationType",
+            "comparison": ">",
+            "value": "111.0"
+          },
+          {
+            "attribute": "violationType",
+            "comparison": "<=",
+            "value": "157.5"
+          },
+          {
+            "attribute": "dismissal",
+            "comparison": "=",
+            "value": "NIL"
+          }
+        ],
+        [
+          {
+            "attribute": "violationType",
+            "comparison": ">",
+            "value": "157.5"
+          },
+          {
+            "attribute": "expense",
+            "comparison": "<=",
+            "value": "6.75"
+          },
+          {
+            "attribute": "dismissal",
+            "comparison": "=",
+            "value": "$"
+          }
+        ],
+        [
+          {
+            "attribute": "violationType",
+            "comparison": ">",
+            "value": "157.5"
+          },
+          {
+            "attribute": "expense",
+            "comparison": "<=",
+            "value": "6.75"
+          },
+          {
+            "attribute": "dismissal",
+            "comparison": "=",
+            "value": "G"
+          }
+        ],
+        [
+          {
+            "attribute": "violationType",
+            "comparison": ">",
+            "value": "157.5"
+          },
+          {
+            "attribute": "expense",
+            "comparison": "<=",
+            "value": "6.75"
+          },
+          {
+            "attribute": "dismissal",
+            "comparison": "=",
+            "value": "NIL"
+          }
+        ],
+        [
+          {
+            "attribute": "violationType",
+            "comparison": ">",
+            "value": "157.5"
+          },
+          {
+            "attribute": "expense",
+            "comparison": ">",
+            "value": "6.75"
+          },
+          {
+            "attribute": "dismissal",
+            "comparison": "=",
+            "value": "$"
+          }
+        ],
+        [
+          {
+            "attribute": "violationType",
+            "comparison": ">",
+            "value": "157.5"
+          },
+          {
+            "attribute": "expense",
+            "comparison": ">",
+            "value": "6.75"
+          },
+          {
+            "attribute": "dismissal",
+            "comparison": "=",
+            "value": "G"
+          }
+        ],
+        [
+          {
+            "attribute": "violationType",
+            "comparison": ">",
+            "value": "157.5"
+          },
+          {
+            "attribute": "expense",
+            "comparison": ">",
+            "value": "6.75"
+          },
+          {
+            "attribute": "dismissal",
+            "comparison": "=",
+            "value": "NIL"
+          }
+        ],
+        [
+          {
+            "attribute": "violationType",
+            "comparison": ">",
+            "value": "157.5"
+          },
+          {
+            "attribute": "dismissal",
+            "comparison": "=",
+            "value": "$"
+          }
+        ],
+        [
+          {
+            "attribute": "violationType",
+            "comparison": ">",
+            "value": "157.5"
+          },
+          {
+            "attribute": "dismissal",
+            "comparison": "=",
+            "value": "G"
+          }
+        ],
+        [
+          {
+            "attribute": "violationType",
+            "comparison": ">",
+            "value": "157.5"
+          },
+          {
+            "attribute": "dismissal",
+            "comparison": "=",
+            "value": "NIL"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "edge24",
+      "rules": [
+        [
+          {
+            "attribute": "violationType",
+            "comparison": "<=",
+            "value": "111.0"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": ">",
+            "value": "38.5"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": "<=",
+            "value": "50.5"
+          },
+          {
+            "attribute": "expense",
+            "comparison": "<=",
+            "value": "7.5"
+          },
+          {
+            "attribute": "dismissal",
+            "comparison": "=",
+            "value": "$"
+          }
+        ],
+        [
+          {
+            "attribute": "violationType",
+            "comparison": "<=",
+            "value": "111.0"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": ">",
+            "value": "38.5"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": "<=",
+            "value": "50.5"
+          },
+          {
+            "attribute": "expense",
+            "comparison": "<=",
+            "value": "7.5"
+          },
+          {
+            "attribute": "dismissal",
+            "comparison": "=",
+            "value": "G"
+          }
+        ],
+        [
+          {
+            "attribute": "violationType",
+            "comparison": "<=",
+            "value": "111.0"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": ">",
+            "value": "38.5"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": "<=",
+            "value": "50.5"
+          },
+          {
+            "attribute": "expense",
+            "comparison": "<=",
+            "value": "7.5"
+          },
+          {
+            "attribute": "dismissal",
+            "comparison": "=",
+            "value": "NIL"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "edge49",
+      "rules": [
+        [
+          {
+            "attribute": "expense",
+            "comparison": "<=",
+            "value": "25.5"
+          },
+          {
+            "attribute": "amount",
+            "comparison": "<=",
+            "value": "235.5"
+          },
+          {
+            "attribute": "dismissal",
+            "comparison": "=",
+            "value": "#"
+          }
+        ],
+        [
+          {
+            "attribute": "expense",
+            "comparison": "<=",
+            "value": "25.5"
+          },
+          {
+            "attribute": "amount",
+            "comparison": "<=",
+            "value": "235.5"
+          },
+          {
+            "attribute": "dismissal",
+            "comparison": "=",
+            "value": "G"
+          }
+        ],
+        [
+          {
+            "attribute": "expense",
+            "comparison": "<=",
+            "value": "25.5"
+          },
+          {
+            "attribute": "amount",
+            "comparison": ">",
+            "value": "235.5"
+          },
+          {
+            "attribute": "dismissal",
+            "comparison": "=",
+            "value": "#"
+          }
+        ],
+        [
+          {
+            "attribute": "expense",
+            "comparison": "<=",
+            "value": "25.5"
+          },
+          {
+            "attribute": "amount",
+            "comparison": ">",
+            "value": "235.5"
+          },
+          {
+            "attribute": "dismissal",
+            "comparison": "=",
+            "value": "G"
+          }
+        ],
+        [
+          {
+            "attribute": "expense",
+            "comparison": "<=",
+            "value": "25.5"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": "<=",
+            "value": "122.0"
+          },
+          {
+            "attribute": "dismissal",
+            "comparison": "=",
+            "value": "NIL"
+          }
+        ],
+        [
+          {
+            "attribute": "expense",
+            "comparison": "<=",
+            "value": "25.5"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": ">",
+            "value": "122.0"
+          },
+          {
+            "attribute": "dismissal",
+            "comparison": "=",
+            "value": "NIL"
+          }
+        ],
+        [
+          {
+            "attribute": "expense",
+            "comparison": ">",
+            "value": "28.0"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": "<=",
+            "value": "38.5"
+          }
+        ],
+        [
+          {
+            "attribute": "expense",
+            "comparison": ">",
+            "value": "25.5"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": ">",
+            "value": "38.5"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "edge23",
+      "rules": [
+        [
+          {
+            "attribute": "expense",
+            "comparison": ">",
+            "value": "25.5"
+          },
+          {
+            "attribute": "expense",
+            "comparison": "<=",
+            "value": "28.0"
+          },
+          {
+            "attribute": "paymentAmount",
+            "comparison": "<=",
+            "value": "38.5"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "edge38",
+      "rules": [
+        [
+          {
+            "attribute": "paymentAmount",
+            "comparison": "<=",
+            "value": "6.75"
+          }
+        ],
+        [
+          {
+            "attribute": "paymentAmount",
+            "comparison": ">",
+            "value": "6.75"
+          }
+        ]
+      ]
+    }
+  ]
+}

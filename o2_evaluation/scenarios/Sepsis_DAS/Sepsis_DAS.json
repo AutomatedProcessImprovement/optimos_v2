@@ -1,0 +1,4543 @@
+{
+  "process_model": "D:\\_est\\Simod\\Simod\\outputs\\20240524_143447_1390C468_7DAB_4005_AF29_BC3DF2ABEA72\\best_result\\Sepsis_train.bpmn",
+  "gateway_branching_probabilities": [
+    {
+      "gateway_id": "node44",
+      "probabilities": [
+        {
+          "path_id": "edge7",
+          "value": "0.98",
+          "condition_id": "edge7"
+        },
+        {
+          "path_id": "edge49",
+          "value": "0.02"
+        }
+      ]
+    },
+    {
+      "gateway_id": "node33",
+      "probabilities": [
+        {
+          "path_id": "edge15",
+          "value": "0.58"
+        },
+        {
+          "path_id": "edge45",
+          "value": "0.42"
+        }
+      ]
+    },
+    {
+      "gateway_id": "node50",
+      "probabilities": [
+        {
+          "path_id": "edge77",
+          "value": "0.39"
+        },
+        {
+          "path_id": "edge111",
+          "value": "0.01"
+        },
+        {
+          "path_id": "edge112",
+          "value": "0.36"
+        },
+        {
+          "path_id": "edge113",
+          "value": "0.24"
+        }
+      ]
+    },
+    {
+      "gateway_id": "node56",
+      "probabilities": [
+        {
+          "path_id": "edge92",
+          "value": "0.55"
+        },
+        {
+          "path_id": "edge121",
+          "value": "0.0"
+        },
+        {
+          "path_id": "edge122",
+          "value": "0.44"
+        },
+        {
+          "path_id": "edge123",
+          "value": "0.01"
+        }
+      ]
+    },
+    {
+      "gateway_id": "node42",
+      "probabilities": [
+        {
+          "path_id": "edge38",
+          "value": "0.03"
+        },
+        {
+          "path_id": "edge41",
+          "value": "0.19",
+          "condition_id": "edge41"
+        },
+        {
+          "path_id": "edge71",
+          "value": "0.78",
+          "condition_id": "edge71"
+        }
+      ]
+    },
+    {
+      "gateway_id": "node16",
+      "probabilities": [
+        {
+          "path_id": "edge47",
+          "value": "0.96",
+          "condition_id": "edge47"
+        },
+        {
+          "path_id": "edge55",
+          "value": "0.02"
+        },
+        {
+          "path_id": "edge58",
+          "value": "0.02"
+        }
+      ]
+    },
+    {
+      "gateway_id": "node12",
+      "probabilities": [
+        {
+          "path_id": "edge63",
+          "value": "0.0"
+        },
+        {
+          "path_id": "edge68",
+          "value": "1.0",
+          "condition_id": "edge68"
+        }
+      ]
+    },
+    {
+      "gateway_id": "node52",
+      "probabilities": [
+        {
+          "path_id": "edge82",
+          "value": "0.31"
+        },
+        {
+          "path_id": "edge114",
+          "value": "0.27"
+        },
+        {
+          "path_id": "edge115",
+          "value": "0.42"
+        }
+      ]
+    },
+    {
+      "gateway_id": "node54",
+      "probabilities": [
+        {
+          "path_id": "edge87",
+          "value": "0.07"
+        },
+        {
+          "path_id": "edge116",
+          "value": "0.24"
+        },
+        {
+          "path_id": "edge117",
+          "value": "0.02"
+        },
+        {
+          "path_id": "edge118",
+          "value": "0.01"
+        },
+        {
+          "path_id": "edge119",
+          "value": "0.02"
+        },
+        {
+          "path_id": "edge120",
+          "value": "0.64"
+        }
+      ]
+    },
+    {
+      "gateway_id": "node46",
+      "probabilities": [
+        {
+          "path_id": "edge66",
+          "value": "0.7"
+        },
+        {
+          "path_id": "edge74",
+          "value": "0.3",
+          "condition_id": "edge74"
+        }
+      ]
+    },
+    {
+      "gateway_id": "node58",
+      "probabilities": [
+        {
+          "path_id": "edge96",
+          "value": "1.0",
+          "condition_id": "edge96"
+        },
+        {
+          "path_id": "edge97",
+          "value": "0.0"
+        }
+      ]
+    },
+    {
+      "gateway_id": "node45",
+      "probabilities": [
+        {
+          "path_id": "edge44",
+          "value": "0.0"
+        },
+        {
+          "path_id": "edge61",
+          "value": "0.38"
+        },
+        {
+          "path_id": "edge62",
+          "value": "0.62"
+        }
+      ]
+    }
+  ],
+  "arrival_time_calendar": [
+    {
+      "from": "MONDAY",
+      "to": "MONDAY",
+      "beginTime": "01:00:00",
+      "endTime": "02:00:00"
+    },
+    {
+      "from": "MONDAY",
+      "to": "MONDAY",
+      "beginTime": "10:00:00",
+      "endTime": "20:00:00"
+    },
+    {
+      "from": "MONDAY",
+      "to": "MONDAY",
+      "beginTime": "21:00:00",
+      "endTime": "23:00:00"
+    },
+    {
+      "from": "TUESDAY",
+      "to": "TUESDAY",
+      "beginTime": "01:00:00",
+      "endTime": "02:00:00"
+    },
+    {
+      "from": "TUESDAY",
+      "to": "TUESDAY",
+      "beginTime": "10:00:00",
+      "endTime": "11:00:00"
+    },
+    {
+      "from": "TUESDAY",
+      "to": "TUESDAY",
+      "beginTime": "12:00:00",
+      "endTime": "19:00:00"
+    },
+    {
+      "from": "TUESDAY",
+      "to": "TUESDAY",
+      "beginTime": "23:00:00",
+      "endTime": "23:59:59.999000"
+    },
+    {
+      "from": "WEDNESDAY",
+      "to": "WEDNESDAY",
+      "beginTime": "10:00:00",
+      "endTime": "13:00:00"
+    },
+    {
+      "from": "WEDNESDAY",
+      "to": "WEDNESDAY",
+      "beginTime": "14:00:00",
+      "endTime": "19:00:00"
+    },
+    {
+      "from": "WEDNESDAY",
+      "to": "WEDNESDAY",
+      "beginTime": "21:00:00",
+      "endTime": "22:00:00"
+    },
+    {
+      "from": "WEDNESDAY",
+      "to": "WEDNESDAY",
+      "beginTime": "23:00:00",
+      "endTime": "23:59:59.999000"
+    },
+    {
+      "from": "THURSDAY",
+      "to": "THURSDAY",
+      "beginTime": "00:00:00",
+      "endTime": "01:00:00"
+    },
+    {
+      "from": "THURSDAY",
+      "to": "THURSDAY",
+      "beginTime": "12:00:00",
+      "endTime": "16:00:00"
+    },
+    {
+      "from": "THURSDAY",
+      "to": "THURSDAY",
+      "beginTime": "17:00:00",
+      "endTime": "19:00:00"
+    },
+    {
+      "from": "THURSDAY",
+      "to": "THURSDAY",
+      "beginTime": "20:00:00",
+      "endTime": "23:59:59.999000"
+    },
+    {
+      "from": "FRIDAY",
+      "to": "FRIDAY",
+      "beginTime": "00:00:00",
+      "endTime": "01:00:00"
+    },
+    {
+      "from": "FRIDAY",
+      "to": "FRIDAY",
+      "beginTime": "08:00:00",
+      "endTime": "09:00:00"
+    },
+    {
+      "from": "FRIDAY",
+      "to": "FRIDAY",
+      "beginTime": "10:00:00",
+      "endTime": "11:00:00"
+    },
+    {
+      "from": "FRIDAY",
+      "to": "FRIDAY",
+      "beginTime": "12:00:00",
+      "endTime": "16:00:00"
+    },
+    {
+      "from": "SATURDAY",
+      "to": "SATURDAY",
+      "beginTime": "00:00:00",
+      "endTime": "01:00:00"
+    },
+    {
+      "from": "SATURDAY",
+      "to": "SATURDAY",
+      "beginTime": "09:00:00",
+      "endTime": "14:00:00"
+    },
+    {
+      "from": "SATURDAY",
+      "to": "SATURDAY",
+      "beginTime": "16:00:00",
+      "endTime": "23:59:59.999000"
+    },
+    {
+      "from": "SUNDAY",
+      "to": "SUNDAY",
+      "beginTime": "11:00:00",
+      "endTime": "19:00:00"
+    },
+    {
+      "from": "SUNDAY",
+      "to": "SUNDAY",
+      "beginTime": "21:00:00",
+      "endTime": "23:59:59.999000"
+    }
+  ],
+  "arrival_time_distribution": {
+    "distribution_name": "gamma",
+    "distribution_params": [
+      {
+        "value": 38831.592877767085
+      },
+      {
+        "value": 2130001819.269285
+      },
+      {
+        "value": 0.0
+      },
+      {
+        "value": 329570.0
+      }
+    ]
+  },
+  "resource_profiles": [
+    {
+      "id": "Role 1_profile",
+      "name": "Role 1_profile",
+      "resource_list": [
+        {
+          "id": "I",
+          "name": "I",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 1_profile_calendar",
+          "assignedTasks": ["node4", "node38"]
+        },
+        {
+          "id": "M",
+          "name": "M",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 1_profile_calendar",
+          "assignedTasks": ["node4", "node38"]
+        },
+        {
+          "id": "G",
+          "name": "G",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 1_profile_calendar",
+          "assignedTasks": ["node4", "node38"]
+        },
+        {
+          "id": "F",
+          "name": "F",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 1_profile_calendar",
+          "assignedTasks": ["node4", "node38"]
+        },
+        {
+          "id": "O",
+          "name": "O",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 1_profile_calendar",
+          "assignedTasks": ["node4", "node38"]
+        },
+        {
+          "id": "Q",
+          "name": "Q",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 1_profile_calendar",
+          "assignedTasks": ["node4", "node38"]
+        },
+        {
+          "id": "N",
+          "name": "N",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 1_profile_calendar",
+          "assignedTasks": ["node4", "node38"]
+        },
+        {
+          "id": "D",
+          "name": "D",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 1_profile_calendar",
+          "assignedTasks": ["node4", "node38"]
+        },
+        {
+          "id": "R",
+          "name": "R",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 1_profile_calendar",
+          "assignedTasks": ["node4", "node38"]
+        },
+        {
+          "id": "H",
+          "name": "H",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 1_profile_calendar",
+          "assignedTasks": ["node4", "node38"]
+        },
+        {
+          "id": "S",
+          "name": "S",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 1_profile_calendar",
+          "assignedTasks": ["node4", "node38"]
+        },
+        {
+          "id": "V",
+          "name": "V",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 1_profile_calendar",
+          "assignedTasks": ["node4", "node38"]
+        },
+        {
+          "id": "T",
+          "name": "T",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 1_profile_calendar",
+          "assignedTasks": ["node4", "node38"]
+        },
+        {
+          "id": "X",
+          "name": "X",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 1_profile_calendar",
+          "assignedTasks": ["node4", "node38"]
+        },
+        {
+          "id": "K",
+          "name": "K",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 1_profile_calendar",
+          "assignedTasks": ["node4", "node38"]
+        },
+        {
+          "id": "J",
+          "name": "J",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 1_profile_calendar",
+          "assignedTasks": ["node4", "node38"]
+        },
+        {
+          "id": "U",
+          "name": "U",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 1_profile_calendar",
+          "assignedTasks": ["node4", "node38"]
+        }
+      ]
+    },
+    {
+      "id": "Role 2_profile",
+      "name": "Role 2_profile",
+      "resource_list": [
+        {
+          "id": "A",
+          "name": "A",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Undifferentiated_calendar",
+          "assignedTasks": ["node20", "node31", "node34", "node36"]
+        },
+        {
+          "id": "L",
+          "name": "L",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Undifferentiated_calendar",
+          "assignedTasks": ["node20", "node31", "node34", "node36"]
+        }
+      ]
+    },
+    {
+      "id": "Role 3_profile",
+      "name": "Role 3_profile",
+      "resource_list": [
+        {
+          "id": "P",
+          "name": "P",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Undifferentiated_calendar",
+          "assignedTasks": ["node38", "node4"]
+        },
+        {
+          "id": "W",
+          "name": "W",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Undifferentiated_calendar",
+          "assignedTasks": ["node38", "node4"]
+        }
+      ]
+    },
+    {
+      "id": "Role 4_profile",
+      "name": "Role 4_profile",
+      "resource_list": [
+        {
+          "id": "C",
+          "name": "C",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Undifferentiated_calendar",
+          "assignedTasks": ["node41"]
+        }
+      ]
+    },
+    {
+      "id": "Role 5_profile",
+      "name": "Role 5_profile",
+      "resource_list": [
+        {
+          "id": "B",
+          "name": "B",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 5_profile_calendar",
+          "assignedTasks": ["node1", "node19", "node3"]
+        }
+      ]
+    },
+    {
+      "id": "Role 6_profile",
+      "name": "Role 6_profile",
+      "resource_list": [
+        {
+          "id": "E",
+          "name": "E",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Role 6_profile_calendar",
+          "assignedTasks": ["node26", "node10", "node7", "node13", "node29"]
+        }
+      ]
+    },
+    {
+      "id": "Role 7_profile",
+      "name": "Role 7_profile",
+      "resource_list": [
+        {
+          "id": "?",
+          "name": "?",
+          "amount": 1,
+          "cost_per_hour": 20,
+          "calendar": "Undifferentiated_calendar",
+          "assignedTasks": ["node47"]
+        }
+      ]
+    }
+  ],
+  "resource_calendars": [
+    {
+      "id": "Role 1_profile_calendar",
+      "name": "Role 1_profile_calendar",
+      "time_periods": [
+        {
+          "from": "MONDAY",
+          "to": "MONDAY",
+          "beginTime": "00:00:00",
+          "endTime": "01:00:00"
+        },
+        {
+          "from": "MONDAY",
+          "to": "MONDAY",
+          "beginTime": "12:00:00",
+          "endTime": "17:00:00"
+        },
+        {
+          "from": "MONDAY",
+          "to": "MONDAY",
+          "beginTime": "18:00:00",
+          "endTime": "19:00:00"
+        },
+        {
+          "from": "MONDAY",
+          "to": "MONDAY",
+          "beginTime": "21:00:00",
+          "endTime": "22:00:00"
+        },
+        {
+          "from": "MONDAY",
+          "to": "MONDAY",
+          "beginTime": "17:00:00",
+          "endTime": "18:00:00"
+        },
+        {
+          "from": "TUESDAY",
+          "to": "TUESDAY",
+          "beginTime": "12:00:00",
+          "endTime": "17:00:00"
+        },
+        {
+          "from": "WEDNESDAY",
+          "to": "WEDNESDAY",
+          "beginTime": "12:00:00",
+          "endTime": "17:00:00"
+        },
+        {
+          "from": "WEDNESDAY",
+          "to": "WEDNESDAY",
+          "beginTime": "17:00:00",
+          "endTime": "18:00:00"
+        },
+        {
+          "from": "WEDNESDAY",
+          "to": "WEDNESDAY",
+          "beginTime": "21:00:00",
+          "endTime": "22:00:00"
+        },
+        {
+          "from": "WEDNESDAY",
+          "to": "WEDNESDAY",
+          "beginTime": "18:00:00",
+          "endTime": "19:00:00"
+        },
+        {
+          "from": "THURSDAY",
+          "to": "THURSDAY",
+          "beginTime": "00:00:00",
+          "endTime": "23:00:00"
+        },
+        {
+          "from": "FRIDAY",
+          "to": "FRIDAY",
+          "beginTime": "12:00:00",
+          "endTime": "13:00:00"
+        },
+        {
+          "from": "FRIDAY",
+          "to": "FRIDAY",
+          "beginTime": "14:00:00",
+          "endTime": "15:00:00"
+        },
+        {
+          "from": "FRIDAY",
+          "to": "FRIDAY",
+          "beginTime": "15:00:00",
+          "endTime": "16:00:00"
+        },
+        {
+          "from": "FRIDAY",
+          "to": "FRIDAY",
+          "beginTime": "16:00:00",
+          "endTime": "17:00:00"
+        },
+        {
+          "from": "SATURDAY",
+          "to": "SATURDAY",
+          "beginTime": "12:00:00",
+          "endTime": "13:00:00"
+        },
+        {
+          "from": "SATURDAY",
+          "to": "SATURDAY",
+          "beginTime": "18:00:00",
+          "endTime": "19:00:00"
+        },
+        {
+          "from": "SATURDAY",
+          "to": "SATURDAY",
+          "beginTime": "15:00:00",
+          "endTime": "16:00:00"
+        },
+        {
+          "from": "SATURDAY",
+          "to": "SATURDAY",
+          "beginTime": "21:00:00",
+          "endTime": "22:00:00"
+        },
+        {
+          "from": "SUNDAY",
+          "to": "SUNDAY",
+          "beginTime": "12:00:00",
+          "endTime": "17:00:00"
+        }
+      ]
+    },
+    {
+      "id": "Role 5_profile_calendar",
+      "name": "Role 5_profile_calendar",
+      "time_periods": [
+        {
+          "from": "MONDAY",
+          "to": "MONDAY",
+          "beginTime": "08:00:00",
+          "endTime": "09:00:00"
+        },
+        {
+          "from": "TUESDAY",
+          "to": "TUESDAY",
+          "beginTime": "08:00:00",
+          "endTime": "09:00:00"
+        },
+        {
+          "from": "WEDNESDAY",
+          "to": "WEDNESDAY",
+          "beginTime": "08:00:00",
+          "endTime": "09:00:00"
+        },
+        {
+          "from": "THURSDAY",
+          "to": "THURSDAY",
+          "beginTime": "08:00:00",
+          "endTime": "09:00:00"
+        },
+        {
+          "from": "FRIDAY",
+          "to": "FRIDAY",
+          "beginTime": "08:00:00",
+          "endTime": "09:00:00"
+        },
+        {
+          "from": "SATURDAY",
+          "to": "SATURDAY",
+          "beginTime": "08:00:00",
+          "endTime": "09:00:00"
+        },
+        {
+          "from": "SUNDAY",
+          "to": "SUNDAY",
+          "beginTime": "08:00:00",
+          "endTime": "09:00:00"
+        }
+      ]
+    },
+    {
+      "id": "Role 6_profile_calendar",
+      "name": "Role 6_profile_calendar",
+      "time_periods": [
+        {
+          "from": "MONDAY",
+          "to": "MONDAY",
+          "beginTime": "05:00:00",
+          "endTime": "06:00:00"
+        },
+        {
+          "from": "MONDAY",
+          "to": "MONDAY",
+          "beginTime": "10:00:00",
+          "endTime": "13:00:00"
+        },
+        {
+          "from": "MONDAY",
+          "to": "MONDAY",
+          "beginTime": "14:00:00",
+          "endTime": "15:00:00"
+        },
+        {
+          "from": "TUESDAY",
+          "to": "TUESDAY",
+          "beginTime": "10:00:00",
+          "endTime": "11:00:00"
+        },
+        {
+          "from": "TUESDAY",
+          "to": "TUESDAY",
+          "beginTime": "14:00:00",
+          "endTime": "15:00:00"
+        },
+        {
+          "from": "WEDNESDAY",
+          "to": "WEDNESDAY",
+          "beginTime": "10:00:00",
+          "endTime": "13:00:00"
+        },
+        {
+          "from": "THURSDAY",
+          "to": "THURSDAY",
+          "beginTime": "10:00:00",
+          "endTime": "11:00:00"
+        },
+        {
+          "from": "THURSDAY",
+          "to": "THURSDAY",
+          "beginTime": "12:00:00",
+          "endTime": "13:00:00"
+        },
+        {
+          "from": "FRIDAY",
+          "to": "FRIDAY",
+          "beginTime": "10:00:00",
+          "endTime": "11:00:00"
+        },
+        {
+          "from": "FRIDAY",
+          "to": "FRIDAY",
+          "beginTime": "12:00:00",
+          "endTime": "21:00:00"
+        },
+        {
+          "from": "SATURDAY",
+          "to": "SATURDAY",
+          "beginTime": "12:00:00",
+          "endTime": "13:00:00"
+        },
+        {
+          "from": "SATURDAY",
+          "to": "SATURDAY",
+          "beginTime": "10:00:00",
+          "endTime": "11:00:00"
+        },
+        {
+          "from": "SATURDAY",
+          "to": "SATURDAY",
+          "beginTime": "14:00:00",
+          "endTime": "15:00:00"
+        },
+        {
+          "from": "SUNDAY",
+          "to": "SUNDAY",
+          "beginTime": "10:00:00",
+          "endTime": "11:00:00"
+        },
+        {
+          "from": "SUNDAY",
+          "to": "SUNDAY",
+          "beginTime": "14:00:00",
+          "endTime": "15:00:00"
+        }
+      ]
+    },
+    {
+      "id": "Undifferentiated_calendar",
+      "name": "Undifferentiated_calendar",
+      "time_periods": [
+        {
+          "from": "MONDAY",
+          "to": "MONDAY",
+          "beginTime": "08:00:00",
+          "endTime": "13:00:00"
+        },
+        {
+          "from": "MONDAY",
+          "to": "MONDAY",
+          "beginTime": "21:00:00",
+          "endTime": "22:00:00"
+        },
+        {
+          "from": "TUESDAY",
+          "to": "TUESDAY",
+          "beginTime": "08:00:00",
+          "endTime": "15:00:00"
+        },
+        {
+          "from": "WEDNESDAY",
+          "to": "WEDNESDAY",
+          "beginTime": "08:00:00",
+          "endTime": "17:00:00"
+        },
+        {
+          "from": "THURSDAY",
+          "to": "THURSDAY",
+          "beginTime": "08:00:00",
+          "endTime": "17:00:00"
+        },
+        {
+          "from": "FRIDAY",
+          "to": "FRIDAY",
+          "beginTime": "08:00:00",
+          "endTime": "21:00:00"
+        },
+        {
+          "from": "SATURDAY",
+          "to": "SATURDAY",
+          "beginTime": "08:00:00",
+          "endTime": "13:00:00"
+        },
+        {
+          "from": "SATURDAY",
+          "to": "SATURDAY",
+          "beginTime": "19:00:00",
+          "endTime": "20:00:00"
+        },
+        {
+          "from": "SUNDAY",
+          "to": "SUNDAY",
+          "beginTime": "08:00:00",
+          "endTime": "13:00:00"
+        },
+        {
+          "from": "SUNDAY",
+          "to": "SUNDAY",
+          "beginTime": "16:00:00",
+          "endTime": "17:00:00"
+        },
+        {
+          "from": "SUNDAY",
+          "to": "SUNDAY",
+          "beginTime": "21:00:00",
+          "endTime": "22:00:00"
+        }
+      ]
+    }
+  ],
+  "task_resource_distribution": [
+    {
+      "task_id": "node38",
+      "resources": [
+        {
+          "resource_id": "I",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 461878.142876142
+            },
+            {
+              "value": 303652478541.85956
+            },
+            {
+              "value": 1799.0
+            },
+            {
+              "value": 1540476.000061994
+            }
+          ]
+        },
+        {
+          "resource_id": "M",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 461878.142876142
+            },
+            {
+              "value": 303652478541.85956
+            },
+            {
+              "value": 1799.0
+            },
+            {
+              "value": 1540476.000061994
+            }
+          ]
+        },
+        {
+          "resource_id": "G",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 461878.142876142
+            },
+            {
+              "value": 303652478541.85956
+            },
+            {
+              "value": 1799.0
+            },
+            {
+              "value": 1540476.000061994
+            }
+          ]
+        },
+        {
+          "resource_id": "F",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 461878.142876142
+            },
+            {
+              "value": 303652478541.85956
+            },
+            {
+              "value": 1799.0
+            },
+            {
+              "value": 1540476.000061994
+            }
+          ]
+        },
+        {
+          "resource_id": "O",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 461878.142876142
+            },
+            {
+              "value": 303652478541.85956
+            },
+            {
+              "value": 1799.0
+            },
+            {
+              "value": 1540476.000061994
+            }
+          ]
+        },
+        {
+          "resource_id": "Q",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 461878.142876142
+            },
+            {
+              "value": 303652478541.85956
+            },
+            {
+              "value": 1799.0
+            },
+            {
+              "value": 1540476.000061994
+            }
+          ]
+        },
+        {
+          "resource_id": "N",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 461878.142876142
+            },
+            {
+              "value": 303652478541.85956
+            },
+            {
+              "value": 1799.0
+            },
+            {
+              "value": 1540476.000061994
+            }
+          ]
+        },
+        {
+          "resource_id": "D",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 461878.142876142
+            },
+            {
+              "value": 303652478541.85956
+            },
+            {
+              "value": 1799.0
+            },
+            {
+              "value": 1540476.000061994
+            }
+          ]
+        },
+        {
+          "resource_id": "R",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 461878.142876142
+            },
+            {
+              "value": 303652478541.85956
+            },
+            {
+              "value": 1799.0
+            },
+            {
+              "value": 1540476.000061994
+            }
+          ]
+        },
+        {
+          "resource_id": "H",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 461878.142876142
+            },
+            {
+              "value": 303652478541.85956
+            },
+            {
+              "value": 1799.0
+            },
+            {
+              "value": 1540476.000061994
+            }
+          ]
+        },
+        {
+          "resource_id": "S",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 461878.142876142
+            },
+            {
+              "value": 303652478541.85956
+            },
+            {
+              "value": 1799.0
+            },
+            {
+              "value": 1540476.000061994
+            }
+          ]
+        },
+        {
+          "resource_id": "V",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 461878.142876142
+            },
+            {
+              "value": 303652478541.85956
+            },
+            {
+              "value": 1799.0
+            },
+            {
+              "value": 1540476.000061994
+            }
+          ]
+        },
+        {
+          "resource_id": "T",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 461878.142876142
+            },
+            {
+              "value": 303652478541.85956
+            },
+            {
+              "value": 1799.0
+            },
+            {
+              "value": 1540476.000061994
+            }
+          ]
+        },
+        {
+          "resource_id": "X",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 461878.142876142
+            },
+            {
+              "value": 303652478541.85956
+            },
+            {
+              "value": 1799.0
+            },
+            {
+              "value": 1540476.000061994
+            }
+          ]
+        },
+        {
+          "resource_id": "K",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 461878.142876142
+            },
+            {
+              "value": 303652478541.85956
+            },
+            {
+              "value": 1799.0
+            },
+            {
+              "value": 1540476.000061994
+            }
+          ]
+        },
+        {
+          "resource_id": "J",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 461878.142876142
+            },
+            {
+              "value": 303652478541.85956
+            },
+            {
+              "value": 1799.0
+            },
+            {
+              "value": 1540476.000061994
+            }
+          ]
+        },
+        {
+          "resource_id": "U",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 461878.142876142
+            },
+            {
+              "value": 303652478541.85956
+            },
+            {
+              "value": 1799.0
+            },
+            {
+              "value": 1540476.000061994
+            }
+          ]
+        },
+        {
+          "resource_id": "P",
+          "distribution_name": "expon",
+          "distribution_params": [
+            {
+              "value": 179554.98039870593
+            },
+            {
+              "value": 2400.0
+            },
+            {
+              "value": 658800.0000230002
+            }
+          ]
+        },
+        {
+          "resource_id": "W",
+          "distribution_name": "expon",
+          "distribution_params": [
+            {
+              "value": 179554.98039870593
+            },
+            {
+              "value": 2400.0
+            },
+            {
+              "value": 658800.0000230002
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "task_id": "node4",
+      "resources": [
+        {
+          "resource_id": "I",
+          "distribution_name": "lognorm",
+          "distribution_params": [
+            {
+              "value": 142319.0652979021
+            },
+            {
+              "value": 63316009596.129295
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 3112216.0001280075
+            }
+          ]
+        },
+        {
+          "resource_id": "M",
+          "distribution_name": "lognorm",
+          "distribution_params": [
+            {
+              "value": 142319.0652979021
+            },
+            {
+              "value": 63316009596.129295
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 3112216.0001280075
+            }
+          ]
+        },
+        {
+          "resource_id": "G",
+          "distribution_name": "lognorm",
+          "distribution_params": [
+            {
+              "value": 142319.0652979021
+            },
+            {
+              "value": 63316009596.129295
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 3112216.0001280075
+            }
+          ]
+        },
+        {
+          "resource_id": "F",
+          "distribution_name": "lognorm",
+          "distribution_params": [
+            {
+              "value": 142319.0652979021
+            },
+            {
+              "value": 63316009596.129295
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 3112216.0001280075
+            }
+          ]
+        },
+        {
+          "resource_id": "O",
+          "distribution_name": "lognorm",
+          "distribution_params": [
+            {
+              "value": 142319.0652979021
+            },
+            {
+              "value": 63316009596.129295
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 3112216.0001280075
+            }
+          ]
+        },
+        {
+          "resource_id": "Q",
+          "distribution_name": "lognorm",
+          "distribution_params": [
+            {
+              "value": 142319.0652979021
+            },
+            {
+              "value": 63316009596.129295
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 3112216.0001280075
+            }
+          ]
+        },
+        {
+          "resource_id": "N",
+          "distribution_name": "lognorm",
+          "distribution_params": [
+            {
+              "value": 142319.0652979021
+            },
+            {
+              "value": 63316009596.129295
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 3112216.0001280075
+            }
+          ]
+        },
+        {
+          "resource_id": "D",
+          "distribution_name": "lognorm",
+          "distribution_params": [
+            {
+              "value": 142319.0652979021
+            },
+            {
+              "value": 63316009596.129295
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 3112216.0001280075
+            }
+          ]
+        },
+        {
+          "resource_id": "R",
+          "distribution_name": "lognorm",
+          "distribution_params": [
+            {
+              "value": 142319.0652979021
+            },
+            {
+              "value": 63316009596.129295
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 3112216.0001280075
+            }
+          ]
+        },
+        {
+          "resource_id": "H",
+          "distribution_name": "lognorm",
+          "distribution_params": [
+            {
+              "value": 142319.0652979021
+            },
+            {
+              "value": 63316009596.129295
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 3112216.0001280075
+            }
+          ]
+        },
+        {
+          "resource_id": "S",
+          "distribution_name": "lognorm",
+          "distribution_params": [
+            {
+              "value": 142319.0652979021
+            },
+            {
+              "value": 63316009596.129295
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 3112216.0001280075
+            }
+          ]
+        },
+        {
+          "resource_id": "V",
+          "distribution_name": "lognorm",
+          "distribution_params": [
+            {
+              "value": 142319.0652979021
+            },
+            {
+              "value": 63316009596.129295
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 3112216.0001280075
+            }
+          ]
+        },
+        {
+          "resource_id": "T",
+          "distribution_name": "lognorm",
+          "distribution_params": [
+            {
+              "value": 142319.0652979021
+            },
+            {
+              "value": 63316009596.129295
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 3112216.0001280075
+            }
+          ]
+        },
+        {
+          "resource_id": "X",
+          "distribution_name": "lognorm",
+          "distribution_params": [
+            {
+              "value": 142319.0652979021
+            },
+            {
+              "value": 63316009596.129295
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 3112216.0001280075
+            }
+          ]
+        },
+        {
+          "resource_id": "K",
+          "distribution_name": "lognorm",
+          "distribution_params": [
+            {
+              "value": 142319.0652979021
+            },
+            {
+              "value": 63316009596.129295
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 3112216.0001280075
+            }
+          ]
+        },
+        {
+          "resource_id": "J",
+          "distribution_name": "lognorm",
+          "distribution_params": [
+            {
+              "value": 142319.0652979021
+            },
+            {
+              "value": 63316009596.129295
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 3112216.0001280075
+            }
+          ]
+        },
+        {
+          "resource_id": "U",
+          "distribution_name": "lognorm",
+          "distribution_params": [
+            {
+              "value": 142319.0652979021
+            },
+            {
+              "value": 63316009596.129295
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 3112216.0001280075
+            }
+          ]
+        },
+        {
+          "resource_id": "P",
+          "distribution_name": "uniform",
+          "distribution_params": [
+            {
+              "value": 59030.000002
+            },
+            {
+              "value": 544320.0000200002
+            }
+          ]
+        },
+        {
+          "resource_id": "W",
+          "distribution_name": "uniform",
+          "distribution_params": [
+            {
+              "value": 59030.000002
+            },
+            {
+              "value": 544320.0000200002
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "task_id": "node36",
+      "resources": [
+        {
+          "resource_id": "A",
+          "distribution_name": "lognorm",
+          "distribution_params": [
+            {
+              "value": 23246.616732342416
+            },
+            {
+              "value": 4276217854.7192135
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 749294.0000280002
+            }
+          ]
+        },
+        {
+          "resource_id": "L",
+          "distribution_name": "lognorm",
+          "distribution_params": [
+            {
+              "value": 23246.616732342416
+            },
+            {
+              "value": 4276217854.7192135
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 749294.0000280002
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "task_id": "node20",
+      "resources": [
+        {
+          "resource_id": "A",
+          "distribution_name": "lognorm",
+          "distribution_params": [
+            {
+              "value": 442.5620155193798
+            },
+            {
+              "value": 2570610.7461403543
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 19200.0
+            }
+          ]
+        },
+        {
+          "resource_id": "L",
+          "distribution_name": "lognorm",
+          "distribution_params": [
+            {
+              "value": 442.5620155193798
+            },
+            {
+              "value": 2570610.7461403543
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 19200.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "task_id": "node34",
+      "resources": [
+        {
+          "resource_id": "A",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 630.3253012385542
+            },
+            {
+              "value": 4419232.113442093
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 15512.0
+            }
+          ]
+        },
+        {
+          "resource_id": "L",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 630.3253012385542
+            },
+            {
+              "value": 4419232.113442093
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 15512.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "task_id": "node31",
+      "resources": [
+        {
+          "resource_id": "A",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 1193.4016394125683
+            },
+            {
+              "value": 17435367.841846652
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 62400.00000100001
+            }
+          ]
+        },
+        {
+          "resource_id": "L",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 1193.4016394125683
+            },
+            {
+              "value": 17435367.841846652
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 62400.00000100001
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "task_id": "node41",
+      "resources": [
+        {
+          "resource_id": "C",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 12182.232775117322
+            },
+            {
+              "value": 224992341.87081757
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 80710.000002
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "task_id": "node1",
+      "resources": [
+        {
+          "resource_id": "B",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 152.8254349628075
+            },
+            {
+              "value": 334493.456688249
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 4800.000002000015
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "task_id": "node3",
+      "resources": [
+        {
+          "resource_id": "B",
+          "distribution_name": "fix",
+          "distribution_params": [
+            {
+              "value": 0.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "task_id": "node19",
+      "resources": [
+        {
+          "resource_id": "B",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 165.04430012463092
+            },
+            {
+              "value": 360358.96150788927
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 4800.000002000015
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "task_id": "node26",
+      "resources": [
+        {
+          "resource_id": "E",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 6090.933754520508
+            },
+            {
+              "value": 81551826.80097306
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 52800.00000400003
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "task_id": "node10",
+      "resources": [
+        {
+          "resource_id": "E",
+          "distribution_name": "expon",
+          "distribution_params": [
+            {
+              "value": 6371.833334166671
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 51600.00000500004
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "task_id": "node7",
+      "resources": [
+        {
+          "resource_id": "E",
+          "distribution_name": "expon",
+          "distribution_params": [
+            {
+              "value": 5907.692308076925
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 31200.000001
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "task_id": "node13",
+      "resources": [
+        {
+          "resource_id": "E",
+          "distribution_name": "gamma",
+          "distribution_params": [
+            {
+              "value": 2723.0769236153874
+            },
+            {
+              "value": 13063313.611611854
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 13200.000002000015
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "task_id": "node29",
+      "resources": [
+        {
+          "resource_id": "E",
+          "distribution_name": "uniform",
+          "distribution_params": [
+            {
+              "value": 3600.0000010000003
+            },
+            {
+              "value": 10800.000001000008
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "task_id": "node47",
+      "resources": [
+        {
+          "resource_id": "?",
+          "distribution_name": "expon",
+          "distribution_params": [
+            {
+              "value": 49436.87195305489
+            },
+            {
+              "value": 0.0
+            },
+            {
+              "value": 568495.0000200002
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "event_distribution": [
+    {
+      "activity": "Admission IC",
+      "event_id": "Event_87d79107-7e03-4f5c-8d74-81bed1853b05",
+      "distribution_name": "lognorm",
+      "distribution_params": [
+        {
+          "value": 177503.9655172414
+        },
+        {
+          "value": 524127903691.7919
+        },
+        {
+          "value": 0.0
+        },
+        {
+          "value": 4935424.0
+        }
+      ]
+    },
+    {
+      "activity": "Admission NC",
+      "event_id": "Event_a4efe1ea-1129-404f-b557-5bae07cdba01",
+      "distribution_name": "gamma",
+      "distribution_params": [
+        {
+          "value": 62650.89608177172
+        },
+        {
+          "value": 87697333555.51732
+        },
+        {
+          "value": 0.0
+        },
+        {
+          "value": 4194721.0
+        }
+      ]
+    },
+    {
+      "activity": "CRP",
+      "event_id": "Event_90696301-7fc8-40b5-ba86-ba8d84932b3f",
+      "distribution_name": "lognorm",
+      "distribution_params": [
+        {
+          "value": 123838.75375375376
+        },
+        {
+          "value": 55397929949.838455
+        },
+        {
+          "value": 0.0
+        },
+        {
+          "value": 4555358.0
+        }
+      ]
+    },
+    {
+      "activity": "ER Registration",
+      "event_id": "Event_b70ca46e-d52f-4dbd-84f9-b2a93915b12e",
+      "distribution_name": "gamma",
+      "distribution_params": [
+        {
+          "value": 213430.7992202729
+        },
+        {
+          "value": 280692560142.3749
+        },
+        {
+          "value": 0.0
+        },
+        {
+          "value": 4960435.0
+        }
+      ]
+    },
+    {
+      "activity": "ER Sepsis Triage",
+      "event_id": "Event_7ecefc70-b3c9-4b73-a0f3-fcd3a0d85f9a",
+      "distribution_name": "gamma",
+      "distribution_params": [
+        {
+          "value": 152531.3585271318
+        },
+        {
+          "value": 345938458358.09436
+        },
+        {
+          "value": 0.0
+        },
+        {
+          "value": 9502872.0
+        }
+      ]
+    },
+    {
+      "activity": "ER Triage",
+      "event_id": "Event_d2f6f8be-aea7-477c-877c-649189ff4fa1",
+      "distribution_name": "gamma",
+      "distribution_params": [
+        {
+          "value": 255844.37126865672
+        },
+        {
+          "value": 513444655228.33417
+        },
+        {
+          "value": 0.0
+        },
+        {
+          "value": 9427344.0
+        }
+      ]
+    },
+    {
+      "activity": "IV Antibiotics",
+      "event_id": "Event_864705b0-ac7b-4e02-9f82-61dfbcb744d6",
+      "distribution_name": "gamma",
+      "distribution_params": [
+        {
+          "value": 18559.775903614456
+        },
+        {
+          "value": 24291378483.007614
+        },
+        {
+          "value": 0.0
+        },
+        {
+          "value": 2652951.0
+        }
+      ]
+    },
+    {
+      "activity": "IV Liquid",
+      "event_id": "Event_2911e5db-f518-4119-ac18-de8b3211d467",
+      "distribution_name": "gamma",
+      "distribution_params": [
+        {
+          "value": 68405.02465753425
+        },
+        {
+          "value": 413368309330.9994
+        },
+        {
+          "value": 0.0
+        },
+        {
+          "value": 11063491.0
+        }
+      ]
+    },
+    {
+      "activity": "LacticAcid",
+      "event_id": "Event_f3dde352-3b3c-4cc1-a53d-df4110efc136",
+      "distribution_name": "lognorm",
+      "distribution_params": [
+        {
+          "value": 97548.8793828892
+        },
+        {
+          "value": 253960512498.3361
+        },
+        {
+          "value": 0.0
+        },
+        {
+          "value": 11061600.0
+        }
+      ]
+    },
+    {
+      "activity": "Leucocytes",
+      "event_id": "Event_397c807f-d976-4dbf-bb79-2fe20656b0e5",
+      "distribution_name": "lognorm",
+      "distribution_params": [
+        {
+          "value": 125625.48874407583
+        },
+        {
+          "value": 79866496875.5994
+        },
+        {
+          "value": 0.0
+        },
+        {
+          "value": 5372340.0
+        }
+      ]
+    },
+    {
+      "activity": "Release A",
+      "event_id": "Event_0a697951-34a0-4bb3-aaf5-586c73bc9084",
+      "distribution_name": "gamma",
+      "distribution_params": [
+        {
+          "value": 156111.30599369085
+        },
+        {
+          "value": 44597771684.25652
+        },
+        {
+          "value": 0.0
+        },
+        {
+          "value": 1659600.0
+        }
+      ]
+    },
+    {
+      "activity": "Release B",
+      "event_id": "Event_e13f728d-d85e-4bd0-854c-a9311a5a1076",
+      "distribution_name": "lognorm",
+      "distribution_params": [
+        {
+          "value": 542967.9333333333
+        },
+        {
+          "value": 3894765515345.994
+        },
+        {
+          "value": 0.0
+        },
+        {
+          "value": 11000648.0
+        }
+      ]
+    },
+    {
+      "activity": "Release C",
+      "event_id": "Event_5edb02a8-f9f5-4135-a7c1-6c7ad5ed995f",
+      "distribution_name": "expon",
+      "distribution_params": [
+        {
+          "value": 347624.0833333333
+        },
+        {
+          "value": 0.0
+        },
+        {
+          "value": 1177200.0
+        }
+      ]
+    },
+    {
+      "activity": "Release D",
+      "event_id": "Event_af787136-e747-48e8-80d5-75396dc3721e",
+      "distribution_name": "norm",
+      "distribution_params": [
+        {
+          "value": 316084.6153846154
+        },
+        {
+          "value": 300294.16820115125
+        },
+        {
+          "value": 0.0
+        },
+        {
+          "value": 844200.0
+        }
+      ]
+    },
+    {
+      "activity": "Release E",
+      "event_id": "Event_95f2aaf2-1a40-4601-8be8-1c1a2bb6a30c",
+      "distribution_name": "uniform",
+      "distribution_params": [
+        {
+          "value": 57780.0
+        },
+        {
+          "value": 1561200.0
+        }
+      ]
+    },
+    {
+      "activity": "Return ER",
+      "event_id": "Event_7be14912-6bde-4719-9fc5-72b5e34f9fe1",
+      "distribution_name": "gamma",
+      "distribution_params": [
+        {
+          "value": 6820854.682926829
+        },
+        {
+          "value": 62612041885325.83
+        },
+        {
+          "value": 0.0
+        },
+        {
+          "value": 35774108.0
+        }
+      ]
+    }
+  ],
+  "model_type": "CRISP",
+  "granule_size": {
+    "value": 60,
+    "time_unit": "MINUTES"
+  },
+  "global_attributes": [
+    {
+      "name": "Diagnose",
+      "type": "discrete",
+      "values": [
+        {
+          "key": "",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "name": "SIRSCritLeucos",
+      "type": "discrete",
+      "values": [
+        {
+          "key": "",
+          "value": 1
+        }
+      ]
+    }
+  ],
+  "case_attributes": [
+    {
+      "name": "Age",
+      "type": "continuous",
+      "values": {
+        "distribution_name": "norm",
+        "distribution_params": [
+          {
+            "value": 70.36004056795132
+          },
+          {
+            "value": 17.183745845901257
+          },
+          {
+            "value": 20.0
+          },
+          {
+            "value": 90.0
+          }
+        ]
+      }
+    }
+  ],
+  "event_attributes": [
+    {
+      "event_id": "node20",
+      "attributes": [
+        {
+          "name": "Diagnose",
+          "type": "discrete",
+          "values": [
+            {
+              "key": "",
+              "value": 0.003875968992248062
+            },
+            {
+              "key": "A",
+              "value": 0.007751937984496124
+            },
+            {
+              "key": "AC",
+              "value": 0.003875968992248062
+            },
+            {
+              "key": "AD",
+              "value": 0.01937984496124031
+            },
+            {
+              "key": "B",
+              "value": 0.10465116279069768
+            },
+            {
+              "key": "BA",
+              "value": 0.003875968992248062
+            },
+            {
+              "key": "BB",
+              "value": 0.015503875968992248
+            },
+            {
+              "key": "BE",
+              "value": 0.003875968992248062
+            },
+            {
+              "key": "C",
+              "value": 0.18604651162790697
+            },
+            {
+              "key": "CA",
+              "value": 0.007751937984496124
+            },
+            {
+              "key": "D",
+              "value": 0.050387596899224806
+            },
+            {
+              "key": "E",
+              "value": 0.10465116279069768
+            },
+            {
+              "key": "EA",
+              "value": 0.003875968992248062
+            },
+            {
+              "key": "EC",
+              "value": 0.003875968992248062
+            },
+            {
+              "key": "ED",
+              "value": 0.003875968992248062
+            },
+            {
+              "key": "F",
+              "value": 0.023255813953488372
+            },
+            {
+              "key": "FE",
+              "value": 0.011627906976744186
+            },
+            {
+              "key": "G",
+              "value": 0.03488372093023256
+            },
+            {
+              "key": "GA",
+              "value": 0.007751937984496124
+            },
+            {
+              "key": "GB",
+              "value": 0.003875968992248062
+            },
+            {
+              "key": "H",
+              "value": 0.03875968992248062
+            },
+            {
+              "key": "HA",
+              "value": 0.007751937984496124
+            },
+            {
+              "key": "IB",
+              "value": 0.007751937984496124
+            },
+            {
+              "key": "IC",
+              "value": 0.011627906976744186
+            },
+            {
+              "key": "K",
+              "value": 0.007751937984496124
+            },
+            {
+              "key": "KA",
+              "value": 0.01937984496124031
+            },
+            {
+              "key": "KC",
+              "value": 0.007751937984496124
+            },
+            {
+              "key": "M",
+              "value": 0.015503875968992248
+            },
+            {
+              "key": "MC",
+              "value": 0.003875968992248062
+            },
+            {
+              "key": "MD",
+              "value": 0.003875968992248062
+            },
+            {
+              "key": "N",
+              "value": 0.011627906976744186
+            },
+            {
+              "key": "OB",
+              "value": 0.007751937984496124
+            },
+            {
+              "key": "PC",
+              "value": 0.015503875968992248
+            },
+            {
+              "key": "PE",
+              "value": 0.003875968992248062
+            },
+            {
+              "key": "Q",
+              "value": 0.003875968992248062
+            },
+            {
+              "key": "R",
+              "value": 0.007751937984496124
+            },
+            {
+              "key": "RB",
+              "value": 0.011627906976744186
+            },
+            {
+              "key": "RC",
+              "value": 0.011627906976744186
+            },
+            {
+              "key": "RD",
+              "value": 0.007751937984496124
+            },
+            {
+              "key": "SB",
+              "value": 0.015503875968992248
+            },
+            {
+              "key": "SC",
+              "value": 0.003875968992248062
+            },
+            {
+              "key": "T",
+              "value": 0.007751937984496124
+            },
+            {
+              "key": "TA",
+              "value": 0.011627906976744186
+            },
+            {
+              "key": "TB",
+              "value": 0.003875968992248062
+            },
+            {
+              "key": "U",
+              "value": 0.015503875968992248
+            },
+            {
+              "key": "UA",
+              "value": 0.011627906976744186
+            },
+            {
+              "key": "UC",
+              "value": 0.011627906976744186
+            },
+            {
+              "key": "UD",
+              "value": 0.003875968992248062
+            },
+            {
+              "key": "VA",
+              "value": 0.007751937984496124
+            },
+            {
+              "key": "VB",
+              "value": 0.003875968992248062
+            },
+            {
+              "key": "W",
+              "value": 0.03488372093023256
+            },
+            {
+              "key": "WB",
+              "value": 0.003875968992248062
+            },
+            {
+              "key": "XB",
+              "value": 0.003875968992248062
+            },
+            {
+              "key": "Y",
+              "value": 0.007751937984496124
+            },
+            {
+              "key": "YC",
+              "value": 0.007751937984496124
+            },
+            {
+              "key": "Z",
+              "value": 0.003875968992248062
+            },
+            {
+              "key": "ZA",
+              "value": 0.027131782945736434
+            },
+            {
+              "key": "ZD",
+              "value": 0.003875968992248062
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "event_id": "node31",
+      "attributes": [
+        {
+          "name": "Diagnose",
+          "type": "discrete",
+          "values": [
+            {
+              "key": "",
+              "value": 0.016483516483516484
+            },
+            {
+              "key": "A",
+              "value": 0.01098901098901099
+            },
+            {
+              "key": "AD",
+              "value": 0.027472527472527472
+            },
+            {
+              "key": "B",
+              "value": 0.08791208791208792
+            },
+            {
+              "key": "BB",
+              "value": 0.016483516483516484
+            },
+            {
+              "key": "C",
+              "value": 0.16483516483516483
+            },
+            {
+              "key": "D",
+              "value": 0.027472527472527472
+            },
+            {
+              "key": "E",
+              "value": 0.11538461538461539
+            },
+            {
+              "key": "EA",
+              "value": 0.005494505494505495
+            },
+            {
+              "key": "F",
+              "value": 0.02197802197802198
+            },
+            {
+              "key": "FE",
+              "value": 0.02197802197802198
+            },
+            {
+              "key": "G",
+              "value": 0.04395604395604396
+            },
+            {
+              "key": "GA",
+              "value": 0.038461538461538464
+            },
+            {
+              "key": "H",
+              "value": 0.06043956043956044
+            },
+            {
+              "key": "HA",
+              "value": 0.01098901098901099
+            },
+            {
+              "key": "IC",
+              "value": 0.01098901098901099
+            },
+            {
+              "key": "ID",
+              "value": 0.005494505494505495
+            },
+            {
+              "key": "K",
+              "value": 0.005494505494505495
+            },
+            {
+              "key": "KA",
+              "value": 0.016483516483516484
+            },
+            {
+              "key": "KB",
+              "value": 0.005494505494505495
+            },
+            {
+              "key": "KC",
+              "value": 0.005494505494505495
+            },
+            {
+              "key": "LA",
+              "value": 0.01098901098901099
+            },
+            {
+              "key": "LB",
+              "value": 0.005494505494505495
+            },
+            {
+              "key": "M",
+              "value": 0.02197802197802198
+            },
+            {
+              "key": "MA",
+              "value": 0.005494505494505495
+            },
+            {
+              "key": "MD",
+              "value": 0.005494505494505495
+            },
+            {
+              "key": "N",
+              "value": 0.016483516483516484
+            },
+            {
+              "key": "O",
+              "value": 0.005494505494505495
+            },
+            {
+              "key": "P",
+              "value": 0.005494505494505495
+            },
+            {
+              "key": "PC",
+              "value": 0.005494505494505495
+            },
+            {
+              "key": "Q",
+              "value": 0.01098901098901099
+            },
+            {
+              "key": "R",
+              "value": 0.016483516483516484
+            },
+            {
+              "key": "RB",
+              "value": 0.005494505494505495
+            },
+            {
+              "key": "RD",
+              "value": 0.016483516483516484
+            },
+            {
+              "key": "SB",
+              "value": 0.01098901098901099
+            },
+            {
+              "key": "TA",
+              "value": 0.016483516483516484
+            },
+            {
+              "key": "TB",
+              "value": 0.005494505494505495
+            },
+            {
+              "key": "U",
+              "value": 0.01098901098901099
+            },
+            {
+              "key": "UA",
+              "value": 0.005494505494505495
+            },
+            {
+              "key": "UB",
+              "value": 0.005494505494505495
+            },
+            {
+              "key": "VA",
+              "value": 0.005494505494505495
+            },
+            {
+              "key": "VD",
+              "value": 0.005494505494505495
+            },
+            {
+              "key": "W",
+              "value": 0.01098901098901099
+            },
+            {
+              "key": "Y",
+              "value": 0.01098901098901099
+            },
+            {
+              "key": "YA",
+              "value": 0.005494505494505495
+            },
+            {
+              "key": "YC",
+              "value": 0.016483516483516484
+            },
+            {
+              "key": "Z",
+              "value": 0.005494505494505495
+            },
+            {
+              "key": "ZA",
+              "value": 0.03296703296703297
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "event_id": "node41",
+      "attributes": [
+        {
+          "name": "Diagnose",
+          "type": "discrete",
+          "values": [
+            {
+              "key": "",
+              "value": 0.0037313432835820895
+            },
+            {
+              "key": "A",
+              "value": 0.011194029850746268
+            },
+            {
+              "key": "AA",
+              "value": 0.007462686567164179
+            },
+            {
+              "key": "AD",
+              "value": 0.029850746268656716
+            },
+            {
+              "key": "B",
+              "value": 0.09328358208955224
+            },
+            {
+              "key": "BA",
+              "value": 0.0037313432835820895
+            },
+            {
+              "key": "BB",
+              "value": 0.018656716417910446
+            },
+            {
+              "key": "C",
+              "value": 0.19029850746268656
+            },
+            {
+              "key": "CA",
+              "value": 0.014925373134328358
+            },
+            {
+              "key": "D",
+              "value": 0.029850746268656716
+            },
+            {
+              "key": "E",
+              "value": 0.06716417910447761
+            },
+            {
+              "key": "EC",
+              "value": 0.0037313432835820895
+            },
+            {
+              "key": "F",
+              "value": 0.007462686567164179
+            },
+            {
+              "key": "FE",
+              "value": 0.014925373134328358
+            },
+            {
+              "key": "G",
+              "value": 0.033582089552238806
+            },
+            {
+              "key": "GA",
+              "value": 0.018656716417910446
+            },
+            {
+              "key": "GB",
+              "value": 0.007462686567164179
+            },
+            {
+              "key": "H",
+              "value": 0.048507462686567165
+            },
+            {
+              "key": "HA",
+              "value": 0.011194029850746268
+            },
+            {
+              "key": "HC",
+              "value": 0.0037313432835820895
+            },
+            {
+              "key": "IB",
+              "value": 0.022388059701492536
+            },
+            {
+              "key": "K",
+              "value": 0.007462686567164179
+            },
+            {
+              "key": "KA",
+              "value": 0.029850746268656716
+            },
+            {
+              "key": "KB",
+              "value": 0.0037313432835820895
+            },
+            {
+              "key": "LA",
+              "value": 0.007462686567164179
+            },
+            {
+              "key": "LB",
+              "value": 0.007462686567164179
+            },
+            {
+              "key": "LE",
+              "value": 0.0037313432835820895
+            },
+            {
+              "key": "M",
+              "value": 0.0037313432835820895
+            },
+            {
+              "key": "N",
+              "value": 0.026119402985074626
+            },
+            {
+              "key": "ND",
+              "value": 0.0037313432835820895
+            },
+            {
+              "key": "O",
+              "value": 0.0037313432835820895
+            },
+            {
+              "key": "OB",
+              "value": 0.007462686567164179
+            },
+            {
+              "key": "P",
+              "value": 0.0037313432835820895
+            },
+            {
+              "key": "PC",
+              "value": 0.0037313432835820895
+            },
+            {
+              "key": "Q",
+              "value": 0.014925373134328358
+            },
+            {
+              "key": "R",
+              "value": 0.0037313432835820895
+            },
+            {
+              "key": "RB",
+              "value": 0.014925373134328358
+            },
+            {
+              "key": "RC",
+              "value": 0.007462686567164179
+            },
+            {
+              "key": "RD",
+              "value": 0.014925373134328358
+            },
+            {
+              "key": "S",
+              "value": 0.0037313432835820895
+            },
+            {
+              "key": "SB",
+              "value": 0.026119402985074626
+            },
+            {
+              "key": "SC",
+              "value": 0.007462686567164179
+            },
+            {
+              "key": "T",
+              "value": 0.0037313432835820895
+            },
+            {
+              "key": "TA",
+              "value": 0.022388059701492536
+            },
+            {
+              "key": "TB",
+              "value": 0.007462686567164179
+            },
+            {
+              "key": "U",
+              "value": 0.0037313432835820895
+            },
+            {
+              "key": "UA",
+              "value": 0.0037313432835820895
+            },
+            {
+              "key": "UC",
+              "value": 0.007462686567164179
+            },
+            {
+              "key": "VA",
+              "value": 0.0037313432835820895
+            },
+            {
+              "key": "W",
+              "value": 0.022388059701492536
+            },
+            {
+              "key": "WA",
+              "value": 0.0037313432835820895
+            },
+            {
+              "key": "WB",
+              "value": 0.0037313432835820895
+            },
+            {
+              "key": "XC",
+              "value": 0.0037313432835820895
+            },
+            {
+              "key": "Y",
+              "value": 0.011194029850746268
+            },
+            {
+              "key": "YC",
+              "value": 0.022388059701492536
+            },
+            {
+              "key": "ZA",
+              "value": 0.033582089552238806
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "event_id": "node1",
+      "attributes": [
+        {
+          "name": "Diagnose",
+          "type": "discrete",
+          "values": [
+            {
+              "key": "",
+              "value": 0.003605769230769231
+            },
+            {
+              "key": "A",
+              "value": 0.010817307692307692
+            },
+            {
+              "key": "AA",
+              "value": 0.004807692307692308
+            },
+            {
+              "key": "AB",
+              "value": 0.001201923076923077
+            },
+            {
+              "key": "AC",
+              "value": 0.002403846153846154
+            },
+            {
+              "key": "AD",
+              "value": 0.015625
+            },
+            {
+              "key": "B",
+              "value": 0.09975961538461539
+            },
+            {
+              "key": "BB",
+              "value": 0.002403846153846154
+            },
+            {
+              "key": "C",
+              "value": 0.19471153846153846
+            },
+            {
+              "key": "CA",
+              "value": 0.007211538461538462
+            },
+            {
+              "key": "D",
+              "value": 0.052884615384615384
+            },
+            {
+              "key": "E",
+              "value": 0.09735576923076923
+            },
+            {
+              "key": "EC",
+              "value": 0.001201923076923077
+            },
+            {
+              "key": "F",
+              "value": 0.016826923076923076
+            },
+            {
+              "key": "FE",
+              "value": 0.01201923076923077
+            },
+            {
+              "key": "G",
+              "value": 0.016826923076923076
+            },
+            {
+              "key": "GA",
+              "value": 0.018028846153846152
+            },
+            {
+              "key": "GB",
+              "value": 0.001201923076923077
+            },
+            {
+              "key": "H",
+              "value": 0.04567307692307692
+            },
+            {
+              "key": "HA",
+              "value": 0.01201923076923077
+            },
+            {
+              "key": "HC",
+              "value": 0.002403846153846154
+            },
+            {
+              "key": "HD",
+              "value": 0.001201923076923077
+            },
+            {
+              "key": "IA",
+              "value": 0.001201923076923077
+            },
+            {
+              "key": "IB",
+              "value": 0.019230769230769232
+            },
+            {
+              "key": "IC",
+              "value": 0.006009615384615385
+            },
+            {
+              "key": "ID",
+              "value": 0.001201923076923077
+            },
+            {
+              "key": "K",
+              "value": 0.01201923076923077
+            },
+            {
+              "key": "KA",
+              "value": 0.013221153846153846
+            },
+            {
+              "key": "KB",
+              "value": 0.003605769230769231
+            },
+            {
+              "key": "KC",
+              "value": 0.001201923076923077
+            },
+            {
+              "key": "LA",
+              "value": 0.007211538461538462
+            },
+            {
+              "key": "LB",
+              "value": 0.006009615384615385
+            },
+            {
+              "key": "M",
+              "value": 0.019230769230769232
+            },
+            {
+              "key": "N",
+              "value": 0.01201923076923077
+            },
+            {
+              "key": "O",
+              "value": 0.008413461538461538
+            },
+            {
+              "key": "OB",
+              "value": 0.003605769230769231
+            },
+            {
+              "key": "P",
+              "value": 0.01201923076923077
+            },
+            {
+              "key": "PC",
+              "value": 0.013221153846153846
+            },
+            {
+              "key": "Q",
+              "value": 0.010817307692307692
+            },
+            {
+              "key": "R",
+              "value": 0.001201923076923077
+            },
+            {
+              "key": "RB",
+              "value": 0.019230769230769232
+            },
+            {
+              "key": "RC",
+              "value": 0.003605769230769231
+            },
+            {
+              "key": "RD",
+              "value": 0.007211538461538462
+            },
+            {
+              "key": "S",
+              "value": 0.006009615384615385
+            },
+            {
+              "key": "SB",
+              "value": 0.020432692307692308
+            },
+            {
+              "key": "T",
+              "value": 0.003605769230769231
+            },
+            {
+              "key": "TA",
+              "value": 0.03245192307692308
+            },
+            {
+              "key": "TB",
+              "value": 0.001201923076923077
+            },
+            {
+              "key": "U",
+              "value": 0.016826923076923076
+            },
+            {
+              "key": "UA",
+              "value": 0.008413461538461538
+            },
+            {
+              "key": "UC",
+              "value": 0.006009615384615385
+            },
+            {
+              "key": "VA",
+              "value": 0.006009615384615385
+            },
+            {
+              "key": "W",
+              "value": 0.03245192307692308
+            },
+            {
+              "key": "WB",
+              "value": 0.001201923076923077
+            },
+            {
+              "key": "Y",
+              "value": 0.01201923076923077
+            },
+            {
+              "key": "YC",
+              "value": 0.014423076923076924
+            },
+            {
+              "key": "ZA",
+              "value": 0.036057692307692304
+            },
+            {
+              "key": "ZB",
+              "value": 0.001201923076923077
+            }
+          ]
+        },
+        {
+          "name": "CRP",
+          "type": "continuous",
+          "values": {
+            "distribution_name": "expon",
+            "distribution_params": [
+              {
+                "value": 106.41346153846153
+              },
+              {
+                "value": 0.0
+              },
+              {
+                "value": 507.0
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "event_id": "node19",
+      "attributes": [
+        {
+          "name": "Diagnose",
+          "type": "discrete",
+          "values": [
+            {
+              "key": "",
+              "value": 0.005924170616113744
+            },
+            {
+              "key": "A",
+              "value": 0.01066350710900474
+            },
+            {
+              "key": "AA",
+              "value": 0.008293838862559242
+            },
+            {
+              "key": "AB",
+              "value": 0.001184834123222749
+            },
+            {
+              "key": "AC",
+              "value": 0.001184834123222749
+            },
+            {
+              "key": "AD",
+              "value": 0.014218009478672985
+            },
+            {
+              "key": "B",
+              "value": 0.0947867298578199
+            },
+            {
+              "key": "BB",
+              "value": 0.01066350710900474
+            },
+            {
+              "key": "C",
+              "value": 0.22156398104265404
+            },
+            {
+              "key": "CA",
+              "value": 0.0071090047393364926
+            },
+            {
+              "key": "D",
+              "value": 0.04976303317535545
+            },
+            {
+              "key": "E",
+              "value": 0.08886255924170616
+            },
+            {
+              "key": "EA",
+              "value": 0.002369668246445498
+            },
+            {
+              "key": "F",
+              "value": 0.018957345971563982
+            },
+            {
+              "key": "FE",
+              "value": 0.01066350710900474
+            },
+            {
+              "key": "G",
+              "value": 0.018957345971563982
+            },
+            {
+              "key": "GA",
+              "value": 0.02014218009478673
+            },
+            {
+              "key": "GB",
+              "value": 0.005924170616113744
+            },
+            {
+              "key": "H",
+              "value": 0.04265402843601896
+            },
+            {
+              "key": "HA",
+              "value": 0.014218009478672985
+            },
+            {
+              "key": "IB",
+              "value": 0.02132701421800948
+            },
+            {
+              "key": "IC",
+              "value": 0.002369668246445498
+            },
+            {
+              "key": "K",
+              "value": 0.014218009478672985
+            },
+            {
+              "key": "KA",
+              "value": 0.016587677725118485
+            },
+            {
+              "key": "KB",
+              "value": 0.008293838862559242
+            },
+            {
+              "key": "LA",
+              "value": 0.001184834123222749
+            },
+            {
+              "key": "LB",
+              "value": 0.002369668246445498
+            },
+            {
+              "key": "M",
+              "value": 0.018957345971563982
+            },
+            {
+              "key": "N",
+              "value": 0.005924170616113744
+            },
+            {
+              "key": "O",
+              "value": 0.005924170616113744
+            },
+            {
+              "key": "OB",
+              "value": 0.002369668246445498
+            },
+            {
+              "key": "P",
+              "value": 0.011848341232227487
+            },
+            {
+              "key": "PC",
+              "value": 0.014218009478672985
+            },
+            {
+              "key": "Q",
+              "value": 0.005924170616113744
+            },
+            {
+              "key": "R",
+              "value": 0.001184834123222749
+            },
+            {
+              "key": "RB",
+              "value": 0.01066350710900474
+            },
+            {
+              "key": "RC",
+              "value": 0.0071090047393364926
+            },
+            {
+              "key": "RD",
+              "value": 0.014218009478672985
+            },
+            {
+              "key": "S",
+              "value": 0.005924170616113744
+            },
+            {
+              "key": "SB",
+              "value": 0.016587677725118485
+            },
+            {
+              "key": "T",
+              "value": 0.001184834123222749
+            },
+            {
+              "key": "TA",
+              "value": 0.014218009478672985
+            },
+            {
+              "key": "TB",
+              "value": 0.002369668246445498
+            },
+            {
+              "key": "U",
+              "value": 0.022511848341232227
+            },
+            {
+              "key": "UA",
+              "value": 0.005924170616113744
+            },
+            {
+              "key": "UC",
+              "value": 0.0071090047393364926
+            },
+            {
+              "key": "VA",
+              "value": 0.004739336492890996
+            },
+            {
+              "key": "VB",
+              "value": 0.001184834123222749
+            },
+            {
+              "key": "W",
+              "value": 0.027251184834123223
+            },
+            {
+              "key": "WA",
+              "value": 0.001184834123222749
+            },
+            {
+              "key": "XD",
+              "value": 0.001184834123222749
+            },
+            {
+              "key": "Y",
+              "value": 0.014218009478672985
+            },
+            {
+              "key": "YC",
+              "value": 0.013033175355450236
+            },
+            {
+              "key": "ZA",
+              "value": 0.04265402843601896
+            },
+            {
+              "key": "ZB",
+              "value": 0.005924170616113744
+            }
+          ]
+        },
+        {
+          "name": "Leucocytes",
+          "type": "continuous",
+          "values": {
+            "distribution_name": "lognorm",
+            "distribution_params": [
+              {
+                "value": 12.223389021479715
+              },
+              {
+                "value": 60.07374889639499
+              },
+              {
+                "value": 0.0
+              },
+              {
+                "value": 84.0
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "event_id": "node36",
+      "attributes": [
+        {
+          "name": "Diagnose",
+          "type": "discrete",
+          "values": [
+            {
+              "key": "A",
+              "value": 0.00390625
+            },
+            {
+              "key": "AA",
+              "value": 0.015625
+            },
+            {
+              "key": "AC",
+              "value": 0.00390625
+            },
+            {
+              "key": "AD",
+              "value": 0.0078125
+            },
+            {
+              "key": "B",
+              "value": 0.0859375
+            },
+            {
+              "key": "BB",
+              "value": 0.015625
+            },
+            {
+              "key": "C",
+              "value": 0.18359375
+            },
+            {
+              "key": "CA",
+              "value": 0.01171875
+            },
+            {
+              "key": "D",
+              "value": 0.07421875
+            },
+            {
+              "key": "E",
+              "value": 0.0859375
+            },
+            {
+              "key": "ED",
+              "value": 0.00390625
+            },
+            {
+              "key": "EE",
+              "value": 0.00390625
+            },
+            {
+              "key": "F",
+              "value": 0.01953125
+            },
+            {
+              "key": "FE",
+              "value": 0.00390625
+            },
+            {
+              "key": "G",
+              "value": 0.046875
+            },
+            {
+              "key": "GA",
+              "value": 0.015625
+            },
+            {
+              "key": "GB",
+              "value": 0.00390625
+            },
+            {
+              "key": "H",
+              "value": 0.03125
+            },
+            {
+              "key": "HA",
+              "value": 0.0078125
+            },
+            {
+              "key": "HB",
+              "value": 0.00390625
+            },
+            {
+              "key": "HC",
+              "value": 0.00390625
+            },
+            {
+              "key": "IA",
+              "value": 0.00390625
+            },
+            {
+              "key": "IB",
+              "value": 0.01171875
+            },
+            {
+              "key": "IC",
+              "value": 0.0078125
+            },
+            {
+              "key": "J",
+              "value": 0.00390625
+            },
+            {
+              "key": "JB",
+              "value": 0.00390625
+            },
+            {
+              "key": "JC",
+              "value": 0.00390625
+            },
+            {
+              "key": "K",
+              "value": 0.015625
+            },
+            {
+              "key": "KA",
+              "value": 0.0078125
+            },
+            {
+              "key": "KB",
+              "value": 0.00390625
+            },
+            {
+              "key": "KC",
+              "value": 0.01171875
+            },
+            {
+              "key": "KD",
+              "value": 0.00390625
+            },
+            {
+              "key": "LA",
+              "value": 0.0078125
+            },
+            {
+              "key": "LE",
+              "value": 0.00390625
+            },
+            {
+              "key": "M",
+              "value": 0.01171875
+            },
+            {
+              "key": "MC",
+              "value": 0.00390625
+            },
+            {
+              "key": "MD",
+              "value": 0.00390625
+            },
+            {
+              "key": "N",
+              "value": 0.0078125
+            },
+            {
+              "key": "NB",
+              "value": 0.00390625
+            },
+            {
+              "key": "ND",
+              "value": 0.00390625
+            },
+            {
+              "key": "O",
+              "value": 0.00390625
+            },
+            {
+              "key": "OB",
+              "value": 0.01171875
+            },
+            {
+              "key": "P",
+              "value": 0.00390625
+            },
+            {
+              "key": "PC",
+              "value": 0.00390625
+            },
+            {
+              "key": "Q",
+              "value": 0.01171875
+            },
+            {
+              "key": "R",
+              "value": 0.01953125
+            },
+            {
+              "key": "RB",
+              "value": 0.0078125
+            },
+            {
+              "key": "RC",
+              "value": 0.00390625
+            },
+            {
+              "key": "RD",
+              "value": 0.01171875
+            },
+            {
+              "key": "S",
+              "value": 0.01171875
+            },
+            {
+              "key": "SB",
+              "value": 0.01171875
+            },
+            {
+              "key": "SD",
+              "value": 0.00390625
+            },
+            {
+              "key": "T",
+              "value": 0.00390625
+            },
+            {
+              "key": "TA",
+              "value": 0.0078125
+            },
+            {
+              "key": "TB",
+              "value": 0.00390625
+            },
+            {
+              "key": "U",
+              "value": 0.00390625
+            },
+            {
+              "key": "UA",
+              "value": 0.0078125
+            },
+            {
+              "key": "UB",
+              "value": 0.00390625
+            },
+            {
+              "key": "UC",
+              "value": 0.0078125
+            },
+            {
+              "key": "VA",
+              "value": 0.0078125
+            },
+            {
+              "key": "VB",
+              "value": 0.00390625
+            },
+            {
+              "key": "W",
+              "value": 0.0234375
+            },
+            {
+              "key": "WA",
+              "value": 0.0078125
+            },
+            {
+              "key": "X",
+              "value": 0.00390625
+            },
+            {
+              "key": "XC",
+              "value": 0.00390625
+            },
+            {
+              "key": "Y",
+              "value": 0.01171875
+            },
+            {
+              "key": "YA",
+              "value": 0.00390625
+            },
+            {
+              "key": "YC",
+              "value": 0.01171875
+            },
+            {
+              "key": "Z",
+              "value": 0.00390625
+            },
+            {
+              "key": "ZA",
+              "value": 0.01171875
+            },
+            {
+              "key": "ZD",
+              "value": 0.00390625
+            }
+          ]
+        },
+        {
+          "name": "DiagnosticArtAstrup",
+          "type": "discrete",
+          "values": [
+            {
+              "key": "False",
+              "value": 0.73046875
+            },
+            {
+              "key": "True",
+              "value": 0.26953125
+            }
+          ]
+        },
+        {
+          "name": "DiagnosticBlood",
+          "type": "discrete",
+          "values": [
+            {
+              "key": "False",
+              "value": 0.21484375
+            },
+            {
+              "key": "True",
+              "value": 0.78515625
+            }
+          ]
+        },
+        {
+          "name": "DiagnosticECG",
+          "type": "discrete",
+          "values": [
+            {
+              "key": "False",
+              "value": 0.2578125
+            },
+            {
+              "key": "True",
+              "value": 0.7421875
+            }
+          ]
+        },
+        {
+          "name": "DiagnosticIC",
+          "type": "discrete",
+          "values": [
+            {
+              "key": "False",
+              "value": 0.1796875
+            },
+            {
+              "key": "True",
+              "value": 0.8203125
+            }
+          ]
+        },
+        {
+          "name": "DiagnosticLacticAcid",
+          "type": "discrete",
+          "values": [
+            {
+              "key": "False",
+              "value": 0.22265625
+            },
+            {
+              "key": "True",
+              "value": 0.77734375
+            }
+          ]
+        },
+        {
+          "name": "DiagnosticLiquor",
+          "type": "discrete",
+          "values": {
+            "": {
+              "False": 0.99609375,
+              "True": 0.00390625
+            }
+          }
+        },
+        {
+          "name": "DiagnosticOther",
+          "type": "discrete",
+          "values": [
+            {
+              "key": "False",
+              "value": 0.9921875
+            },
+            {
+              "key": "True",
+              "value": 0.0078125
+            }
+          ]
+        },
+        {
+          "name": "DiagnosticSputum",
+          "type": "discrete",
+          "values": {
+            "": {
+              "False": 0.96875,
+              "True": 0.03125
+            }
+          }
+        },
+        {
+          "name": "DiagnosticUrinaryCulture",
+          "type": "discrete",
+          "values": [
+            {
+              "key": "False",
+              "value": 0.53515625
+            },
+            {
+              "key": "True",
+              "value": 0.46484375
+            }
+          ]
+        },
+        {
+          "name": "DiagnosticUrinarySediment",
+          "type": "discrete",
+          "values": [
+            {
+              "key": "False",
+              "value": 0.5
+            },
+            {
+              "key": "True",
+              "value": 0.5
+            }
+          ]
+        },
+        {
+          "name": "DiagnosticXthorax",
+          "type": "discrete",
+          "values": [
+            {
+              "key": "False",
+              "value": 0.2421875
+            },
+            {
+              "key": "True",
+              "value": 0.7578125
+            }
+          ]
+        },
+        {
+          "name": "DisfuncOrg",
+          "type": "discrete",
+          "values": [
+            {
+              "key": "False",
+              "value": 0.953125
+            },
+            {
+              "key": "True",
+              "value": 0.046875
+            }
+          ]
+        },
+        {
+          "name": "Hypotensie",
+          "type": "discrete",
+          "values": [
+            {
+              "key": "False",
+              "value": 0.9609375
+            },
+            {
+              "key": "True",
+              "value": 0.0390625
+            }
+          ]
+        },
+        {
+          "name": "Hypoxie",
+          "type": "discrete",
+          "values": [
+            {
+              "key": "False",
+              "value": 0.98828125
+            },
+            {
+              "key": "True",
+              "value": 0.01171875
+            }
+          ]
+        },
+        {
+          "name": "InfectionSuspected",
+          "type": "discrete",
+          "values": [
+            {
+              "key": "False",
+              "value": 0.19140625
+            },
+            {
+              "key": "True",
+              "value": 0.80859375
+            }
+          ]
+        },
+        {
+          "name": "Infusion",
+          "type": "discrete",
+          "values": [
+            {
+              "key": "False",
+              "value": 0.22265625
+            },
+            {
+              "key": "True",
+              "value": 0.77734375
+            }
+          ]
+        },
+        {
+          "name": "Oligurie",
+          "type": "discrete",
+          "values": [
+            {
+              "key": "False",
+              "value": 0.97265625
+            },
+            {
+              "key": "True",
+              "value": 0.02734375
+            }
+          ]
+        },
+        {
+          "name": "SIRSCritHeartRate",
+          "type": "discrete",
+          "values": {
+            "": {
+              "False": 0.22265625,
+              "True": 0.77734375
+            }
+          }
+        },
+        {
+          "name": "SIRSCritLeucos",
+          "type": "discrete",
+          "values": [
+            {
+              "key": "False",
+              "value": 0.96484375
+            },
+            {
+              "key": "True",
+              "value": 0.03515625
+            }
+          ]
+        },
+        {
+          "name": "SIRSCritTachypnea",
+          "type": "discrete",
+          "values": [
+            {
+              "key": "False",
+              "value": 0.4609375
+            },
+            {
+              "key": "True",
+              "value": 0.5390625
+            }
+          ]
+        },
+        {
+          "name": "SIRSCritTemperature",
+          "type": "discrete",
+          "values": [
+            {
+              "key": "False",
+              "value": 0.2421875
+            },
+            {
+              "key": "True",
+              "value": 0.7578125
+            }
+          ]
+        },
+        {
+          "name": "SIRSCriteria2OrMore",
+          "type": "discrete",
+          "values": [
+            {
+              "key": "False",
+              "value": 0.1796875
+            },
+            {
+              "key": "True",
+              "value": 0.8203125
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "event_id": "node3",
+      "attributes": [
+        {
+          "name": "LacticAcid",
+          "type": "dtree",
+          "values": [
+            [
+              ["LacticAcid <= 3.100000023841858"],
+              "LacticAcid * -0.3292674422264099 + 2.015783452596821"
+            ],
+            [
+              ["LacticAcid > 3.100000023841858"],
+              "LacticAcid * -0.15000559389591217 + 4.27661806344986"
+            ]
+          ]
+        }
+      ]
+    }
+  ],
+  "branch_rules": [
+    {
+      "id": "edge7",
+      "rules": [
+        [
+          {
+            "attribute": "Leucocytes",
+            "comparison": "<=",
+            "value": "5.549999952316284"
+          },
+          {
+            "attribute": "CRP",
+            "comparison": "<=",
+            "value": "10.5"
+          }
+        ],
+        [
+          {
+            "attribute": "Leucocytes",
+            "comparison": ">",
+            "value": "5.549999952316284"
+          },
+          {
+            "attribute": "Leucocytes",
+            "comparison": "<=",
+            "value": "6.75"
+          },
+          {
+            "attribute": "CRP",
+            "comparison": "<=",
+            "value": "10.5"
+          },
+          {
+            "attribute": "Age",
+            "comparison": "<=",
+            "value": "62.5"
+          }
+        ],
+        [
+          {
+            "attribute": "Leucocytes",
+            "comparison": ">",
+            "value": "5.549999952316284"
+          },
+          {
+            "attribute": "Leucocytes",
+            "comparison": "<=",
+            "value": "6.75"
+          },
+          {
+            "attribute": "CRP",
+            "comparison": "<=",
+            "value": "10.5"
+          },
+          {
+            "attribute": "Age",
+            "comparison": ">",
+            "value": "62.5"
+          }
+        ],
+        [
+          {
+            "attribute": "Leucocytes",
+            "comparison": ">",
+            "value": "6.75"
+          },
+          {
+            "attribute": "Leucocytes",
+            "comparison": "<=",
+            "value": "23.050000190734863"
+          },
+          {
+            "attribute": "CRP",
+            "comparison": "<=",
+            "value": "10.5"
+          },
+          {
+            "attribute": "Age",
+            "comparison": "<=",
+            "value": "72.5"
+          }
+        ],
+        [
+          {
+            "attribute": "Leucocytes",
+            "comparison": ">",
+            "value": "6.75"
+          },
+          {
+            "attribute": "Leucocytes",
+            "comparison": "<=",
+            "value": "23.050000190734863"
+          },
+          {
+            "attribute": "CRP",
+            "comparison": "<=",
+            "value": "10.5"
+          },
+          {
+            "attribute": "Age",
+            "comparison": ">",
+            "value": "72.5"
+          }
+        ],
+        [
+          {
+            "attribute": "Leucocytes",
+            "comparison": "<=",
+            "value": "23.050000190734863"
+          },
+          {
+            "attribute": "CRP",
+            "comparison": ">",
+            "value": "10.5"
+          },
+          {
+            "attribute": "CRP",
+            "comparison": "<=",
+            "value": "14.5"
+          },
+          {
+            "attribute": "DiagnosticArtAstrup",
+            "comparison": "=",
+            "value": "False"
+          }
+        ],
+        [
+          {
+            "attribute": "Leucocytes",
+            "comparison": "<=",
+            "value": "23.050000190734863"
+          },
+          {
+            "attribute": "CRP",
+            "comparison": ">",
+            "value": "14.5"
+          },
+          {
+            "attribute": "DiagnosticArtAstrup",
+            "comparison": "=",
+            "value": "False"
+          }
+        ],
+        [
+          {
+            "attribute": "Leucocytes",
+            "comparison": "<=",
+            "value": "23.050000190734863"
+          },
+          {
+            "attribute": "CRP",
+            "comparison": ">",
+            "value": "10.5"
+          },
+          {
+            "attribute": "DiagnosticArtAstrup",
+            "comparison": "=",
+            "value": "True"
+          }
+        ],
+        [
+          {
+            "attribute": "Leucocytes",
+            "comparison": "<=",
+            "value": "23.050000190734863"
+          },
+          {
+            "attribute": "CRP",
+            "comparison": ">",
+            "value": "10.5"
+          },
+          {
+            "attribute": "DiagnosticArtAstrup",
+            "comparison": "=",
+            "value": "nan"
+          }
+        ],
+        [
+          {
+            "attribute": "Leucocytes",
+            "comparison": ">",
+            "value": "23.050000190734863"
+          },
+          {
+            "attribute": "Leucocytes",
+            "comparison": "<=",
+            "value": "nan"
+          }
+        ],
+        [
+          {
+            "attribute": "Leucocytes",
+            "comparison": ">",
+            "value": "23.050000190734863"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "edge71",
+      "rules": [
+        [
+          {
+            "attribute": "CRP",
+            "comparison": "<=",
+            "value": "30.5"
+          },
+          {
+            "attribute": "Leucocytes",
+            "comparison": "<=",
+            "value": "0.10000000149011612"
+          },
+          {
+            "attribute": "SIRSCritTemperature",
+            "comparison": "=",
+            "value": "False"
+          }
+        ],
+        [
+          {
+            "attribute": "CRP",
+            "comparison": "<=",
+            "value": "30.5"
+          },
+          {
+            "attribute": "Leucocytes",
+            "comparison": ">",
+            "value": "0.10000000149011612"
+          },
+          {
+            "attribute": "SIRSCritTemperature",
+            "comparison": "=",
+            "value": "False"
+          }
+        ],
+        [
+          {
+            "attribute": "CRP",
+            "comparison": ">",
+            "value": "30.5"
+          },
+          {
+            "attribute": "CRP",
+            "comparison": "<=",
+            "value": "137.5"
+          },
+          {
+            "attribute": "SIRSCritTemperature",
+            "comparison": "=",
+            "value": "False"
+          }
+        ],
+        [
+          {
+            "attribute": "CRP",
+            "comparison": ">",
+            "value": "137.5"
+          },
+          {
+            "attribute": "SIRSCritTemperature",
+            "comparison": "=",
+            "value": "False"
+          }
+        ],
+        [
+          {
+            "attribute": "CRP",
+            "comparison": "<=",
+            "value": "4.5"
+          },
+          {
+            "attribute": "SIRSCritTemperature",
+            "comparison": "=",
+            "value": "True"
+          }
+        ],
+        [
+          {
+            "attribute": "CRP",
+            "comparison": "<=",
+            "value": "4.5"
+          },
+          {
+            "attribute": "SIRSCritTemperature",
+            "comparison": "=",
+            "value": "nan"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "edge41",
+      "rules": [
+        [
+          {
+            "attribute": "CRP",
+            "comparison": ">",
+            "value": "4.5"
+          },
+          {
+            "attribute": "SIRSCritTemperature",
+            "comparison": "=",
+            "value": "True"
+          }
+        ],
+        [
+          {
+            "attribute": "CRP",
+            "comparison": ">",
+            "value": "4.5"
+          },
+          {
+            "attribute": "SIRSCritTemperature",
+            "comparison": "=",
+            "value": "nan"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "edge47",
+      "rules": [
+        [
+          {
+            "attribute": "Leucocytes",
+            "comparison": "<=",
+            "value": "21.949999809265137"
+          }
+        ],
+        [
+          {
+            "attribute": "Leucocytes",
+            "comparison": ">",
+            "value": "21.949999809265137"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "edge68",
+      "rules": [
+        [
+          {
+            "attribute": "Age",
+            "comparison": "!=",
+            "value": "WARNING_THIS_FLOW_ALWAYS_HAS_BEEN_EXECUTED"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "edge74",
+      "rules": [
+        [
+          {
+            "attribute": "Age",
+            "comparison": "!=",
+            "value": "WARNING_THIS_FLOW_ALWAYS_HAS_BEEN_EXECUTED"
+          }
+        ]
+      ]
+    },
+    {
+      "id": "edge96",
+      "rules": [
+        [
+          {
+            "attribute": "Age",
+            "comparison": "!=",
+            "value": "WARNING_THIS_FLOW_ALWAYS_HAS_BEEN_EXECUTED"
+          }
+        ]
+      ]
+    }
+  ]
+}
