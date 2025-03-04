@@ -38,12 +38,22 @@ def safe_list_index(l: list[T], item: T) -> Optional[int]:
 
 def hash_int(s: object) -> int:
     """Create int hash based on the string representation of the object."""
-    return xxhash.xxh32(str(s)).intdigest()
+    return xxhash.xxh3_64_intdigest(str(s))
 
 
 def hash_string(s: object) -> str:
     """Create string hash based on the string representation of the object."""
-    return xxhash.xxh32(str(s)).hexdigest()
+    return xxhash.xxh3_64_hexdigest(str(s)).zfill(16)
+
+
+def hex_id(id: int) -> str:
+    """Convert an item id to a hex id."""
+    # If the item id is negative, then it "overflowed" to a signed int,
+    # so we need to convert it to an unsigned int.
+    # (rTree used C types in the backend, so int don't "just" scale)
+    if id < 0:
+        id &= 0xFFFFFFFFFFFFFFFF
+    return f"{id:x}".zfill(16)
 
 
 @functools.lru_cache(maxsize=100)
