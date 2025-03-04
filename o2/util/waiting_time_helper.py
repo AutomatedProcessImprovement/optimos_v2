@@ -16,6 +16,7 @@ BatchInfoKey = tuple[str, str, datetime]
 class BatchInfo(TypedDict):
     """Batch information."""
 
+    batch_id: str
     activity: str
     resource: str
     case: int
@@ -75,7 +76,7 @@ def get_batches_from_event_log(
 
     Additionally the activity, resource and start / end time are kept for each batch.
     """
-    batches: list[list[TaskEvent]] = []
+    batches: list[tuple[str, list[TaskEvent]]] = []
 
     events: list[TaskEvent] = [
         event for trace in log.trace_list for event in trace.event_list
@@ -87,17 +88,16 @@ def get_batches_from_event_log(
         if event.resource_id is not None and event.batch_id is not None:
             batches_dict[event.batch_id].append(event)
         else:
-            # TODO: Be a bit smarter here and don't add unbatched events to the batches
             batches_dict[
-                f"{event.p_case}_{event.task_id}_{event.resource_id}_{event.started_datetime}"
+                f"{event.task_id}_{event.resource_id}_{event.started_datetime}"
             ].append(event)
 
     # Convert to list of batches
-    batches = list(batches_dict.values())
+    batches = list(batches_dict.items())
 
     result: dict[BatchInfoKey, BatchInfo] = {}
 
-    for batch in batches:
+    for batch_id, batch in batches:
         case = batch[0].p_case
         activity = batch[0].task_id
         resource = batch[0].resource_id
@@ -139,6 +139,7 @@ def get_batches_from_event_log(
         fixed_cost = fixed_cost_fns.get(activity, lambda _: 0)(len(batch))
 
         result[(activity, resource, execution_start)] = {
+            "batch_id": batch_id,
             "case": case,
             "activity": activity,
             "resource": resource,
