@@ -18,6 +18,8 @@ from o2.store import SolutionTry, Store
 from o2.util.indented_printer import print_l1, print_l2
 from o2.util.logger import debug
 
+DISTANCE_MULTIPLIER = 4
+
 
 class SimulatedAnnealingAgent(Agent):
     """Selects the best action to take next, based on the current state of the store."""
@@ -36,15 +38,37 @@ class SimulatedAnnealingAgent(Agent):
         self.temperature = store.settings.sa_initial_temperature
         if self.temperature == "auto":
             # Guestimate a good starting temperature, by basically allowing all
-            # points in a 10x circle around the base evaluation.
+            # points in a 4x circle around the base evaluation.
             self.temperature = (
                 math.sqrt(
                     store.base_evaluation.pareto_x**2
                     + store.base_evaluation.pareto_y**2
                 )
-                * 10
+                * DISTANCE_MULTIPLIER
             )
             print_l1(f"Auto-estimated initial temperature: {self.temperature:_}")
+        if self.store.settings.sa_cooling_factor == "auto":
+            number_of_iterations_to_cool = (
+                self.store.settings.sa_cooling_iteration_percent
+                * self.store.settings.max_iterations
+            )
+            if self.store.settings.error_radius_in_percent is None:
+                raise ValueError(
+                    "Settings.error_radius_in_percent is not set, so we can't auto calculate the cooling factor."
+                )
+            temperature_to_reach = (
+                self.store.settings.error_radius_in_percent
+                * math.sqrt(
+                    store.base_evaluation.pareto_x**2
+                    + store.base_evaluation.pareto_y**2
+                )
+            )
+            self.store.settings.sa_cooling_factor = (
+                temperature_to_reach / self.temperature
+            ) ** (1 / number_of_iterations_to_cool)
+            print_l1(
+                f"Auto-estimated cooling factor: {self.store.settings.sa_cooling_factor}"
+            )
 
     def select_actions(self, store: Store) -> Optional[list[BaseAction]]:
         """Select the best actions to take next.

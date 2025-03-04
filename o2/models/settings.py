@@ -105,9 +105,12 @@ class Settings:
     """Should the parallel evaluation be disabled? This is useful for debugging."""
 
     max_distance_to_new_base_solution = float("inf")
-    """The maximum distance to the new base solution to be considered for evaluation.
+    """The max distance to the new base solution to be considered for TABU evaluation.
     With distance being the min euclidean distance to any solution in
     the current Pareto Front.
+
+    NOTE: This is an absolute number. You most likely want to use
+    error_radius_in_percent instead, to limit the distance to the new base solution.
     """
 
     never_select_new_base_solution = False
@@ -117,8 +120,28 @@ class Settings:
     base solution.E.g. in the PPO Training.
     """
 
-    sa_cooling_factor = 0.999
-    """The cooling factor for the simulated annealing agent."""
+    error_radius_in_percent: Optional[float] = 0.05
+    """This is the "error" for the hill climbing agent to still consider a solution.
+
+    Also this will be used to calculate the sa_cooling_factor if this is set to "auto".
+    """
+
+    sa_cooling_factor: Union[float, Literal["auto"]] = "auto"
+    """The cooling factor for the simulated annealing agent.
+
+    It's a float between 0 and 1 that will be multiplied with the temperature
+    every iteration. If this is set to "auto", the cooling factor will be
+    calculated so that after sa_cooling_iteration_percent the
+    temperature will be error_radius_in_percent
+    """
+
+    sa_cooling_iteration_percent = 0.80
+    """Percentage of iterations after which the SA should basically be hill climbing.
+
+    This is only relveant if sa_cooling_factor is set to "auto".
+    NOTE: Reaching this threshold will not stop the cooling process. 
+    It's only used to calculate the cooling factor.
+    """
 
     sa_initial_temperature: Union[float, Literal["auto"]] = "auto"
     """The initial temperature for the simulated annealing agent."""
