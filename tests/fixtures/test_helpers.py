@@ -2,6 +2,7 @@ from dataclasses import replace
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Optional
 
+from prosimos.execution_info import TaskEvent, Trace
 from prosimos.simulation_stats_calculator import (
     KPIInfo,
     KPIMap,
@@ -70,6 +71,8 @@ def create_mock_solution(
 
     task_kpi = KPIMap()
     task_kpi.idle_time.total = total_cycle_time
+    task_kpi.processing_time.total = total_cycle_time
+    task_kpi.processing_time.count = 1
 
     resource_kpi = ResourceKPI(
         r_profile="_",
@@ -79,9 +82,30 @@ def create_mock_solution(
         utilization=0,
     )
 
+    event = TaskEvent(
+        p_case=0,
+        task_id=random_string(),
+        resource_id=random_string(),
+        enabled_at=0,
+    )
+    event.idle_processing_time = total_cycle_time
+    event.enabled_datetime = datetime(2000, 1, 1)
+    event.started_datetime = event.enabled_datetime + timedelta(  # type: ignore
+        seconds=total_cycle_time
+    )  # type: ignore
+    event.completed_datetime = event.started_datetime + timedelta(  # type: ignore
+        seconds=total_cycle_time
+    )  # type: ignore
+    trace = Trace(
+        p_case=0,
+        started_at=datetime(2000, 1, 1),
+    )
+    trace.event_list = [event]
+
     log_info = LogInfo(None)  # type: ignore
     log_info.started_at = datetime(2000, 1, 1)
     log_info.ended_at = datetime(2000, 1, 1) + timedelta(seconds=total_cycle_time)
+    log_info.trace_list = [trace]
 
     evaluation = Evaluation.from_run_simulation_result(
         {"_": total_cost},

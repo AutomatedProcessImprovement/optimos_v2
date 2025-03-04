@@ -51,7 +51,7 @@ def test_evaluation_calculation_without_batching(one_task_state: State):
     assert evaluation.avg_waiting_time_by_case == 0
 
     assert evaluation.avg_idle_wt_per_task_instance == 0
-    assert evaluation.avg_processing_time_per_task_instance == 30 * 60
+    assert evaluation.avg_batch_processing_time_per_task_instance == 30 * 60
 
     # The first cases of each day don't have any waiting time (3 cases)
     # So we have 23 cases with 15min waiting time
@@ -244,7 +244,7 @@ def test_evaluation_with_intra_task_idling_task_stats(one_task_state: State):
     assert evaluation.total_cycle_time == (2 * 4 + 22 * 4) * 60 * 60
 
     assert evaluation.avg_idle_wt_per_task_instance == ((138 + 22 * 4) * 60 * 60) / 4
-    assert evaluation.avg_processing_time_per_task_instance == 2 * 60 * 60
+    assert evaluation.avg_batch_processing_time_per_task_instance == 2 * 60 * 60
 
 
 def test_evaluation_with_waiting_times(one_task_state: State):
@@ -289,7 +289,7 @@ def test_evaluation_with_waiting_times(one_task_state: State):
     assert evaluation.total_cycle_time == 8 * 60 * 60
     assert evaluation.total_duration == 8 * 60 * 60
     assert evaluation.total_processing_time == 8 * 60 * 60
-    assert evaluation.avg_processing_time_per_task_instance == 1 * 60 * 60
+    assert evaluation.avg_batch_processing_time_per_task_instance == 1 * 60 * 60
     assert evaluation.total_task_idle_time == 0
 
     assert (
@@ -366,7 +366,11 @@ def test_evaluation_with_wt_and_idle_batching(one_task_state: State):
         == (((3 * 24 + 2 * 24 + 1 * 24) * 2) / 8) * 60 * 60
     )
 
-    assert evaluation.avg_processing_time_per_task_instance == 2 * 60 * 60
+    # We got two batches with 2 hours each, divided by 8 task_instances
+    assert (
+        evaluation.avg_batch_processing_time_per_task_instance
+        == ((2 * 2) / 8) * 60 * 60
+    )
 
     # Due to batching the processing time is increased, but still less than 4 * 1h
     assert (

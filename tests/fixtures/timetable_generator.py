@@ -11,7 +11,6 @@ from o2.models.timetable import (
     BatchingRule,
     Distribution,
     DistributionParameter,
-    EventDistribution,
     FiringRule,
     GatewayBranchingProbability,
     Probability,
@@ -61,7 +60,6 @@ class TimetableGenerator:
             arrival_time_calendar=[],
             task_resource_distribution=[],
             resource_calendars=[],
-            event_distribution=EventDistribution(),
             total_cases=100,
             start_time="2000-01-01T00:00:00Z",
         )
