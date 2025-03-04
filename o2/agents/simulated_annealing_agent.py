@@ -102,7 +102,11 @@ class SimulatedAnnealingAgent(Agent):
 
             if len(possible_actions) == 0:
                 print_l1("No actions remaining, after removing Tabu & N/A actions.")
-                new_solution = self._select_new_base_evaluation()
+                new_solution = self._select_new_base_evaluation(
+                    # We exhausted all possible actions, so we don't need to
+                    # reinsert the current solution
+                    reinsert_current_solution=False
+                )
                 success = new_solution is not None
                 if not success:
                     print_l2("No new baseline evaluation found. Stopping.")
@@ -135,6 +139,7 @@ class SimulatedAnnealingAgent(Agent):
         print_l2("Selecting new base evaluation...")
         print_l2(f"Old temperature: {self.temperature:_}")
         assert isinstance(self.temperature, float)
+        assert isinstance(self.store.settings.sa_cooling_factor, float)
         self.temperature *= self.store.settings.sa_cooling_factor
         print_l2(f"New temperature: {self.temperature:_}")
         if proposed_solution_try is not None:
@@ -148,10 +153,22 @@ class SimulatedAnnealingAgent(Agent):
                     debug("Randomly accepted discarded solution.")
                     return solution
 
-        return self._select_new_base_evaluation()
+        return self._select_new_base_evaluation(
+            # If the proposed solution try is None, we were called from
+            # maximum non improving iterations so we don't need to reinsert
+            # the current solution (which is very unlikely, as the solution
+            # will be changed after every iteration, but might happen at the end
+            # of the optimization)
+            reinsert_current_solution=proposed_solution_try is not None
+        )
 
-    def _select_new_base_evaluation(self) -> Solution:
+    def _select_new_base_evaluation(
+        self, reinsert_current_solution: bool = False
+    ) -> Solution:
         """Select a new base evaluation."""
+        if reinsert_current_solution:
+            self.store.solution_tree.add_solution(self.store.solution, archive=True)
+
         assert isinstance(self.temperature, float)
         solution = self.store.solution_tree.get_random_solution_near_to_pareto_front(
             self.store.current_pareto_front,
@@ -162,6 +179,7 @@ class SimulatedAnnealingAgent(Agent):
 
         distance = self.store.current_pareto_front.avg_distance_to(solution)
         print_l2(f"Selected new random base solution with distance: {distance:_}")
+
         self.store.solution_tree.remove_solution(solution)
         return solution
 
