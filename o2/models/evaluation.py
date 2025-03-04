@@ -122,8 +122,12 @@ class Evaluation:
     avg_idle_wt_per_task_instance: float
     """Get the average idle waiting time per task instance."""
 
-    avg_processing_time_per_task_instance: float
-    """Get the average processing time per task instance."""
+    avg_batch_processing_time_per_task_instance: float
+    """Get the average batch processing time per task instance.
+    
+    Pseudo-Code:
+    sum(batch.processing_time for batch in batches) / sum(batch.size for batch in batches)
+    """
 
     resource_started_weekdays: dict[str, dict[DAY, dict[int, int]]]
     """Get the weekdays & hours on which a resource started any task."""
@@ -249,7 +253,7 @@ class Evaluation:
         elif Settings.COST_TYPE == CostType.WAITING_TIME_AND_PROCESSING_TIME:
             return self.total_processing_time
         elif Settings.COST_TYPE == CostType.AVG_WT_AND_PT_PER_TASK_INSTANCE:
-            return self.avg_processing_time_per_task_instance
+            return self.avg_batch_processing_time_per_task_instance
         raise ValueError(f"Unknown cost type: {Settings.COST_TYPE}")
 
     @property
@@ -724,7 +728,7 @@ class Evaluation:
             resource_started_weekdays={},
             tasks_by_number_of_duplicate_enablement_dates={},
             avg_idle_wt_per_task_instance=0,
-            avg_processing_time_per_task_instance=0,
+            avg_batch_processing_time_per_task_instance=0,
         )
 
     @staticmethod
@@ -757,22 +761,26 @@ class Evaluation:
         batch_pd = pd.DataFrame(
             (
                 {
+                    "batch_id": batch["batch_id"],
                     "activity": batch["activity"],
                     "case": batch["case"],
                     "resource": batch["resource"],
                     "batch_size": batch["size"],
                     "batch_waiting_time_seconds": batch["wt_batching"],
                     "fixed_cost": batch["fixed_cost"],
+                    "processing_time": batch["ideal_proc"],
                 }
                 for batch in batches.values()
             ),
             columns=[
+                "batch_id",
                 "activity",
                 "case",
                 "resource",
                 "batch_size",
                 "batch_waiting_time_seconds",
                 "fixed_cost",
+                "processing_time",
             ],
         )
 
@@ -816,22 +824,26 @@ class Evaluation:
 
         total_duration = total_idle_time + total_processing_time
 
-        avg_processing_time_per_task_instance = sum(
-            kpi.processing_time.total
-            for kpi in task_kpis.values()
-            if kpi.processing_time.total is not None
-        ) / sum(
-            kpi.processing_time.count
-            for kpi in task_kpis.values()
-            if kpi.processing_time.count is not None
-        )
+        # Caculate the average processing time per task_instance
+        # This means that we take sum of processing times per unique batch and divide by the number of task_instances
+        # Which in this case can be achivied by taking the sum of batch sizes
+        task_instance_count = batch_pd.groupby("batch_id")["batch_size"].first().sum()
+        if task_instance_count > 0:
+            avg_batch_processing_time_per_task_instance = (
+                batch_pd.groupby("batch_id")["processing_time"].first().sum()
+                / task_instance_count
+            )
+            avg_idle_wt_per_task_instance = (
+                sum(
+                    kpi.idle_time.total + kpi.waiting_time.total
+                    for kpi in task_kpis.values()
+                )
+                / task_instance_count
+            )
 
-        avg_idle_wt_per_task_instance = sum(
-            kpi.idle_time.total + kpi.waiting_time.total for kpi in task_kpis.values()
-        ) / sum(
-            max(kpi.idle_time.count, kpi.waiting_time.count)
-            for kpi in task_kpis.values()
-        )
+        else:
+            avg_batch_processing_time_per_task_instance = 0
+            avg_idle_wt_per_task_instance = 0
 
         sum_of_durations = sum(
             [
@@ -858,7 +870,7 @@ class Evaluation:
             avg_cycle_time_by_case=global_kpis.cycle_time.avg,
             avg_waiting_time_by_case=global_kpis.waiting_time.avg,
             avg_idle_wt_per_task_instance=avg_idle_wt_per_task_instance,
-            avg_processing_time_per_task_instance=avg_processing_time_per_task_instance,
+            avg_batch_processing_time_per_task_instance=avg_batch_processing_time_per_task_instance,
             total_processing_time=total_processing_time,
             sum_of_durations=sum_of_durations,
             sum_of_cycle_times=sum_of_cycle_times,
