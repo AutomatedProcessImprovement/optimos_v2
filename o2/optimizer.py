@@ -106,7 +106,7 @@ class Optimizer:
 
                 actions_to_perform = self.agent.select_actions(self.store)
                 if actions_to_perform is None or len(actions_to_perform) == 0:
-                    print_l1("Iteration finished, no actions to perform.")
+                    print_l1("Optimization finished, no actions to perform.")
                     break
                 print_l1(f"Running {len(actions_to_perform)} actions...")
                 start_time = time.time()

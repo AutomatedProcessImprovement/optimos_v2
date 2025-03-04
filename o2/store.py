@@ -90,15 +90,6 @@ class Store:
         """Return the current state of the solution."""
         return self.solution.state
 
-    def _add_solution(
-        self, solution: Solution, mark_as_invalid: bool, archive: bool = True
-    ) -> None:
-        """Add an action and state to the store."""
-        if mark_as_invalid:
-            self.solution_tree.add_solution_as_discarded(solution)
-        else:
-            self.solution_tree.add_solution(solution, archive=archive)
-
     def mark_action_as_tabu(self, action: "BaseAction") -> None:
         """Mark an action as tabu."""
         solution = Solution(
@@ -128,19 +119,19 @@ class Store:
         new_baseline_chosen = False
         for solution in solutions:
             status = self.current_pareto_front.is_in_front(solution)
-            if not solution.is_valid:
-                status = FRONT_STATUS.INVALID
 
-            self._add_solution(
-                solution,
-                not solution.is_valid,
+            if solution.is_valid:
                 # We directly archive the solutions that are not in the front
                 # because we most likely will not need them again.
-                archive=(
+                should_archive = (
                     status != FRONT_STATUS.IN_FRONT
                     and status != FRONT_STATUS.IS_DOMINATED
-                ),
-            )
+                )
+                self.solution_tree.add_solution(solution, archive=should_archive)
+            else:
+                # If the solution is invalid, override the status to invalid
+                status = FRONT_STATUS.INVALID
+                self.solution_tree.add_solution_as_discarded(solution)
 
             if status == FRONT_STATUS.IN_FRONT:
                 chosen_tries.append((status, solution))
