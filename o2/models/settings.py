@@ -124,6 +124,9 @@ class Settings:
     """This is the "error" for the hill climbing agent to still consider a solution.
 
     Also this will be used to calculate the sa_cooling_factor if this is set to "auto".
+
+    When set the Tabu-Search will behave similar to what is commonly called hill climbing.
+    (Even though a Tabu-List is still maintained)
     """
 
     sa_cooling_factor: Union[float, Literal["auto"]] = "auto"

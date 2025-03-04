@@ -1,4 +1,5 @@
 import concurrent.futures
+import math
 import traceback
 from typing import Optional
 
@@ -64,7 +65,11 @@ class TabuAgent(Agent):
 
             if len(possible_actions) == 0:
                 print_l1("No actions remaining, after removing Tabu & N/A actions.")
-                new_solution = self._select_new_base_evaluation()
+                new_solution = self._select_new_base_evaluation(
+                    # We exhausted all possible actions, so we don't need to
+                    # reinsert the current solution
+                    reinsert_current_solution=False
+                )
                 success = new_solution is not None
                 if not success:
                     print_l2("No new baseline evaluation found. Stopping.")
@@ -98,7 +103,10 @@ class TabuAgent(Agent):
         E.g from the SolutionTree
         """
         solution = self._select_new_base_evaluation(
-            reinsert_current_solution=True,
+            # If the proposed solution try is None, we were called from
+            # maximum non improving iterations so we don't need to reinsert
+            # the current solution
+            reinsert_current_solution=proposed_solution_try is not None,
         )
         if (
             proposed_solution_try is not None
@@ -106,6 +114,17 @@ class TabuAgent(Agent):
         ):
             print_l3("The proposed solution is the same as the current solution.")
         return solution
+
+    def _get_max_distance(self) -> float:
+        if self.store.settings.max_distance_to_new_base_solution != float("inf"):
+            return self.store.settings.max_distance_to_new_base_solution
+        elif self.store.settings.error_radius_in_percent is not None:
+            return self.store.settings.error_radius_in_percent * math.sqrt(
+                self.store.base_evaluation.pareto_x**2
+                + self.store.base_evaluation.pareto_y**2
+            )
+        else:
+            return float("inf")
 
     def _select_new_base_evaluation(
         self, reinsert_current_solution: bool = False
@@ -120,10 +139,12 @@ class TabuAgent(Agent):
             f"Selecting new base evaluation {'(reinserting)' if reinsert_current_solution else ''}..."
         )
         if reinsert_current_solution:
-            self.store.solution_tree.add_solution(self.store.solution)
+            self.store.solution_tree.add_solution(self.store.solution, archive=False)
+
+        max_distance = self._get_max_distance()
+
         new_solution = self.store.solution_tree.pop_nearest_solution(
-            self.store.current_pareto_front,
-            max_distance=self.store.settings.max_distance_to_new_base_solution,
+            self.store.current_pareto_front, max_distance=max_distance
         )
 
         if new_solution is None:
