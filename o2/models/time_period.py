@@ -27,7 +27,7 @@ class TimePeriod(BaseModel):
     end_time: str = Field(...)
     """The end time of the time period (24h format, e.g. 17:00)"""
 
-    probability: Optional[float] = None
+    probability: Optional[float] = Field(default=None)
     """The probability of the time period."""
 
     class Config:  # noqa: D106
@@ -183,6 +183,7 @@ class TimePeriod(BaseModel):
                 to=day,
                 begin_time=self.begin_time,
                 end_time=self.end_time,
+                probability=self.probability,
             )
             for day in day_range(self.from_, self.to)
         ]

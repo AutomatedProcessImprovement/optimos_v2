@@ -586,11 +586,6 @@ class ResourceCalendar(JSONWizard, CustomLoader, CustomDumper):
 
 
 @dataclass(frozen=True)
-class EventDistribution(JSONWizard):
-    pass
-
-
-@dataclass(frozen=True)
 class Distribution(JSONWizard):
     key: Union[str, int]
     value: float
@@ -1155,13 +1150,17 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
     gateway_branching_probabilities: list[GatewayBranchingProbability]
     task_resource_distribution: list[TaskResourceDistributions]
     resource_calendars: list[ResourceCalendar]
-    event_distribution: EventDistribution
     batch_processing: list[BatchingRule] = field(default_factory=list)
     start_time: str = "2000-01-01T00:00:00Z"
     total_cases: int = 1000
     multitask: Optional[Multitask] = None
     model_type: Optional[Literal["FUZZY", "CRISP"]] = None
     granule_size: Optional[GranuleSize] = None
+    event_distribution: Optional[list[dict]] = None
+    global_attributes: Optional[list[dict]] = None
+    case_attributes: Optional[list[dict]] = None
+    event_attributes: Optional[list[dict]] = None
+    branch_rules: Optional[list[dict]] = None
 
     class _(JSONWizard.Meta):
         key_transform_with_dump = "SNAKE"
@@ -1522,9 +1521,12 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
                 firing_rules=[new_firing_rule],
                 duration_fn=duration_fn,
             )
+            return replace(
+                self, batch_processing=self.batch_processing + [batching_rule]
+            )
         else:
             batching_rule = old_batching_rule.add_firing_rule(new_firing_rule)
-        return self.replace_batching_rule(rule_selector, batching_rule)
+            return self.replace_batching_rule(rule_selector, batching_rule)
 
     def replace_resource_calendar(
         self, new_calendar: ResourceCalendar

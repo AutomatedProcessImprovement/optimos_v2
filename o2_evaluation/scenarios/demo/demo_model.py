@@ -10,7 +10,6 @@ from o2.models.timetable import (
     RULE_TYPE,
     ArrivalTimeDistribution,
     DistributionParameter,
-    EventDistribution,
     GatewayBranchingProbability,
     Probability,
     Resource,
@@ -169,7 +168,6 @@ def create_timetable():
                 ],
             )
         ],
-        event_distribution=EventDistribution(),
         total_cases=1000,
         start_time="2000-01-01T00:00:00Z",
     )
