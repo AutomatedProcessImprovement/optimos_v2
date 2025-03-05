@@ -183,14 +183,17 @@ class Agent(ABC):
     ) -> list[tuple[RATING, BaseAction]]:
         """Get settings.number_of_actions_to_select valid actions from the generators.
 
+        If an action has already been selected for this iteration, it will skip it.
         If the action is tabu, it will skip it and try the next one.
         If the action is not applicable, it will not try more
+
 
         It will take into account the `settings.only_allow_low_last` setting,
         to first select non RATING.LOW actions first.
         """
-        actions = []
-        low_actions = []
+        actions: list[tuple[RATING, BaseAction]] = []
+        low_actions: list[tuple[RATING, BaseAction]] = []
+        ignored_action_ids: set[str] = set()
         generators_queue = action_generators.copy()
         counter: dict[RateSelfReturnType[BaseAction], int] = defaultdict(int)
 
@@ -202,15 +205,21 @@ class Agent(ABC):
             for rating, action in action_generator:
                 if rating == RATING.NOT_APPLICABLE or action is None:
                     break
+                if action.id in ignored_action_ids:
+                    continue
                 if store.is_tabu(action):
+                    ignored_action_ids.add(action.id)
                     continue
                 if not action.check_if_valid(store, mark_no_change_as_invalid=True):
+                    ignored_action_ids.add(action.id)
                     continue
                 if store.settings.only_allow_low_last and rating <= RATING.LOW:
                     low_actions.append((rating, action))
+                    ignored_action_ids.add(action.id)
                     counter[action_generator] += 1
                 else:
                     actions.append((rating, action))
+                    ignored_action_ids.add(action.id)
                     counter[action_generator] += 1
                 if len(actions) >= store.settings.max_number_of_actions_to_select:
                     return actions
