@@ -247,5 +247,5 @@ class Solution:
         return Solution(
             evaluation=Evaluation.empty(),
             state=parent.state,
-            actions=parent.actions + [last_action] if last_action else parent.actions,
+            actions=(parent.actions + [last_action]) if last_action else parent.actions,
         )

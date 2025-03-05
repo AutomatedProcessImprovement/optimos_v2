@@ -4,9 +4,9 @@ from typing import TYPE_CHECKING, Optional, Union
 
 from o2.models.evaluation import Evaluation
 from o2.models.rule_selector import RuleSelector
-from o2.models.solution import Solution
 
 if TYPE_CHECKING:
+    from o2.models.solution import Solution
     from o2.store import Store
 
 
@@ -23,9 +23,9 @@ class RATING(float, Enum):
 class SelfRatingInput:
     """A class that holds the input for the self-rating of a rule."""
 
-    parent_solution: Solution
+    parent_solution: "Solution"
     """The previous solution, before the rule was applied."""
-    rule_solutions: dict[RuleSelector, Solution]
+    rule_solutions: dict[RuleSelector, "Solution"]
     most_impactful_rule: Optional[RuleSelector]
 
     @property
@@ -98,7 +98,7 @@ class SelfRatingInput:
 
     @staticmethod
     def from_rule_solutions(
-        store: "Store", solutions: dict[RuleSelector, Solution]
+        store: "Store", solutions: dict[RuleSelector, "Solution"]
     ) -> Union["SelfRatingInput", None]:
         """Create a SelfRatingInput object from a list of evaluations."""
         if len(solutions) == 0:
@@ -123,7 +123,7 @@ class SelfRatingInput:
         )
 
     @staticmethod
-    def from_base_solution(base_solution: Solution) -> "SelfRatingInput":
+    def from_base_solution(base_solution: "Solution") -> "SelfRatingInput":
         """Create a SelfRatingInput object from a base evaluation.
 
         Please only use this if you are know what you are doing, or in tests!
