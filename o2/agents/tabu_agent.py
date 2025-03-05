@@ -48,7 +48,7 @@ class TabuAgent(Agent):
             if rating_input is None:
                 rating_input = SelfRatingInput.from_base_solution(store.solution)
 
-            print_l1("Choosing best action...")
+            print_l1(f"Choosing best action (based on {store.solution.id})...")
 
             # Get a list rating generators for all actions
             action_generators: list[RateSelfReturnType[BaseAction]] = [

@@ -129,7 +129,7 @@ class Optimizer:
                     print_l1("No action improved the evaluation")
                     self.max_non_improving_iter -= len(actions_to_perform)
                     for _, solution in not_chosen_tries:
-                        print_str = repr(solution.last_action)
+                        print_str = f"{solution.id}: {repr(solution.last_action)}"
                         if not solution.is_valid:
                             print_str = f"[INVALID] {print_str}"
                         print_l2(print_str)
@@ -139,13 +139,13 @@ class Optimizer:
                     if len(not_chosen_tries) > 0:
                         print_l1("Actions NOT chosen:")
                     for _, solution in not_chosen_tries:
-                        print_l2(repr(solution.last_action))
+                        print_l2(f"{solution.id}: {repr(solution.last_action)}")
                         self.max_non_improving_iter -= 1
                         if yield_on_non_acceptance:
                             yield solution
                     print_l1("Actions chosen:")
                     for status, solution in chosen_tries:
-                        print_l2(repr(solution.last_action))
+                        print_l2(f"{solution.id}: {repr(solution.last_action)}")
                         if status == FRONT_STATUS.IN_FRONT:
                             print_l3("Pareto front CONTAINS new evaluation.")
                             print_l3(

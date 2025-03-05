@@ -131,7 +131,7 @@ class SolutionTree:
             self.remove_solution(nearest_solution)
             len_discarded_solutions = self.discarded_solutions
             print_l3(
-                f"Popped solution. {self.total_solutions - len_discarded_solutions} solutions left. ({len_discarded_solutions} exhausted so far)"  # noqa: E501
+                f"Popped solution ({nearest_solution.id}). {self.total_solutions - len_discarded_solutions} solutions left. ({len_discarded_solutions} exhausted so far)"  # noqa: E501
             )
             if nearest_solution not in pareto_front.solutions:
                 print_l3("Nearest solution is NOT in pareto front.")
