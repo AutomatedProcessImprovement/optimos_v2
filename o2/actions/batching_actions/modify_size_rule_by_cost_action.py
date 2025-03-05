@@ -71,7 +71,7 @@ class ModifySizeRuleByCostAction(ModifySizeRuleBaseAction):
                 AddSizeRuleAction(
                     AddSizeRuleBaseActionParamsType(
                         task_id=task_id,
-                        size=1,
+                        size=2,
                         duration_fn=store.constraints.get_duration_fn_for_task(task_id),
                     )
                 ),

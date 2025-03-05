@@ -74,7 +74,7 @@ class ModifySizeRuleByLowAllocationAction(ModifySizeRuleBaseAction):
                 AddSizeRuleAction(
                     AddSizeRuleBaseActionParamsType(
                         task_id=task_id,
-                        size=1,
+                        size=2,
                         duration_fn=store.constraints.get_duration_fn_for_task(task_id),
                     )
                 ),
@@ -132,7 +132,7 @@ class ModifySizeRuleByHighAllocationAction(ModifySizeRuleBaseAction):
                 AddSizeRuleAction(
                     AddSizeRuleBaseActionParamsType(
                         task_id=task_id,
-                        size=1,
+                        size=2,
                         duration_fn=duration_fn,
                     )
                 ),

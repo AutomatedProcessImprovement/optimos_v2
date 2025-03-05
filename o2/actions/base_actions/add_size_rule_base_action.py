@@ -52,12 +52,17 @@ class AddSizeRuleBaseAction(BaseAction, ABC, str=False):
         timetable = state.timetable
         batching_rules = timetable.get_batching_rules_for_task(task_id)
 
+        if new_size < 1:
+            raise ValueError(f"Size must be at least 1, got {new_size}")
+
+        # Make sure the size is at least 2, because 1 just means no batching
+        batching_size = max(new_size, 2)
+
         # Create fully fresh rule
         if len(batching_rules) == 0:
-            initial_batching_size = max(new_size, 2)
             new_batching_rule = BatchingRule.from_task_id(
                 task_id=task_id,
-                firing_rules=[FiringRule.gte(RULE_TYPE.SIZE, initial_batching_size)],
+                firing_rules=[FiringRule.gte(RULE_TYPE.SIZE, batching_size)],
                 duration_fn=duration_fn,
             )
             return state.replace_timetable(
@@ -71,24 +76,26 @@ class AddSizeRuleBaseAction(BaseAction, ABC, str=False):
                 existing_rule,
                 # Integrate in existing size distribution
                 size_distrib=[
-                    Distribution(key=str(new_size), value=1.0),
+                    Distribution(key=str(batching_size), value=1.0),
                 ]
                 + [
                     size_distrib
                     for size_distrib in existing_rule.size_distrib
-                    if size_distrib.key != str(new_size)
+                    if size_distrib.key != str(batching_size)
                 ],
                 duration_distrib=[
-                    Distribution(key=str(new_size), value=duration_lambda(new_size)),
+                    Distribution(
+                        key=str(batching_size), value=duration_lambda(batching_size)
+                    ),
                 ]
                 + [
                     duration_distrib
                     for duration_distrib in existing_rule.duration_distrib
-                    if duration_distrib.key != str(new_size)
+                    if duration_distrib.key != str(batching_size)
                 ],
                 firing_rules=existing_rule.firing_rules
                 + [
-                    [FiringRule.gte(RULE_TYPE.SIZE, new_size)],
+                    [FiringRule.gte(RULE_TYPE.SIZE, batching_size)],
                 ],
             )
             new_timetable = timetable.replace_batching_rule(
