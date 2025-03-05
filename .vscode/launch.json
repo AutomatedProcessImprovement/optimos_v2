@@ -227,6 +227,50 @@
         "--log-to-tensor-board",
         "--no-archive-tensorboard-logs"
       ]
+    },
+
+    {
+      "name": "Python: Run tabu_search_bpi_challenge_2012_hard.sh",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/o2_evaluation/data_collector.py",
+      "cwd": "${workspaceFolder}/",
+      "console": "integratedTerminal",
+      "justMyCode": false,
+      "args": [
+        "--name",
+        "bpi_challenge_2012_hard",
+        "--active-scenarios",
+        "BPI_Challenge_2012",
+        "--agents",
+        "Tabu Search",
+        "--number-of-cases",
+        "1000",
+        "--duration-fn",
+        "1 * size",
+        "--sa-cooling-factor",
+        "auto",
+        "--sa-initial-temperature",
+        "auto",
+        "--max-batch-size",
+        "50",
+        "--max-iterations",
+        "1001",
+        "--dump-interval",
+        "2500",
+        "--max-non-improving-actions",
+        "500",
+        "--max-threads",
+        "24",
+        "--max-number-of-actions-to-select",
+        "24",
+        "--log-level",
+        "DEBUG",
+        "--log-file",
+        "./logs/tabu_search_bpi_challenge_2012_hard.log",
+        "--log-to-tensor-board",
+        "--no-archive-tensorboard-logs"
+      ]
     }
   ]
 }
