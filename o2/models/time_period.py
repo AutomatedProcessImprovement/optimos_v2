@@ -225,13 +225,15 @@ class TimePeriod(BaseModel):
 
     @staticmethod
     def from_start_end(start: int, end: int, day: "DAY" = DAY.MONDAY) -> "TimePeriod":
-        if end == 24:
-            end = 0
+        """Create a time period from a start and end time."""
+        end_time = f"{end:02}:00:00"
+        if end > 23 or end == 0:
+            end_time = "23:59:59"
         return TimePeriod(
             from_=day,
             to=day,
             begin_time=f"{start:02}:00:00",
-            end_time=f"{end:02}:00:00",
+            end_time=end_time,
         )
 
     @staticmethod
