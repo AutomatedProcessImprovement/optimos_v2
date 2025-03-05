@@ -456,6 +456,8 @@ def print_metrics_in_google_sheet_format(metrics: list[Metrics]) -> None:
         result += f";SA;{sa_easy['avg_x']};{sa_mid['avg_x']};{sa_hard['avg_x']}\n"
         result += f";Tabu Search;{tabu_search_easy['avg_x']};{tabu_search_mid['avg_x']};{tabu_search_hard['avg_x']}\n"
         result += f";PPO;{ppo_easy['avg_x']};{ppo_mid['avg_x']};{ppo_hard['avg_x']}\n"
+        result += f";Tabu Random;{tabu_search_random_easy['avg_x']};{tabu_search_random_mid['avg_x']};{tabu_search_random_hard['avg_x']}\n"
+        result += f";SA Random;{simulated_annealing_random_easy['avg_x']};{simulated_annealing_random_mid['avg_x']};{simulated_annealing_random_hard['avg_x']}\n\n"
 
         result += f"Avg {Settings.get_pareto_y_label()}\n"
         result += f";Base;{reference_easy['base_y']};{reference_mid['base_y']};{reference_hard['base_y']}\n"
@@ -463,6 +465,8 @@ def print_metrics_in_google_sheet_format(metrics: list[Metrics]) -> None:
         result += f";SA;{sa_easy['avg_y']};{sa_mid['avg_y']};{sa_hard['avg_y']}\n"
         result += f";Tabu Search;{tabu_search_easy['avg_y']};{tabu_search_mid['avg_y']};{tabu_search_hard['avg_y']}\n"
         result += f";PPO;{ppo_easy['avg_y']};{ppo_mid['avg_y']};{ppo_hard['avg_y']}\n"
+        result += f";Tabu Random;{tabu_search_random_easy['avg_y']};{tabu_search_random_mid['avg_y']};{tabu_search_random_hard['avg_y']}\n"
+        result += f";SA Random;{simulated_annealing_random_easy['avg_y']};{simulated_annealing_random_mid['avg_y']};{simulated_annealing_random_hard['avg_y']}\n\n"
 
     print(result.replace(".", ","))
 
