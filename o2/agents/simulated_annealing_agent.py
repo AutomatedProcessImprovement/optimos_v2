@@ -85,7 +85,7 @@ class SimulatedAnnealingAgent(Agent):
             if rating_input is None:
                 rating_input = SelfRatingInput.from_base_solution(store.solution)
 
-            print_l1("Choosing best action...")
+            print_l1(f"Choosing best action (based on {store.solution.id})...")
 
             # Get a list rating generators for all actions
             action_generators: list[RateSelfReturnType[BaseAction]] = [
@@ -148,9 +148,9 @@ class SimulatedAnnealingAgent(Agent):
             if status == FRONT_STATUS.DOMINATES:
                 # TODO: Min Distance to front
                 distance = solution.distance_to(self.store.solution)
-                debug(f"Discarded solution distance: {distance}")
+                debug(f"Discarded solution {solution.id} distance: {distance}")
                 if accept_worse_solution(distance, self.temperature):
-                    debug("Randomly accepted discarded solution.")
+                    debug(f"Randomly accepted discarded solution {solution.id}.")
                     return solution
 
         return self._select_new_base_evaluation(
@@ -178,7 +178,9 @@ class SimulatedAnnealingAgent(Agent):
             raise NoNewBaseSolutionFoundError("No new baseline evaluation found.")
 
         distance = self.store.current_pareto_front.avg_distance_to(solution)
-        print_l2(f"Selected new random base solution with distance: {distance:_}")
+        print_l2(
+            f"Selected new random base solution {solution.id} with distance: {distance:_}"
+        )
 
         self.store.solution_tree.remove_solution(solution)
         return solution

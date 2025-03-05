@@ -1073,6 +1073,7 @@ class BatchingRule(JSONWizard):
             # OR rules should not be duplicated
             largest_smaller_than_time = None
             smallest_larger_than_time = None
+            # Duplicate rules are not allowed
             if self.firing_rules.count(and_rules) > 1:
                 return False
             if len(and_rules) == 0:
@@ -1116,7 +1117,12 @@ class BatchingRule(JSONWizard):
         size: Optional[int] = None,
         duration_fn: Optional[str] = None,
     ) -> "BatchingRule":
-        """Create a BatchingRule from a task id."""
+        """Create a BatchingRule from a task id.
+
+        NOTE: Setting `size` to a value will limit the new rule to only
+        this size. You can ommit it, to support batches up to 50.
+        TODO: Get limit from constraints
+        """
         duration_lambda = lambdify(
             Symbol("size"), duration_fn if duration_fn else "size"
         )

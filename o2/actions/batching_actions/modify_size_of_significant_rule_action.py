@@ -73,10 +73,9 @@ class ModifySizeOfSignificantRuleAction(BaseAction):
         # If no significant rule is found, add a new one
         if significant_rule is None:
             # TODO: We need to find the min size from the constraints
-            new_size = 1 + abs(change_size)
+            new_size = max(abs(change_size), 2)
             new_batching_rule = BatchingRule.from_task_id(
                 task_id=task_id,
-                size=new_size,
                 firing_rules=[FiringRule.gte(RULE_TYPE.SIZE, new_size)],
                 duration_fn=duration_fn,
             )

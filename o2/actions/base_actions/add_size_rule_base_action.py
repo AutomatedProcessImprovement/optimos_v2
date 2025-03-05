@@ -54,10 +54,10 @@ class AddSizeRuleBaseAction(BaseAction, ABC, str=False):
 
         # Create fully fresh rule
         if len(batching_rules) == 0:
+            initial_batching_size = max(new_size, 2)
             new_batching_rule = BatchingRule.from_task_id(
                 task_id=task_id,
-                size=new_size,
-                firing_rules=[FiringRule.gte(RULE_TYPE.SIZE, new_size)],
+                firing_rules=[FiringRule.gte(RULE_TYPE.SIZE, initial_batching_size)],
                 duration_fn=duration_fn,
             )
             return state.replace_timetable(
