@@ -276,7 +276,7 @@ class Settings:
         elif Settings.COST_TYPE == CostType.TOTAL_COST:
             return "Total Cost"
         elif Settings.COST_TYPE == CostType.AVG_WT_AND_PT_PER_TASK_INSTANCE:
-            return "Avg. Processing Time"
+            return "Batch Processing per Task"
         else:
             raise ValueError(f"Unknown cost type: {Settings.COST_TYPE}")
 
@@ -286,6 +286,6 @@ class Settings:
         if Settings.COST_TYPE == CostType.WAITING_TIME_AND_PROCESSING_TIME:
             return "Waiting Time"
         elif Settings.COST_TYPE == CostType.AVG_WT_AND_PT_PER_TASK_INSTANCE:
-            return "Avg. Waiting Time"
+            return "WT-Idle per Task"
         else:
             return "Total Duration"
