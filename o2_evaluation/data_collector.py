@@ -338,6 +338,10 @@ def collect_data_sequentially(base_store: Store, args) -> None:
         ppo_store.settings.disable_parallel_evaluation = True
         ppo_store.settings.max_threads = 1
         ppo_store.settings.max_number_of_actions_to_select = 1
+        # Disable distance based selection (so we always find a new base solution)
+        ppo_store.settings.max_distance_to_new_base_solution = float("inf")
+        ppo_store.settings.error_radius_in_percent = None
+
         solve_store(ppo_store, args.dump_interval)
         stores_to_run.append(("Proximal Policy Optimization", ppo_store))
 
