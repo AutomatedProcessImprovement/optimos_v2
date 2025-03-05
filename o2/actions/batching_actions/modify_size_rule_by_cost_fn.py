@@ -138,6 +138,10 @@ class ModifyBatchSizeIfNoCostImprovement(ModifySizeRuleBaseAction):
     """An Action to modify size batching rules based on the cost fn.
 
     If batch size decrement does not increase Costs (looking at the cost fn) => Decrease Batch Size
+
+    NOTE: We do NOT limit the number of results here, because this action is
+    also a fallback of sorts, so we make sure that every size rule is incremented
+    if sensible.
     """
 
     params: ModifySizeRuleByCostFnParamsType
@@ -180,7 +184,7 @@ class ModifyBatchSizeIfNoCostImprovement(ModifySizeRuleBaseAction):
             task_costs.keys(),
             key=lambda firing_rule_selector: task_costs[firing_rule_selector],
             reverse=True,
-        )[:LIMIT_OF_OPTIONS]
+        )
 
         for rule_selector in sorted_task_costs:
             size_constraint = constraints.get_batching_size_rule_constraints(
@@ -188,7 +192,7 @@ class ModifyBatchSizeIfNoCostImprovement(ModifySizeRuleBaseAction):
             )[0]
 
             yield (
-                RATING.MEDIUM,
+                RATING.LOW,
                 ModifyBatchSizeIfNoCostImprovement(
                     ModifySizeRuleByCostFnParamsType(
                         rule=rule_selector,

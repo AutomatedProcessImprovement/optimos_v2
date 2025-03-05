@@ -10,8 +10,6 @@ from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.timetable import RULE_TYPE
 from o2.store import Store
 
-LIMIT_OF_OPTIONS = 5
-
 
 class ModifySizeRuleByDurationFnParamsType(ModifySizeRuleBaseActionParamsType):
     """Parameter for ModifySizeRuleByCostFn."""
@@ -23,6 +21,10 @@ class ModifyBatchSizeIfNoDurationImprovement(ModifySizeRuleBaseAction):
     """An Action to modify size batching rules based on the cost fn.
 
     If batch size decrement does not increase Duration (looking at the duration fn) => Decrease Batch Size
+
+    NOTE: We do NOT limit the number of results here, because this action is
+    also a fallback of sorts, so we make sure that every size rule is incremented
+    if sensible.
     """
 
     params: ModifySizeRuleByDurationFnParamsType
@@ -56,16 +58,16 @@ class ModifyBatchSizeIfNoDurationImprovement(ModifySizeRuleBaseAction):
                     continue
                 size = firing_rule.value
 
-                new_cost = size_constraint.cost_fn_lambda(size - 1)
-                old_cost = size_constraint.cost_fn_lambda(size)
-                if new_cost <= old_cost:
-                    task_costs[firing_rule_selector] = old_cost - new_cost
+                new_duration = size_constraint.duration_fn_lambda(size - 1)
+                old_duration = size_constraint.duration_fn_lambda(size)
+                if new_duration <= old_duration:
+                    task_costs[firing_rule_selector] = old_duration - new_duration
 
         sorted_task_costs = sorted(
             task_costs.keys(),
             key=lambda firing_rule_selector: task_costs[firing_rule_selector],
             reverse=True,
-        )[:LIMIT_OF_OPTIONS]
+        )
 
         for rule_selector in sorted_task_costs:
             size_constraint = constraints.get_batching_size_rule_constraints(
@@ -73,11 +75,11 @@ class ModifyBatchSizeIfNoDurationImprovement(ModifySizeRuleBaseAction):
             )[0]
 
             yield (
-                RATING.MEDIUM,
+                RATING.LOW,
                 ModifyBatchSizeIfNoDurationImprovement(
                     ModifySizeRuleByDurationFnParamsType(
                         rule=rule_selector,
-                        size_increment=1,
+                        size_increment=-1,
                         duration_fn=size_constraint.duration_fn,
                     )
                 ),
@@ -89,6 +91,10 @@ class ModifySizeRuleByDurationFnCostImpact(ModifySizeRuleBaseAction):
 
     If batch size increment reduces Duration => Increase Batch Size
     - Sorted by the cost impact of that size increment.
+
+    NOTE: We do NOT limit the number of results here, because this action is
+    also a fallback of sorts, so we make sure that every size rule is incremented
+    if sensible.
     """
 
     params: ModifySizeRuleByDurationFnParamsType
@@ -134,7 +140,7 @@ class ModifySizeRuleByDurationFnCostImpact(ModifySizeRuleBaseAction):
             duration_impacts.keys(),
             key=lambda firing_rule_selector: duration_impacts[firing_rule_selector],
             reverse=True,
-        )[:LIMIT_OF_OPTIONS]
+        )
 
         for rule_selector in sorted_duration_impacts:
             size_constraint = constraints.get_batching_size_rule_constraints(
@@ -142,7 +148,7 @@ class ModifySizeRuleByDurationFnCostImpact(ModifySizeRuleBaseAction):
             )[0]
 
             yield (
-                ModifySizeRuleBaseAction.get_default_rating(),
+                RATING.LOW,
                 ModifySizeRuleByDurationFnCostImpact(
                     ModifySizeRuleByDurationFnParamsType(
                         rule=rule_selector,
