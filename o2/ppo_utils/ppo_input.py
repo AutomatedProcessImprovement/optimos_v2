@@ -14,6 +14,10 @@ from o2.actions.base_actions.shift_datetime_rule_base_action import (
     ShiftDateTimeRuleAction,
     ShiftDateTimeRuleBaseActionParamsType,
 )
+from o2.actions.batching_actions.modify_large_ready_wt_of_significant_rule_action import (
+    ModifyLargeReadyWtOfSignificantRuleAction,
+    ModifyLargeReadyWtOfSignificantRuleActionParamsType,
+)
 from o2.actions.batching_actions.modify_size_of_significant_rule_action import (
     ModifySizeOfSignificantRuleAction,
     ModifySizeOfSignificantRuleActionParamsType,
@@ -25,6 +29,7 @@ from o2.actions.batching_actions.remove_date_time_rule_action import (
 from o2.models.days import DAYS
 from o2.models.settings import Settings
 from o2.models.time_period import TimePeriod
+from o2.models.timetable import RULE_TYPE
 from o2.store import Store
 
 
@@ -315,17 +320,16 @@ class PPOInput:
 
         actions: list[Optional[BaseAction]] = []
 
-        # TODO: This is not complete
-        # - [ ] Add 1h to large waiting time rule (or create), per task
-        # - [ ] Remove 1h from large waiting time rule (or remove), per task
-        # - [ ] Add 1h to ready waiting time rule (or create), per task
-        # - [ ] Remove 1h from ready waiting time rule (or remove), per task
-        # - [x] Increase batch size (or create), per task
-        # - [x] Decrease batch size (or remove), per task
-        # - [x] Add Batching DateTime Rule, per day, per task,
-        # - [x] Shift Batching DateTime Rule forward, per day, per task
-        # - [x] Shift Batching DateTime Rule backward, per day, per task
-        # - [x] Remove Batching DateTime Rule, per day, per task
+        # Add 1h to large waiting time rule (or create), per task
+        # Remove 1h from large waiting time rule (or remove), per task
+        # Add 1h to ready waiting time rule (or create), per task
+        # Remove 1h from ready waiting time rule (or remove), per task
+        # Increase batch size (or create), per task
+        # Decrease batch size (or remove), per task
+        # Add Batching DateTime Rule, per day, per task,
+        # Shift Batching DateTime Rule forward, per day, per task
+        # Shift Batching DateTime Rule backward, per day, per task
+        # Remove Batching DateTime Rule, per day, per task
 
         for task_id in store.current_timetable.get_task_ids():
             constraints = store.constraints.get_batching_size_rule_constraints(task_id)
@@ -344,6 +348,46 @@ class PPOInput:
                     ModifySizeOfSignificantRuleActionParamsType(
                         task_id=task_id,
                         change_size=-1,
+                        duration_fn=duration_fn,
+                    )
+                )
+            )
+            actions.append(
+                ModifyLargeReadyWtOfSignificantRuleAction(
+                    ModifyLargeReadyWtOfSignificantRuleActionParamsType(
+                        task_id=task_id,
+                        type=RULE_TYPE.LARGE_WT,
+                        change_wt=1,
+                        duration_fn=duration_fn,
+                    )
+                )
+            )
+            actions.append(
+                ModifyLargeReadyWtOfSignificantRuleAction(
+                    ModifyLargeReadyWtOfSignificantRuleActionParamsType(
+                        task_id=task_id,
+                        type=RULE_TYPE.LARGE_WT,
+                        change_wt=-1,
+                        duration_fn=duration_fn,
+                    )
+                )
+            )
+            actions.append(
+                ModifyLargeReadyWtOfSignificantRuleAction(
+                    ModifyLargeReadyWtOfSignificantRuleActionParamsType(
+                        task_id=task_id,
+                        type=RULE_TYPE.READY_WT,
+                        change_wt=1,
+                        duration_fn=duration_fn,
+                    )
+                )
+            )
+            actions.append(
+                ModifyLargeReadyWtOfSignificantRuleAction(
+                    ModifyLargeReadyWtOfSignificantRuleActionParamsType(
+                        task_id=task_id,
+                        type=RULE_TYPE.READY_WT,
+                        change_wt=-1,
                         duration_fn=duration_fn,
                     )
                 )
