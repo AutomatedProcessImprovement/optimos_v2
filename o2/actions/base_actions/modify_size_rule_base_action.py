@@ -61,7 +61,8 @@ class ModifySizeRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
             return state
 
         new_size = int(firing_rule.value) + self.params["size_increment"]
-        if new_size <= 0:
+        # We don't allow size 1, as that basically means no batching
+        if new_size <= 1:
             return state
 
         new_firing_rule = replace(firing_rule, value=new_size)

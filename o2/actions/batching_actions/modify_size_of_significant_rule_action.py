@@ -57,7 +57,7 @@ class ModifySizeOfSignificantRuleAction(BaseAction):
                 if rule_is_size(firing_rule):
                     size = int(firing_rule.value)
                     new_size = size + change_size
-                    if new_size < 1:
+                    if new_size <= 1:
                         continue
                     if (
                         change_size > 0
