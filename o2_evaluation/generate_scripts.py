@@ -105,6 +105,7 @@ MODELS = [
     "Proximal Policy Optimization",
     "Tabu Search Random",
     "Simulated Annealing Random",
+    "Proximal Policy Optimization Random",
 ]
 
 MODES = [

@@ -345,6 +345,31 @@ def collect_data_sequentially(base_store: Store, args) -> None:
         solve_store(ppo_store, args.dump_interval)
         stores_to_run.append(("Proximal Policy Optimization", ppo_store))
 
+    if "Proximal Policy Optimization Random" in args.agents:
+        ppo_store = Store.from_state_and_constraints(
+            base_store.base_state,
+            base_store.constraints,
+            f"Proximal Policy Optimization Random {base_store.name}",
+        )
+        update_store_settings(
+            ppo_store,
+            AgentType.PROXIMAL_POLICY_OPTIMIZATION_RANDOM,
+            args.max_iterations,
+            args.max_non_improving_actions,
+            args.max_threads,
+            args.max_number_of_actions_to_select or args.max_threads,
+            args.log_to_tensor_board,
+        )
+        ppo_store.settings.disable_parallel_evaluation = True
+        ppo_store.settings.max_threads = 1
+        ppo_store.settings.max_number_of_actions_to_select = 1
+        # Disable distance based selection (so we always find a new base solution)
+        ppo_store.settings.max_distance_to_new_base_solution = float("inf")
+        ppo_store.settings.error_radius_in_percent = None
+
+        solve_store(ppo_store, args.dump_interval)
+        stores_to_run.append(("Proximal Policy Optimization Random", ppo_store))
+
     SolutionDumper.instance.close()
 
 
