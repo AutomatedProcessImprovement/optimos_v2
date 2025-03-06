@@ -132,7 +132,9 @@ class RandomAction(BaseAction):
                     size_increment=size_increment,
                     duration_fn=duration_fn,
                 )
-            elif action == RemoveRuleAction and not Settings.DISABLE_REMOVE_ACTION_RULE:
+            elif action == RemoveRuleAction:
+                if Settings.DISABLE_REMOVE_ACTION_RULE:
+                    continue
                 all_rule_selectors = [
                     rule_selector
                     for batching_rule in timetable.batch_processing
