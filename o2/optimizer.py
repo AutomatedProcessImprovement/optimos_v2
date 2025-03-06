@@ -43,6 +43,10 @@ class Optimizer:
             from o2.agents.ppo_agent import PPOAgent
 
             return PPOAgent(self.store)
+        elif self.store.settings.agent == AgentType.PROXIMAL_POLICY_OPTIMIZATION_RANDOM:
+            from o2.agents.ppo_agent_random import PPOAgentRandom
+
+            return PPOAgentRandom(self.store)
         elif self.store.settings.agent == AgentType.SIMULATED_ANNEALING:
             return SimulatedAnnealingAgent(self.store)
         elif self.store.settings.agent == AgentType.TABU_SEARCH_RANDOM:
