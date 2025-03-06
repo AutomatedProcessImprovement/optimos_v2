@@ -32,6 +32,7 @@ from o2.actions.batching_actions.remove_rule_action import (
 )
 from o2.models.days import DAYS
 from o2.models.self_rating import RATING, SelfRatingInput
+from o2.models.settings import Settings
 from o2.models.time_period import TimePeriod
 from o2.models.timetable import RULE_TYPE, rule_is_daily_hour
 from o2.store import Store
@@ -131,7 +132,7 @@ class RandomAction(BaseAction):
                     size_increment=size_increment,
                     duration_fn=duration_fn,
                 )
-            elif action == RemoveRuleAction:
+            elif action == RemoveRuleAction and not Settings.DISABLE_REMOVE_ACTION_RULE:
                 all_rule_selectors = [
                     rule_selector
                     for batching_rule in timetable.batch_processing

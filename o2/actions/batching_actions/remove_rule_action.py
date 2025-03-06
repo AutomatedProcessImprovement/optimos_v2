@@ -9,6 +9,7 @@ from o2.actions.base_actions.batching_rule_base_action import (
     BatchingRuleBaseActionParamsType,
 )
 from o2.models.self_rating import RATING, SelfRatingInput
+from o2.models.settings import Settings
 from o2.models.state import State
 from o2.store import Store
 from o2.util.logger import warn
@@ -57,6 +58,12 @@ class RemoveRuleAction(BatchingRuleBaseAction, str=False):
     @staticmethod
     def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
         """Create a set of parameters & rate this action."""
+        if Settings.DISABLE_REMOVE_ACTION_RULE:
+            return (
+                RATING.NOT_APPLICABLE,
+                None,
+            )
+
         selectors = [
             rule_selector
             for batching_rule in store.current_timetable.batch_processing

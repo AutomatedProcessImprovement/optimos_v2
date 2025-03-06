@@ -265,6 +265,17 @@ class Settings:
     optimization runs.
     """
 
+    DISABLE_REMOVE_ACTION_RULE: ClassVar[bool] = True
+    """Should the remove action rule be disabled?
+
+    Theoretically it doesn't make sense to remove an firing rule, as it was
+    added at some point, so the evaluation without that action should have been
+    done already.
+
+    But in practice it might make sense to disable this, as it might help the
+    optimizer to find a better solution.
+    """
+
     @staticmethod
     def get_pareto_x_label() -> str:
         """Get the label for the x-axis (cost) of the pareto front."""
