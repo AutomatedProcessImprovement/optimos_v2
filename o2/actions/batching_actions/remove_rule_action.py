@@ -59,7 +59,7 @@ class RemoveRuleAction(BatchingRuleBaseAction, str=False):
         """Create a set of parameters & rate this action."""
         selectors = [
             rule_selector
-            for batching_rule in store.base_state.timetable.batch_processing
+            for batching_rule in store.current_timetable.batch_processing
             for rule_selector in batching_rule.get_firing_rule_selectors()
         ]
 
