@@ -74,9 +74,9 @@ class RandomAction(BaseAction):
                 task_id = random.choice(timetable.get_task_ids())
                 random_day = random.choice(DAYS)
                 random_start_time = random.randint(0, 23)
-                random_end_time = random.randint(random_start_time + 1, 24)
+                end_time = random_start_time + 1
                 time_period = TimePeriod.from_start_end(
-                    random_start_time, random_end_time, random_day
+                    random_start_time, end_time, random_day
                 )
                 duration_fn = store.constraints.get_duration_fn_for_task(task_id)
 
