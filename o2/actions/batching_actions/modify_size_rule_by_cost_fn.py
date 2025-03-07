@@ -32,41 +32,40 @@ def rate_self_helper_by_metric_dict(
     constraints = store.constraints
     state = store.current_state
 
-    sorted_metric_task_ids = sorted(
-        task_id_metric_dict.keys(),
-        key=lambda task_id: task_id_metric_dict[task_id],
-        reverse=True,
-    )
-    for task_id in sorted_metric_task_ids:
-        firing_rule_selectors = timetable.get_firing_rule_selectors_for_task(
-            task_id, rule_type=RULE_TYPE.SIZE
-        )
-        if not firing_rule_selectors:
-            continue
+    sorted_metric_values = sorted(set(task_id_metric_dict.values()), reverse=True)
 
-        size_constraints = constraints.get_batching_size_rule_constraints(task_id)
-        if size_constraints is None:
-            continue
-        size_constraint = size_constraints[0]
-        for firing_rule_selector in select_variants(store, firing_rule_selectors):
-            firing_rule = firing_rule_selector.get_firing_rule_from_state(state)
-            if firing_rule is None:
+    for metric in sorted_metric_values:
+        task_ids = [task_id for task_id, value in task_id_metric_dict.items() if value == metric]
+        for task_id in select_variants(store, task_ids):
+            firing_rule_selectors = timetable.get_firing_rule_selectors_for_task(
+                task_id, rule_type=RULE_TYPE.SIZE
+            )
+            if not firing_rule_selectors:
                 continue
-            size = firing_rule.value
 
-            new_cost = size_constraint.cost_fn_lambda(size + 1)
-            old_cost = size_constraint.cost_fn_lambda(size)
-            if new_cost <= old_cost:
-                yield (
-                    ModifySizeRuleBaseAction.get_default_rating(),
-                    task_class(
-                        ModifySizeRuleByCostFnParamsType(
-                            rule=firing_rule_selector,
-                            size_increment=1,
-                            duration_fn=size_constraint.duration_fn,
-                        )
-                    ),
-                )
+            size_constraints = constraints.get_batching_size_rule_constraints(task_id)
+            if size_constraints is None:
+                continue
+            size_constraint = size_constraints[0]
+            for firing_rule_selector in select_variants(store, firing_rule_selectors, inner=True):
+                firing_rule = firing_rule_selector.get_firing_rule_from_state(state)
+                if firing_rule is None:
+                    continue
+                size = firing_rule.value
+
+                new_cost = size_constraint.cost_fn_lambda(size + 1)
+                old_cost = size_constraint.cost_fn_lambda(size)
+                if new_cost <= old_cost:
+                    yield (
+                        ModifySizeRuleBaseAction.get_default_rating(),
+                        task_class(
+                            ModifySizeRuleByCostFnParamsType(
+                                rule=firing_rule_selector,
+                                size_increment=1,
+                                duration_fn=size_constraint.duration_fn,
+                            )
+                        ),
+                    )
 
 
 class ModifySizeRuleByCostFnRepetitiveTasks(ModifySizeRuleBaseAction):
