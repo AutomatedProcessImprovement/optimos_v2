@@ -1194,6 +1194,19 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
             for rule_selector in batching_rule.get_firing_rule_selectors(rule_type)
         ]
 
+    def get_firing_rule_selectors_for_tasks(
+        self,
+        task_ids: list[str],
+        batch_type: Optional["BATCH_TYPE"] = None,
+        rule_type: Optional[RULE_TYPE] = None,
+    ) -> list["RuleSelector"]:
+        """Get all firing rule selectors for a list of tasks."""
+        return [
+            rule_selector
+            for batching_rule in self.get_batching_rules_for_tasks(task_ids, batch_type)
+            for rule_selector in batching_rule.get_firing_rule_selectors(rule_type)
+        ]
+
     def get_firing_rules_for_tasks(
         self,
         task_ids: list[str],
