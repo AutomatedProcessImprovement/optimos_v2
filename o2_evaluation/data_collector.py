@@ -117,10 +117,16 @@ def parse_args():
         help="Maximum number of threads (default: cpu_count)",
     )
     parser.add_argument(
-        "--max-number-of-actions-to-select",
+        "--max-number-of-actions-per-iteration",
         type=int,
         default=None,
-        help="Maximum number of actions to select (default: max-threads -- which is cpu_count by default)",
+        help="Maximum number of actions to select per iteration (default: max-threads -- which is cpu_count by default)",
+    )
+    parser.add_argument(
+        "--max-number-of-variations-per-action",
+        type=int,
+        default=float("inf"),
+        help="Maximum number of 'variations' per action (default: infinity). Can be used to make the search more local.",
     )
     parser.add_argument(
         "--log-to-tensor-board",
@@ -155,7 +161,7 @@ def update_store_settings(
     max_iterations: int,
     max_non_improving_actions: int,
     max_threads: int,
-    max_number_of_actions_to_select: int,
+    max_number_of_actions_per_iteration: int,
     log_to_tensor_board: bool,
 ) -> None:
     """Update the store settings for the given agent."""
@@ -165,7 +171,7 @@ def update_store_settings(
     store.settings.max_non_improving_actions = max_non_improving_actions
     store.settings.agent = agent
     store.settings.max_threads = max_threads
-    store.settings.max_number_of_actions_to_select = max_number_of_actions_to_select
+    store.settings.max_number_of_actions_per_iteration = max_number_of_actions_per_iteration
     store.settings.log_to_tensor_board = log_to_tensor_board
 
 
@@ -209,6 +215,11 @@ def collect_data_sequentially(base_store: Store, args) -> None:
     Settings.ARCHIVE_SOLUTIONS = True
     Settings.DELETE_LOADED_SOLUTION_ARCHIVES = False
     Settings.OVERWRITE_EXISTING_SOLUTION_ARCHIVES = False
+    Settings.MAX_YIELDS_PER_ACTION = (
+        args.max_number_of_variations_per_action
+        if args.max_number_of_variations_per_action != float("inf")
+        else None
+    )
 
     # Optionally archive previous TensorBoard logs
     if (
@@ -234,7 +245,7 @@ def collect_data_sequentially(base_store: Store, args) -> None:
             args.max_iterations,
             args.max_non_improving_actions,
             args.max_threads,
-            args.max_number_of_actions_to_select or args.max_threads,
+            args.max_number_of_actions_per_iteration or args.max_threads,
             args.log_to_tensor_board,
         )
         solve_store(tabu_store, args.dump_interval)
@@ -252,7 +263,7 @@ def collect_data_sequentially(base_store: Store, args) -> None:
             args.max_iterations,
             args.max_non_improving_actions,
             args.max_threads,
-            args.max_number_of_actions_to_select or args.max_threads,
+            args.max_number_of_actions_per_iteration or args.max_threads,
             args.log_to_tensor_board,
         )
         solve_store(tabu_store, args.dump_interval)
@@ -272,7 +283,7 @@ def collect_data_sequentially(base_store: Store, args) -> None:
             args.max_iterations,
             args.max_non_improving_actions,
             args.max_threads,
-            args.max_number_of_actions_to_select or args.max_threads,
+            args.max_number_of_actions_per_iteration or args.max_threads,
             args.log_to_tensor_board,
         )
         sa_store.settings.sa_initial_temperature = (
@@ -297,7 +308,7 @@ def collect_data_sequentially(base_store: Store, args) -> None:
             args.max_iterations,
             args.max_non_improving_actions,
             args.max_threads,
-            args.max_number_of_actions_to_select or args.max_threads,
+            args.max_number_of_actions_per_iteration or args.max_threads,
             args.log_to_tensor_board,
         )
         sa_store.settings.sa_initial_temperature = (
@@ -322,12 +333,12 @@ def collect_data_sequentially(base_store: Store, args) -> None:
             args.max_iterations,
             args.max_non_improving_actions,
             args.max_threads,
-            args.max_number_of_actions_to_select or args.max_threads,
+            args.max_number_of_actions_per_iteration or args.max_threads,
             args.log_to_tensor_board,
         )
         ppo_store.settings.disable_parallel_evaluation = True
         ppo_store.settings.max_threads = 1
-        ppo_store.settings.max_number_of_actions_to_select = 1
+        ppo_store.settings.max_number_of_actions_per_iteration = 1
         # Disable distance based selection (so we always find a new base solution)
         ppo_store.settings.max_distance_to_new_base_solution = float("inf")
         ppo_store.settings.error_radius_in_percent = None
@@ -347,12 +358,12 @@ def collect_data_sequentially(base_store: Store, args) -> None:
             args.max_iterations,
             args.max_non_improving_actions,
             args.max_threads,
-            args.max_number_of_actions_to_select or args.max_threads,
+            args.max_number_of_actions_per_iteration or args.max_threads,
             args.log_to_tensor_board,
         )
         ppo_store.settings.disable_parallel_evaluation = True
         ppo_store.settings.max_threads = 1
-        ppo_store.settings.max_number_of_actions_to_select = 1
+        ppo_store.settings.max_number_of_actions_per_iteration = 1
         # Disable distance based selection (so we always find a new base solution)
         ppo_store.settings.max_distance_to_new_base_solution = float("inf")
         ppo_store.settings.error_radius_in_percent = None

@@ -39,6 +39,35 @@ class CostType(Enum):
     waiting time (incl. idle time) and processing time per task instance"""
 
 
+class ActionVariationSelection(Enum):
+    """The method to use for selecting action variations."""
+
+    SINGLE_RANDOM = "single_random"
+    """Select a single random rule"""
+
+    FIRST_IN_ORDER = "first_in_order"
+    """Select the first rule in the list"""
+
+    FIRST_MAX_VARIANTS_PER_ACTION_IN_ORDER = "first_max_variants_per_action_in_order"
+    """Select the max_variants_per_action first rules in the list
+
+    E.g. if max_variants_per_action=3 you will get the first 3 rules.
+    NOTE: For inner loops this will only pick 1 rule, so that the constraints are not broken.
+    """
+
+    RANDOM_MAX_VARIANTS_PER_ACTION = "random_max_variants_per_action"
+    """Select a random rule, but only consider the best max_variants_per_action rules
+
+    NOTE: For inner loops this will only pick 1 rule, so that the constraints are not broken.
+    """
+
+    ALL_RANDOM = "all_random"
+    """Select all rules randomly"""
+
+    ALL_IN_ORDER = "all_in_order"
+    """Select all rules in order"""
+
+
 @dataclass()
 class Settings:
     """Settings for the Optimos v2 application.
@@ -99,7 +128,7 @@ class Settings:
     max_threads = os.cpu_count() or 1
     """The maximum number of threads to use for parallel evaluation."""
 
-    max_number_of_actions_to_select = os.cpu_count() or 1
+    max_number_of_actions_per_iteration = os.cpu_count() or 1
     """The maximum number of actions to select for for (parallel) evaluation."""
 
     disable_parallel_evaluation = False
@@ -175,12 +204,36 @@ class Settings:
     even if it's not valid. (The validity check is considered to be part of the metrics)
     """
 
+    action_variation_selection: ActionVariationSelection = ActionVariationSelection.ALL_IN_ORDER
+    """The method to use for selecting action variations.
+
+    Context:
+    Actions usually have a sorted component and then an options component.
+    E.g. the ModifySizeRuleByCostAction will first select the task with the highest cost,
+    and then get a list of all size rules for that task. Now the question is, how to select
+    the rule(s) which should be modified (the "variants"). This setting will set the method how to select
+    the variant(s). 
+
+    See the ActionVariationSelection and max_variants_per_action for more details.
+    """
+
+    max_variants_per_action: Optional[int] = None
+    """The maximum number of variants per action.
+
+    This can be used esp. in many-task/many-resource scenarios, where
+    the number of possible actions is very high. It limits the number of variants
+    per action. With a variant being a specific sub-setting of an action, e.g. a specific
+    size rule or a specific resource for a task.
+
+    NOTE: This number is _not_ per iteration, but per base_solution.
+    """
+
     MAX_YIELDS_PER_ACTION: ClassVar[Optional[int]] = None
     """The maximum number of yields per action.
 
-    This can be used esp. in many-task/many-resource scenarios, where
-    the number of possible actions is very high. In this case the optimizer will only consider
-    the best X actions.
+    This will be enforced even over multiple iterations (as long as the base_solution
+    is not changed). Usually it doesn't make sense to set this, as the number of solutions can be controlled
+    by the max_number_of_actions_per_iteration.
     """
 
     ADD_SIZE_RULE_TO_NEW_RULES: ClassVar[bool] = True
