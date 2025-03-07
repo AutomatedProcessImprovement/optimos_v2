@@ -12,6 +12,7 @@ from o2.actions.base_actions.modify_size_rule_base_action import (
 from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.timetable import RULE_TYPE
 from o2.store import Store
+from o2.util.helper import select_variants
 
 LIMIT_OF_OPTIONS = 5
 
@@ -46,31 +47,29 @@ class ModifySizeRuleByCostAction(ModifySizeRuleBaseAction):
         )[:LIMIT_OF_OPTIONS]
 
         for task_id, _ in sorted_tasks:
-            batching_rules = timetable.get_batching_rules_for_task(task_id)
-            for batching_rule in batching_rules:
-                selectors = batching_rule.get_firing_rule_selectors(type=RULE_TYPE.SIZE)
-                for selector in selectors:
-                    constraints = store.constraints.get_batching_size_rule_constraints(task_id)
-                    duration_fn = "1" if not constraints else constraints[0].duration_fn
-                    yield (
-                        ModifySizeRuleBaseAction.get_default_rating(),
-                        ModifySizeRuleByCostAction(
-                            ModifySizeRuleByCostActionParamsType(
-                                rule=selector,
-                                size_increment=1,
-                                duration_fn=duration_fn,
-                            )
-                        ),
-                    )
+            selectors = timetable.get_firing_rule_selectors_for_task(task_id, rule_type=RULE_TYPE.SIZE)
+            for selector in select_variants(store, selectors):
+                duration_fn = store.constraints.get_duration_fn_for_task(task_id)
+                yield (
+                    ModifySizeRuleBaseAction.get_default_rating(),
+                    ModifySizeRuleByCostAction(
+                        ModifySizeRuleByCostActionParamsType(
+                            rule=selector,
+                            size_increment=1,
+                            duration_fn=duration_fn,
+                        )
+                    ),
+                )
         # If nothing else helps, try to add a size rule
         for task_id, _ in sorted_tasks:
+            duration_fn = store.constraints.get_duration_fn_for_task(task_id)
             yield (
                 RATING.LOW,
                 AddSizeRuleAction(
                     AddSizeRuleBaseActionParamsType(
                         task_id=task_id,
                         size=2,
-                        duration_fn=store.constraints.get_duration_fn_for_task(task_id),
+                        duration_fn=duration_fn,
                     )
                 ),
             )

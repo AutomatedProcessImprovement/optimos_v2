@@ -8,8 +8,7 @@ from o2.actions.base_actions.modify_size_rule_base_action import (
 from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.timetable import RULE_TYPE
 from o2.store import Store
-
-LIMIT_OF_OPTIONS = 5
+from o2.util.helper import select_variants
 
 
 class ModifySizeRuleByWTActionParamsType(ModifySizeRuleBaseActionParamsType):
@@ -37,23 +36,20 @@ class ModifySizeRuleByWTAction(ModifySizeRuleBaseAction):
             avg_batching_waiting_time_per_task.items(),
             key=lambda x: x[1],
             reverse=True,
-        )[:LIMIT_OF_OPTIONS]
+        )
         for task_id, waiting_time in sorted_tasks:
-            if (waiting_time) <= 0:
+            if (waiting_time) < 1:
                 continue
-            batching_rules = timetable.get_batching_rules_for_task(task_id)
-            for batching_rule in batching_rules:
-                selectors = batching_rule.get_firing_rule_selectors(type=RULE_TYPE.SIZE)
-                for selector in selectors:
-                    constraints = store.constraints.get_batching_size_rule_constraints(task_id)
-                    duration_fn = "1" if not constraints else constraints[0].duration_fn
-                    yield (
-                        RATING.LOW,
-                        ModifySizeRuleByWTAction(
-                            ModifySizeRuleByWTActionParamsType(
-                                rule=selector,
-                                size_increment=-1,
-                                duration_fn=duration_fn,
-                            )
-                        ),
-                    )
+            selectors = timetable.get_firing_rule_selectors_for_task(task_id, rule_type=RULE_TYPE.SIZE)
+            for selector in select_variants(store, selectors):
+                duration_fn = store.constraints.get_duration_fn_for_task(selector.batching_rule_task_id)
+                yield (
+                    RATING.LOW,
+                    ModifySizeRuleByWTAction(
+                        ModifySizeRuleByWTActionParamsType(
+                            rule=selector,
+                            size_increment=-1,
+                            duration_fn=duration_fn,
+                        )
+                    ),
+                )

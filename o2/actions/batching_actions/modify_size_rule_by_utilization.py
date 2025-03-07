@@ -8,6 +8,7 @@ from o2.actions.base_actions.modify_size_rule_base_action import (
 from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.timetable import RULE_TYPE
 from o2.store import Store
+from o2.util.helper import select_variants
 
 LIMIT_OF_OPTIONS = 5
 
@@ -38,32 +39,26 @@ class ModifySizeRuleByLowUtilizationAction(ModifySizeRuleBaseAction):
         evaluation = store.current_evaluation
 
         resource_utilizations = evaluation.resource_utilizations
-        resources_by_utilization = sorted(resource_utilizations.items(), key=lambda x: x[1])[
-            :LIMIT_OF_OPTIONS
-        ]
+        resources_by_utilization = sorted(resource_utilizations.items(), key=lambda x: x[1])
 
         for resource_id, utilization in resources_by_utilization:
             if utilization > 0.5:
                 continue
 
             tasks = timetable.get_task_ids_assigned_to_resource(resource_id)
-            for task_id in tasks:
-                batching_rules = timetable.get_batching_rules_for_task(task_id)
-                for batching_rule in batching_rules:
-                    selectors = batching_rule.get_firing_rule_selectors(type=RULE_TYPE.SIZE)
-                    for selector in selectors:
-                        constraints = store.constraints.get_batching_size_rule_constraints(task_id)
-                        duration_fn = "1" if not constraints else constraints[0].duration_fn
-                        yield (
-                            RATING.HIGH,
-                            ModifySizeRuleByLowUtilizationAction(
-                                ModifySizeRuleByUtilizationActionParamsType(
-                                    rule=selector,
-                                    size_increment=1,
-                                    duration_fn=duration_fn,
-                                )
-                            ),
+            selectors = timetable.get_firing_rule_selectors_for_tasks(tasks, rule_type=RULE_TYPE.SIZE)
+            for selector in select_variants(store, selectors):
+                duration_fn = store.constraints.get_duration_fn_for_task(selector.batching_rule_task_id)
+                yield (
+                    RATING.HIGH,
+                    ModifySizeRuleByLowUtilizationAction(
+                        ModifySizeRuleByUtilizationActionParamsType(
+                            rule=selector,
+                            size_increment=1,
+                            duration_fn=duration_fn,
                         )
+                    ),
+                )
 
 
 class ModifySizeRuleByHighUtilizationAction(ModifySizeRuleBaseAction):
@@ -86,29 +81,23 @@ class ModifySizeRuleByHighUtilizationAction(ModifySizeRuleBaseAction):
         evaluation = store.current_evaluation
 
         resource_utilizations = evaluation.resource_utilizations
-        resources_by_utilization = sorted(resource_utilizations.items(), key=lambda x: x[1], reverse=True)[
-            :LIMIT_OF_OPTIONS
-        ]
+        resources_by_utilization = sorted(resource_utilizations.items(), key=lambda x: x[1], reverse=True)
 
         for resource_id, utilization in resources_by_utilization:
             if utilization < 0.8:
                 continue
 
             tasks = timetable.get_task_ids_assigned_to_resource(resource_id)
-            for task_id in tasks:
-                batching_rules = timetable.get_batching_rules_for_task(task_id)
-                for batching_rule in batching_rules:
-                    selectors = batching_rule.get_firing_rule_selectors(type=RULE_TYPE.SIZE)
-                    for selector in selectors:
-                        constraints = store.constraints.get_batching_size_rule_constraints(task_id)
-                        duration_fn = "1" if not constraints else constraints[0].duration_fn
-                        yield (
-                            RATING.HIGH,
-                            ModifySizeRuleByHighUtilizationAction(
-                                ModifySizeRuleByUtilizationActionParamsType(
-                                    rule=selector,
-                                    size_increment=-1,
-                                    duration_fn=duration_fn,
-                                )
-                            ),
+            selectors = timetable.get_firing_rule_selectors_for_tasks(tasks, rule_type=RULE_TYPE.SIZE)
+            for selector in select_variants(store, selectors):
+                duration_fn = store.constraints.get_duration_fn_for_task(selector.batching_rule_task_id)
+                yield (
+                    RATING.HIGH,
+                    ModifySizeRuleByHighUtilizationAction(
+                        ModifySizeRuleByUtilizationActionParamsType(
+                            rule=selector,
+                            size_increment=-1,
+                            duration_fn=duration_fn,
                         )
+                    ),
+                )

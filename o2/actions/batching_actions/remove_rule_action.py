@@ -69,7 +69,6 @@ class RemoveRuleAction(BatchingRuleBaseAction, str=False):
             for rule_selector in batching_rule.get_firing_rule_selectors()
         ]
 
-        random.shuffle(selectors)
         for rule_selector in selectors:
             yield (
                 RATING.VERY_LOW,
