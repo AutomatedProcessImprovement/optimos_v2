@@ -32,9 +32,7 @@ class PPOAgent(Agent):
         if store.settings.ppo_use_existing_model:
             self.model = MaskablePPO.load(store.settings.ppo_model_path)
         else:
-            env: gym.Env = PPOEnv(
-                store, max_steps=store.settings.ppo_steps_per_iteration
-            )
+            env: gym.Env = self.get_env()
             self.model = MaskablePPO(
                 "MultiInputPolicy",
                 env,
@@ -61,6 +59,10 @@ class PPOAgent(Agent):
             self.last_values: ndarray
             self.log_probs: ndarray
             self.last_action_mask: ndarray
+
+    def get_env(self) -> gym.Env:
+        """Get the environment for the PPO agent."""
+        return PPOEnv(self.store, max_steps=self.store.settings.ppo_steps_per_iteration)
 
     def select_actions(self, store: Store) -> Optional[list[BaseAction]]:
         """Select the best actions to take next.
@@ -161,6 +163,13 @@ class PPOAgent(Agent):
                         "Still no actions available for next step, selecting new base solution again."
                     )
 
+    def update_state(self) -> None:
+        """Update the state of the agent."""
+        self.actions = PPOInput.get_actions_from_store(self.store)
+        self.action_space = PPOInput.get_action_space_from_actions(self.actions)
+        self.observation_space = PPOInput.get_observation_space(self.store)
+        self.state = PPOInput.get_state_from_store(self.store)
+
     def step_info_from_try(self, solution_try: SolutionTry) -> tuple[dict, float, bool]:
         """Get the step info from the given SolutionTry."""
         # TODO Improve scores based on how good/bad the solution is
@@ -176,10 +185,7 @@ class PPOAgent(Agent):
 
         done = False
 
-        self.actions = PPOInput.get_actions_from_store(self.store)
-        self.action_space = PPOInput.get_action_space_from_actions(self.actions)
-        self.observation_space = PPOInput.get_observation_space(self.store)
-        self.state = PPOInput.get_state_from_store(self.store)
+        self.update_state()
 
         print_l1(f"Done. Reward: {reward}")
         action_count = len([a for a in self.actions if a is not None])
