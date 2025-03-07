@@ -4,14 +4,18 @@ from textwrap import dedent
 from o2.agents.agent import ACTION_CATALOG_BATCHING_ONLY
 
 MAX_NUMBER_OF_ACTIONS_TO_SELECT = len(ACTION_CATALOG_BATCHING_ONLY)
-MAX_NUMBER_OF_VARIATIONS_PER_ACTION = 3
-MAX_NON_IMPROVING_ACTIONS = MAX_NUMBER_OF_ACTIONS_TO_SELECT * MAX_NUMBER_OF_VARIATIONS_PER_ACTION
+ITERATIONS_PER_SOLUTION = 3
+# We go with a higher number than ITERATIONS_PER_SOLUTION,
+MAX_NUMBER_OF_VARIATIONS_PER_ACTION = ITERATIONS_PER_SOLUTION
+
+MAX_NON_IMPROVING_ITERATIONS = 20
+MAX_NON_IMPROVING_ITERATIONS_PPO = 100
 
 
 CORES = MAX_NUMBER_OF_ACTIONS_TO_SELECT
 CORES_PPO = 2
-MEMORY_GB = 60
-MEMORY_GB_PPO = 12
+MEMORY_GB = 48
+MEMORY_GB_PPO = 10
 MAX_TIME_HOURS = 5
 MAX_TIME_HOURS_PPO = 12
 MAX_ITERATIONS = 1001
@@ -21,8 +25,6 @@ DUMP_INTERVAL = MAX_ITERATIONS // 10 * CORES
 MAX_ITERATIONS_PPO = 1000 * 10 + 1
 DUMP_INTERVAL_PPO = MAX_ITERATIONS_PPO // 10
 
-
-MAX_NON_IMPROVING_ACTIONS_PPO = 20 * CORES_PPO
 NUMBER_OF_CASES = 1000
 SA_COOLING_FACTOR = "auto"
 SA_INITIAL_TEMPERATURE = "auto"
@@ -39,9 +41,9 @@ def generate_script(scenario: str, model: str, mode_name: str, max_batch_size: i
     max_iterations = MAX_ITERATIONS if "Proximal Policy Optimization" not in model else MAX_ITERATIONS_PPO
     dump_interval = DUMP_INTERVAL if "Proximal Policy Optimization" not in model else DUMP_INTERVAL_PPO
     max_non_improving_actions = (
-        MAX_NON_IMPROVING_ACTIONS
+        MAX_NON_IMPROVING_ITERATIONS * MAX_NUMBER_OF_ACTIONS_TO_SELECT
         if "Proximal Policy Optimization" not in model
-        else MAX_NON_IMPROVING_ACTIONS_PPO
+        else MAX_NON_IMPROVING_ITERATIONS_PPO
     )
 
     return dedent(f"""\
@@ -68,8 +70,9 @@ def generate_script(scenario: str, model: str, mode_name: str, max_batch_size: i
         --max-iterations {max_iterations} \\
         --dump-interval {dump_interval} \\
         --max-threads {CORES - 1} \\
-        --max-number-of-actions-to-select {MAX_NUMBER_OF_ACTIONS_TO_SELECT} \\
+        --max-number-of-actions-per-iteration {MAX_NUMBER_OF_ACTIONS_TO_SELECT} \\
         --max-non-improving-actions {max_non_improving_actions} \\
+        --iterations-per-solution {ITERATIONS_PER_SOLUTION} \\
         --max-number-of-variations-per-action {MAX_NUMBER_OF_VARIATIONS_PER_ACTION} \\
         --log-level DEBUG \\
         --log-file ./logs/{model_name}_{scenario_name}_{mode_name_sanitized}.log \\

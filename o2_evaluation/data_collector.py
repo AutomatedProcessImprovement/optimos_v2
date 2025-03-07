@@ -34,6 +34,12 @@ def parse_args():
         help="Maximum number of non-improving actions (default: cpu_count*100)",
     )
     parser.add_argument(
+        "--iterations-per-solution",
+        type=int,
+        default=None,
+        help="Number of iterations to run for each base solution (default: infinite)",
+    )
+    parser.add_argument(
         "--dump-interval",
         type=int,
         default=250,
@@ -154,6 +160,7 @@ def update_store_settings(
     max_threads: int,
     max_number_of_actions_per_iteration: int,
     log_to_tensor_board: bool,
+    iterations_per_solution: int,
 ) -> None:
     """Update the store settings for the given agent."""
     store.settings.optimos_legacy_mode = False
@@ -164,6 +171,7 @@ def update_store_settings(
     store.settings.max_threads = max_threads
     store.settings.max_number_of_actions_per_iteration = max_number_of_actions_per_iteration
     store.settings.log_to_tensor_board = log_to_tensor_board
+    store.settings.iterations_per_solution = iterations_per_solution
 
 
 def persist_store(store: Store) -> None:
@@ -243,6 +251,7 @@ def collect_data_sequentially(base_store: Store, args) -> None:
             args.max_threads,
             args.max_number_of_actions_per_iteration or args.max_threads,
             args.log_to_tensor_board,
+            args.iterations_per_solution,
         )
         solve_store(tabu_store, args.dump_interval)
         stores_to_run.append(("Tabu Search", tabu_store))
@@ -261,6 +270,7 @@ def collect_data_sequentially(base_store: Store, args) -> None:
             args.max_threads,
             args.max_number_of_actions_per_iteration or args.max_threads,
             args.log_to_tensor_board,
+            args.iterations_per_solution,
         )
         solve_store(tabu_store, args.dump_interval)
         stores_to_run.append(("Tabu Search Random", tabu_store))
@@ -281,6 +291,7 @@ def collect_data_sequentially(base_store: Store, args) -> None:
             args.max_threads,
             args.max_number_of_actions_per_iteration or args.max_threads,
             args.log_to_tensor_board,
+            args.iterations_per_solution,
         )
         sa_store.settings.sa_initial_temperature = (
             float(args.sa_initial_temperature) if args.sa_initial_temperature != "auto" else "auto"
@@ -306,6 +317,7 @@ def collect_data_sequentially(base_store: Store, args) -> None:
             args.max_threads,
             args.max_number_of_actions_per_iteration or args.max_threads,
             args.log_to_tensor_board,
+            args.iterations_per_solution,
         )
         sa_store.settings.sa_initial_temperature = (
             float(args.sa_initial_temperature) if args.sa_initial_temperature != "auto" else "auto"
@@ -331,6 +343,7 @@ def collect_data_sequentially(base_store: Store, args) -> None:
             args.max_threads,
             args.max_number_of_actions_per_iteration or args.max_threads,
             args.log_to_tensor_board,
+            args.iterations_per_solution,
         )
         ppo_store.settings.disable_parallel_evaluation = True
         ppo_store.settings.max_threads = 1
@@ -356,6 +369,7 @@ def collect_data_sequentially(base_store: Store, args) -> None:
             args.max_threads,
             args.max_number_of_actions_per_iteration or args.max_threads,
             args.log_to_tensor_board,
+            args.iterations_per_solution,
         )
         ppo_store.settings.disable_parallel_evaluation = True
         ppo_store.settings.max_threads = 1
