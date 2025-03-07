@@ -2,22 +2,13 @@
 
 import argparse
 import os
-from collections import defaultdict
 
-import numpy as np
-from typing_extensions import TypedDict
-
-from o2.models.settings import AgentType, CostType, Settings
-from o2.models.solution import Solution
+from o2.models.settings import ActionVariationSelection, AgentType, CostType, Settings
 from o2.optimizer import Optimizer
 from o2.store import Store
 from o2.util.logger import info, setup_logging, stats
 from o2.util.solution_dumper import SolutionDumper
 from o2.util.stat_calculation_helper import (
-    calculate_averaged_hausdorff_distance,
-    calculate_delta_metric,
-    calculate_hyperarea,
-    calculate_purity,
     store_with_baseline_constraints,
 )
 
@@ -219,6 +210,11 @@ def collect_data_sequentially(base_store: Store, args) -> None:
         args.max_number_of_variations_per_action
         if args.max_number_of_variations_per_action != float("inf")
         else None
+    )
+    Settings.action_variation_selection = (
+        ActionVariationSelection.RANDOM_MAX_VARIANTS_PER_ACTION
+        if args.max_number_of_variations_per_action != float("inf")
+        else ActionVariationSelection.ALL_RANDOM
     )
 
     # Optionally archive previous TensorBoard logs

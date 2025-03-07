@@ -1,7 +1,14 @@
 import os
 from textwrap import dedent
 
-CORES = 25
+from o2.agents.agent import ACTION_CATALOG_BATCHING_ONLY
+
+MAX_NUMBER_OF_ACTIONS_TO_SELECT = len(ACTION_CATALOG_BATCHING_ONLY)
+MAX_NUMBER_OF_VARIATIONS_PER_ACTION = 3
+MAX_NON_IMPROVING_ACTIONS = MAX_NUMBER_OF_ACTIONS_TO_SELECT * MAX_NUMBER_OF_VARIATIONS_PER_ACTION
+
+
+CORES = MAX_NUMBER_OF_ACTIONS_TO_SELECT
 CORES_PPO = 2
 MEMORY_GB = 60
 MEMORY_GB_PPO = 12
@@ -14,7 +21,7 @@ DUMP_INTERVAL = MAX_ITERATIONS // 10 * CORES
 MAX_ITERATIONS_PPO = 1000 * 10 + 1
 DUMP_INTERVAL_PPO = MAX_ITERATIONS_PPO // 10
 
-MAX_NON_IMPROVING_ACTIONS = 20 * CORES
+
 MAX_NON_IMPROVING_ACTIONS_PPO = 20 * CORES_PPO
 NUMBER_OF_CASES = 1000
 SA_COOLING_FACTOR = "auto"
@@ -26,14 +33,14 @@ def generate_script(scenario: str, model: str, mode_name: str, max_batch_size: i
     model_name = model.replace(" ", "_").lower()
     scenario_name = scenario.replace(" ", "_").lower()
     mode_name_sanitized = mode_name.replace(" ", "_").lower()
-    memory_gb = MEMORY_GB if model != "Proximal Policy Optimization" else MEMORY_GB_PPO
-    cores = CORES if model != "Proximal Policy Optimization" else CORES_PPO
-    max_time_hours = MAX_TIME_HOURS if model != "Proximal Policy Optimization" else MAX_TIME_HOURS_PPO
-    max_iterations = MAX_ITERATIONS if model != "Proximal Policy Optimization" else MAX_ITERATIONS_PPO
-    dump_interval = DUMP_INTERVAL if model != "Proximal Policy Optimization" else DUMP_INTERVAL_PPO
+    memory_gb = MEMORY_GB if "Proximal Policy Optimization" not in model else MEMORY_GB_PPO
+    cores = CORES if "Proximal Policy Optimization" not in model else CORES_PPO
+    max_time_hours = MAX_TIME_HOURS if "Proximal Policy Optimization" not in model else MAX_TIME_HOURS_PPO
+    max_iterations = MAX_ITERATIONS if "Proximal Policy Optimization" not in model else MAX_ITERATIONS_PPO
+    dump_interval = DUMP_INTERVAL if "Proximal Policy Optimization" not in model else DUMP_INTERVAL_PPO
     max_non_improving_actions = (
         MAX_NON_IMPROVING_ACTIONS
-        if model != "Proximal Policy Optimization"
+        if "Proximal Policy Optimization" not in model
         else MAX_NON_IMPROVING_ACTIONS_PPO
     )
 
@@ -60,9 +67,10 @@ def generate_script(scenario: str, model: str, mode_name: str, max_batch_size: i
         --max-batch-size {max_batch_size} \\
         --max-iterations {max_iterations} \\
         --dump-interval {dump_interval} \\
-        --max-non-improving-actions {max_non_improving_actions} \\
         --max-threads {CORES - 1} \\
-        --max-number-of-actions-to-select {CORES - 1} \\
+        --max-number-of-actions-to-select {MAX_NUMBER_OF_ACTIONS_TO_SELECT} \\
+        --max-non-improving-actions {max_non_improving_actions} \\
+        --max-number-of-variations-per-action {MAX_NUMBER_OF_VARIATIONS_PER_ACTION} \\
         --log-level DEBUG \\
         --log-file ./logs/{model_name}_{scenario_name}_{mode_name_sanitized}.log \\
         --log-to-tensor-board \\
