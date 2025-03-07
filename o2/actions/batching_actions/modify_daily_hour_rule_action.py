@@ -11,6 +11,7 @@ from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.state import State
 from o2.models.timetable import rule_is_daily_hour
 from o2.store import Store
+from o2.util.helper import select_variant, select_variants
 from o2.util.logger import warn
 
 SIZE_OF_CHANGE = 1
@@ -76,29 +77,23 @@ class ModifyDailyHourRuleAction(BatchingRuleBaseAction, str=False):
     @staticmethod
     def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
         """Generate a best set of parameters & self-evaluates this action."""
-        for batching_rule in store.current_timetable.batch_processing:
-            for or_rule_index, or_rules in enumerate(batching_rule.firing_rules):
-                for and_rule_index, rule in enumerate(or_rules):
-                    if rule_is_daily_hour(rule):
-                        if rule.is_eq:
-                            # TODO Do something with EQUAL
-                            pass
-                        selector = RuleSelector(
-                            batching_rule_task_id=batching_rule.task_id,
-                            firing_rule_index=(or_rule_index, and_rule_index),
-                        )
-
-                        yield (
-                            RATING.LOW,
-                            ModifyDailyHourRuleAction(
-                                ModifyDailyHourRuleActionParamsType(rule=selector, hour_increment=-1)
-                            ),
-                        )
-                        yield (
-                            RATING.LOW,
-                            ModifyDailyHourRuleAction(
-                                ModifyDailyHourRuleActionParamsType(rule=selector, hour_increment=1)
-                            ),
-                        )
+        selectors = [
+            RuleSelector(
+                batching_rule_task_id=batching_rule.task_id,
+                firing_rule_index=(or_rule_index, and_rule_index),
+            )
+            for batching_rule in store.current_timetable.batch_processing
+            for or_rule_index, or_rules in enumerate(batching_rule.firing_rules)
+            for and_rule_index, rule in enumerate(or_rules)
+            if rule_is_daily_hour(rule) and not rule.is_eq
+        ]
+        for selector in select_variants(store, selectors):
+            for hour_increment in select_variants(store, [1, -1], inner=True):
+                yield (
+                    RATING.LOW,
+                    ModifyDailyHourRuleAction(
+                        ModifyDailyHourRuleActionParamsType(rule=selector, hour_increment=hour_increment),
+                    ),
+                )
 
         return

@@ -10,9 +10,7 @@ from o2.actions.base_actions.base_action import (
 from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.time_period import TimePeriod
 from o2.store import Store
-
-# TODO: See if top 3 makes sense
-LIMIT_OF_OPTIONS = 5
+from o2.util.helper import select_variants
 
 
 class AddDateTimeRuleByStartActionParamsType(AddDateTimeRuleBaseActionParamsType):
@@ -66,11 +64,11 @@ class AddDateTimeRuleByStartAction(AddDateTimeRuleBaseAction):
 
             # find most frequent day,hour combination
             # Lets look at the top 3
-            most_frequent_day_hour = Counter(aggregated_start_times).most_common(LIMIT_OF_OPTIONS)
+            most_frequent_day_hour = Counter(aggregated_start_times).most_common()
             if not most_frequent_day_hour:
                 continue
 
-            for (day, hour), _ in most_frequent_day_hour:
+            for (day, hour), _ in select_variants(store, most_frequent_day_hour, ordered=True):
                 yield (
                     RATING.HIGH,
                     AddDateTimeRuleByStartAction(
