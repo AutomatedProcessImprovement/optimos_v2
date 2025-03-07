@@ -84,9 +84,8 @@ def test_get_valid_actions(one_task_store: Store):
             ),
         )
 
-    actions = TabuAgent.get_valid_actions(
-        one_task_store,
-        [rule1_generator(), rule2_generator()],
-    )
+    agent = TabuAgent(one_task_store)
+    agent.action_generators = [rule1_generator(), rule2_generator()]
+    actions = agent.get_valid_actions()
     assert actions is not None
     assert len(actions) == 1

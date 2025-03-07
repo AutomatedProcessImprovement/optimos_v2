@@ -58,7 +58,7 @@ class OptimosService:
         store.settings.optimos_legacy_mode = config["disable_batch_optimization"]
 
         # We limit the number of actions to select to the number of threads
-        store.settings.max_number_of_actions_to_select = min(
+        store.settings.max_number_of_actions_per_iteration = min(
             (config["max_actions_per_iteration"] or 1000), store.settings.max_threads
         )
         store.settings.legacy_approach = LegacyApproach.from_abbreviation(config["approach"])

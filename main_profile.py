@@ -48,7 +48,7 @@ def main():
     store.settings.optimos_legacy_mode = True
     store.settings.max_iterations = 10
     store.settings.max_threads = 5
-    store.settings.max_number_of_actions_to_select = 5
+    store.settings.max_number_of_actions_per_iteration = 5
     store.settings.disable_parallel_evaluation = True
 
     optimizer = o2.optimizer.Optimizer(store)

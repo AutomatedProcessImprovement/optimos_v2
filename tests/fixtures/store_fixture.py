@@ -110,3 +110,38 @@ def multi_resource_state(one_task_state: State):
             [TimetableGenerator.FIRST_ACTIVITY], 3
         ),
     )
+
+
+@pytest.fixture(scope="function")
+def one_task_batching_state():
+    bpmn_content = open(ONE_TASK_BPMN_PATH).read()
+    return State(
+        bpmn_definition=bpmn_content,
+        timetable=TimetableGenerator(bpmn_content).generate_simple(include_batching=True),
+    )
+
+
+@pytest.fixture(scope="function")
+def one_task_batching_solution(one_task_batching_state: State):
+    evaluation = one_task_batching_state.evaluate()
+    return Solution(evaluation=evaluation, state=one_task_batching_state, actions=[])
+
+
+@pytest.fixture(scope="function")
+def one_task_batching_store(one_task_batching_solution: Solution):
+    return Store(
+        solution=one_task_batching_solution,
+        constraints=ConstraintsGenerator(one_task_batching_solution.state.bpmn_definition)
+        .add_size_constraint()
+        .constraints,
+    )
+
+
+@pytest.fixture(scope="function")
+def two_tasks_batching_store(two_tasks_batching_solution: Solution):
+    return Store(
+        solution=two_tasks_batching_solution,
+        constraints=ConstraintsGenerator(two_tasks_batching_solution.state.bpmn_definition)
+        .add_size_constraint()
+        .constraints,
+    )
