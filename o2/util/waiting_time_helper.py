@@ -54,7 +54,10 @@ class BatchInfo(TypedDict):
 
 
 class SimpleBatchInfo(TypedDict):
-    """Batch information."""
+    """Simplified batch information.
+
+    Only contains some fields to preserve memory.
+    """
 
     accumulation_begin: datetime
     start: datetime

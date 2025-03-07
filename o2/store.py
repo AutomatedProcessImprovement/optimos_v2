@@ -111,7 +111,7 @@ class Store:
     def process_many_solutions(
         self,
         solutions: list[Solution],
-        choose_new_base_evaluation_callback: Optional[Callable[[SolutionTry], Solution]] = None,
+        set_new_base_evaluation_callback: Optional[Callable[[SolutionTry], None]] = None,
     ) -> tuple[list[SolutionTry], list[SolutionTry]]:
         """Process a list of action solutions.
 
@@ -119,6 +119,9 @@ class Store:
         Returns two lists, one with the chosen actions and one with the not chosen actions.
 
         This is useful if multiple actions are evaluated at once.
+
+        The set_new_base_evaluation_callback is called when a new base potential base_solution
+        is found. It's assumed that the callback will update the store.solution attribute.
         """
         chosen_tries = []
         not_chosen_tries = []
@@ -151,8 +154,8 @@ class Store:
             if not new_baseline_chosen and (
                 status == FRONT_STATUS.IN_FRONT or status == FRONT_STATUS.IS_DOMINATED
             ):
-                if choose_new_base_evaluation_callback is not None:
-                    self.solution = choose_new_base_evaluation_callback((status, solution))
+                if set_new_base_evaluation_callback is not None:
+                    set_new_base_evaluation_callback((status, solution))
                 else:
                     self.solution = solution
                 new_baseline_chosen = True

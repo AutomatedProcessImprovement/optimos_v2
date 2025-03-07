@@ -20,62 +20,61 @@ class Optimizer:
     """The Optimizer class is the main class that runs the optimization process."""
 
     def __init__(self, store: Store):
-        self.store = store
+        self.settings = store.settings
         self.max_iter = store.settings.max_iterations
         self.max_non_improving_iter = store.settings.max_non_improving_actions
         self.max_parallel = store.settings.max_threads
         self.running_avg_time = 0
         if not store.settings.disable_parallel_evaluation:
-            self.executor = concurrent.futures.ProcessPoolExecutor(
-                max_workers=self.store.settings.max_threads
-            )
-        self.agent: Agent = self._init_agent()
-        if self.store.settings.log_to_tensor_board:
+            self.executor = concurrent.futures.ProcessPoolExecutor(max_workers=self.settings.max_threads)
+        self.agent: Agent = self._init_agent(store)
+        if self.settings.log_to_tensor_board:
             from o2.util.tensorboard_helper import TensorBoardHelper
 
-            TensorBoardHelper(self.agent, self.store.name)
+            TensorBoardHelper(self.agent, store.name)
 
-    def _init_agent(self):
+    def _init_agent(self, store: Store) -> Agent:
         """Initialize the agent for the optimization task."""
-        if self.store.settings.agent == AgentType.TABU_SEARCH:
-            return TabuAgent(self.store)
-        elif self.store.settings.agent == AgentType.PROXIMAL_POLICY_OPTIMIZATION:
+        if self.settings.agent == AgentType.TABU_SEARCH:
+            return TabuAgent(store)
+        elif self.settings.agent == AgentType.PROXIMAL_POLICY_OPTIMIZATION:
             from o2.agents.ppo_agent import PPOAgent
 
-            return PPOAgent(self.store)
-        elif self.store.settings.agent == AgentType.PROXIMAL_POLICY_OPTIMIZATION_RANDOM:
+            return PPOAgent(store)
+        elif self.settings.agent == AgentType.PROXIMAL_POLICY_OPTIMIZATION_RANDOM:
             from o2.agents.ppo_agent_random import PPOAgentRandom
 
-            return PPOAgentRandom(self.store)
-        elif self.store.settings.agent == AgentType.SIMULATED_ANNEALING:
-            return SimulatedAnnealingAgent(self.store)
-        elif self.store.settings.agent == AgentType.TABU_SEARCH_RANDOM:
+            return PPOAgentRandom(store)
+        elif self.settings.agent == AgentType.SIMULATED_ANNEALING:
+            return SimulatedAnnealingAgent(store)
+        elif self.settings.agent == AgentType.TABU_SEARCH_RANDOM:
             from o2.agents.tabu_agent_random import TabuAgentRandom
 
-            return TabuAgentRandom(self.store)
-        elif self.store.settings.agent == AgentType.SIMULATED_ANNEALING_RANDOM:
+            return TabuAgentRandom(store)
+        elif self.settings.agent == AgentType.SIMULATED_ANNEALING_RANDOM:
             from o2.agents.simulated_annealing_agent_random import (
                 SimulatedAnnealingAgentRandom,
             )
 
-            return SimulatedAnnealingAgentRandom(self.store)
-        raise ValueError(f"Unknown agent type: {self.store.settings.agent}")
+            return SimulatedAnnealingAgentRandom(store)
+        raise ValueError(f"Unknown agent type: {self.settings.agent}")
 
     def solve(self) -> None:
         """Run the optimizer and print the result."""
+        store = self.agent.store
         print_l1(
-            f"Initial evaluation: {self.store.base_solution.evaluation}",
+            f"Initial evaluation: {store.base_solution.evaluation}",
             log_level=STATS_LOG_LEVEL,
         )
         generator = self.get_iteration_generator(yield_on_non_acceptance=True)
         for _ in generator:
-            if self.store.settings.log_to_tensor_board:
+            if self.settings.log_to_tensor_board:
                 from o2.util.tensorboard_helper import TensorBoardHelper
 
                 # Just iterate through the generator to run it
-                TensorBoardHelper.instance.tensor_board_iteration_callback(self.store.solution)
+                TensorBoardHelper.instance.tensor_board_iteration_callback(store.solution)
 
-        if not self.store.settings.disable_parallel_evaluation:
+        if not self.settings.disable_parallel_evaluation:
             self.executor.shutdown()
         self._print_result()
 
@@ -90,36 +89,29 @@ class Optimizer:
         """
         for it in range(self.max_iter):
             start_time = time.time()
-            if self.store.settings.log_to_tensor_board:
+            if self.settings.log_to_tensor_board:
                 from o2.util.tensorboard_helper import TensorBoardHelper
 
                 TensorBoardHelper.instance.iteration += 1
             try:
                 if self.max_non_improving_iter <= 0:
                     print_l0("Maximum non improving iterations reached!")
-                    self.store.solution = self.agent.select_new_base_solution()
-                    self.max_non_improving_iter = self.store.settings.max_non_improving_actions
+                    self.agent.set_new_base_solution()
+                    self.max_non_improving_iter = self.settings.max_non_improving_actions
 
-                print_l0(f"{self.store.settings.agent.name} - Iteration {it}/{self.max_iter}")
+                print_l0(f"{self.settings.agent.name} - Iteration {it}/{self.max_iter}")
 
-                actions_to_perform = self.agent.select_actions(self.store)
+                actions_to_perform = self.agent.select_actions()
                 if actions_to_perform is None or len(actions_to_perform) == 0:
                     print_l1("Optimization finished, no actions to perform.")
                     break
                 print_l1(f"Running {len(actions_to_perform)} actions...")
                 start_time = time.time()
 
-                solutions = self._execute_actions_parallel(self.store, actions_to_perform)
+                solutions = self._execute_actions_parallel(actions_to_perform)
                 print_l2(f"Simulation took {time.time() - start_time:.2f}s")
 
-                chosen_tries, not_chosen_tries = self.store.process_many_solutions(
-                    solutions,
-                    self.agent.select_new_base_solution
-                    if not self.store.settings.never_select_new_base_solution
-                    else None,
-                )
-
-                self.agent.result_callback(chosen_tries, not_chosen_tries)
+                chosen_tries, not_chosen_tries = self.agent.process_many_solutions(solutions)
 
                 if len(chosen_tries) == 0:
                     print_l1("No action improved the evaluation")
@@ -155,7 +147,7 @@ class Optimizer:
                                 f"New best Evaluation: {Settings.get_pareto_x_label()}: {solution.pareto_x:2f}; {Settings.get_pareto_y_label()}: {solution.pareto_y:2f}",
                                 log_level=STATS_LOG_LEVEL,
                             )
-                            self.max_non_improving_iter = self.store.settings.max_non_improving_actions
+                            self.max_non_improving_iter = self.settings.max_non_improving_actions
                         yield solution
                 print_l1(f"Non improving actions left: {self.max_non_improving_iter}")
             except NoActionsLeftError:
@@ -167,24 +159,25 @@ class Optimizer:
             except Exception as e:
                 print_l1(f"Error in iteration: {e}")
                 print_l1(traceback.format_exc())
-                if self.store.settings.throw_on_iteration_errors:
+                if self.settings.throw_on_iteration_errors:
                     # re-raising the exception to stop the optimization
                     raise
                 continue
             self._print_time_estimate(it, start_time)
 
     def _print_result(self):
+        store = self.agent.store
         print_l0("Final result:")
         print_l1(
-            f"Best evaluation: \t{self.store.current_evaluation}",
+            f"Best evaluation: \t{store.current_evaluation}",
             log_level=STATS_LOG_LEVEL,
         )
         print_l1(
-            f"Base evaluation: \t{self.store.base_evaluation}",
+            f"Base evaluation: \t{store.base_evaluation}",
             log_level=STATS_LOG_LEVEL,
         )
         print_l1("Modifications:")
-        for action in self.store.base_solution.actions:
+        for action in store.base_solution.actions:
             print_l2(repr(action))
 
     def _print_time_estimate(self, it: int, start_time: float):
@@ -198,7 +191,7 @@ class Optimizer:
             f"Iteration took {time_taken:.2f}s (avg: {self.running_avg_time:.2f}s, est. {est_hours:.0f}h {est_minutes:.0f}m {est_seconds:.0f}s left)"
         )
 
-    def _execute_actions_parallel(self, store: Store, actions_to_perform: list[BaseAction]) -> list[Solution]:
+    def _execute_actions_parallel(self, actions_to_perform: list[BaseAction]) -> list[Solution]:
         """Execute the given actions in parallel and return the results.
 
         The results are sorted, so that the most impactful actions are first,
@@ -206,9 +199,10 @@ class Optimizer:
         The results have not modified the state of the store.
 
         """
+        store = self.agent.store
         solution_tries: list[SolutionTry] = []
 
-        if not store.settings.disable_parallel_evaluation:
+        if not self.settings.disable_parallel_evaluation:
             futures: list[concurrent.futures.Future[Solution]] = []
             for action in actions_to_perform:
                 futures.append(self.executor.submit(Solution.from_parent, store.solution, action))
@@ -216,12 +210,12 @@ class Optimizer:
             for future in concurrent.futures.as_completed(futures):
                 try:
                     new_solution = future.result()
-                    solution_tries.append(self.store.try_solution(new_solution))
+                    solution_tries.append(self.agent.try_solution(new_solution))
                 except Exception as e:
                     print_l1(f"Error evaluating actions : {e}")
         else:
             for action in actions_to_perform:
-                solution_try = store.try_solution(Solution.from_parent(store.solution, action))
+                solution_try = self.agent.try_solution(Solution.from_parent(store.solution, action))
                 solution_tries.append(solution_try)
 
         # Sort tries with dominating ones first

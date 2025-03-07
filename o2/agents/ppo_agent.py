@@ -99,9 +99,9 @@ class PPOAgent(Agent):
         return [action]
 
     @override
-    def select_new_base_solution(self, proposed_solution_try: Optional[SolutionTry] = None) -> Solution:
+    def find_new_base_solution(self, proposed_solution_try: Optional[SolutionTry] = None) -> Solution:
         """Select a new base solution."""
-        return TabuAgent(self.store).select_new_base_solution(proposed_solution_try)
+        return TabuAgent(self.store).find_new_base_solution(proposed_solution_try)
 
     @override
     def result_callback(self, chosen_tries: list[SolutionTry], not_chosen_tries: list[SolutionTry]) -> None:

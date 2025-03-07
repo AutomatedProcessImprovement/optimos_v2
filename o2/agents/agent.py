@@ -156,8 +156,10 @@ class Agent(ABC):
             if store.settings.batching_only
             else ACTION_CATALOG
         )
+        self.action_generators: list[RateSelfReturnType[BaseAction]] = []
+        self.set_action_generators(store.solution)
 
-    def select_actions(self, store: Store) -> Optional[list[BaseAction]]:
+    def select_actions(self) -> Optional[list[BaseAction]]:
         """Select the best actions to take next.
 
         It will pick at most cpu_count actions, so parallel evaluation is possible.
@@ -166,24 +168,17 @@ class Agent(ABC):
         it will choose a new base evaluation.
         """
         while True:
-            rating_input = SelfRatingInput.from_base_solution(store.solution)
-
-            print_l1(f"Choosing best action (based on {store.solution.id})...")
-
-            # Get a list rating generators for all actions
-            action_generators: list[RateSelfReturnType[BaseAction]] = [
-                Action.rate_self(store, rating_input) for Action in self.catalog
-            ]
+            print_l1(f"Choosing best action (based on {self.store.solution.id})...")
 
             # Get valid actions from the generators, even multiple per generator,
             # if we don't have enough valid actions yet
-            possible_actions = TabuAgent.get_valid_actions(store, action_generators)
+            possible_actions = TabuAgent.get_valid_actions(self.store, self.action_generators)
             # Remove None values
             possible_actions = [action for action in possible_actions if action is not None]
 
             if len(possible_actions) == 0:
                 print_l1("No actions remaining, after removing Tabu & N/A actions.")
-                new_solution = self.select_new_base_solution(
+                new_solution = self.find_new_base_solution(
                     # Setting proposed_solution_try to None, we make sure that
                     # the current solution is not reinserted into the solution tree
                     proposed_solution_try=None
@@ -192,12 +187,12 @@ class Agent(ABC):
                 if not success:
                     print_l2("No new baseline evaluation found. Stopping.")
                     return None
-                store.solution = new_solution
+                self.store.solution = new_solution
                 continue
 
             sorted_actions = sorted(possible_actions, key=lambda x: x[0], reverse=True)
 
-            number_of_actions_to_select = store.settings.max_number_of_actions_to_select
+            number_of_actions_to_select = self.store.settings.max_number_of_actions_to_select
             selected_actions = sorted_actions[:number_of_actions_to_select]
             avg_rating = sum(rating for rating, _ in selected_actions) / len(selected_actions)
 
@@ -205,14 +200,48 @@ class Agent(ABC):
                 f"Chose {len(selected_actions)} actions with average rating {avg_rating:.1f} to evaluate."  # noqa: E501
             )
 
-            if store.settings.print_chosen_actions:
+            if self.store.settings.print_chosen_actions:
                 for rating, action in selected_actions:
                     print_l2(f"{action} with rating {rating}")
 
             return [action for _, action in selected_actions]
 
+    def set_action_generators(self, solution: Solution) -> None:
+        """Set the action generators for the given solution.
+
+        NOTE: This function **must** be called when setting a new base solution.
+        """
+        rating_input = SelfRatingInput.from_base_solution(solution)
+        self.action_generators = [Action.rate_self(self.store, rating_input) for Action in self.catalog]
+
+    def process_many_solutions(
+        self, solutions: list[Solution]
+    ) -> tuple[list[SolutionTry], list[SolutionTry]]:
+        """Process a list of solutions.
+
+        See Store.process_many_solutions for more information.
+        """
+        chosen_tries, not_chosen_tries = self.store.process_many_solutions(
+            solutions,
+            self.set_new_base_solution if not self.store.settings.never_select_new_base_solution else None,
+        )
+
+        self.result_callback(chosen_tries, not_chosen_tries)
+        return chosen_tries, not_chosen_tries
+
+    def set_new_base_solution(self, proposed_solution_try: Optional[SolutionTry] = None) -> None:
+        """Set a new base solution."""
+        solution = self.find_new_base_solution(proposed_solution_try)
+        if solution != self.store.solution:
+            self.set_action_generators(solution)
+        self.store.solution = solution
+
+    def try_solution(self, solution: Solution) -> SolutionTry:
+        """Try a solution and return the result."""
+        return self.store.try_solution(solution)
+
     @abstractmethod
-    def select_new_base_solution(self, proposed_solution_try: Optional[SolutionTry] = None) -> Solution:
+    def find_new_base_solution(self, proposed_solution_try: Optional[SolutionTry] = None) -> Solution:
         """Select a new base solution.
 
         E.g from the SolutionTree.
@@ -223,6 +252,8 @@ class Agent(ABC):
         actions)
         If it's not None, than this proposed_solution_try **may** be used as
         the new base solution, but this depends on the Agent implementation.
+
+        NOTE: This function will update the store.solution attribute.
         """
         pass
 
@@ -234,7 +265,7 @@ class Agent(ABC):
     @staticmethod
     def get_valid_actions(
         store: "Store",
-        action_generators: list[RateSelfReturnType[BaseAction]],
+        generators_queue: list[RateSelfReturnType[BaseAction]],
     ) -> list[tuple[RATING, BaseAction]]:
         """Get settings.number_of_actions_to_select valid actions from the generators.
 
@@ -245,11 +276,13 @@ class Agent(ABC):
 
         It will take into account the `settings.only_allow_low_last` setting,
         to first select non RATING.LOW actions first.
+
+        NOTE: This function will modify the generators_queue, so it's important
+        so think about possible side effects.
         """
         actions: list[tuple[RATING, BaseAction]] = []
         low_actions: list[tuple[RATING, BaseAction]] = []
         ignored_action_ids: set[str] = set()
-        generators_queue = action_generators.copy()
         counter: dict[RateSelfReturnType[BaseAction], int] = defaultdict(int)
 
         while len(generators_queue) > 0:

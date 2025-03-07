@@ -64,7 +64,7 @@ class SimulatedAnnealingAgent(Agent):
             print_l1(f"Auto-estimated cooling factor: {self.store.settings.sa_cooling_factor}")
 
     @override
-    def select_new_base_solution(self, proposed_solution_try: Optional[SolutionTry] = None) -> Solution:
+    def find_new_base_solution(self, proposed_solution_try: Optional[SolutionTry] = None) -> Solution:
         print_l2("Selecting new base evaluation...")
         print_l2(f"Old temperature: {self.temperature:_}")
         assert isinstance(self.temperature, float)

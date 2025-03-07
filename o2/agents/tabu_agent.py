@@ -20,7 +20,7 @@ class TabuAgent(Agent):
     """
 
     @override
-    def select_new_base_solution(self, proposed_solution_try: Optional[SolutionTry] = None) -> Solution:
+    def find_new_base_solution(self, proposed_solution_try: Optional[SolutionTry] = None) -> Solution:
         solution = self._select_new_base_evaluation(
             # If the proposed solution try is None, we were called from
             # maximum non improving iterations so we don't need to reinsert
