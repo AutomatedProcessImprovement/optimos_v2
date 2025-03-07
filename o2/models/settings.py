@@ -67,6 +67,42 @@ class ActionVariationSelection(Enum):
     ALL_IN_ORDER = "all_in_order"
     """Select all rules in order"""
 
+    @property
+    def ordered(self) -> "ActionVariationSelection":
+        """Return the selection enum, that should be used for ordered selection.
+
+        This is used, when the action variations are already ordered, so random selection is not needed.
+        Meaning: For random selection, this will return the enum with non-random selection.
+        For the other cases, it will return the same enum.
+        """
+        if self == ActionVariationSelection.SINGLE_RANDOM:
+            return ActionVariationSelection.FIRST_IN_ORDER
+        elif self == ActionVariationSelection.RANDOM_MAX_VARIANTS_PER_ACTION:
+            return ActionVariationSelection.FIRST_MAX_VARIANTS_PER_ACTION_IN_ORDER
+        elif self == ActionVariationSelection.ALL_RANDOM:
+            return ActionVariationSelection.ALL_IN_ORDER
+        else:
+            return self
+
+    @property
+    def inner(self) -> "ActionVariationSelection":
+        """Return the selection enum, that should be used for inner selection.
+
+        This is used in the inner loop, where we only want to select one rule.
+        Meaning: For multi-selection, this will return the enum with single selection.
+        For single selection, it will return the same enum.
+        """
+        if self == ActionVariationSelection.ALL_IN_ORDER:
+            return ActionVariationSelection.FIRST_IN_ORDER
+        elif self == ActionVariationSelection.ALL_RANDOM:
+            return ActionVariationSelection.SINGLE_RANDOM
+        elif self == ActionVariationSelection.FIRST_MAX_VARIANTS_PER_ACTION_IN_ORDER:
+            return ActionVariationSelection.FIRST_IN_ORDER
+        elif self == ActionVariationSelection.RANDOM_MAX_VARIANTS_PER_ACTION:
+            return ActionVariationSelection.SINGLE_RANDOM
+        else:
+            return self
+
 
 @dataclass()
 class Settings:
