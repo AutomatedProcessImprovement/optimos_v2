@@ -127,16 +127,8 @@ def calculate_metrics(
             else:
                 invalid_solution_ids.add(solution_id)
 
-    all_solutions.update(
-        [
-            extra_solution
-            for extra_solution in extra_solutions
-            if extra_solution.is_valid
-        ]
-    )
-    invalid_solution_ids.update(
-        [solution.id for solution in extra_solutions if not solution.is_valid]
-    )
+    all_solutions.update([extra_solution for extra_solution in extra_solutions if extra_solution.is_valid])
+    invalid_solution_ids.update([solution.id for solution in extra_solutions if not solution.is_valid])
 
     # Find the Pareto front (non-dominated solutions)
     all_solutions_front = [
@@ -161,20 +153,14 @@ def calculate_metrics(
     best_x = min(solution.pareto_x for solution in all_solutions_front)
     best_y = min(solution.pareto_y for solution in all_solutions_front)
 
-    avg_x = sum(solution.pareto_x for solution in all_solutions_front) / len(
-        all_solutions_front
-    )
-    avg_y = sum(solution.pareto_y for solution in all_solutions_front) / len(
-        all_solutions_front
+    avg_x = sum(solution.pareto_x for solution in all_solutions_front) / len(all_solutions_front)
+    avg_y = sum(solution.pareto_y for solution in all_solutions_front) / len(all_solutions_front)
+
+    avg_cycle_time = sum(solution.evaluation.total_cycle_time for solution in all_solutions_front) / len(
+        all_solutions
     )
 
-    avg_cycle_time = sum(
-        solution.evaluation.total_cycle_time for solution in all_solutions_front
-    ) / len(all_solutions)
-
-    best_cycle_time = min(
-        solution.evaluation.total_cycle_time for solution in all_solutions_front
-    )
+    best_cycle_time = min(solution.evaluation.total_cycle_time for solution in all_solutions_front)
 
     base_cycle_time = stores[0][1].base_evaluation.total_cycle_time
     base_x = stores[0][1].base_solution.pareto_x
@@ -217,29 +203,21 @@ def calculate_metrics(
         pareto_hyperarea = calculate_hyperarea(pareto_solutions, center_point)
         ratio = 0.0 if global_hyperarea == 0.0 else pareto_hyperarea / global_hyperarea
 
-        hausdorff_distance = calculate_averaged_hausdorff_distance(
-            pareto_solutions, all_solutions_front
-        )
+        hausdorff_distance = calculate_averaged_hausdorff_distance(pareto_solutions, all_solutions_front)
         delta = calculate_delta_metric(pareto_solutions, all_solutions_front)
         purity = calculate_purity(pareto_solutions, all_solutions_front)
 
         best_x = store.current_pareto_front.min_x
         best_y = store.current_pareto_front.min_y
 
-        avg_x = sum(solution.pareto_x for solution in pareto_solutions) / len(
-            pareto_solutions
-        )
-        avg_y = sum(solution.pareto_y for solution in pareto_solutions) / len(
+        avg_x = sum(solution.pareto_x for solution in pareto_solutions) / len(pareto_solutions)
+        avg_y = sum(solution.pareto_y for solution in pareto_solutions) / len(pareto_solutions)
+
+        avg_cycle_time = sum(solution.evaluation.total_cycle_time for solution in pareto_solutions) / len(
             pareto_solutions
         )
 
-        avg_cycle_time = sum(
-            solution.evaluation.total_cycle_time for solution in pareto_solutions
-        ) / len(pareto_solutions)
-
-        best_cycle_time = min(
-            solution.evaluation.total_cycle_time for solution in pareto_solutions
-        )
+        best_cycle_time = min(solution.evaluation.total_cycle_time for solution in pareto_solutions)
 
         metrics.append(
             {
@@ -311,13 +289,7 @@ def get_scenario_from_filename(path: str) -> str:
 
 
 def get_scenario_without_mode(scenario: str) -> str:
-    return (
-        scenario.lower()
-        .replace(" easy", "")
-        .replace(" mid", "")
-        .replace(" hard", "")
-        .title()
-    )
+    return scenario.lower().replace(" easy", "").replace(" mid", "").replace(" hard", "").title()
 
 
 def get_mode_from_scenario(scenario: str) -> str:
@@ -364,9 +336,7 @@ def get_scenario_from_store_name(store_name: str) -> str:
     )
 
 
-def get_metrics_for_agent(
-    metrics: list[Metrics], agent: str
-) -> tuple[Metrics, Metrics, Metrics]:
+def get_metrics_for_agent(metrics: list[Metrics], agent: str) -> tuple[Metrics, Metrics, Metrics]:
     easy = next(
         (m for m in metrics if m["agent"] == agent and m["mode"] == "easy"),
         EMPTY_METRIC,
@@ -397,21 +367,15 @@ def print_metrics_in_google_sheet_format(metrics: list[Metrics]) -> None:
         result += f"Sheet: {scenario}\n"
         result += "----------------------------------------\n\n"
         result += "Pareto Metrics;;Easy;Mid;Hard\n"
-        reference_easy, reference_mid, reference_hard = get_metrics_for_agent(
-            metrics, "Global"
-        )
+        reference_easy, reference_mid, reference_hard = get_metrics_for_agent(metrics, "Global")
 
-        ppo_easy, ppo_mid, ppo_hard = get_metrics_for_agent(
-            metrics, "Proximal Policy Optimization"
-        )
+        ppo_easy, ppo_mid, ppo_hard = get_metrics_for_agent(metrics, "Proximal Policy Optimization")
         sa_easy, sa_mid, sa_hard = get_metrics_for_agent(metrics, "Simulated Annealing")
 
-        tabu_search_easy, tabu_search_mid, tabu_search_hard = get_metrics_for_agent(
-            metrics, "Tabu Search"
-        )
+        tabu_search_easy, tabu_search_mid, tabu_search_hard = get_metrics_for_agent(metrics, "Tabu Search")
 
-        tabu_search_random_easy, tabu_search_random_mid, tabu_search_random_hard = (
-            get_metrics_for_agent(metrics, "Tabu Search Random")
+        tabu_search_random_easy, tabu_search_random_mid, tabu_search_random_hard = get_metrics_for_agent(
+            metrics, "Tabu Search Random"
         )
         (
             simulated_annealing_random_easy,
@@ -451,9 +415,13 @@ def print_metrics_in_google_sheet_format(metrics: list[Metrics]) -> None:
         result += f";PPO Random;{ppo_random_easy['patreto_size']};{ppo_random_mid['patreto_size']};{ppo_random_hard['patreto_size']}\n\n"
 
         result += "Hyperarea Ratio\n"
-        result += f";SA;{sa_easy['hyperarea_ratio']};{sa_mid['hyperarea_ratio']};{sa_hard['hyperarea_ratio']}\n"
+        result += (
+            f";SA;{sa_easy['hyperarea_ratio']};{sa_mid['hyperarea_ratio']};{sa_hard['hyperarea_ratio']}\n"
+        )
         result += f";Tabu Search;{tabu_search_easy['hyperarea_ratio']};{tabu_search_mid['hyperarea_ratio']};{tabu_search_hard['hyperarea_ratio']}\n"
-        result += f";PPO;{ppo_easy['hyperarea_ratio']};{ppo_mid['hyperarea_ratio']};{ppo_hard['hyperarea_ratio']}\n"
+        result += (
+            f";PPO;{ppo_easy['hyperarea_ratio']};{ppo_mid['hyperarea_ratio']};{ppo_hard['hyperarea_ratio']}\n"
+        )
         result += f";Tabu Random;{tabu_search_random_easy['hyperarea_ratio']};{tabu_search_random_mid['hyperarea_ratio']};{tabu_search_random_hard['hyperarea_ratio']}\n"
         result += f";SA Random;{simulated_annealing_random_easy['hyperarea_ratio']};{simulated_annealing_random_mid['hyperarea_ratio']};{simulated_annealing_random_hard['hyperarea_ratio']}\n\n"
         result += f";PPO Random;{ppo_random_easy['hyperarea_ratio']};{ppo_random_mid['hyperarea_ratio']};{ppo_random_hard['hyperarea_ratio']}\n\n"
@@ -472,14 +440,14 @@ def print_metrics_in_google_sheet_format(metrics: list[Metrics]) -> None:
         result += f";PPO;{ppo_easy['delta']};{ppo_mid['delta']};{ppo_hard['delta']}\n"
         result += f";Tabu Random;{tabu_search_random_easy['delta']};{tabu_search_random_mid['delta']};{tabu_search_random_hard['delta']}\n"
         result += f";SA Random;{simulated_annealing_random_easy['delta']};{simulated_annealing_random_mid['delta']};{simulated_annealing_random_hard['delta']}\n\n"
-        result += f";PPO Random;{ppo_random_easy['delta']};{ppo_random_mid['delta']};{ppo_random_hard['delta']}\n\n"
+        result += (
+            f";PPO Random;{ppo_random_easy['delta']};{ppo_random_mid['delta']};{ppo_random_hard['delta']}\n\n"
+        )
 
         result += "Purity\n"
         result += f";SA;{sa_easy['purity']};{sa_mid['purity']};{sa_hard['purity']}\n"
         result += f";Tabu Search;{tabu_search_easy['purity']};{tabu_search_mid['purity']};{tabu_search_hard['purity']}\n"
-        result += (
-            f";PPO;{ppo_easy['purity']};{ppo_mid['purity']};{ppo_hard['purity']}\n"
-        )
+        result += f";PPO;{ppo_easy['purity']};{ppo_mid['purity']};{ppo_hard['purity']}\n"
         result += f";Tabu Random;{tabu_search_random_easy['purity']};{tabu_search_random_mid['purity']};{tabu_search_random_hard['purity']}\n"
         result += f";SA Random;{simulated_annealing_random_easy['purity']};{simulated_annealing_random_mid['purity']};{simulated_annealing_random_hard['purity']}\n"
         result += f";PPO Random;{ppo_random_easy['purity']};{ppo_random_mid['purity']};{ppo_random_hard['purity']}\n\n"
@@ -497,33 +465,37 @@ def print_metrics_in_google_sheet_format(metrics: list[Metrics]) -> None:
         result += "Best Cycle Time\n"
         result += f";Base;{reference_easy['base_cycle_time']};{reference_mid['base_cycle_time']};{reference_hard['base_cycle_time']}\n"
         result += f";Reference;{reference_easy['best_cycle_time']};{reference_mid['best_cycle_time']};{reference_hard['best_cycle_time']}\n"
-        result += f";SA;{sa_easy['best_cycle_time']};{sa_mid['best_cycle_time']};{sa_hard['best_cycle_time']}\n"
+        result += (
+            f";SA;{sa_easy['best_cycle_time']};{sa_mid['best_cycle_time']};{sa_hard['best_cycle_time']}\n"
+        )
         result += f";Tabu Search;{tabu_search_easy['best_cycle_time']};{tabu_search_mid['best_cycle_time']};{tabu_search_hard['best_cycle_time']}\n"
-        result += f";PPO;{ppo_easy['best_cycle_time']};{ppo_mid['best_cycle_time']};{ppo_hard['best_cycle_time']}\n"
+        result += (
+            f";PPO;{ppo_easy['best_cycle_time']};{ppo_mid['best_cycle_time']};{ppo_hard['best_cycle_time']}\n"
+        )
         result += f";Tabu Random;{tabu_search_random_easy['best_cycle_time']};{tabu_search_random_mid['best_cycle_time']};{tabu_search_random_hard['best_cycle_time']}\n"
         result += f";SA Random;{simulated_annealing_random_easy['best_cycle_time']};{simulated_annealing_random_mid['best_cycle_time']};{simulated_annealing_random_hard['best_cycle_time']}\n"
         result += f";PPO Random;{ppo_random_easy['best_cycle_time']};{ppo_random_mid['best_cycle_time']};{ppo_random_hard['best_cycle_time']}\n\n"
 
         result += f"Best {Settings.get_pareto_x_label()}\n"
         result += f";Base;{reference_easy['base_x']};{reference_mid['base_x']};{reference_hard['base_x']}\n"
-        result += f";Reference;{reference_easy['best_x']};{reference_mid['best_x']};{reference_hard['best_x']}\n"
+        result += (
+            f";Reference;{reference_easy['best_x']};{reference_mid['best_x']};{reference_hard['best_x']}\n"
+        )
         result += f";SA;{sa_easy['best_x']};{sa_mid['best_x']};{sa_hard['best_x']}\n"
         result += f";Tabu Search;{tabu_search_easy['best_x']};{tabu_search_mid['best_x']};{tabu_search_hard['best_x']}\n"
-        result += (
-            f";PPO;{ppo_easy['best_x']};{ppo_mid['best_x']};{ppo_hard['best_x']}\n"
-        )
+        result += f";PPO;{ppo_easy['best_x']};{ppo_mid['best_x']};{ppo_hard['best_x']}\n"
         result += f";Tabu Random;{tabu_search_random_easy['best_x']};{tabu_search_random_mid['best_x']};{tabu_search_random_hard['best_x']}\n"
         result += f";SA Random;{simulated_annealing_random_easy['best_x']};{simulated_annealing_random_mid['best_x']};{simulated_annealing_random_hard['best_x']}\n"
         result += f";PPO Random;{ppo_random_easy['best_x']};{ppo_random_mid['best_x']};{ppo_random_hard['best_x']}\n\n"
 
         result += f"Best {Settings.get_pareto_y_label()}\n"
         result += f";Base;{reference_easy['base_y']};{reference_mid['base_y']};{reference_hard['base_y']}\n"
-        result += f";Reference;{reference_easy['best_y']};{reference_mid['best_y']};{reference_hard['best_y']}\n"
+        result += (
+            f";Reference;{reference_easy['best_y']};{reference_mid['best_y']};{reference_hard['best_y']}\n"
+        )
         result += f";SA;{sa_easy['best_y']};{sa_mid['best_y']};{sa_hard['best_y']}\n"
         result += f";Tabu Search;{tabu_search_easy['best_y']};{tabu_search_mid['best_y']};{tabu_search_hard['best_y']}\n"
-        result += (
-            f";PPO;{ppo_easy['best_y']};{ppo_mid['best_y']};{ppo_hard['best_y']}\n"
-        )
+        result += f";PPO;{ppo_easy['best_y']};{ppo_mid['best_y']};{ppo_hard['best_y']}\n"
         result += f";Tabu Random;{tabu_search_random_easy['best_y']};{tabu_search_random_mid['best_y']};{tabu_search_random_hard['best_y']}\n"
         result += f";SA Random;{simulated_annealing_random_easy['best_y']};{simulated_annealing_random_mid['best_y']};{simulated_annealing_random_hard['best_y']}\n"
         result += f";PPO Random;{ppo_random_easy['best_y']};{ppo_random_mid['best_y']};{ppo_random_hard['best_y']}\n\n"
@@ -536,7 +508,9 @@ def print_metrics_in_google_sheet_format(metrics: list[Metrics]) -> None:
         result += f";PPO;{ppo_easy['avg_x']};{ppo_mid['avg_x']};{ppo_hard['avg_x']}\n"
         result += f";Tabu Random;{tabu_search_random_easy['avg_x']};{tabu_search_random_mid['avg_x']};{tabu_search_random_hard['avg_x']}\n"
         result += f";SA Random;{simulated_annealing_random_easy['avg_x']};{simulated_annealing_random_mid['avg_x']};{simulated_annealing_random_hard['avg_x']}\n"
-        result += f";PPO Random;{ppo_random_easy['avg_x']};{ppo_random_mid['avg_x']};{ppo_random_hard['avg_x']}\n\n"
+        result += (
+            f";PPO Random;{ppo_random_easy['avg_x']};{ppo_random_mid['avg_x']};{ppo_random_hard['avg_x']}\n\n"
+        )
 
         result += f"Avg {Settings.get_pareto_y_label()}\n"
         result += f";Base;{reference_easy['base_y']};{reference_mid['base_y']};{reference_hard['base_y']}\n"
@@ -546,7 +520,9 @@ def print_metrics_in_google_sheet_format(metrics: list[Metrics]) -> None:
         result += f";PPO;{ppo_easy['avg_y']};{ppo_mid['avg_y']};{ppo_hard['avg_y']}\n"
         result += f";Tabu Random;{tabu_search_random_easy['avg_y']};{tabu_search_random_mid['avg_y']};{tabu_search_random_hard['avg_y']}\n"
         result += f";SA Random;{simulated_annealing_random_easy['avg_y']};{simulated_annealing_random_mid['avg_y']};{simulated_annealing_random_hard['avg_y']}\n"
-        result += f";PPO Random;{ppo_random_easy['avg_y']};{ppo_random_mid['avg_y']};{ppo_random_hard['avg_y']}\n\n"
+        result += (
+            f";PPO Random;{ppo_random_easy['avg_y']};{ppo_random_mid['avg_y']};{ppo_random_hard['avg_y']}\n\n"
+        )
 
     print(result.replace(".", ","))
 

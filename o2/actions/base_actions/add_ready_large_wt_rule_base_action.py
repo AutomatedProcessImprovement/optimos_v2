@@ -61,9 +61,7 @@ class AddReadyLargeWTRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
                     FiringRule.lte(type, 24 * 60 * 60),
                 ],
             )
-            return state.replace_timetable(
-                batch_processing=timetable.batch_processing + [new_batching_rule]
-            )
+            return state.replace_timetable(batch_processing=timetable.batch_processing + [new_batching_rule])
 
         # Find the rule to modify
         rule = existing_task_rules[0]
@@ -88,14 +86,10 @@ class AddReadyLargeWTRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
 
                     # We can modify this existing rule
                     updated_firing_rule = FiringRule.gte(type, waiting_time)
-                    selector = RuleSelector(
-                        batching_rule_task_id=task_id, firing_rule_index=(or_index, 0)
-                    )
+                    selector = RuleSelector(batching_rule_task_id=task_id, firing_rule_index=(or_index, 0))
                     return replace(
                         state,
-                        timetable=timetable.replace_firing_rule(
-                            selector, updated_firing_rule
-                        ),
+                        timetable=timetable.replace_firing_rule(selector, updated_firing_rule),
                     )
 
         new_or_rule = [

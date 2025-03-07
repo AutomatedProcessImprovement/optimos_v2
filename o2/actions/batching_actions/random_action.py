@@ -76,9 +76,7 @@ class RandomAction(BaseAction):
                 random_day = random.choice(DAYS)
                 random_start_time = random.randint(0, 23)
                 end_time = random_start_time + 1
-                time_period = TimePeriod.from_start_end(
-                    random_start_time, end_time, random_day
-                )
+                time_period = TimePeriod.from_start_end(random_start_time, end_time, random_day)
                 duration_fn = store.constraints.get_duration_fn_for_task(task_id)
 
                 params = AddDateTimeRuleBaseActionParamsType(
@@ -101,9 +99,7 @@ class RandomAction(BaseAction):
                 all_daily_hour_rule_selectors = [
                     rule_selector
                     for batching_rule in timetable.batch_processing
-                    for rule_selector in batching_rule.get_firing_rule_selectors(
-                        RULE_TYPE.DAILY_HOUR
-                    )
+                    for rule_selector in batching_rule.get_firing_rule_selectors(RULE_TYPE.DAILY_HOUR)
                 ]
                 if not all_daily_hour_rule_selectors:
                     continue
@@ -117,9 +113,7 @@ class RandomAction(BaseAction):
                 all_size_rule_selectors = [
                     rule_selector
                     for batching_rule in timetable.batch_processing
-                    for rule_selector in batching_rule.get_firing_rule_selectors(
-                        RULE_TYPE.SIZE
-                    )
+                    for rule_selector in batching_rule.get_firing_rule_selectors(RULE_TYPE.SIZE)
                 ]
                 if not all_size_rule_selectors:
                     continue

@@ -93,25 +93,15 @@ class PPOInput:
         return spaces.Dict(
             {
                 # Continuous resource-related observations
-                "resource_waiting_times": spaces.Box(
-                    low=0, high=1, shape=(1, num_resources)
-                ),
-                "resource_available_time": spaces.Box(
-                    low=0, high=1, shape=(1, num_resources)
-                ),
-                "resource_utilization": spaces.Box(
-                    low=0, high=1, shape=(1, num_resources)
-                ),
+                "resource_waiting_times": spaces.Box(low=0, high=1, shape=(1, num_resources)),
+                "resource_available_time": spaces.Box(low=0, high=1, shape=(1, num_resources)),
+                "resource_utilization": spaces.Box(low=0, high=1, shape=(1, num_resources)),
                 # Discrete resource-related observations
-                "resource_num_tasks": spaces.Box(
-                    low=0, high=high, shape=(1, num_resources)
-                ),
+                "resource_num_tasks": spaces.Box(low=0, high=high, shape=(1, num_resources)),
                 # Continuous task-related observations
                 "task_waiting_times": spaces.Box(low=0, high=1, shape=(1, num_tasks)),
                 "task_idle_time": spaces.Box(low=0, high=1, shape=(1, num_tasks)),
-                "task_batching_waiting_times_percentage": spaces.Box(
-                    low=0, high=1, shape=(1, num_tasks)
-                ),
+                "task_batching_waiting_times_percentage": spaces.Box(low=0, high=1, shape=(1, num_tasks)),
                 # Discrete task-related observations
                 "task_execution_percentage_with_wt_or_it": spaces.Box(
                     low=0, high=num_cases, shape=(1, num_tasks)
@@ -119,12 +109,8 @@ class PPOInput:
                 "task_enablements_per_day": spaces.Box(
                     low=0, high=num_cases, shape=(1, num_tasks * num_days)
                 ),
-                "task_num_resources": spaces.Box(
-                    low=0, high=num_resources, shape=(1, num_tasks)
-                ),
-                "task_average_batch_size": spaces.Box(
-                    low=0, high=num_resources, shape=(1, num_tasks)
-                ),
+                "task_num_resources": spaces.Box(low=0, high=num_resources, shape=(1, num_tasks)),
+                "task_average_batch_size": spaces.Box(low=0, high=num_resources, shape=(1, num_tasks)),
             }
         )
 
@@ -140,33 +126,22 @@ class PPOInput:
 
         # Continuous features
         waiting_times = np.array(
-            [
-                kpis[task_id].waiting_time.total if task_id in kpis else 0
-                for task_id in task_ids
-            ]
+            [kpis[task_id].waiting_time.total if task_id in kpis else 0 for task_id in task_ids]
         )
 
         batching_waiting_times = np.array(
-            [
-                evaluation.total_batching_waiting_time_per_task.get(task_id, 0)
-                for task_id in task_ids
-            ]
+            [evaluation.total_batching_waiting_time_per_task.get(task_id, 0) for task_id in task_ids]
         )
 
         batching_waiting_times_percentage = np.array(
             [
-                (batching_waiting_times[i] / waiting_times[i])
-                if waiting_times[i] != 0
-                else 0
+                (batching_waiting_times[i] / waiting_times[i]) if waiting_times[i] != 0 else 0
                 for i in range(len(task_ids))
             ]
         )
 
         idle_times = np.array(
-            [
-                kpis[task_id].idle_time.total if task_id in kpis else 0
-                for task_id in task_ids
-            ]
+            [kpis[task_id].idle_time.total if task_id in kpis else 0 for task_id in task_ids]
         )
 
         # Scale continuous features
@@ -174,13 +149,10 @@ class PPOInput:
         idle_times = scaler_idle_time.fit_transform(idle_times.reshape(1, -1))
 
         # Discrete features
-        task_execution_count_with_wt_or_it_dict = (
-            evaluation.task_execution_count_with_wt_or_it
-        )
+        task_execution_count_with_wt_or_it_dict = evaluation.task_execution_count_with_wt_or_it
         task_execution_percentage_with_wt_or_it_ = np.array(
             [
-                task_execution_count_with_wt_or_it_dict[task_id]
-                / evaluation.task_execution_counts[task_id]
+                task_execution_count_with_wt_or_it_dict[task_id] / evaluation.task_execution_counts[task_id]
                 if task_id in task_execution_count_with_wt_or_it_dict
                 else 0
                 for task_id in task_ids
@@ -222,9 +194,7 @@ class PPOInput:
             "task_execution_percentage_with_wt_or_it": PPOInput._clean_np_array(
                 task_execution_percentage_with_wt_or_it_
             ),
-            "task_enablements_per_day": PPOInput._clean_np_array(
-                task_enablements_per_day
-            ),
+            "task_enablements_per_day": PPOInput._clean_np_array(task_enablements_per_day),
             "task_num_resources": PPOInput._clean_np_array(number_of_resources),
             "task_average_batch_size": PPOInput._clean_np_array(average_batch_size),
         }
@@ -275,16 +245,12 @@ class PPOInput:
 
         # Scale continuous features
         waiting_times = scaler_waiting_time.fit_transform(waiting_times.reshape(1, -1))
-        available_times = scaler_available_time.fit_transform(
-            available_times.reshape(1, -1)
-        )
+        available_times = scaler_available_time.fit_transform(available_times.reshape(1, -1))
         utilizations = scaler_utilization.fit_transform(utilizations.reshape(1, -1))
         hourly_costs = scaler_hourly_cost.fit_transform(hourly_costs.reshape(1, -1))
 
         # Discrete features
-        number_of_tasks = np.array(
-            [len(resource.assigned_tasks) for resource in resources]
-        )
+        number_of_tasks = np.array([len(resource.assigned_tasks) for resource in resources])
 
         return {
             "resource_waiting_times": PPOInput._clean_np_array(waiting_times),
@@ -398,9 +364,7 @@ class PPOInput:
                     AddDateTimeRuleAction(
                         params=AddDateTimeRuleBaseActionParamsType(
                             task_id=task_id,
-                            time_period=TimePeriod.from_start_end(
-                                day=day, start=12, end=13
-                            ),
+                            time_period=TimePeriod.from_start_end(day=day, start=12, end=13),
                             duration_fn=duration_fn,
                         )
                     )
@@ -421,9 +385,7 @@ class PPOInput:
                 )
                 actions.append(
                     RemoveDateTimeRuleAction(
-                        params=RemoveDateTimeRuleActionParamsType(
-                            task_id=task_id, day=day
-                        )
+                        params=RemoveDateTimeRuleActionParamsType(task_id=task_id, day=day)
                     )
                 )
 

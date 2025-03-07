@@ -40,9 +40,7 @@ class JSONReport(JSONWizard):
             name=store.name,
             constraints=store.constraints,
             bpmn_definition=store.base_state.bpmn_definition,
-            base_solution=_JSONSolution.from_state_evaluation(
-                store.base_solution, store
-            ),
+            base_solution=_JSONSolution.from_state_evaluation(store.base_solution, store),
             pareto_fronts=[
                 _JSONParetoFront.from_pareto_front(pareto_front, store)
                 for pareto_front in store.pareto_fronts
@@ -58,13 +56,10 @@ class _JSONParetoFront(JSONWizard):
     solutions: list["_JSONSolution"]
 
     @staticmethod
-    def from_pareto_front(
-        pareto_front: "ParetoFront", store: Store
-    ) -> "_JSONParetoFront":
+    def from_pareto_front(pareto_front: "ParetoFront", store: Store) -> "_JSONParetoFront":
         return _JSONParetoFront(
             solutions=[
-                _JSONSolution.from_state_evaluation(solution, store)
-                for solution in pareto_front.solutions
+                _JSONSolution.from_state_evaluation(solution, store) for solution in pareto_front.solutions
             ]
         )
 
@@ -117,15 +112,11 @@ class _JSONResourceInfo(JSONWizard):
         timetable = solution.state.timetable.get_calendar_for_resource(
             resource.id
         ) or store.base_state.timetable.get_calendar_for_base_resource(resource.id)
-        resource_constraints = store.constraints.get_legacy_constraints_for_resource(
-            resource.id
-        )
+        resource_constraints = store.constraints.get_legacy_constraints_for_resource(resource.id)
         if solution.is_base_solution:
             original_time_table = timetable
         else:
-            original_time_table = (
-                store.base_state.timetable.get_calendar_for_base_resource(resource.id)
-            )
+            original_time_table = store.base_state.timetable.get_calendar_for_base_resource(resource.id)
 
         assert timetable is not None
         assert resource_constraints is not None
@@ -134,45 +125,27 @@ class _JSONResourceInfo(JSONWizard):
         relevant_actions = [
             action
             for action in solution.actions
-            if (
-                isinstance(action, ModifyResourceBaseAction)
-                and action.params["resource_id"] == resource.id
-            )
-            or (
-                isinstance(action, ModifyCalendarBaseAction)
-                and action.params["calendar_id"] == timetable.id
-            )
+            if (isinstance(action, ModifyResourceBaseAction) and action.params["resource_id"] == resource.id)
+            or (isinstance(action, ModifyCalendarBaseAction) and action.params["calendar_id"] == timetable.id)
         ]
 
         deleted = any(
-            isinstance(action, ModifyResourceBaseAction)
-            and action.params.get("remove_resource")
+            isinstance(action, ModifyResourceBaseAction) and action.params.get("remove_resource")
             for action in relevant_actions
         )
 
         added = CLONE_REGEX.match(resource.id) is not None
 
-        shifts_modified = any(
-            isinstance(action, ModifyCalendarBaseAction) for action in relevant_actions
-        )
+        shifts_modified = any(isinstance(action, ModifyCalendarBaseAction) for action in relevant_actions)
 
         tasks_modified = any(
-            isinstance(action, ModifyResourceBaseAction)
-            and action.params.get("remove_task_from_resource")
+            isinstance(action, ModifyResourceBaseAction) and action.params.get("remove_task_from_resource")
             for action in relevant_actions
         )
 
         original_tasks = store.base_state.timetable.get_tasks(resource.id)
-        removed_tasks = [
-            task_id
-            for task_id in original_tasks
-            if task_id not in resource.assigned_tasks
-        ]
-        added_tasks = [
-            task_id
-            for task_id in resource.assigned_tasks
-            if task_id not in original_tasks
-        ]
+        removed_tasks = [task_id for task_id in original_tasks if task_id not in resource.assigned_tasks]
+        added_tasks = [task_id for task_id in resource.assigned_tasks if task_id not in original_tasks]
 
         evaluation = solution.evaluation
 
@@ -184,9 +157,7 @@ class _JSONResourceInfo(JSONWizard):
             available_time=evaluation.resource_available_times.get(resource.id, 0),
             utilization=evaluation.resource_utilizations.get(resource.id, 0),
             cost_per_week=timetable.total_hours * resource.cost_per_hour,
-            total_cost=(
-                evaluation.resource_available_times.get(resource.id, 0) / 60 / 60
-            )
+            total_cost=(evaluation.resource_available_times.get(resource.id, 0) / 60 / 60)
             * resource.cost_per_hour,
             hourly_rate=resource.cost_per_hour,
             is_human=resource_constraints.global_constraints.is_human,

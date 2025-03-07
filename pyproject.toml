@@ -48,8 +48,8 @@ addopts = "--ignore=states --ignore=evaluations"
 # addopts = "--cov --cov-report=lcov:lcov.info --cov-report=term"
 pythonpath = ["."]
 
-[tool.ruff.lint]
-select = [
+[tool.ruff]
+lint.select = [
     "E",   # pycodestyle
     "F",   # Pyflakes
     "UP",  # pyupgrade
@@ -63,12 +63,15 @@ select = [
     "Q",   # Flake8-quotes
     "ANN", # Annotations (flake8-annotations)
 ]
-ignore = [
+lint.ignore = [
     "D100",   # Missing docstring in public module
-    "ANN101", # Missing type annotation for self in method
     "D107",
     "ANN202",
+    "D203",
+    "D213",
 ]
+line-length = 110
+
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["D", "ANN"]

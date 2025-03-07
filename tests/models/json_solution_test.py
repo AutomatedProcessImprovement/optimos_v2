@@ -7,9 +7,7 @@ from tests.fixtures.timetable_generator import TimetableGenerator
 
 
 def test_creating_json_solution(store: Store):
-    store = replace_constraints(
-        store, resources=ConstraintsGenerator.resource_constraints()
-    )
+    store = replace_constraints(store, resources=ConstraintsGenerator.resource_constraints())
 
     store.settings.max_iterations = 5
     store.settings.max_threads = 1

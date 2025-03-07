@@ -73,9 +73,7 @@ class TimetableGenerator:
         )
         return self
 
-    def create_simple_arrival_time_calendar(
-        self, start=0, end=23, include_end_hour=True
-    ):
+    def create_simple_arrival_time_calendar(self, start=0, end=23, include_end_hour=True):
         self.timetable = replace(
             self.timetable,
             arrival_time_calendar=TimetableGenerator.arrival_time_calendar(
@@ -122,9 +120,7 @@ class TimetableGenerator:
     def create_simple_batch_processing(self, size=BATCHING_BASE_SIZE):
         self.timetable = replace(
             self.timetable,
-            batch_processing=[
-                self.batching_size_rule(task.attrib["id"], size) for task in self.tasks
-            ],
+            batch_processing=[self.batching_size_rule(task.attrib["id"], size) for task in self.tasks],
         )
         return self
 
@@ -146,13 +142,7 @@ class TimetableGenerator:
                         to=DAY.SUNDAY if not only_week_days else DAY.FRIDAY,
                         begin_time=f"{begin_hour:02}:00:00",
                         end_time=f"{end_hour:02}:"
-                        + (
-                            "59:59"
-                            if include_end_hour
-                            else "00:00"
-                            if not include_extra_minute
-                            else "00:01"
-                        ),
+                        + ("59:59" if include_end_hour else "00:00" if not include_extra_minute else "00:01"),
                     )
                 ],
             )
@@ -175,8 +165,7 @@ class TimetableGenerator:
                         from_=DAY.MONDAY,
                         to=DAY.SUNDAY if not only_week_days else DAY.FRIDAY,
                         begin_time=f"{begin_hour:02}:00:00",
-                        end_time=f"{end_hour:02}:"
-                        + ("59:59" if include_end_hour else "00:00"),
+                        end_time=f"{end_hour:02}:" + ("59:59" if include_end_hour else "00:00"),
                     )
                 ],
             )
@@ -211,9 +200,7 @@ class TimetableGenerator:
         )
 
     @staticmethod
-    def ready_wt_rule(
-        task_id: str, ready_wt: int, size=BATCHING_BASE_SIZE, duration_distribution=1.0
-    ):
+    def ready_wt_rule(task_id: str, ready_wt: int, size=BATCHING_BASE_SIZE, duration_distribution=1.0):
         return BatchingRule(
             task_id=task_id,
             type=BATCH_TYPE.PARALLEL,
@@ -258,10 +245,7 @@ class TimetableGenerator:
             size_distrib=[
                 Distribution(key=str(1), value=0.0),
             ]
-            + [
-                Distribution(key=str(s), value=1 / (size - 1))
-                for s in range(2, size + 1)
-            ],
+            + [Distribution(key=str(s), value=1 / (size - 1)) for s in range(2, size + 1)],
             duration_distrib=[
                 Distribution(
                     key=str(s),
@@ -467,9 +451,7 @@ class TimetableGenerator:
         ]
 
     @staticmethod
-    def task_resource_distribution_multi_resource(
-        task_ids: list[str], num_resources: int, duration=60 * 60
-    ):
+    def task_resource_distribution_multi_resource(task_ids: list[str], num_resources: int, duration=60 * 60):
         return [
             TaskResourceDistributions(
                 task_id=task_id,
@@ -577,13 +559,7 @@ class TimetableGenerator:
                 to=DAY.SUNDAY if not only_week_days else DAY.FRIDAY,
                 begin_time=f"{start:02}:00:00",
                 end_time=f"{end:02}:"
-                + (
-                    "59:59"
-                    if include_end_hour
-                    else "00:00"
-                    if not include_extra_minute
-                    else "00:01"
-                ),
+                + ("59:59" if include_end_hour else "00:00" if not include_extra_minute else "00:01"),
             )
         ]
 

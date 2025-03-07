@@ -78,10 +78,7 @@ def test_get_nearest_solution_origin_max_distance(one_task_store: Store):
     tree.add_solution(solution3)
 
     assert tree.get_nearest_solution(origin_pareto_front, max_distance=2) is None
-    assert (
-        tree.get_nearest_solution(origin_pareto_front, max_distance=distance)
-        is solution2
-    )
+    assert tree.get_nearest_solution(origin_pareto_front, max_distance=distance) is solution2
 
 
 def test_get_nearest_solution_pareto_front(one_task_store: Store):

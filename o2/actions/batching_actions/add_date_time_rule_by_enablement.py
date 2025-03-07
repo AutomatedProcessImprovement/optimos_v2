@@ -44,11 +44,7 @@ class AddDateTimeRuleByEnablementAction(AddDateTimeRuleBaseAction):
 
         task_enablements = {
             task_id: sorted(
-                (
-                    (count, day, hour)
-                    for day, hours in dict.items()
-                    for hour, count in hours.items()
-                ),
+                ((count, day, hour) for day, hours in dict.items() for hour, count in hours.items()),
                 key=lambda x: x[0],
                 reverse=True,
             )
@@ -67,9 +63,7 @@ class AddDateTimeRuleByEnablementAction(AddDateTimeRuleBaseAction):
                         AddDateTimeRuleByEnablementActionParamsType(
                             task_id=task_id,
                             time_period=TimePeriod.from_start_end(hour, hour + 1, day),
-                            duration_fn=store.constraints.get_duration_fn_for_task(
-                                task_id
-                            ),
+                            duration_fn=store.constraints.get_duration_fn_for_task(task_id),
                         )
                     ),
                 )

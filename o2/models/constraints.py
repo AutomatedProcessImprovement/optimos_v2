@@ -321,8 +321,7 @@ class ConstraintsType(JSONWizard):
             and timetable.max_consecutive_hours_per_resource <= self.max_shift_size
             and timetable.max_periods_per_day_per_resource <= self.max_shift_blocks
             and all(
-                resource_constraints.verify_timetable(timetable)
-                for resource_constraints in self.resources
+                resource_constraints.verify_timetable(timetable) for resource_constraints in self.resources
             )
         )
 
@@ -331,14 +330,9 @@ class ConstraintsType(JSONWizard):
 
         Will check batching constraints for all firing rules.
         """
-        return all(
-            constraint.verify_timetable(timetable)
-            for constraint in self.batching_constraints
-        )
+        return all(constraint.verify_timetable(timetable) for constraint in self.batching_constraints)
 
-    def get_legacy_constraints_for_resource(
-        self, resource_id: str
-    ) -> Optional[ResourceConstraints]:
+    def get_legacy_constraints_for_resource(self, resource_id: str) -> Optional[ResourceConstraints]:
         """Get the legacy constraints for a specific resource."""
         return next(
             (
@@ -355,15 +349,9 @@ class ConstraintsType(JSONWizard):
 
     def get_batching_constraints_for_task(self, task: str) -> list[BatchingConstraints]:
         """Get the batching constraints for a specific task."""
-        return [
-            constraint
-            for constraint in self.batching_constraints
-            if task in constraint.tasks
-        ]
+        return [constraint for constraint in self.batching_constraints if task in constraint.tasks]
 
-    def get_batching_size_rule_constraints(
-        self, task_id: str
-    ) -> list[SizeRuleConstraints]:
+    def get_batching_size_rule_constraints(self, task_id: str) -> list[SizeRuleConstraints]:
         """Get the size rule constraints for a specific task."""
         return [
             constraint
@@ -371,9 +359,7 @@ class ConstraintsType(JSONWizard):
             if task_id in constraint.tasks and is_size_constraint(constraint)
         ]
 
-    def get_batching_ready_wt_rule_constraints(
-        self, task_id: str
-    ) -> list[ReadyWtRuleConstraints]:
+    def get_batching_ready_wt_rule_constraints(self, task_id: str) -> list[ReadyWtRuleConstraints]:
         """Get the ready waiting time rule constraints for a specific task."""
         return [
             constraint
@@ -381,9 +367,7 @@ class ConstraintsType(JSONWizard):
             if task_id in constraint.tasks and is_ready_wt_constraint(constraint)
         ]
 
-    def get_batching_large_wt_rule_constraints(
-        self, task_id: str
-    ) -> list[LargeWtRuleConstraints]:
+    def get_batching_large_wt_rule_constraints(self, task_id: str) -> list[LargeWtRuleConstraints]:
         """Get the large waiting time rule constraints for a specific task."""
         return [
             constraint
@@ -391,9 +375,7 @@ class ConstraintsType(JSONWizard):
             if task_id in constraint.tasks and is_large_wt_constraint(constraint)
         ]
 
-    def get_week_day_rule_constraints(
-        self, task_id: str
-    ) -> list[WeekDayRuleConstraints]:
+    def get_week_day_rule_constraints(self, task_id: str) -> list[WeekDayRuleConstraints]:
         """Get the week day rule constraints for a specific task."""
         return [
             constraint
@@ -401,9 +383,7 @@ class ConstraintsType(JSONWizard):
             if task_id in constraint.tasks and is_week_day_constraint(constraint)
         ]
 
-    def get_daily_hour_rule_constraints(
-        self, task_id: str
-    ) -> list[DailyHourRuleConstraints]:
+    def get_daily_hour_rule_constraints(self, task_id: str) -> list[DailyHourRuleConstraints]:
         """Get the daily hour rule constraints for a specific task."""
         return [
             constraint

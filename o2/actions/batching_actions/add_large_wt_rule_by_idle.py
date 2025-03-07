@@ -48,9 +48,7 @@ class AddLargeWTRuleByIdleAction(AddReadyLargeWTRuleBaseAction):
     params: AddLargeWTRuleByIdleActionParamsType
 
     @staticmethod
-    def rate_self(
-        store: "Store", input: SelfRatingInput
-    ) -> RateSelfReturnType["AddLargeWTRuleByIdleAction"]:
+    def rate_self(store: "Store", input: SelfRatingInput) -> RateSelfReturnType["AddLargeWTRuleByIdleAction"]:
         """Generate a best set of parameters & self-evaluates this action."""
         timetable = store.current_timetable
 
@@ -79,9 +77,7 @@ class AddLargeWTRuleByIdleAction(AddReadyLargeWTRuleBaseAction):
                 if calendar is None:
                     continue
                 for batch in batch_group:
-                    first_enablement_weekday = DAY.from_date(
-                        batch["accumulation_begin"]
-                    )
+                    first_enablement_weekday = DAY.from_date(batch["accumulation_begin"])
                     required_processing_time = ceil(batch["ideal_proc"] / 3600)
 
                     time_periods = calendar.get_time_periods_of_length_excl_idle(
@@ -94,9 +90,7 @@ class AddLargeWTRuleByIdleAction(AddReadyLargeWTRuleBaseAction):
                     proposed_waiting_times = set()
 
                     for period in time_periods:
-                        required_large_wt = (
-                            period.begin_time_hour - batch["accumulation_begin"].hour
-                        )
+                        required_large_wt = period.begin_time_hour - batch["accumulation_begin"].hour
                         # Idle time of 0 doesn't make sense,
                         # as it's basically the same as no batching
                         if required_large_wt <= 0:

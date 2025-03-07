@@ -80,35 +80,19 @@ class PPOInputLegacy:
         return spaces.Dict(
             {
                 # Continuous resource-related observations
-                "resource_waiting_times": spaces.Box(
-                    low=0, high=1, shape=(num_resources, 1)
-                ),
-                "resource_available_time": spaces.Box(
-                    low=0, high=1, shape=(num_resources, 1)
-                ),
-                "resource_utilization": spaces.Box(
-                    low=0, high=1, shape=(num_resources, 1)
-                ),
-                "resource_hourly_cost": spaces.Box(
-                    low=0, high=1, shape=(num_resources, 1)
-                ),
+                "resource_waiting_times": spaces.Box(low=0, high=1, shape=(num_resources, 1)),
+                "resource_available_time": spaces.Box(low=0, high=1, shape=(num_resources, 1)),
+                "resource_utilization": spaces.Box(low=0, high=1, shape=(num_resources, 1)),
+                "resource_hourly_cost": spaces.Box(low=0, high=1, shape=(num_resources, 1)),
                 # Discrete resource-related observations
-                "resource_num_tasks": spaces.Box(
-                    low=0, high=high, shape=(num_resources, 1)
-                ),
+                "resource_num_tasks": spaces.Box(low=0, high=high, shape=(num_resources, 1)),
                 # Continuous task-related observations
                 "task_waiting_times": spaces.Box(low=0, high=1, shape=(num_tasks, 1)),
                 "task_idle_time": spaces.Box(low=0, high=1, shape=(num_tasks, 1)),
                 # Discrete task-related observations
-                "task_execution_count_with_wt_or_it": spaces.Box(
-                    low=0, high=num_cases, shape=(num_tasks, 1)
-                ),
-                "task_execution_counts": spaces.Box(
-                    low=0, high=num_cases, shape=(num_tasks, 1)
-                ),
-                "task_num_resources": spaces.Box(
-                    low=0, high=num_resources, shape=(num_tasks, 1)
-                ),
+                "task_execution_count_with_wt_or_it": spaces.Box(low=0, high=num_cases, shape=(num_tasks, 1)),
+                "task_execution_counts": spaces.Box(low=0, high=num_cases, shape=(num_tasks, 1)),
+                "task_num_resources": spaces.Box(low=0, high=num_resources, shape=(num_tasks, 1)),
             }
         )
 
@@ -123,22 +107,16 @@ class PPOInputLegacy:
         scaler_idle_time = MinMaxScaler()
 
         # Continuous features
-        waiting_times = np.array(
-            [kpis[task_id].waiting_time.total for task_id in task_ids]
-        ).reshape(-1, 1)
+        waiting_times = np.array([kpis[task_id].waiting_time.total for task_id in task_ids]).reshape(-1, 1)
 
-        idle_times = np.array(
-            [kpis[task_id].idle_time.total for task_id in task_ids]
-        ).reshape(-1, 1)
+        idle_times = np.array([kpis[task_id].idle_time.total for task_id in task_ids]).reshape(-1, 1)
 
         # Scale continuous features
         waiting_times = scaler_waiting_time.fit_transform(waiting_times)
         idle_times = scaler_idle_time.fit_transform(idle_times)
 
         # Discrete features
-        task_execution_count_with_wt_or_it_dict = (
-            evaluation.task_execution_count_with_wt_or_it
-        )
+        task_execution_count_with_wt_or_it_dict = evaluation.task_execution_count_with_wt_or_it
         task_execution_count_with_wt_or_it_ = np.array(
             [
                 task_execution_count_with_wt_or_it_dict[task_id]
@@ -151,9 +129,7 @@ class PPOInputLegacy:
         task_execution_counts_dict = evaluation.task_execution_counts
         task_execution_counts = np.array(
             [
-                task_execution_counts_dict[task_id]
-                if task_id in task_execution_counts_dict
-                else 0
+                task_execution_counts_dict[task_id] if task_id in task_execution_counts_dict else 0
                 for task_id in task_ids
             ]
         ).reshape(-1, 1)
@@ -217,9 +193,7 @@ class PPOInputLegacy:
             ]
         ).reshape(-1, 1)
 
-        hourly_costs = np.array(
-            [resource.cost_per_hour for resource in resources]
-        ).reshape(-1, 1)
+        hourly_costs = np.array([resource.cost_per_hour for resource in resources]).reshape(-1, 1)
 
         # Scale continuous features
         waiting_times = scaler_waiting_time.fit_transform(waiting_times)
@@ -228,9 +202,7 @@ class PPOInputLegacy:
         hourly_costs = scaler_hourly_cost.fit_transform(hourly_costs)
 
         # Discrete features
-        number_of_tasks = np.array(
-            [len(resource.assigned_tasks) for resource in resources]
-        ).reshape(-1, 1)
+        number_of_tasks = np.array([len(resource.assigned_tasks) for resource in resources]).reshape(-1, 1)
 
         return {
             "resource_waiting_times": waiting_times,
@@ -275,13 +247,9 @@ class PPOInputLegacy:
         # - Shift Hour backward in calendar, per resource, per day
         # - Clone resource, per resource
         # - Remove resource, per resource
-        modify_calendar_action_params: list[
-            Optional[ModifyCalendarBaseActionParamsType]
-        ] = []
+        modify_calendar_action_params: list[Optional[ModifyCalendarBaseActionParamsType]] = []
 
-        modify_resource_action_params: list[
-            Optional[ModifyResourceBaseActionParamsType]
-        ] = []
+        modify_resource_action_params: list[Optional[ModifyResourceBaseActionParamsType]] = []
 
         for resource in resources:
             if current_timetable.get_resource(resource.id) is None:
@@ -359,9 +327,7 @@ class PPOInputLegacy:
                 )
         actions: list[Optional[BaseAction]] = [
             # TODO: We'll use a ModifyCalendarByCostAction for now
-            ModifyCalendarByCostAction(modify_calendar_action_param)
-            if modify_calendar_action_param
-            else None
+            ModifyCalendarByCostAction(modify_calendar_action_param) if modify_calendar_action_param else None
             for modify_calendar_action_param in modify_calendar_action_params
         ]
         actions.extend(
@@ -374,8 +340,7 @@ class PPOInputLegacy:
             ]
         )
         return [
-            action if (action is not None and store.is_tabu(action) is False) else None
-            for action in actions
+            action if (action is not None and store.is_tabu(action) is False) else None for action in actions
         ]
 
     @staticmethod

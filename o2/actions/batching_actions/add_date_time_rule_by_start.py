@@ -66,9 +66,7 @@ class AddDateTimeRuleByStartAction(AddDateTimeRuleBaseAction):
 
             # find most frequent day,hour combination
             # Lets look at the top 3
-            most_frequent_day_hour = Counter(aggregated_start_times).most_common(
-                LIMIT_OF_OPTIONS
-            )
+            most_frequent_day_hour = Counter(aggregated_start_times).most_common(LIMIT_OF_OPTIONS)
             if not most_frequent_day_hour:
                 continue
 
@@ -79,9 +77,7 @@ class AddDateTimeRuleByStartAction(AddDateTimeRuleBaseAction):
                         AddDateTimeRuleByStartActionParamsType(
                             task_id=task_id,
                             time_period=TimePeriod.from_start_end(hour, hour + 1, day),
-                            duration_fn=store.constraints.get_duration_fn_for_task(
-                                task_id
-                            ),
+                            duration_fn=store.constraints.get_duration_fn_for_task(task_id),
                         )
                     ),
                 )

@@ -46,9 +46,7 @@ class ModifyCalendarByCostAction(ModifyCalendarBaseAction, str=False):
                     period_id = period.id
                     # We need to fix the day period to not change
                     # change the times of other days
-                    fixed_day_period = period.model_copy(
-                        update={"from_": day, "to": day}
-                    )
+                    fixed_day_period = period.model_copy(update={"from_": day, "to": day})
 
                     # Try to remove the period if it's only 1 hour long
                     if fixed_day_period.duration == 1:

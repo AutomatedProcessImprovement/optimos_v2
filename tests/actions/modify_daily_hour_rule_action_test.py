@@ -18,17 +18,13 @@ from tests.fixtures.timetable_generator import TimetableGenerator
 def test_add_to_greater_then(store: Store):
     store = replace_timetable(
         store,
-        batch_processing=[
-            TimetableGenerator.daily_hour_rule(TimetableGenerator.FIRST_ACTIVITY, 9, 12)
-        ],
+        batch_processing=[TimetableGenerator.daily_hour_rule(TimetableGenerator.FIRST_ACTIVITY, 9, 12)],
     )
     first_rule = store.base_timetable.batch_processing[0]
     greater_then_selector = RuleSelector.from_batching_rule(first_rule, (0, 0))
 
     action = ModifyDailyHourRuleAction(
-        ModifyDailyHourRuleActionParamsType(
-            rule=greater_then_selector, hour_increment=1
-        )
+        ModifyDailyHourRuleActionParamsType(rule=greater_then_selector, hour_increment=1)
     )
 
     new_state = action.apply(state=store.base_state)
@@ -40,9 +36,7 @@ def test_add_to_greater_then(store: Store):
 def test_add_to_less_then(store: Store):
     store = replace_timetable(
         store,
-        batch_processing=[
-            TimetableGenerator.daily_hour_rule(TimetableGenerator.FIRST_ACTIVITY, 9, 12)
-        ],
+        batch_processing=[TimetableGenerator.daily_hour_rule(TimetableGenerator.FIRST_ACTIVITY, 9, 12)],
     )
     first_rule = store.base_timetable.batch_processing[0]
     less_then_selector = RuleSelector.from_batching_rule(first_rule, (0, 1))
@@ -61,12 +55,8 @@ def test_self_rate_simple(one_task_store: Store):
     # TODO: Fix this test, see implementation comments
     store = replace_timetable(
         one_task_store,
-        batch_processing=[
-            TimetableGenerator.daily_hour_rule(TimetableGenerator.FIRST_ACTIVITY, 9, 12)
-        ],
-        task_resource_distribution=TimetableGenerator(
-            one_task_store.base_state.bpmn_definition
-        )
+        batch_processing=[TimetableGenerator.daily_hour_rule(TimetableGenerator.FIRST_ACTIVITY, 9, 12)],
+        task_resource_distribution=TimetableGenerator(one_task_store.base_state.bpmn_definition)
         # 1 Minute Tasks
         .create_simple_task_resource_distribution(60)
         .timetable.task_resource_distribution,
@@ -84,9 +74,7 @@ def test_self_rate_simple(one_task_store: Store):
     evaluations = TabuAgent.evaluate_rules(store, skip_size_rules=True)
     rating_input = SelfRatingInput.from_rule_solutions(store, evaluations)
     assert rating_input is not None
-    rating, action = first_valid(
-        store, ModifyDailyHourRuleAction.rate_self(store, rating_input)
-    )
+    rating, action = first_valid(store, ModifyDailyHourRuleAction.rate_self(store, rating_input))
 
     # It's easy to see why the second rule is more impactful: If we remove <= 12:00,
     # than we can work from 9:00-23:59 (which is even more than needed, because we only
@@ -110,18 +98,12 @@ def test_self_rate_simple2(one_task_store: Store):
 
     store = replace_timetable(
         one_task_store,
-        batch_processing=[
-            TimetableGenerator.daily_hour_rule(TimetableGenerator.FIRST_ACTIVITY, 9, 12)
-        ],
-        arrival_time_calendar=TimetableGenerator(
-            one_task_store.base_state.bpmn_definition
-        )
+        batch_processing=[TimetableGenerator.daily_hour_rule(TimetableGenerator.FIRST_ACTIVITY, 9, 12)],
+        arrival_time_calendar=TimetableGenerator(one_task_store.base_state.bpmn_definition)
         # Events come in from 10:00-17:00
         .create_simple_arrival_time_calendar(00, 12)
         .timetable.arrival_time_calendar,
-        task_resource_distribution=TimetableGenerator(
-            one_task_store.base_state.bpmn_definition
-        )
+        task_resource_distribution=TimetableGenerator(one_task_store.base_state.bpmn_definition)
         # 1 Minute Tasks
         .create_simple_task_resource_distribution(60)
         .timetable.task_resource_distribution,
@@ -139,9 +121,7 @@ def test_self_rate_simple2(one_task_store: Store):
     evaluations = TabuAgent.evaluate_rules(store, skip_size_rules=True)
     rating_input = SelfRatingInput.from_rule_solutions(store, evaluations)
     assert rating_input is not None
-    rating, action = first_valid(
-        store, ModifyDailyHourRuleAction.rate_self(store, rating_input)
-    )
+    rating, action = first_valid(store, ModifyDailyHourRuleAction.rate_self(store, rating_input))
 
     # Because events are coming only until 12:00, we can't work significantly
     # past that time. Therefore the first rule is more impactful.

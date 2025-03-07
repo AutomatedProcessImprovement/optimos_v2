@@ -23,9 +23,7 @@ from o2.util.stat_calculation_helper import (
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(
-        description="CLI Tool for solving and analyzing simulation scenarios."
-    )
+    parser = argparse.ArgumentParser(description="CLI Tool for solving and analyzing simulation scenarios.")
     parser.add_argument(
         "--name",
         type=str,
@@ -278,14 +276,10 @@ def collect_data_sequentially(base_store: Store, args) -> None:
             args.log_to_tensor_board,
         )
         sa_store.settings.sa_initial_temperature = (
-            float(args.sa_initial_temperature)
-            if args.sa_initial_temperature != "auto"
-            else "auto"
+            float(args.sa_initial_temperature) if args.sa_initial_temperature != "auto" else "auto"
         )
         sa_store.settings.sa_cooling_factor = (
-            float(args.sa_cooling_factor)
-            if args.sa_cooling_factor != "auto"
-            else "auto"
+            float(args.sa_cooling_factor) if args.sa_cooling_factor != "auto" else "auto"
         )
         solve_store(sa_store, args.dump_interval)
         stores_to_run.append(("Simulated Annealing", sa_store))
@@ -307,14 +301,10 @@ def collect_data_sequentially(base_store: Store, args) -> None:
             args.log_to_tensor_board,
         )
         sa_store.settings.sa_initial_temperature = (
-            float(args.sa_initial_temperature)
-            if args.sa_initial_temperature != "auto"
-            else "auto"
+            float(args.sa_initial_temperature) if args.sa_initial_temperature != "auto" else "auto"
         )
         sa_store.settings.sa_cooling_factor = (
-            float(args.sa_cooling_factor)
-            if args.sa_cooling_factor != "auto"
-            else "auto"
+            float(args.sa_cooling_factor) if args.sa_cooling_factor != "auto" else "auto"
         )
         solve_store(sa_store, args.dump_interval)
         stores_to_run.append(("Simulated Annealing Random", sa_store))
@@ -395,12 +385,8 @@ if __name__ == "__main__":
             scenario_folder = "o2_evaluation/scenarios"
 
             if scenario == "Purchasing":
-                timetable_path = (
-                    f"{scenario_folder}/purchasing_example/purchasing_example.json"
-                )
-                bpmn_path = (
-                    f"{scenario_folder}/purchasing_example/purchasing_example.bpmn"
-                )
+                timetable_path = f"{scenario_folder}/purchasing_example/purchasing_example.json"
+                bpmn_path = f"{scenario_folder}/purchasing_example/purchasing_example.bpmn"
             elif scenario == "TwoTasks":
                 timetable_path = "examples/two_tasks_batching/two_tasks_batching.json"
                 bpmn_path = "examples/two_tasks_batching/two_tasks_batching.bpmn"

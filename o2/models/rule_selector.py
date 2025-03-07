@@ -35,11 +35,7 @@ class RuleSelector(JSONWizard):
     def get_batching_rule_from_state(self, state: "State") -> Optional["BatchingRule"]:
         """Get a batching rule by rule selector."""
         return next(
-            (
-                rule
-                for rule in state.timetable.batch_processing
-                if rule.task_id == self.batching_rule_task_id
-            ),
+            (rule for rule in state.timetable.batch_processing if rule.task_id == self.batching_rule_task_id),
             None,
         )
 
@@ -52,13 +48,9 @@ class RuleSelector(JSONWizard):
             return None
         if self.firing_rule_index[0] >= len(batching_rule.firing_rules):
             return None
-        if self.firing_rule_index[1] >= len(
-            batching_rule.firing_rules[self.firing_rule_index[0]]
-        ):
+        if self.firing_rule_index[1] >= len(batching_rule.firing_rules[self.firing_rule_index[0]]):
             return None
-        return batching_rule.firing_rules[self.firing_rule_index[0]][
-            self.firing_rule_index[1]
-        ]
+        return batching_rule.firing_rules[self.firing_rule_index[0]][self.firing_rule_index[1]]
 
     def id(self) -> str:
         if self.firing_rule_index is None:

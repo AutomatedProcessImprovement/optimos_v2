@@ -160,9 +160,7 @@ class Agent(ABC):
         pass
 
     @abstractmethod
-    def select_new_base_solution(
-        self, proposed_solution_try: Optional[SolutionTry] = None
-    ) -> Solution:
+    def select_new_base_solution(self, proposed_solution_try: Optional[SolutionTry] = None) -> Solution:
         """Select a new base solution.
 
         E.g from the SolutionTree
@@ -170,9 +168,7 @@ class Agent(ABC):
         pass
 
     @abstractmethod
-    def result_callback(
-        self, chosen_tries: list[SolutionTry], not_chosen_tries: list[SolutionTry]
-    ) -> None:
+    def result_callback(self, chosen_tries: list[SolutionTry], not_chosen_tries: list[SolutionTry]) -> None:
         """Handle the result of the evaluation with this callback."""
         pass
 
@@ -210,9 +206,8 @@ class Agent(ABC):
                 if store.is_tabu(action):
                     ignored_action_ids.add(action.id)
                     continue
-                if (
-                    not store.settings.disable_action_validity_check
-                    and not action.check_if_valid(store, mark_no_change_as_invalid=True)
+                if not store.settings.disable_action_validity_check and not action.check_if_valid(
+                    store, mark_no_change_as_invalid=True
                 ):
                     ignored_action_ids.add(action.id)
                     continue
@@ -230,8 +225,7 @@ class Agent(ABC):
                 # do not re-add it, thereby forbidding it to yield more
                 if (
                     store.settings.MAX_YIELDS_PER_ACTION is not None
-                    and counter[action_generator]
-                    >= store.settings.MAX_YIELDS_PER_ACTION
+                    and counter[action_generator] >= store.settings.MAX_YIELDS_PER_ACTION
                 ):
                     break
 

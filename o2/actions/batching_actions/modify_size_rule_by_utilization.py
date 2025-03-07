@@ -38,9 +38,9 @@ class ModifySizeRuleByLowUtilizationAction(ModifySizeRuleBaseAction):
         evaluation = store.current_evaluation
 
         resource_utilizations = evaluation.resource_utilizations
-        resources_by_utilization = sorted(
-            resource_utilizations.items(), key=lambda x: x[1]
-        )[:LIMIT_OF_OPTIONS]
+        resources_by_utilization = sorted(resource_utilizations.items(), key=lambda x: x[1])[
+            :LIMIT_OF_OPTIONS
+        ]
 
         for resource_id, utilization in resources_by_utilization:
             if utilization > 0.5:
@@ -50,18 +50,10 @@ class ModifySizeRuleByLowUtilizationAction(ModifySizeRuleBaseAction):
             for task_id in tasks:
                 batching_rules = timetable.get_batching_rules_for_task(task_id)
                 for batching_rule in batching_rules:
-                    selectors = batching_rule.get_firing_rule_selectors(
-                        type=RULE_TYPE.SIZE
-                    )
+                    selectors = batching_rule.get_firing_rule_selectors(type=RULE_TYPE.SIZE)
                     for selector in selectors:
-                        constraints = (
-                            store.constraints.get_batching_size_rule_constraints(
-                                task_id
-                            )
-                        )
-                        duration_fn = (
-                            "1" if not constraints else constraints[0].duration_fn
-                        )
+                        constraints = store.constraints.get_batching_size_rule_constraints(task_id)
+                        duration_fn = "1" if not constraints else constraints[0].duration_fn
                         yield (
                             RATING.HIGH,
                             ModifySizeRuleByLowUtilizationAction(
@@ -94,9 +86,9 @@ class ModifySizeRuleByHighUtilizationAction(ModifySizeRuleBaseAction):
         evaluation = store.current_evaluation
 
         resource_utilizations = evaluation.resource_utilizations
-        resources_by_utilization = sorted(
-            resource_utilizations.items(), key=lambda x: x[1], reverse=True
-        )[:LIMIT_OF_OPTIONS]
+        resources_by_utilization = sorted(resource_utilizations.items(), key=lambda x: x[1], reverse=True)[
+            :LIMIT_OF_OPTIONS
+        ]
 
         for resource_id, utilization in resources_by_utilization:
             if utilization < 0.8:
@@ -106,18 +98,10 @@ class ModifySizeRuleByHighUtilizationAction(ModifySizeRuleBaseAction):
             for task_id in tasks:
                 batching_rules = timetable.get_batching_rules_for_task(task_id)
                 for batching_rule in batching_rules:
-                    selectors = batching_rule.get_firing_rule_selectors(
-                        type=RULE_TYPE.SIZE
-                    )
+                    selectors = batching_rule.get_firing_rule_selectors(type=RULE_TYPE.SIZE)
                     for selector in selectors:
-                        constraints = (
-                            store.constraints.get_batching_size_rule_constraints(
-                                task_id
-                            )
-                        )
-                        duration_fn = (
-                            "1" if not constraints else constraints[0].duration_fn
-                        )
+                        constraints = store.constraints.get_batching_size_rule_constraints(task_id)
+                        duration_fn = "1" if not constraints else constraints[0].duration_fn
                         yield (
                             RATING.HIGH,
                             ModifySizeRuleByHighUtilizationAction(

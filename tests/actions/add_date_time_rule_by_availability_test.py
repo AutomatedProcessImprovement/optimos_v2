@@ -19,17 +19,13 @@ def test_add_date_time_rule_by_availability_simple(one_task_store: Store):
     store = replace_timetable(
         one_task_store,
         # Batch Size of 3
-        batch_processing=[
-            TimetableGenerator.batching_size_rule(TimetableGenerator.FIRST_ACTIVITY, 3)
-        ],
+        batch_processing=[TimetableGenerator.batching_size_rule(TimetableGenerator.FIRST_ACTIVITY, 3)],
         # 1 Hour Tasks
         task_resource_distribution=TimetableGenerator.task_resource_distribution_simple(
             [TimetableGenerator.FIRST_ACTIVITY], 1 * 60 * 60
         ),
         # One Task every 24h
-        arrival_time_distribution=TimetableGenerator.arrival_time_distribution(
-            24 * 60 * 60, 24 * 60 * 60
-        ),
+        arrival_time_distribution=TimetableGenerator.arrival_time_distribution(24 * 60 * 60, 24 * 60 * 60),
         arrival_time_calendar=TimetableGenerator.arrival_time_calendar(8, 16),
         resource_calendars=[
             ResourceCalendar(
@@ -71,13 +67,9 @@ def test_add_date_time_rule_by_availability_simple(one_task_store: Store):
 
     input = SelfRatingInput.from_base_solution(store.solution)
 
-    _, action = first_valid(
-        store, AddDateTimeRuleByAvailabilityAction.rate_self(store, input)
-    )
+    _, action = first_valid(store, AddDateTimeRuleByAvailabilityAction.rate_self(store, input))
 
     assert action is not None
     assert isinstance(action, AddDateTimeRuleByAvailabilityAction)
     assert action.params["task_id"] == TimetableGenerator.FIRST_ACTIVITY
-    assert action.params["time_period"] == TimePeriod.from_start_end(
-        10, 15, DAY.TUESDAY
-    )
+    assert action.params["time_period"] == TimePeriod.from_start_end(10, 15, DAY.TUESDAY)

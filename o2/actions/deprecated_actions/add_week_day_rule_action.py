@@ -70,11 +70,7 @@ class AddWeekDayRuleAction(BatchingRuleBaseAction, str=False):
         new_or_rules = (
             rule.firing_rules[: or_index + 1]
             + [
-                (
-                    and_rules[:and_index]
-                    + [replace(firing_rule, value=day)]
-                    + and_rules[and_index + 1 :]
-                )
+                (and_rules[:and_index] + [replace(firing_rule, value=day)] + and_rules[and_index + 1 :])
                 for day in add_days
             ]
             + rule.firing_rules[or_index + 1 :]
@@ -105,18 +101,13 @@ class AddWeekDayRuleAction(BatchingRuleBaseAction, str=False):
 
         # TODO: Think of some smart heuristic to rate the action
 
-        constraints = store.constraints.get_week_day_rule_constraints(
-            rule_selector.batching_rule_task_id
-        )
+        constraints = store.constraints.get_week_day_rule_constraints(rule_selector.batching_rule_task_id)
 
         if not constraints:
             return
 
         allowed_days = set(
-            day
-            for constraint in constraints
-            for day in constraint.allowed_days
-            if day != firing_rule.value
+            day for constraint in constraints for day in constraint.allowed_days if day != firing_rule.value
         )
 
         if len(allowed_days) == 0:

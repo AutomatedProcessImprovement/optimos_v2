@@ -79,10 +79,7 @@ class WorkMasks(JSONWizard):
         """Enable the hour range for a specific day."""
         return replace(
             self,
-            **{
-                day.name.lower(): self.get(day)
-                | ((1 << (24 - start)) - (1 << (24 - end)))
-            },
+            **{day.name.lower(): self.get(day) | ((1 << (24 - start)) - (1 << (24 - end)))},
         )
 
     def set_hour_range_for_every_day(self, start: int, end: int) -> "WorkMasks":

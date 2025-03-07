@@ -133,17 +133,13 @@ def create_mock_solution(
     )
 
 
-def assert_no_first_valid(
-    store: Store, generator: RateSelfReturnType
-) -> Optional[ActionRatingTuple]:
+def assert_no_first_valid(store: Store, generator: RateSelfReturnType) -> Optional[ActionRatingTuple]:
     for _, action in generator:
         if action is not None and action.check_if_valid(store):
             raise ValueError("Found valid action")
 
 
-def first_valid(
-    store: Store, generator: RateSelfReturnType[ActionT]
-) -> ActionRatingTuple[ActionT]:
+def first_valid(store: Store, generator: RateSelfReturnType[ActionT]) -> ActionRatingTuple[ActionT]:
     if store.current_evaluation.is_empty:
         raise ValueError("Current evaluation is empty!")
     for rating, action in generator:

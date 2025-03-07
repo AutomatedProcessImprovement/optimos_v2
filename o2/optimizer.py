@@ -73,9 +73,7 @@ class Optimizer:
                 from o2.util.tensorboard_helper import TensorBoardHelper
 
                 # Just iterate through the generator to run it
-                TensorBoardHelper.instance.tensor_board_iteration_callback(
-                    self.store.solution
-                )
+                TensorBoardHelper.instance.tensor_board_iteration_callback(self.store.solution)
 
         if not self.store.settings.disable_parallel_evaluation:
             self.executor.shutdown()
@@ -100,13 +98,9 @@ class Optimizer:
                 if self.max_non_improving_iter <= 0:
                     print_l0("Maximum non improving iterations reached!")
                     self.store.solution = self.agent.select_new_base_solution()
-                    self.max_non_improving_iter = (
-                        self.store.settings.max_non_improving_actions
-                    )
+                    self.max_non_improving_iter = self.store.settings.max_non_improving_actions
 
-                print_l0(
-                    f"{self.store.settings.agent.name} - Iteration {it}/{self.max_iter}"
-                )
+                print_l0(f"{self.store.settings.agent.name} - Iteration {it}/{self.max_iter}")
 
                 actions_to_perform = self.agent.select_actions(self.store)
                 if actions_to_perform is None or len(actions_to_perform) == 0:
@@ -115,9 +109,7 @@ class Optimizer:
                 print_l1(f"Running {len(actions_to_perform)} actions...")
                 start_time = time.time()
 
-                solutions = self._execute_actions_parallel(
-                    self.store, actions_to_perform
-                )
+                solutions = self._execute_actions_parallel(self.store, actions_to_perform)
                 print_l2(f"Simulation took {time.time() - start_time:.2f}s")
 
                 chosen_tries, not_chosen_tries = self.store.process_many_solutions(
@@ -163,9 +155,7 @@ class Optimizer:
                                 f"New best Evaluation: {Settings.get_pareto_x_label()}: {solution.pareto_x:2f}; {Settings.get_pareto_y_label()}: {solution.pareto_y:2f}",
                                 log_level=STATS_LOG_LEVEL,
                             )
-                            self.max_non_improving_iter = (
-                                self.store.settings.max_non_improving_actions
-                            )
+                            self.max_non_improving_iter = self.store.settings.max_non_improving_actions
                         yield solution
                 print_l1(f"Non improving actions left: {self.max_non_improving_iter}")
             except NoActionsLeftError:
@@ -208,9 +198,7 @@ class Optimizer:
             f"Iteration took {time_taken:.2f}s (avg: {self.running_avg_time:.2f}s, est. {est_hours:.0f}h {est_minutes:.0f}m {est_seconds:.0f}s left)"
         )
 
-    def _execute_actions_parallel(
-        self, store: Store, actions_to_perform: list[BaseAction]
-    ) -> list[Solution]:
+    def _execute_actions_parallel(self, store: Store, actions_to_perform: list[BaseAction]) -> list[Solution]:
         """Execute the given actions in parallel and return the results.
 
         The results are sorted, so that the most impactful actions are first,
@@ -223,9 +211,7 @@ class Optimizer:
         if not store.settings.disable_parallel_evaluation:
             futures: list[concurrent.futures.Future[Solution]] = []
             for action in actions_to_perform:
-                futures.append(
-                    self.executor.submit(Solution.from_parent, store.solution, action)
-                )
+                futures.append(self.executor.submit(Solution.from_parent, store.solution, action))
 
             for future in concurrent.futures.as_completed(futures):
                 try:
@@ -235,9 +221,7 @@ class Optimizer:
                     print_l1(f"Error evaluating actions : {e}")
         else:
             for action in actions_to_perform:
-                solution_try = store.try_solution(
-                    Solution.from_parent(store.solution, action)
-                )
+                solution_try = store.try_solution(Solution.from_parent(store.solution, action))
                 solution_tries.append(solution_try)
 
         # Sort tries with dominating ones first

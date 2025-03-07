@@ -61,9 +61,7 @@ class OptimosService:
         store.settings.max_number_of_actions_to_select = min(
             (config["max_actions_per_iteration"] or 1000), store.settings.max_threads
         )
-        store.settings.legacy_approach = LegacyApproach.from_abbreviation(
-            config["approach"]
-        )
+        store.settings.legacy_approach = LegacyApproach.from_abbreviation(config["approach"])
         store.settings.max_iterations = config["max_iterations"]
         store.settings.max_non_improving_actions = config["max_non_improving_actions"]
         store.settings.agent = config["agent"]

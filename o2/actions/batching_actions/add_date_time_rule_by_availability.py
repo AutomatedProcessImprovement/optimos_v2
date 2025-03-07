@@ -11,9 +11,7 @@ from o2.models.self_rating import RATING, SelfRatingInput
 from o2.store import Store
 
 
-class AddDateTimeRuleByAvailabilityActionParamsType(
-    AddDateTimeRuleBaseActionParamsType
-):
+class AddDateTimeRuleByAvailabilityActionParamsType(AddDateTimeRuleBaseActionParamsType):
     """Parameter for AddDateTimeRuleByAvailabilityAction."""
 
     pass
@@ -39,9 +37,7 @@ class AddDateTimeRuleByAvailabilityAction(AddDateTimeRuleBaseAction):
         """Generate a best set of parameters & self-evaluates this action."""
         timetable = store.current_timetable
 
-        avg_processing_times = (
-            store.current_evaluation.get_average_processing_time_per_task()
-        )
+        avg_processing_times = store.current_evaluation.get_average_processing_time_per_task()
 
         sorted_tasks = sorted(
             store.current_evaluation.get_total_duration_time_per_task().items(),
@@ -51,9 +47,7 @@ class AddDateTimeRuleByAvailabilityAction(AddDateTimeRuleBaseAction):
         for task_id, _ in sorted_tasks:
             avg_processing_time = avg_processing_times[task_id]
             hours_needed = ceil(avg_processing_time / 60 / 60)
-            best_time_period = timetable.get_highest_availability_time_period(
-                task_id, hours_needed
-            )
+            best_time_period = timetable.get_highest_availability_time_period(task_id, hours_needed)
             if best_time_period is None:
                 continue
 

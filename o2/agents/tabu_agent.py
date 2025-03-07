@@ -59,9 +59,7 @@ class TabuAgent(Agent):
             # if we don't have enough valid actions yet
             possible_actions = TabuAgent.get_valid_actions(store, action_generators)
             # Remove None values
-            possible_actions = [
-                action for action in possible_actions if action is not None
-            ]
+            possible_actions = [action for action in possible_actions if action is not None]
 
             if len(possible_actions) == 0:
                 print_l1("No actions remaining, after removing Tabu & N/A actions.")
@@ -81,9 +79,7 @@ class TabuAgent(Agent):
 
             number_of_actions_to_select = store.settings.max_number_of_actions_to_select
             selected_actions = sorted_actions[:number_of_actions_to_select]
-            avg_rating = sum(rating for rating, _ in selected_actions) / len(
-                selected_actions
-            )
+            avg_rating = sum(rating for rating, _ in selected_actions) / len(selected_actions)
 
             print_l1(
                 f"Chose {len(selected_actions)} actions with average rating {avg_rating:.1f} to evaluate."  # noqa: E501
@@ -95,9 +91,7 @@ class TabuAgent(Agent):
 
             return [action for _, action in selected_actions]
 
-    def select_new_base_solution(
-        self, proposed_solution_try: Optional[SolutionTry] = None
-    ) -> Solution:
+    def select_new_base_solution(self, proposed_solution_try: Optional[SolutionTry] = None) -> Solution:
         """Select a new base solution.
 
         E.g from the SolutionTree
@@ -108,10 +102,7 @@ class TabuAgent(Agent):
             # the current solution
             reinsert_current_solution=proposed_solution_try is not None,
         )
-        if (
-            proposed_solution_try is not None
-            and proposed_solution_try[1].id == solution.id
-        ):
+        if proposed_solution_try is not None and proposed_solution_try[1].id == solution.id:
             print_l3("The proposed solution is the same as the current solution.")
         return solution
 
@@ -120,24 +111,19 @@ class TabuAgent(Agent):
             return self.store.settings.max_distance_to_new_base_solution
         elif self.store.settings.error_radius_in_percent is not None:
             return self.store.settings.error_radius_in_percent * math.sqrt(
-                self.store.base_evaluation.pareto_x**2
-                + self.store.base_evaluation.pareto_y**2
+                self.store.base_evaluation.pareto_x**2 + self.store.base_evaluation.pareto_y**2
             )
         else:
             return float("inf")
 
-    def _select_new_base_evaluation(
-        self, reinsert_current_solution: bool = False
-    ) -> Solution:
+    def _select_new_base_evaluation(self, reinsert_current_solution: bool = False) -> Solution:
         """Choose a new base evaluation from the solution tree.
 
         If reinsert_current_solution is True, the current solution will be
         reinserted into the solution tree. This is useful if you aren't
         sure if you exhausted all possible actions for this solution.
         """
-        print_l2(
-            f"Selecting new base evaluation {'(reinserting)' if reinsert_current_solution else ''}..."
-        )
+        print_l2(f"Selecting new base evaluation {'(reinserting)' if reinsert_current_solution else ''}...")
         if reinsert_current_solution:
             self.store.solution_tree.add_solution(self.store.solution, archive=False)
 
@@ -208,9 +194,7 @@ class TabuAgent(Agent):
                 for rule_selector in chunk:
                     solution = Solution.from_parent(
                         store.solution,
-                        RemoveRuleAction(
-                            RemoveRuleActionParamsType(rule=rule_selector)
-                        ),
+                        RemoveRuleAction(RemoveRuleActionParamsType(rule=rule_selector)),
                     )
                     evaluations[solution.last_action.params["rule"]] = solution  # type: ignore
             return evaluations
@@ -223,9 +207,7 @@ class TabuAgent(Agent):
                         executor.submit(
                             Solution.from_parent,
                             store.solution,
-                            RemoveRuleAction(
-                                RemoveRuleActionParamsType(rule=rule_selector)
-                            ),
+                            RemoveRuleAction(RemoveRuleActionParamsType(rule=rule_selector)),
                         )
                     )
 
@@ -241,8 +223,6 @@ class TabuAgent(Agent):
 
         return evaluations
 
-    def result_callback(
-        self, chosen_tries: list[SolutionTry], not_chosen_tries: list[SolutionTry]
-    ) -> None:
+    def result_callback(self, chosen_tries: list[SolutionTry], not_chosen_tries: list[SolutionTry]) -> None:
         """Call to handle the result of the evaluation."""
         pass

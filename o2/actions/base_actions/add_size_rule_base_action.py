@@ -65,9 +65,7 @@ class AddSizeRuleBaseAction(BaseAction, ABC, str=False):
                 firing_rules=[FiringRule.gte(RULE_TYPE.SIZE, batching_size)],
                 duration_fn=duration_fn,
             )
-            return state.replace_timetable(
-                batch_processing=timetable.batch_processing + [new_batching_rule]
-            )
+            return state.replace_timetable(batch_processing=timetable.batch_processing + [new_batching_rule])
         # Add OR Case to existing rule
         else:
             existing_rule = batching_rules[0]
@@ -84,9 +82,7 @@ class AddSizeRuleBaseAction(BaseAction, ABC, str=False):
                     if size_distrib.key != str(batching_size)
                 ],
                 duration_distrib=[
-                    Distribution(
-                        key=str(batching_size), value=duration_lambda(batching_size)
-                    ),
+                    Distribution(key=str(batching_size), value=duration_lambda(batching_size)),
                 ]
                 + [
                     duration_distrib

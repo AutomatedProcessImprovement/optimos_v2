@@ -65,9 +65,7 @@ class ModifySizeOfSignificantRuleAction(BaseAction):
                         or change_size < 0
                         and size > significant_size
                     ):
-                        significant_rule = RuleSelector.from_batching_rule(
-                            batching_rule, (i, 0)
-                        )
+                        significant_rule = RuleSelector.from_batching_rule(batching_rule, (i, 0))
                         significant_size = size
 
         # If no significant rule is found, add a new one
@@ -79,9 +77,7 @@ class ModifySizeOfSignificantRuleAction(BaseAction):
                 firing_rules=[FiringRule.gte(RULE_TYPE.SIZE, new_size)],
                 duration_fn=duration_fn,
             )
-            return state.replace_timetable(
-                batch_processing=timetable.batch_processing + [new_batching_rule]
-            )
+            return state.replace_timetable(batch_processing=timetable.batch_processing + [new_batching_rule])
 
         return ModifySizeRuleAction(
             ModifySizeRuleBaseActionParamsType(

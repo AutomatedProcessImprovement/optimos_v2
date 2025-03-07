@@ -19,9 +19,7 @@ def test_no_rules(store: Store):
 
 
 def test_only_one_rule(store: Store):
-    store = replace_timetable(
-        store, batch_processing=[store.base_state.timetable.batch_processing[0]]
-    )
+    store = replace_timetable(store, batch_processing=[store.base_state.timetable.batch_processing[0]])
 
     evaluations = TabuAgent.evaluate_rules(store)
     rating_input = SelfRatingInput.from_rule_solutions(store, evaluations)
@@ -33,12 +31,8 @@ def test_only_one_rule(store: Store):
 
 
 def test_two_rules_one_bigger(two_tasks_store: Store):
-    small_rule = TimetableGenerator.batching_size_rule(
-        TimetableGenerator.SECOND_ACTIVITY, 2, 1
-    )
-    big_rule = TimetableGenerator.batching_size_rule(
-        TimetableGenerator.FIRST_ACTIVITY, 20, 1
-    )
+    small_rule = TimetableGenerator.batching_size_rule(TimetableGenerator.SECOND_ACTIVITY, 2, 1)
+    big_rule = TimetableGenerator.batching_size_rule(TimetableGenerator.FIRST_ACTIVITY, 20, 1)
     store = replace_timetable(
         two_tasks_store,
         batch_processing=[small_rule, big_rule],
@@ -59,7 +53,5 @@ def test_two_rules_one_bigger(two_tasks_store: Store):
     assert rating_input is not None
     best_action_reversed = rating_input.most_impactful_rule
     assert best_action_reversed is not None
-    assert (
-        best_action_reversed.batching_rule_task_id == TimetableGenerator.FIRST_ACTIVITY
-    )
+    assert best_action_reversed.batching_rule_task_id == TimetableGenerator.FIRST_ACTIVITY
     assert best_action_reversed.firing_rule_index == (0, 0)

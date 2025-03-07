@@ -7,9 +7,7 @@ from o2.models.timetable import TimetableType
 from o2.util.sim_diff_setup_fileless import SimDiffSetupFileless
 from o2_evaluation.data_collector import store_with_baseline_constraints
 
-timetable_path = (
-    "o2_evaluation/scenarios/bpi_challenge_2017/bpi_challenge_2017_with_batching.json"
-)
+timetable_path = "o2_evaluation/scenarios/bpi_challenge_2017/bpi_challenge_2017_with_batching.json"
 bpmn_path = "o2_evaluation/scenarios/bpi_challenge_2017/bpi_challenge_2017.bpmn"
 
 # with open(timetable_path) as f:
@@ -37,8 +35,6 @@ setup = state.to_sim_diff_setup()
 #     state.timetable.total_cases,
 # )
 
-setup = SimDiffSetupFileless(
-    "test", state.bpmn_definition, state.timetable, False, 1000
-)
+setup = SimDiffSetupFileless("test", state.bpmn_definition, state.timetable, False, 1000)
 
 run_simpy_simulation(setup, None, None)

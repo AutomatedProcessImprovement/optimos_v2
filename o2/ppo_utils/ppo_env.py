@@ -66,9 +66,7 @@ class PPOEnv(Env[StateType, np.int64]):
             error("Error in action:", e)
             self.store.mark_action_as_tabu(action_obj)
             return self.state, -1, False, False, {}
-        chosen_tries, not_chosen_tries = self.store.process_many_solutions(
-            [new_solution], None
-        )
+        chosen_tries, not_chosen_tries = self.store.process_many_solutions([new_solution], None)
 
         # TODO Improve scores based on how good/bad the solution is
         if not_chosen_tries:

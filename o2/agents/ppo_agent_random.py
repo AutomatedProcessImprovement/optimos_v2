@@ -37,9 +37,7 @@ class PPOAgentRandom(PPOAgent):
     @override
     def get_env(self) -> gym.Env:
         """Get the environment for the PPO agent."""
-        return PPOEnvRandom(
-            self.store, max_steps=self.store.settings.ppo_steps_per_iteration
-        )
+        return PPOEnvRandom(self.store, max_steps=self.store.settings.ppo_steps_per_iteration)
 
     @override
     def update_state(self) -> None:

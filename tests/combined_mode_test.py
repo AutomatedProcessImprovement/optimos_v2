@@ -19,11 +19,7 @@ def test_combined_mode(one_task_store: Store):
     assert all(not isinstance(action, ModifyResourceBaseAction) for action in actions)
 
     # Apply a ModifyCalendar Action
-    store.run_action(
-        next(
-            action for action in actions if isinstance(action, ModifyCalendarBaseAction)
-        )
-    )
+    store.run_action(next(action for action in actions if isinstance(action, ModifyCalendarBaseAction)))
 
     # In following step, ModifyResource Actions are allowed and
     # ModifyCalendar Actions are not allowed
@@ -32,11 +28,7 @@ def test_combined_mode(one_task_store: Store):
     assert all(not isinstance(action, ModifyCalendarBaseAction) for action in actions)
 
     # And last but not least, we apply a ModifyResource Action
-    store.run_action(
-        next(
-            action for action in actions if isinstance(action, ModifyResourceBaseAction)
-        )
-    )
+    store.run_action(next(action for action in actions if isinstance(action, ModifyResourceBaseAction)))
 
     # In the next step, ModifyCalendar Actions are allowed again
     actions = TabuAgent(store).select_actions(store)

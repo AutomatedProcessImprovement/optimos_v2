@@ -39,9 +39,7 @@ class ModifyCalendarByITAction(ModifyCalendarBaseAction, str=False):
             resources = parent_evaluation.get_most_frequent_resources(task)
             for day in days:
                 for resource in resources:
-                    calendar = store.current_timetable.get_calendar_for_resource(
-                        resource
-                    )
+                    calendar = store.current_timetable.get_calendar_for_resource(resource)
                     if calendar is None:
                         continue
                     periods = calendar.get_periods_containing_day(day)
@@ -49,9 +47,7 @@ class ModifyCalendarByITAction(ModifyCalendarBaseAction, str=False):
                         period_id = period.id
                         # We need to fix the day period to not change
                         # change the times of other days
-                        fixed_day_period = period.model_copy(
-                            update={"from_": day, "to": day}
-                        )
+                        fixed_day_period = period.model_copy(update={"from_": day, "to": day})
 
                         # Try to add hours to the end of the shift
                         new_period = fixed_day_period.add_hours_after(1)

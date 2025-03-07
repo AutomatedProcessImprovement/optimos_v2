@@ -61,9 +61,7 @@ class ModifyResourceBaseAction(BaseAction, ABC):
 
     @staticmethod
     @abstractmethod
-    def rate_self(
-        store: "Store", input: SelfRatingInput
-    ) -> RateSelfReturnType["ModifyResourceBaseAction"]:
+    def rate_self(store: "Store", input: SelfRatingInput) -> RateSelfReturnType["ModifyResourceBaseAction"]:
         """Generate a best set of parameters & self-evaluates this action.
 
         To be implemented by subclasses.

@@ -9,11 +9,7 @@ from tests.fixtures.timetable_generator import TimetableGenerator
 def test_optimizer_simple(one_task_store: Store):
     store = replace_timetable(
         one_task_store,
-        batch_processing=[
-            TimetableGenerator.batching_size_rule(
-                TimetableGenerator.FIRST_ACTIVITY, 10, 6
-            )
-        ],
+        batch_processing=[TimetableGenerator.batching_size_rule(TimetableGenerator.FIRST_ACTIVITY, 10, 6)],
     )
 
     store = replace_constraints(
@@ -40,11 +36,7 @@ def test_optimizer_simple(one_task_store: Store):
 def test_optimizer_batching(one_task_store: Store):
     store = replace_timetable(
         one_task_store,
-        batch_processing=[
-            TimetableGenerator.batching_size_rule(
-                TimetableGenerator.FIRST_ACTIVITY, 10, 1
-            )
-        ],
+        batch_processing=[TimetableGenerator.batching_size_rule(TimetableGenerator.FIRST_ACTIVITY, 10, 1)],
     )
 
     store = replace_constraints(
@@ -70,11 +62,7 @@ def test_optimizer_batching(one_task_store: Store):
 def test_optimizer_ppo(one_task_store: Store):
     store = replace_timetable(
         one_task_store,
-        batch_processing=[
-            TimetableGenerator.batching_size_rule(
-                TimetableGenerator.FIRST_ACTIVITY, 10, 1
-            )
-        ],
+        batch_processing=[TimetableGenerator.batching_size_rule(TimetableGenerator.FIRST_ACTIVITY, 10, 1)],
     )
 
     store = replace_constraints(

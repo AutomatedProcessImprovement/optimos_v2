@@ -87,9 +87,7 @@ class ModifyReadyWtRuleAction(BatchingRuleBaseAction, str=False):
             rule_selector.batching_rule_task_id
         )
 
-        max_allowed_min_size = max(
-            [constraint.min_wt for constraint in constraints], default=0
-        )
+        max_allowed_min_size = max([constraint.min_wt for constraint in constraints], default=0)
 
         # Decrementing the size would break the constraints
         if (firing_rule.value - SIZE_OF_CHANGE) < max_allowed_min_size:

@@ -67,9 +67,7 @@ class ModifySizeRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
 
         new_firing_rule = replace(firing_rule, value=new_size)
 
-        new_timetable = state.timetable.replace_firing_rule(
-            rule_selector, new_firing_rule
-        )
+        new_timetable = state.timetable.replace_firing_rule(rule_selector, new_firing_rule)
 
         return replace(state, timetable=new_timetable)
 

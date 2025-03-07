@@ -41,11 +41,7 @@ def test_auto_cooling_factor(one_task_store: Store):
     assert isinstance(optimizer.agent, SimulatedAnnealingAgent)
 
     # The temperature should be 4 times the distance of the base solution to the origin
-    assert (
-        optimizer.agent.temperature
-        == 4 * math.sqrt(100**2 + 100**2)
-        == pytest.approx(4 * 141.42135624)
-    )
+    assert optimizer.agent.temperature == 4 * math.sqrt(100**2 + 100**2) == pytest.approx(4 * 141.42135624)
 
     # Type checks
     assert isinstance(optimizer.agent.temperature, float)
@@ -59,6 +55,4 @@ def test_auto_cooling_factor(one_task_store: Store):
     ) == pytest.approx(7.07106781)
 
     # The cooling factor is (7.07/4*141.4)^(1/800) = 0.994...
-    assert optimizer.agent.store.settings.sa_cooling_factor == pytest.approx(
-        0.994537441038871
-    )
+    assert optimizer.agent.store.settings.sa_cooling_factor == pytest.approx(0.994537441038871)

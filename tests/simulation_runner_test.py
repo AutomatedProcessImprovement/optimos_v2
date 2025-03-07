@@ -52,9 +52,7 @@ def test_size_batching_rule(two_tasks_state: State):
         ),
     )
 
-    global_kpis, task_kpis, resource_kpis, log_info = SimulationRunner.run_simulation(
-        state
-    )
+    global_kpis, task_kpis, resource_kpis, log_info = SimulationRunner.run_simulation(state)
 
     case_0 = log_info.trace_list[0]
     case_1 = log_info.trace_list[1]
@@ -97,13 +95,9 @@ def test_large_wt_batching_rule(two_tasks_state: State):
     state = two_tasks_state.replace_timetable(
         batch_processing=[rule],
         total_cases=2,
-        arrival_time_distribution=TimetableGenerator.arrival_time_distribution(
-            min=5 * 60, max=5 * 60
-        ),
+        arrival_time_distribution=TimetableGenerator.arrival_time_distribution(min=5 * 60, max=5 * 60),
     )
-    global_kpis, task_kpis, resource_kpis, log_info = SimulationRunner.run_simulation(
-        state
-    )
+    global_kpis, task_kpis, resource_kpis, log_info = SimulationRunner.run_simulation(state)
 
     case_0 = log_info.trace_list[0]
     case_1 = log_info.trace_list[1]
@@ -138,13 +132,9 @@ def test_ready_wt_batching_rule(two_tasks_state: State):
     state = two_tasks_state.replace_timetable(
         batch_processing=[rule],
         total_cases=3,
-        arrival_time_distribution=TimetableGenerator.arrival_time_distribution(
-            min=5 * 60, max=5 * 60
-        ),
+        arrival_time_distribution=TimetableGenerator.arrival_time_distribution(min=5 * 60, max=5 * 60),
     )
-    global_kpis, task_kpis, resource_kpis, log_info = SimulationRunner.run_simulation(
-        state
-    )
+    global_kpis, task_kpis, resource_kpis, log_info = SimulationRunner.run_simulation(state)
 
     case_0 = log_info.trace_list[0]
     case_1 = log_info.trace_list[1]
@@ -175,13 +165,9 @@ def test_week_day_batching_rule(two_tasks_state: State):
     state = two_tasks_state.replace_timetable(
         batch_processing=[rule],
         total_cases=2,
-        arrival_time_distribution=TimetableGenerator.arrival_time_distribution(
-            min=5 * 60, max=5 * 60
-        ),
+        arrival_time_distribution=TimetableGenerator.arrival_time_distribution(min=5 * 60, max=5 * 60),
     )
-    global_kpis, task_kpis, resource_kpis, log_info = SimulationRunner.run_simulation(
-        state
-    )
+    global_kpis, task_kpis, resource_kpis, log_info = SimulationRunner.run_simulation(state)
 
     case_0 = log_info.trace_list[0]
     case_1 = log_info.trace_list[1]
@@ -210,20 +196,14 @@ def test_week_day_batching_rule_with_different_distribution(two_tasks_state: Sta
         rule,
         size_distrib=[Distribution(key=str(1), value=0.0)]
         + [Distribution(key=str(new_size), value=1.0) for new_size in range(2, 100)],
-        duration_distrib=[
-            Distribution(key=str(new_size), value=1) for new_size in range(1, 100)
-        ],
+        duration_distrib=[Distribution(key=str(new_size), value=1) for new_size in range(1, 100)],
     )
     state = two_tasks_state.replace_timetable(
         batch_processing=[rule],
         total_cases=2,
-        arrival_time_distribution=TimetableGenerator.arrival_time_distribution(
-            min=5 * 60, max=5 * 60
-        ),
+        arrival_time_distribution=TimetableGenerator.arrival_time_distribution(min=5 * 60, max=5 * 60),
     )
-    global_kpis, task_kpis, resource_kpis, log_info = SimulationRunner.run_simulation(
-        state
-    )
+    global_kpis, task_kpis, resource_kpis, log_info = SimulationRunner.run_simulation(state)
 
     case_0 = log_info.trace_list[0]
     case_1 = log_info.trace_list[1]
@@ -250,13 +230,9 @@ def test_week_day_batching_rule_with_time_of_day(two_tasks_state: State):
     state = two_tasks_state.replace_timetable(
         batch_processing=[rule],
         total_cases=2,
-        arrival_time_distribution=TimetableGenerator.arrival_time_distribution(
-            min=5 * 60, max=5 * 60
-        ),
+        arrival_time_distribution=TimetableGenerator.arrival_time_distribution(min=5 * 60, max=5 * 60),
     )
-    global_kpis, task_kpis, resource_kpis, log_info = SimulationRunner.run_simulation(
-        state
-    )
+    global_kpis, task_kpis, resource_kpis, log_info = SimulationRunner.run_simulation(state)
 
     case_0 = log_info.trace_list[0]
     case_1 = log_info.trace_list[1]
@@ -284,13 +260,9 @@ def test_week_day_batching_rule_with_time_of_day_duplicates(two_tasks_state: Sta
     state = two_tasks_state.replace_timetable(
         batch_processing=[rule, rule],
         total_cases=2,
-        arrival_time_distribution=TimetableGenerator.arrival_time_distribution(
-            min=5 * 60, max=5 * 60
-        ),
+        arrival_time_distribution=TimetableGenerator.arrival_time_distribution(min=5 * 60, max=5 * 60),
     )
-    global_kpis, task_kpis, resource_kpis, log_info = SimulationRunner.run_simulation(
-        state
-    )
+    global_kpis, task_kpis, resource_kpis, log_info = SimulationRunner.run_simulation(state)
 
     case_0 = log_info.trace_list[0]
     case_1 = log_info.trace_list[1]
@@ -323,13 +295,9 @@ def test_week_day_batching_rule_with_time_of_day_and_size(two_tasks_state: State
     state = two_tasks_state.replace_timetable(
         batch_processing=[size_rule, daily_hour_rule],
         total_cases=2,
-        arrival_time_distribution=TimetableGenerator.arrival_time_distribution(
-            min=5 * 60, max=5 * 60
-        ),
+        arrival_time_distribution=TimetableGenerator.arrival_time_distribution(min=5 * 60, max=5 * 60),
     )
-    global_kpis, task_kpis, resource_kpis, log_info = SimulationRunner.run_simulation(
-        state
-    )
+    global_kpis, task_kpis, resource_kpis, log_info = SimulationRunner.run_simulation(state)
 
     case_0 = log_info.trace_list[0]
     case_1 = log_info.trace_list[1]

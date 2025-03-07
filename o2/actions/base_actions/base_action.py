@@ -24,9 +24,7 @@ ActionT = TypeVar("ActionT", bound="BaseAction")
 
 ActionRatingTuple = tuple["RATING", Optional[ActionT]]
 
-RateSelfReturnType = Generator[
-    ActionRatingTuple[ActionT], bool, Optional[ActionRatingTuple[ActionT]]
-]
+RateSelfReturnType = Generator[ActionRatingTuple[ActionT], bool, Optional[ActionRatingTuple[ActionT]]]
 
 
 class BaseActionParamsType(TypedDict):
@@ -46,15 +44,11 @@ class BaseAction(JSONSerializable, ABC, str=False):
 
     @staticmethod
     @abstractmethod
-    def rate_self(
-        store: "Store", input: "SelfRatingInput"
-    ) -> RateSelfReturnType[ActionT]:
+    def rate_self(store: "Store", input: "SelfRatingInput") -> RateSelfReturnType[ActionT]:
         """Generate a best set of parameters & self-evaluates this action."""
         pass
 
-    def check_if_valid(
-        self, store: "Store", mark_no_change_as_invalid: bool = False
-    ) -> bool:
+    def check_if_valid(self, store: "Store", mark_no_change_as_invalid: bool = False) -> bool:
         """Check if the action produces a valid state."""
         try:
             new_state = self.apply(store.current_state, enable_prints=False)
@@ -83,8 +77,4 @@ class BaseAction(JSONSerializable, ABC, str=False):
     def id(self) -> str:
         """Return a hash of the action."""
         # Iterate over all params, sort them by name and concat them.
-        return hash_string(
-            "|".join(
-                f"{k}={v}" for k, v in sorted(self.params.items(), key=lambda x: x[0])
-            )
-        )
+        return hash_string("|".join(f"{k}={v}" for k, v in sorted(self.params.items(), key=lambda x: x[0])))

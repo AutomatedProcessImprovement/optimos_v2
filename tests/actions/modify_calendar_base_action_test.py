@@ -36,9 +36,7 @@ def test_simple_add_hour(one_task_store: Store):
     calendar = store.current_timetable.get_calendar(TimetableGenerator.CALENDAR_ID)
     assert calendar is not None
     assert calendar.get_periods_for_day(DAY.MONDAY) == [
-        TimePeriod(
-            from_=DAY.MONDAY, to=DAY.MONDAY, begin_time="07:00:00", end_time="16:00:00"
-        )
+        TimePeriod(from_=DAY.MONDAY, to=DAY.MONDAY, begin_time="07:00:00", end_time="16:00:00")
     ]
     assert _ensure_other_days_not_affected(calendar)
 
@@ -59,9 +57,7 @@ def test_simple_shift_hour(one_task_store: Store):
     store.run_action(action)
     calendar = store.current_timetable.get_calendar(TimetableGenerator.CALENDAR_ID)
     assert calendar is not None
-    assert calendar.get_periods_for_day(DAY.MONDAY) == [
-        TimePeriod.from_start_end(7, 15)
-    ]
+    assert calendar.get_periods_for_day(DAY.MONDAY) == [TimePeriod.from_start_end(7, 15)]
     assert _ensure_other_days_not_affected(calendar)
 
 
@@ -83,9 +79,7 @@ def test_add_hour_before_and_after(one_task_store: Store):
     calendar = store.current_timetable.get_calendar(TimetableGenerator.CALENDAR_ID)
     assert calendar is not None
     assert calendar.get_periods_for_day(DAY.MONDAY) == [
-        TimePeriod(
-            from_=DAY.MONDAY, to=DAY.MONDAY, begin_time="07:00:00", end_time="17:00:00"
-        )
+        TimePeriod(from_=DAY.MONDAY, to=DAY.MONDAY, begin_time="07:00:00", end_time="17:00:00")
     ]
     assert _ensure_other_days_not_affected(calendar)
 

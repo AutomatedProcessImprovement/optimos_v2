@@ -109,9 +109,7 @@ class SimDiffSetupFileless(SimDiffSetup):
     def parse_json_sim_parameters_from_string(self, json_data):
         model_type = json_data["model_type"] if "model_type" in json_data else "CRSIP"
 
-        resources_map, res_pool = parse_resource_profiles(
-            json_data["resource_profiles"]
-        )
+        resources_map, res_pool = parse_resource_profiles(json_data["resource_profiles"])
         # calendars_map = parse_resource_calendars(json_data[RESOURCE_CALENDARS])
 
         calendars_map = (
@@ -167,9 +165,7 @@ class SimDiffSetupFileless(SimDiffSetup):
             else AllGlobalAttributes({})
         )
 
-        all_attributes = AllAttributes(
-            global_attributes, case_attributes, event_attributes
-        )
+        all_attributes = AllAttributes(global_attributes, case_attributes, event_attributes)
 
         prioritisation_rules = (
             PrioritisationParser(json_data[PRIORITISATION_RULES_SECTION]).parse()
@@ -184,9 +180,7 @@ class SimDiffSetupFileless(SimDiffSetup):
         )
 
         multitasking_info = (
-            parse_multitasking_model(
-                json_data[MULTITASKING_SECTION], task_resource_distribution
-            )
+            parse_multitasking_model(json_data[MULTITASKING_SECTION], task_resource_distribution)
             if MULTITASKING_SECTION in json_data
             else None
         )

@@ -28,29 +28,19 @@ def test_add_day_simple(store: Store):
     first_rule = store.base_timetable.batch_processing[0]
 
     selector = RuleSelector.from_batching_rule(first_rule, (0, 0))
-    action = AddWeekDayRuleAction(
-        AddWeekDayRuleActionParamsType(rule=selector, add_days=[DAY.TUESDAY])
-    )
+    action = AddWeekDayRuleAction(AddWeekDayRuleActionParamsType(rule=selector, add_days=[DAY.TUESDAY]))
     new_state = action.apply(state=store.base_state)
     assert first_rule.task_id == new_state.timetable.batch_processing[0].task_id
-    assert (
-        new_state.timetable.batch_processing[0].firing_rules[0][0].value == DAY.MONDAY
-    )
+    assert new_state.timetable.batch_processing[0].firing_rules[0][0].value == DAY.MONDAY
     assert len(new_state.timetable.batch_processing[0].firing_rules[0]) == 2
-    assert (
-        new_state.timetable.batch_processing[0].firing_rules[1][0].value == DAY.TUESDAY
-    )
+    assert new_state.timetable.batch_processing[0].firing_rules[1][0].value == DAY.TUESDAY
     assert len(new_state.timetable.batch_processing[0].firing_rules[1]) == 2
 
 
 def test_self_rate_simple(one_task_store: Store):
     store = replace_timetable(
         one_task_store,
-        batch_processing=[
-            TimetableGenerator.week_day_rule(
-                TimetableGenerator.FIRST_ACTIVITY, DAY.WEDNESDAY
-            )
-        ],
+        batch_processing=[TimetableGenerator.week_day_rule(TimetableGenerator.FIRST_ACTIVITY, DAY.WEDNESDAY)],
         # 4 Hour Tasks
         task_resource_distribution=TimetableGenerator.task_resource_distribution_simple(
             [TimetableGenerator.FIRST_ACTIVITY], 4 * 60 * 60
@@ -76,8 +66,6 @@ def test_self_rate_simple(one_task_store: Store):
         ),
     )
     assert rating_input is not None
-    rating, action = first_valid(
-        store, AddWeekDayRuleAction.rate_self(store, rating_input)
-    )
+    rating, action = first_valid(store, AddWeekDayRuleAction.rate_self(store, rating_input))
     assert rating == RATING.MEDIUM
     assert action is not None

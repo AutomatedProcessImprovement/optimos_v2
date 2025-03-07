@@ -40,35 +40,25 @@ class SimulatedAnnealingAgent(Agent):
             # Guestimate a good starting temperature, by basically allowing all
             # points in a 4x circle around the base evaluation.
             self.temperature = (
-                math.sqrt(
-                    store.base_evaluation.pareto_x**2
-                    + store.base_evaluation.pareto_y**2
-                )
+                math.sqrt(store.base_evaluation.pareto_x**2 + store.base_evaluation.pareto_y**2)
                 * DISTANCE_MULTIPLIER
             )
             print_l1(f"Auto-estimated initial temperature: {self.temperature:_}")
         if self.store.settings.sa_cooling_factor == "auto":
             number_of_iterations_to_cool = (
-                self.store.settings.sa_cooling_iteration_percent
-                * self.store.settings.max_iterations
+                self.store.settings.sa_cooling_iteration_percent * self.store.settings.max_iterations
             )
             if self.store.settings.error_radius_in_percent is None:
                 raise ValueError(
                     "Settings.error_radius_in_percent is not set, so we can't auto calculate the cooling factor."
                 )
-            temperature_to_reach = (
-                self.store.settings.error_radius_in_percent
-                * math.sqrt(
-                    store.base_evaluation.pareto_x**2
-                    + store.base_evaluation.pareto_y**2
-                )
+            temperature_to_reach = self.store.settings.error_radius_in_percent * math.sqrt(
+                store.base_evaluation.pareto_x**2 + store.base_evaluation.pareto_y**2
             )
-            self.store.settings.sa_cooling_factor = (
-                temperature_to_reach / self.temperature
-            ) ** (1 / number_of_iterations_to_cool)
-            print_l1(
-                f"Auto-estimated cooling factor: {self.store.settings.sa_cooling_factor}"
+            self.store.settings.sa_cooling_factor = (temperature_to_reach / self.temperature) ** (
+                1 / number_of_iterations_to_cool
             )
+            print_l1(f"Auto-estimated cooling factor: {self.store.settings.sa_cooling_factor}")
 
     def select_actions(self, store: Store) -> Optional[list[BaseAction]]:
         """Select the best actions to take next.
@@ -96,9 +86,7 @@ class SimulatedAnnealingAgent(Agent):
             # if we don't have enough valid actions yet
             possible_actions = TabuAgent.get_valid_actions(store, action_generators)
             # Remove None values
-            possible_actions = [
-                action for action in possible_actions if action is not None
-            ]
+            possible_actions = [action for action in possible_actions if action is not None]
 
             if len(possible_actions) == 0:
                 print_l1("No actions remaining, after removing Tabu & N/A actions.")
@@ -118,9 +106,7 @@ class SimulatedAnnealingAgent(Agent):
 
             number_of_actions_to_select = store.settings.max_number_of_actions_to_select
             selected_actions = sorted_actions[:number_of_actions_to_select]
-            avg_rating = sum(rating for rating, _ in selected_actions) / len(
-                selected_actions
-            )
+            avg_rating = sum(rating for rating, _ in selected_actions) / len(selected_actions)
 
             print_l1(
                 f"Chose {len(selected_actions)} actions with average rating {avg_rating:.1f} to evaluate."  # noqa: E501
@@ -132,9 +118,7 @@ class SimulatedAnnealingAgent(Agent):
 
             return [action for _, action in selected_actions]
 
-    def select_new_base_solution(
-        self, proposed_solution_try: Optional[SolutionTry] = None
-    ) -> Solution:
+    def select_new_base_solution(self, proposed_solution_try: Optional[SolutionTry] = None) -> Solution:
         """Select a new base solution."""
         print_l2("Selecting new base evaluation...")
         print_l2(f"Old temperature: {self.temperature:_}")
@@ -162,9 +146,7 @@ class SimulatedAnnealingAgent(Agent):
             reinsert_current_solution=proposed_solution_try is not None
         )
 
-    def _select_new_base_evaluation(
-        self, reinsert_current_solution: bool = False
-    ) -> Solution:
+    def _select_new_base_evaluation(self, reinsert_current_solution: bool = False) -> Solution:
         """Select a new base evaluation."""
         if reinsert_current_solution:
             self.store.solution_tree.add_solution(self.store.solution, archive=True)
@@ -178,16 +160,12 @@ class SimulatedAnnealingAgent(Agent):
             raise NoNewBaseSolutionFoundError("No new baseline evaluation found.")
 
         distance = self.store.current_pareto_front.avg_distance_to(solution)
-        print_l2(
-            f"Selected new random base solution {solution.id} with distance: {distance:_}"
-        )
+        print_l2(f"Selected new random base solution {solution.id} with distance: {distance:_}")
 
         self.store.solution_tree.remove_solution(solution)
         return solution
 
-    def result_callback(
-        self, chosen_tries: list[SolutionTry], not_chosen_tries: list[SolutionTry]
-    ) -> None:
+    def result_callback(self, chosen_tries: list[SolutionTry], not_chosen_tries: list[SolutionTry]) -> None:
         """Call to handle the result of the evaluation."""
         pass
 

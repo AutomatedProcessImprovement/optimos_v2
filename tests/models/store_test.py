@@ -10,9 +10,7 @@ from tests.fixtures.timetable_generator import TimetableGenerator
 
 
 def test_store_invalid_solution_handling(one_task_store: Store):
-    store = Store.from_state_and_constraints(
-        one_task_store.base_state, one_task_store.constraints
-    )
+    store = Store.from_state_and_constraints(one_task_store.base_state, one_task_store.constraints)
 
     invalid_action = AddDateTimeRuleAction(
         AddDateTimeRuleBaseActionParamsType(

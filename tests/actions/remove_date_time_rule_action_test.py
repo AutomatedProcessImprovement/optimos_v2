@@ -41,28 +41,20 @@ def test_remove_date_time_rule_action_additional_rules(store: Store):
     )
     batching_rule.firing_rules[0].insert(
         0,
-        TimetableGenerator.batching_size_rule(
-            TimetableGenerator.SECOND_ACTIVITY, 50
-        ).firing_rules[0][0],
+        TimetableGenerator.batching_size_rule(TimetableGenerator.SECOND_ACTIVITY, 50).firing_rules[0][0],
     )
     batching_rule.firing_rules[0].append(
-        TimetableGenerator.batching_size_rule(
-            TimetableGenerator.SECOND_ACTIVITY, 100
-        ).firing_rules[0][0]
+        TimetableGenerator.batching_size_rule(TimetableGenerator.SECOND_ACTIVITY, 100).firing_rules[0][0]
     )
     batching_rule.firing_rules.append(
-        TimetableGenerator.batching_size_rule(
-            TimetableGenerator.SECOND_ACTIVITY, 200
-        ).firing_rules[0]
+        TimetableGenerator.batching_size_rule(TimetableGenerator.SECOND_ACTIVITY, 200).firing_rules[0]
     )
     store = replace_timetable(
         store,
         batch_processing=[
             TimetableGenerator.batching_size_rule(TimetableGenerator.FIRST_ACTIVITY, 0),
             batching_rule,
-            TimetableGenerator.batching_size_rule(
-                TimetableGenerator.THIRD_ACTIVITY, 300
-            ),
+            TimetableGenerator.batching_size_rule(TimetableGenerator.THIRD_ACTIVITY, 300),
         ],
     )
 
@@ -103,9 +95,7 @@ def test_remove_date_time_rule_action_two_date_time_rules(store: Store):
     )
     rule.firing_rules.insert(
         0,
-        TimetableGenerator.batching_size_rule(
-            TimetableGenerator.FIRST_ACTIVITY, 2
-        ).firing_rules[0],
+        TimetableGenerator.batching_size_rule(TimetableGenerator.FIRST_ACTIVITY, 2).firing_rules[0],
     )
     rule.firing_rules.append(
         TimetableGenerator.daily_hour_rule_with_day(

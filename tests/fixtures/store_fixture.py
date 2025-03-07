@@ -44,9 +44,7 @@ def one_task_solution(one_task_state: State):
 def one_task_store(one_task_solution: Solution):
     return Store(
         solution=one_task_solution,
-        constraints=ConstraintsGenerator(
-            one_task_solution.state.bpmn_definition
-        ).generate(),
+        constraints=ConstraintsGenerator(one_task_solution.state.bpmn_definition).generate(),
     )
 
 
@@ -70,9 +68,7 @@ def two_tasks_solution(two_tasks_state: State):
 def two_tasks_store(two_tasks_solution: Solution):
     return Store(
         solution=two_tasks_solution,
-        constraints=ConstraintsGenerator(
-            two_tasks_solution.state.bpmn_definition
-        ).generate(),
+        constraints=ConstraintsGenerator(two_tasks_solution.state.bpmn_definition).generate(),
     )
 
 
@@ -81,9 +77,7 @@ def batching_state():
     bpmn_content = open(SIMPLE_LOOP_BPMN_PATH).read()
     return State(
         bpmn_definition=bpmn_content,
-        timetable=TimetableGenerator(bpmn_content).generate_simple(
-            include_batching=True
-        ),
+        timetable=TimetableGenerator(bpmn_content).generate_simple(include_batching=True),
         for_testing=True,
     )
 

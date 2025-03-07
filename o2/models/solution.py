@@ -64,11 +64,7 @@ class Solution:
 
         # In case this is a pre-archived solution (e.g. from a previous run),
         # we can take the state from __dict__['state']
-        if (
-            self._state is None
-            and "state" in self.__dict__
-            and self.__dict__["state"] is not None
-        ):
+        if self._state is None and "state" in self.__dict__ and self.__dict__["state"] is not None:
             self.__dict__["_state"] = self.__dict__["state"]
             return self.__dict__["_state"]
         # Else we just load the state from the state file
@@ -109,10 +105,7 @@ class Solution:
 
     def distance_to(self, other: "Solution") -> float:
         """Calculate the euclidean distance between two evaluations."""
-        return math.sqrt(
-            (self.pareto_x - other.pareto_x) ** 2
-            + (self.pareto_y - other.pareto_y) ** 2
-        )
+        return math.sqrt((self.pareto_x - other.pareto_x) ** 2 + (self.pareto_y - other.pareto_y) ** 2)
 
     def is_dominated_by(self, other: "Solution") -> bool:
         """Check if this solution is dominated by the given solution."""
@@ -143,9 +136,7 @@ class Solution:
             SolutionDumper.instance.dump_evaluation(self)
             self.__dict__["_evaluation"] = None
             self.__dict__["evaluation"] = None
-        if self._state is not None or (
-            "state" in self.__dict__ and self.__dict__["state"] is not None
-        ):
+        if self._state is not None or ("state" in self.__dict__ and self.__dict__["state"] is not None):
             # Make sure the computed fields are triggered
             self._cache_timetable_hash()  # noqa: B018
             SolutionDumper.instance.dump_state(self)
@@ -240,9 +231,7 @@ class Solution:
         )
 
     @staticmethod
-    def empty_from_parent(
-        parent: "Solution", last_action: Optional["BaseAction"] = None
-    ) -> "Solution":
+    def empty_from_parent(parent: "Solution", last_action: Optional["BaseAction"] = None) -> "Solution":
         """Create an empty solution from a parent solution."""
         return Solution(
             evaluation=Evaluation.empty(),

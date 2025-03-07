@@ -111,9 +111,7 @@ class Store:
     def process_many_solutions(
         self,
         solutions: list[Solution],
-        choose_new_base_evaluation_callback: Optional[
-            Callable[[SolutionTry], Solution]
-        ] = None,
+        choose_new_base_evaluation_callback: Optional[Callable[[SolutionTry], Solution]] = None,
     ) -> tuple[list[SolutionTry], list[SolutionTry]]:
         """Process a list of action solutions.
 
@@ -131,10 +129,7 @@ class Store:
             if solution.is_valid:
                 # We directly archive the solutions that are not in the front
                 # because we most likely will not need them again.
-                should_archive = (
-                    status != FRONT_STATUS.IN_FRONT
-                    and status != FRONT_STATUS.IS_DOMINATED
-                )
+                should_archive = status != FRONT_STATUS.IN_FRONT and status != FRONT_STATUS.IS_DOMINATED
                 self.solution_tree.add_solution(solution, archive=should_archive)
             else:
                 # If the solution is invalid, override the status to invalid
@@ -157,9 +152,7 @@ class Store:
                 status == FRONT_STATUS.IN_FRONT or status == FRONT_STATUS.IS_DOMINATED
             ):
                 if choose_new_base_evaluation_callback is not None:
-                    self.solution = choose_new_base_evaluation_callback(
-                        (status, solution)
-                    )
+                    self.solution = choose_new_base_evaluation_callback((status, solution))
                 else:
                     self.solution = solution
                 new_baseline_chosen = True
@@ -202,9 +195,7 @@ class Store:
         state: State, constraints: ConstraintsType, name: str = "An Optimos Run"
     ) -> "Store":
         """Create a new Store from a state and constraints."""
-        updated_state = replace(
-            state, timetable=state.timetable.init_fixed_cost_fns(constraints)
-        )
+        updated_state = replace(state, timetable=state.timetable.init_fixed_cost_fns(constraints))
         evaluation = updated_state.evaluate()
         solution = Solution(evaluation=evaluation, state=updated_state, actions=[])
         return Store(solution, constraints, name)

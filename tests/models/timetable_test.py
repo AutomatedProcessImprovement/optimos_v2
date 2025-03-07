@@ -32,9 +32,7 @@ from tests.fixtures.timetable_generator import TimetableGenerator
 
 
 def test_time_period_bitmask():
-    time_period = TimePeriod(
-        from_=DAY.MONDAY, to=DAY.MONDAY, begin_time="08:00", end_time="16:00"
-    )
+    time_period = TimePeriod(from_=DAY.MONDAY, to=DAY.MONDAY, begin_time="08:00", end_time="16:00")
     expected_bitarray = [
         0,  # 00:00 - 01:00
         0,  # 01:00 - 02:00
@@ -68,9 +66,7 @@ def test_time_period_bitmask():
 
 
 def test_time_period_bitmask_complex():
-    time_period = TimePeriod(
-        from_=DAY.MONDAY, to=DAY.MONDAY, begin_time="22:00", end_time="23:59"
-    )
+    time_period = TimePeriod(from_=DAY.MONDAY, to=DAY.MONDAY, begin_time="22:00", end_time="23:59")
     expected_bitarray = [
         0,  # 00:00 - 01:00
         0,  # 01:00 - 02:00
@@ -104,9 +100,7 @@ def test_time_period_bitmask_complex():
 
 
 def test_time_period_from_bitmask_simple():
-    expected_time_period = TimePeriod(
-        from_=DAY.MONDAY, to=DAY.MONDAY, begin_time="08:00", end_time="16:00"
-    )
+    expected_time_period = TimePeriod(from_=DAY.MONDAY, to=DAY.MONDAY, begin_time="08:00", end_time="16:00")
 
     bitarray = [
         0,  # 00:00 - 01:00
@@ -144,15 +138,9 @@ def test_time_period_from_bitmask_simple():
 
 def test_time_period_from_bitmask_complex():
     expected_time_periods = [
-        TimePeriod(
-            from_=DAY.MONDAY, to=DAY.MONDAY, begin_time="08:00", end_time="12:00"
-        ),
-        TimePeriod(
-            from_=DAY.MONDAY, to=DAY.MONDAY, begin_time="13:00", end_time="16:00"
-        ),
-        TimePeriod(
-            from_=DAY.MONDAY, to=DAY.MONDAY, begin_time="20:00", end_time="23:00"
-        ),
+        TimePeriod(from_=DAY.MONDAY, to=DAY.MONDAY, begin_time="08:00", end_time="12:00"),
+        TimePeriod(from_=DAY.MONDAY, to=DAY.MONDAY, begin_time="13:00", end_time="16:00"),
+        TimePeriod(from_=DAY.MONDAY, to=DAY.MONDAY, begin_time="20:00", end_time="23:00"),
     ]
 
     bitarray = [
@@ -190,9 +178,7 @@ def test_time_period_from_bitmask_complex():
 
 
 def test_time_period_to_bitmask_last_hour():
-    time_period = TimePeriod(
-        from_=DAY.MONDAY, to=DAY.MONDAY, begin_time="22:00", end_time="23:59"
-    )
+    time_period = TimePeriod(from_=DAY.MONDAY, to=DAY.MONDAY, begin_time="22:00", end_time="23:59")
     assert time_period.to_bitmask() == 0b0000000000000000000000011
 
 
@@ -201,18 +187,10 @@ def test_resource_calendar_verify_valid():
         id="1",
         name="Resource Calendar",
         time_periods=[
-            TimePeriod(
-                from_=DAY.MONDAY, to=DAY.MONDAY, begin_time="08:00", end_time="12:00"
-            ),
-            TimePeriod(
-                from_=DAY.TUESDAY, to=DAY.TUESDAY, begin_time="08:00", end_time="12:00"
-            ),
-            TimePeriod(
-                from_=DAY.MONDAY, to=DAY.MONDAY, begin_time="12:00", end_time="16:00"
-            ),
-            TimePeriod(
-                from_=DAY.MONDAY, to=DAY.MONDAY, begin_time="20:00", end_time="23:00"
-            ),
+            TimePeriod(from_=DAY.MONDAY, to=DAY.MONDAY, begin_time="08:00", end_time="12:00"),
+            TimePeriod(from_=DAY.TUESDAY, to=DAY.TUESDAY, begin_time="08:00", end_time="12:00"),
+            TimePeriod(from_=DAY.MONDAY, to=DAY.MONDAY, begin_time="12:00", end_time="16:00"),
+            TimePeriod(from_=DAY.MONDAY, to=DAY.MONDAY, begin_time="20:00", end_time="23:00"),
         ],
     )
 
@@ -224,12 +202,8 @@ def test_resource_calendar_verify_overlap():
         id="1",
         name="Resource Calendar",
         time_periods=[
-            TimePeriod(
-                from_=DAY.MONDAY, to=DAY.MONDAY, begin_time="08:00", end_time="12:00"
-            ),
-            TimePeriod(
-                from_=DAY.MONDAY, to=DAY.MONDAY, begin_time="11:00", end_time="23:00"
-            ),
+            TimePeriod(from_=DAY.MONDAY, to=DAY.MONDAY, begin_time="08:00", end_time="12:00"),
+            TimePeriod(from_=DAY.MONDAY, to=DAY.MONDAY, begin_time="11:00", end_time="23:00"),
         ],
     )
 
@@ -241,9 +215,7 @@ def test_resource_calendar_verify_end_before_begin():
         id="1",
         name="Resource Calendar",
         time_periods=[
-            TimePeriod(
-                from_=DAY.MONDAY, to=DAY.MONDAY, begin_time="12:00", end_time="08:00"
-            ),
+            TimePeriod(from_=DAY.MONDAY, to=DAY.MONDAY, begin_time="12:00", end_time="08:00"),
         ],
     )
 
@@ -309,9 +281,7 @@ def test_clone_resource_timetable(two_tasks_state: State):
     assert cloned_calendar is not None
     assert cloned_calendar.id == f"{clone.id}timetable"
 
-    original_calendar = timetable.get_calendar_for_resource(
-        TimetableGenerator.RESOURCE_ID
-    )
+    original_calendar = timetable.get_calendar_for_resource(TimetableGenerator.RESOURCE_ID)
     assert original_calendar is not None
 
     assert cloned_calendar.time_periods == original_calendar.time_periods
@@ -342,17 +312,13 @@ def test_clone_distribution(two_tasks_state: State):
     )
     original, clone = timetable.resource_profiles[1].resource_list
 
-    distribution = timetable.get_task_resource_distribution(
-        TimetableGenerator.FIRST_ACTIVITY
-    )
+    distribution = timetable.get_task_resource_distribution(TimetableGenerator.FIRST_ACTIVITY)
     assert distribution is not None
     assert len(distribution.resources) == 2
     assert distribution.resources[0].resource_id == original.id
     assert distribution.resources[1].resource_id == clone.id
 
-    unaffected_distribution = timetable.get_task_resource_distribution(
-        TimetableGenerator.SECOND_ACTIVITY
-    )
+    unaffected_distribution = timetable.get_task_resource_distribution(TimetableGenerator.SECOND_ACTIVITY)
 
     assert unaffected_distribution is not None
     assert len(unaffected_distribution.resources) == 1
@@ -360,9 +326,7 @@ def test_clone_distribution(two_tasks_state: State):
 
     assert timetable.get_task_resource_distribution(
         TimetableGenerator.SECOND_ACTIVITY
-    ) == state.timetable.get_task_resource_distribution(
-        TimetableGenerator.SECOND_ACTIVITY
-    )
+    ) == state.timetable.get_task_resource_distribution(TimetableGenerator.SECOND_ACTIVITY)
 
 
 def test_remove_resource_calendar(two_tasks_state: State):
@@ -399,9 +363,7 @@ def test_remove_task_distribution(two_tasks_state: State):
 
     timetable = timetable.remove_resource(TimetableGenerator.RESOURCE_ID)
 
-    distribution = timetable.get_task_resource_distribution(
-        TimetableGenerator.FIRST_ACTIVITY
-    )
+    distribution = timetable.get_task_resource_distribution(TimetableGenerator.FIRST_ACTIVITY)
     assert distribution is not None
     assert len(distribution.resources) == 1
     assert distribution.resources[0].resource_id != TimetableGenerator.RESOURCE_ID
@@ -417,9 +379,7 @@ def test_remove_task_from_resource(two_tasks_state: State):
         TimetableGenerator.RESOURCE_ID, TimetableGenerator.SECOND_ACTIVITY
     )
 
-    resource_profile = timetable.get_resource_profile(
-        TimetableGenerator.SECOND_ACTIVITY
-    )
+    resource_profile = timetable.get_resource_profile(TimetableGenerator.SECOND_ACTIVITY)
     assert resource_profile is not None
     assert len(resource_profile.resource_list) == 1
 
@@ -735,8 +695,7 @@ def test_find_mixed_ranges_in_bitmask_complex():
         and r[0] >= start
         and count_occurrences(bitstring[r[0] : r[1]], "1") == min_length
         # Assure no leading/trailing zeros
-        and bitstring[r[0] : r[1]].removeprefix("0").removesuffix("0")
-        == bitstring[r[0] : r[1]]
+        and bitstring[r[0] : r[1]].removeprefix("0").removesuffix("0") == bitstring[r[0] : r[1]]
     ]
 
     result = find_mixed_ranges_in_bitmask(bitmask, min_length, start, max_start)
@@ -828,15 +787,11 @@ def test_batching_rule_date_time_merging_complex():
             TimetableGenerator.FIRST_ACTIVITY, DAY.THURSDAY, 14, 16
         ).firing_rules[0]
     ).add_firing_rules(
-        TimetableGenerator.daily_hour_rule(
-            TimetableGenerator.FIRST_ACTIVITY, 12, 14
-        ).firing_rules[0]
+        TimetableGenerator.daily_hour_rule(TimetableGenerator.FIRST_ACTIVITY, 12, 14).firing_rules[0]
     )
 
     assert len(batching_rule.firing_rules) == 2
-    assert batching_rule.firing_rules[0][0] == FiringRule(
-        RULE_TYPE.WEEK_DAY, COMPARATOR.EQUAL, DAY.MONDAY
-    )
+    assert batching_rule.firing_rules[0][0] == FiringRule(RULE_TYPE.WEEK_DAY, COMPARATOR.EQUAL, DAY.MONDAY)
 
 
 def test_batching_rule_date_time_merging_with_size():
@@ -940,9 +895,7 @@ def test_equality_of_timetables_json(batching_state: State):
 def test_equality_of_timetables_batching_rule_change(one_task_state: State):
     Settings.CHECK_FOR_TIMETABLE_EQUALITY = True
     state = one_task_state.replace_timetable(
-        batch_processing=[
-            TimetableGenerator.ready_wt_rule(TimetableGenerator.FIRST_ACTIVITY, 5 * 60)
-        ],
+        batch_processing=[TimetableGenerator.ready_wt_rule(TimetableGenerator.FIRST_ACTIVITY, 5 * 60)],
     )
     timetable = state.timetable
     clone = replace(timetable)
@@ -962,9 +915,7 @@ def test_equality_of_timetables_batching_rule_change(one_task_state: State):
 
     # Remove the added firing rule
     batching_rule = new_batching_rule_clone.batch_processing[0]
-    batching_rule = batching_rule.remove_firing_rule(
-        RuleSelector.from_batching_rule(batching_rule, (1, 0))
-    )
+    batching_rule = batching_rule.remove_firing_rule(RuleSelector.from_batching_rule(batching_rule, (1, 0)))
     assert batching_rule is not None
 
     restored_clone = new_batching_rule_clone.replace_batching_rule(

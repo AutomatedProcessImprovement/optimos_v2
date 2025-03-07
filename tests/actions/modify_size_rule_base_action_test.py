@@ -20,9 +20,7 @@ def test_increment_size(store: Store):
 
     selector = RuleSelector.from_batching_rule(first_rule, (0, 0))
     action = ModifySizeRuleByWTAction(
-        ModifySizeRuleByWTActionParamsType(
-            rule=selector, size_increment=1, duration_fn="0.8*size"
-        )
+        ModifySizeRuleByWTActionParamsType(rule=selector, size_increment=1, duration_fn="0.8*size")
     )
     new_state = action.apply(state=store.base_state)
     assert first_rule.task_id == new_state.timetable.batch_processing[0].task_id
@@ -35,9 +33,7 @@ def test_decrement_size(store: Store):
 
     selector = RuleSelector.from_batching_rule(first_rule, (0, 0))
     action = ModifySizeRuleByWTAction(
-        ModifySizeRuleByWTActionParamsType(
-            rule=selector, size_increment=-1, duration_fn="0.8*size"
-        )
+        ModifySizeRuleByWTActionParamsType(rule=selector, size_increment=-1, duration_fn="0.8*size")
     )
     new_state = action.apply(state=store.base_state)
     assert first_rule.task_id == new_state.timetable.batch_processing[0].task_id
@@ -47,17 +43,13 @@ def test_decrement_size(store: Store):
 def test_decrement_to_one(store: Store):
     store = replace_timetable(
         store,
-        batch_processing=[
-            TimetableGenerator.batching_size_rule(TimetableGenerator.FIRST_ACTIVITY, 2)
-        ],
+        batch_processing=[TimetableGenerator.batching_size_rule(TimetableGenerator.FIRST_ACTIVITY, 2)],
     )
     new_size = 1
     first_rule = store.base_timetable.batch_processing[0]
     selector = RuleSelector.from_batching_rule(first_rule, (0, 0))
     action = ModifySizeRuleByWTAction(
-        ModifySizeRuleByWTActionParamsType(
-            rule=selector, size_increment=-1, duration_fn="1"
-        )
+        ModifySizeRuleByWTActionParamsType(rule=selector, size_increment=-1, duration_fn="1")
     )
     new_state = action.apply(state=store.base_state)
     assert first_rule.task_id == new_state.timetable.batch_processing[0].task_id

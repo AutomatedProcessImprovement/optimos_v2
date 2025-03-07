@@ -92,9 +92,7 @@ class SolutionDumper:
 
         assert self.sanitized_current_store_name != ""
 
-        self.store_filename = os.path.join(
-            self.folder, f"store_{self.sanitized_current_store_name}.pkl"
-        )
+        self.store_filename = os.path.join(self.folder, f"store_{self.sanitized_current_store_name}.pkl")
         self.solutions_filename = os.path.join(
             self.folder, f"solutions_{self.sanitized_current_store_name}.pkl"
         )
@@ -144,10 +142,7 @@ class SolutionDumper:
         )
         # As we identify the solution by its id, we don't need to dump the
         # evaluation if it already exists.
-        if (
-            os.path.exists(filename)
-            and not Settings.OVERWRITE_EXISTING_SOLUTION_ARCHIVES
-        ):
+        if os.path.exists(filename) and not Settings.OVERWRITE_EXISTING_SOLUTION_ARCHIVES:
             return
         log_io(f"Dumping evaluation to {filename}")
         with open(filename, "wb") as f:
@@ -174,16 +169,10 @@ class SolutionDumper:
             if Settings.DELETE_LOADED_SOLUTION_ARCHIVES:
                 os.remove(filename)
 
-            if (
-                "_pareto_x" in solution.__dict__
-                and evaluation.pareto_x != solution.pareto_x
-            ) or (
-                "_pareto_y" in solution.__dict__
-                and evaluation.pareto_y != solution.pareto_y
+            if ("_pareto_x" in solution.__dict__ and evaluation.pareto_x != solution.pareto_x) or (
+                "_pareto_y" in solution.__dict__ and evaluation.pareto_y != solution.pareto_y
             ):
-                raise RuntimeError(
-                    f"Evaluation for solution {solution.id} has changed."
-                )
+                raise RuntimeError(f"Evaluation for solution {solution.id} has changed.")
 
         log_io(f"Loaded evaluation from {full_path}")
         return evaluation
@@ -196,10 +185,7 @@ class SolutionDumper:
             self.state_folder,
             f"state_{self.sanitized_current_store_name}_{solution.id}.pkl",
         )
-        if (
-            os.path.exists(filename)
-            and not Settings.OVERWRITE_EXISTING_SOLUTION_ARCHIVES
-        ):
+        if os.path.exists(filename) and not Settings.OVERWRITE_EXISTING_SOLUTION_ARCHIVES:
             return
         log_io(f"Dumping state to {filename}")
         with open(filename, "wb") as f:

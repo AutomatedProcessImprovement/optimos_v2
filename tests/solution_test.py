@@ -15,12 +15,8 @@ def test_solution_equality(one_task_state: State):
     solution_set = {solution1, solution2}
     assert len(solution_set) == 1
 
-    solution3 = Solution.from_parent(
-        solution1, MockAction(params=MockActionParamsType(random_string="STR1"))
-    )
-    solution4 = Solution.from_parent(
-        solution2, MockAction(params=MockActionParamsType(random_string="STR2"))
-    )
+    solution3 = Solution.from_parent(solution1, MockAction(params=MockActionParamsType(random_string="STR1")))
+    solution4 = Solution.from_parent(solution2, MockAction(params=MockActionParamsType(random_string="STR2")))
 
     assert solution3.id != solution4.id
     assert solution3 != solution4
@@ -35,12 +31,8 @@ def test_solution_equality_with_timetable(one_task_state: State):
     assert solution1 == solution2
     assert hash(solution1) == hash(solution2)
 
-    solution3 = Solution.from_parent(
-        solution1, MockAction(params=MockActionParamsType(random_string="STR1"))
-    )
-    solution4 = Solution.from_parent(
-        solution2, MockAction(params=MockActionParamsType(random_string="STR2"))
-    )
+    solution3 = Solution.from_parent(solution1, MockAction(params=MockActionParamsType(random_string="STR1")))
+    solution4 = Solution.from_parent(solution2, MockAction(params=MockActionParamsType(random_string="STR2")))
 
     # Ids are still soly based on action history
     assert solution3.id != solution4.id

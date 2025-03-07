@@ -30,9 +30,7 @@ class AddReadyWTRuleByWTAction(AddReadyLargeWTRuleBaseAction):
     params: AddReadyWTRuleByWTActionParamsType
 
     @staticmethod
-    def rate_self(
-        store: "Store", input: SelfRatingInput
-    ) -> RateSelfReturnType["AddReadyWTRuleByWTAction"]:
+    def rate_self(store: "Store", input: SelfRatingInput) -> RateSelfReturnType["AddReadyWTRuleByWTAction"]:
         """Generate a best set of parameters & self-evaluates this action."""
         sorted_tasks = sorted(
             store.current_evaluation.total_batching_waiting_time_per_task.items(),
@@ -40,9 +38,7 @@ class AddReadyWTRuleByWTAction(AddReadyLargeWTRuleBaseAction):
             reverse=True,
         )
         for task_id, _ in sorted_tasks:
-            waiting_time = store.current_evaluation.avg_batching_waiting_time_per_task[
-                task_id
-            ]
+            waiting_time = store.current_evaluation.avg_batching_waiting_time_per_task[task_id]
             if waiting_time == 0:
                 continue
             new_large_wt = min(ceil(waiting_time * 0.9), 24 * 60 * 60)

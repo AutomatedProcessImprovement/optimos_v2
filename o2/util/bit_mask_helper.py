@@ -55,9 +55,7 @@ def any_has_overlap(bitmasks: list[int]) -> bool:
     return False
 
 
-def find_most_frequent_overlap(
-    bitmasks: list[int], min_size: int = 1
-) -> tuple[int, int, int] | None:
+def find_most_frequent_overlap(bitmasks: list[int], min_size: int = 1) -> tuple[int, int, int] | None:
     """Find the most frequent overlap in a list of bitmasks.
 
     1. Convert bitmasks to bitarrays
@@ -95,10 +93,7 @@ def find_most_frequent_overlap(
                 current_sufficient_start = i
             current_sufficient_length += 1
         else:
-            if (
-                current_sufficient_length >= min_size
-                and current_sufficient_length > max_sufficient_length
-            ):
+            if current_sufficient_length >= min_size and current_sufficient_length > max_sufficient_length:
                 max_sufficient_start = current_sufficient_start
                 max_sufficient_end = i
                 max_sufficient_length = current_sufficient_length
@@ -110,8 +105,7 @@ def find_most_frequent_overlap(
         else:
             # Check if the current range meets the requirements
             if current_length >= min_size and (
-                (current_value == max_value and current_length > max_length)
-                or (current_value > max_value)
+                (current_value == max_value and current_length > max_length) or (current_value > max_value)
             ):
                 max_start = current_start
                 # End is exclusive
@@ -125,18 +119,14 @@ def find_most_frequent_overlap(
             current_length = 1
 
     # Final check after loop for sufficient length
-    if (
-        current_sufficient_length >= min_size
-        and current_sufficient_length > max_sufficient_length
-    ):
+    if current_sufficient_length >= min_size and current_sufficient_length > max_sufficient_length:
         max_sufficient_start = current_sufficient_start
         max_sufficient_end = len(summed_bitarray)
         max_sufficient_length = current_sufficient_length
 
     # Final check after loop for max length
     if current_length >= min_size and (
-        (current_value == max_value and current_length > max_length)
-        or (current_value > max_value)
+        (current_value == max_value and current_length > max_length) or (current_value > max_value)
     ):
         max_start = current_start
         # End is exclusive
@@ -188,9 +178,7 @@ def find_mixed_ranges_in_bitmask(
         range_start = i
 
         # Skip starting bits that are 0 -> we don't get 0-prefixed ranges
-        if not bitmask & (
-            1 << (bitmask_length - i - 1)
-        ):  # -1, because it's inclusive & 0-indexed
+        if not bitmask & (1 << (bitmask_length - i - 1)):  # -1, because it's inclusive & 0-indexed
             continue
 
         for j in range(i, bitmask_length):

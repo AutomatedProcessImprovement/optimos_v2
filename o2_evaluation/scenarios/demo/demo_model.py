@@ -88,23 +88,15 @@ def create_timetable():
             GatewayBranchingProbability(
                 gateway_id="GATEWAY_CUSTOMER_FEEDBACK",
                 probabilities=[
-                    Probability(
-                        path_id="sid-AFEC7074-8C12-43E2-A1FE-87D5CEF395C8", value=0.2
-                    ),
-                    Probability(
-                        path_id="sid-AE313010-5715-438C-AD61-1C02F03DCF77", value=0.8
-                    ),
+                    Probability(path_id="sid-AFEC7074-8C12-43E2-A1FE-87D5CEF395C8", value=0.2),
+                    Probability(path_id="sid-AE313010-5715-438C-AD61-1C02F03DCF77", value=0.8),
                 ],
             ),
             GatewayBranchingProbability(
                 gateway_id="GATEWAY_LENDING_DECISION",
                 probabilities=[
-                    Probability(
-                        path_id="sid-8AE82A7B-75EE-401B-8ABE-279FB05A3946", value=0.2
-                    ),
-                    Probability(
-                        path_id="sid-789335C6-205C-4A03-9AD6-9655893C1FFB", value=0.8
-                    ),
+                    Probability(path_id="sid-8AE82A7B-75EE-401B-8ABE-279FB05A3946", value=0.2),
+                    Probability(path_id="sid-789335C6-205C-4A03-9AD6-9655893C1FFB", value=0.8),
                 ],
             ),
         ],

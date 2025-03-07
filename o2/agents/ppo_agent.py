@@ -42,9 +42,7 @@ class PPOAgent(Agent):
                 # TODO make learning rate smarter
                 # learning_rate=linear_schedule(3e-4),
                 n_steps=1 * store.settings.ppo_steps_per_iteration,  #  Multiple of 50
-                batch_size=round(
-                    0.5 * store.settings.ppo_steps_per_iteration
-                ),  # Divsior of 50
+                batch_size=round(0.5 * store.settings.ppo_steps_per_iteration),  # Divsior of 50
                 gamma=1,
             )
 
@@ -85,9 +83,7 @@ class PPOAgent(Agent):
         # Collect a single step
         with th.no_grad():
             obs_tensor = obs_as_tensor(self.model._last_obs, self.model.device)  # type: ignore
-            actions, values, log_probs = self.model.policy(
-                obs_tensor, action_masks=action_mask
-            )
+            actions, values, log_probs = self.model.policy(obs_tensor, action_masks=action_mask)
             self.last_actions = actions
             self.last_values = values
             self.log_probs = log_probs
@@ -101,15 +97,11 @@ class PPOAgent(Agent):
             return None
         return [action]
 
-    def select_new_base_solution(
-        self, proposed_solution_try: Optional[SolutionTry] = None
-    ) -> Solution:
+    def select_new_base_solution(self, proposed_solution_try: Optional[SolutionTry] = None) -> Solution:
         """Select a new base solution."""
         return TabuAgent(self.store).select_new_base_solution(proposed_solution_try)
 
-    def result_callback(
-        self, chosen_tries: list[SolutionTry], not_chosen_tries: list[SolutionTry]
-    ) -> None:
+    def result_callback(self, chosen_tries: list[SolutionTry], not_chosen_tries: list[SolutionTry]) -> None:
         """Handle the result of the evaluation."""
         result = chosen_tries[0] if chosen_tries else not_chosen_tries[0]
 
@@ -137,9 +129,7 @@ class PPOAgent(Agent):
         if self.model.rollout_buffer.full:
             print_l1("Rollout buffer full, training...")
             with th.no_grad():
-                last_values = self.model.policy.predict_values(
-                    obs_as_tensor(new_obs, self.model.device)
-                )
+                last_values = self.model.policy.predict_values(obs_as_tensor(new_obs, self.model.device))
             self.model.rollout_buffer.compute_returns_and_advantage(
                 last_values=last_values,
                 dones=dones,  # type: ignore
@@ -151,17 +141,13 @@ class PPOAgent(Agent):
         if dones[0]:
             tmp_agent = TabuAgent(self.store)
             while True:
-                self.store.solution = tmp_agent._select_new_base_evaluation(
-                    reinsert_current_solution=False
-                )
+                self.store.solution = tmp_agent._select_new_base_evaluation(reinsert_current_solution=False)
                 actions = PPOInput.get_actions_from_store(self.store)
                 action_count = len([a for a in actions if a is not None])
                 if action_count > 0:
                     break
                 else:
-                    print_l1(
-                        "Still no actions available for next step, selecting new base solution again."
-                    )
+                    print_l1("Still no actions available for next step, selecting new base solution again.")
 
     def update_state(self) -> None:
         """Update the state of the agent."""

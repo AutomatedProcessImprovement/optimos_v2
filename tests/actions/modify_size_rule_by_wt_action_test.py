@@ -17,9 +17,7 @@ from tests.fixtures.timetable_generator import TimetableGenerator
 def test_self_rating_optimal_rule(store: Store):
     store = replace_timetable(
         store,
-        batch_processing=[
-            TimetableGenerator.batching_size_rule(TimetableGenerator.FIRST_ACTIVITY, 10)
-        ],
+        batch_processing=[TimetableGenerator.batching_size_rule(TimetableGenerator.FIRST_ACTIVITY, 10)],
     )
 
     store = replace_constraints(
@@ -36,9 +34,7 @@ def test_self_rating_optimal_rule(store: Store):
     evaluations = TabuAgent.evaluate_rules(store)
     rating_input = SelfRatingInput.from_rule_solutions(store, evaluations)
     assert rating_input is not None
-    rating, action = first_valid(
-        store, ModifySizeRuleByWTAction.rate_self(store, rating_input)
-    )
+    rating, action = first_valid(store, ModifySizeRuleByWTAction.rate_self(store, rating_input))
     assert rating == RATING.MEDIUM
     assert action is not None
     assert action.params["size_increment"] == -1  # type: ignore
@@ -60,9 +56,7 @@ def test_self_rating_non_optimal_rule_decrement(one_task_store: Store):
     )
     store = replace_constraints(
         store,
-        batching_constraints=ConstraintsGenerator(
-            store.base_state.bpmn_definition
-        ).size_constraint(
+        batching_constraints=ConstraintsGenerator(store.base_state.bpmn_definition).size_constraint(
             [TimetableGenerator.FIRST_ACTIVITY],
             max_size=10,
             min_size=1,
@@ -72,6 +66,4 @@ def test_self_rating_non_optimal_rule_decrement(one_task_store: Store):
     evaluations = TabuAgent.evaluate_rules(store)
     rating_input = SelfRatingInput.from_rule_solutions(store, evaluations)
     assert rating_input is not None
-    assert_no_first_valid(
-        store, ModifySizeRuleByWTAction.rate_self(store, rating_input)
-    )
+    assert_no_first_valid(store, ModifySizeRuleByWTAction.rate_self(store, rating_input))

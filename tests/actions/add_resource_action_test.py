@@ -9,9 +9,7 @@ from tests.fixtures.timetable_generator import TimetableGenerator
 def test_action_creation_one_resource_one_task(one_task_store: Store):
     input = SelfRatingInput.from_base_solution(one_task_store.solution)
 
-    rating, action = first_valid(
-        one_task_store, AddResourceAction.rate_self(one_task_store, input)
-    )
+    rating, action = first_valid(one_task_store, AddResourceAction.rate_self(one_task_store, input))
 
     assert action is not None
     assert "resource_id" in action.params
@@ -76,9 +74,7 @@ def test_action_creation_two_resources_two_tasks(two_tasks_store: Store):
 
     assert action is not None
     assert "resource_id" in action.params
-    assert name_is_clone_of(
-        action.params["resource_id"], TimetableGenerator.RESOURCE_ID
-    )
+    assert name_is_clone_of(action.params["resource_id"], TimetableGenerator.RESOURCE_ID)
     assert "task_id" in action.params
     assert action.params["task_id"] == TimetableGenerator.FIRST_ACTIVITY
     assert "remove_task_from_resource" in action.params

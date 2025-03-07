@@ -107,9 +107,7 @@ class ModifySizeRuleByCostFnHighCosts(ModifySizeRuleBaseAction):
         evaluation = store.current_evaluation
 
         task_costs = evaluation.get_total_cost_per_task()
-        yield from rate_self_helper_by_metric_dict(
-            store, task_costs, ModifySizeRuleByCostFnHighCosts
-        )
+        yield from rate_self_helper_by_metric_dict(store, task_costs, ModifySizeRuleByCostFnHighCosts)
 
 
 class ModifySizeRuleByCostFnLowProcessingTime(ModifySizeRuleBaseAction):
@@ -247,9 +245,7 @@ class ModifySizeRuleByCostFnLowCycleTimeImpact(ModifySizeRuleBaseAction):
                 old_duration = size_constraint.duration_fn_lambda(size)
                 new_duration = size_constraint.duration_fn_lambda(size + 1)
                 if new_cost < old_cost:
-                    cycle_time_impacts[firing_rule_selector] = (
-                        old_duration - new_duration
-                    )
+                    cycle_time_impacts[firing_rule_selector] = old_duration - new_duration
 
         sorted_cycle_time_impacts = sorted(
             cycle_time_impacts.keys(),

@@ -63,9 +63,7 @@ class AddDateTimeRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
                 firing_rules=new_or_rule,
                 duration_fn=duration_fn,
             )
-            return state.replace_timetable(
-                batch_processing=timetable.batch_processing + [new_batching_rule]
-            )
+            return state.replace_timetable(batch_processing=timetable.batch_processing + [new_batching_rule])
 
         # Find the rule to modify
         rule = existing_task_rules[0]

@@ -78,9 +78,7 @@ def get_batches_from_event_log(
     """
     batches: list[tuple[str, list[TaskEvent]]] = []
 
-    events: list[TaskEvent] = [
-        event for trace in log.trace_list for event in trace.event_list
-    ]
+    events: list[TaskEvent] = [event for trace in log.trace_list for event in trace.event_list]
 
     # Group events by batch_id
     batches_dict: dict[str, list[TaskEvent]] = defaultdict(list)
@@ -88,9 +86,7 @@ def get_batches_from_event_log(
         if event.resource_id is not None and event.batch_id is not None:
             batches_dict[event.batch_id].append(event)
         else:
-            batches_dict[
-                f"{event.task_id}_{event.resource_id}_{event.started_datetime}"
-            ].append(event)
+            batches_dict[f"{event.task_id}_{event.resource_id}_{event.started_datetime}"].append(event)
 
     # Convert to list of batches
     batches = list(batches_dict.items())
@@ -104,30 +100,17 @@ def get_batches_from_event_log(
         execution_start: datetime = min([event.started_datetime for event in batch])
         execution_end: datetime = max([event.completed_datetime for event in batch])
         accumulation_begin: datetime = min(
-            [
-                event.enabled_datetime
-                for event in batch
-                if event.enabled_datetime is not None
-            ]
+            [event.enabled_datetime for event in batch if event.enabled_datetime is not None]
         )
         accumulation_end: datetime = max(
-            [
-                event.enabled_datetime
-                for event in batch
-                if event.enabled_datetime is not None
-            ]
+            [event.enabled_datetime for event in batch if event.enabled_datetime is not None]
         )
         if (activity, resource, execution_start) in result:
             continue
         batch_idle_time = batch[0].idle_time or 0
         processing_time = batch[0].idle_processing_time or 0
         ideal_processing_time = processing_time - batch_idle_time
-        wt_total = sum(
-            [
-                (event.started_datetime - event.enabled_datetime).total_seconds()
-                for event in batch
-            ]
-        )
+        wt_total = sum([(event.started_datetime - event.enabled_datetime).total_seconds() for event in batch])
         wt_batching = sum(
             [
                 (accumulation_end - event.enabled_datetime).total_seconds()

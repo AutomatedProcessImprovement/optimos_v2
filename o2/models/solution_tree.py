@@ -69,9 +69,7 @@ class SolutionTree:
                 warn("Got too many None items from rtree! Returning None.")
                 break
             pareto_solution = pareto_solutions[0]
-            item = next(
-                self.rtree.nearest(pareto_solution.point, 1, objects=True), None
-            )
+            item = next(self.rtree.nearest(pareto_solution.point, 1, objects=True), None)
             if item is None:
                 warn("WARNING: Got None item from rtree.")
                 error_count += 1
@@ -124,9 +122,7 @@ class SolutionTree:
         self, pareto_front: ParetoFront, max_distance: float = float("inf")
     ) -> Optional["Solution"]:
         """Pop the nearest solution to the given Pareto Front."""
-        nearest_solution = self.get_nearest_solution(
-            pareto_front, max_distance=max_distance
-        )
+        nearest_solution = self.get_nearest_solution(pareto_front, max_distance=max_distance)
         if nearest_solution is not None:
             self.remove_solution(nearest_solution)
             len_discarded_solutions = self.discarded_solutions
@@ -139,14 +135,9 @@ class SolutionTree:
                 print_l3("Nearest solution is IN pareto front.")
         return nearest_solution
 
-    def check_if_already_done(
-        self, base_solution: "Solution", new_action: "BaseAction"
-    ) -> bool:
+    def check_if_already_done(self, base_solution: "Solution", new_action: "BaseAction") -> bool:
         """Check if the given action has already been tried."""
-        return (
-            Solution.hash_action_list(base_solution.actions + [new_action])
-            in self.solution_lookup
-        )
+        return Solution.hash_action_list(base_solution.actions + [new_action]) in self.solution_lookup
 
     def get_index_of_solution(self, solution: Solution) -> int:
         """Get the index of the solution in the tree."""
@@ -176,9 +167,7 @@ class SolutionTree:
         self, pareto_front: ParetoFront, max_distance: float = float("inf")
     ) -> Optional["Solution"]:
         """Get a random solution near the pareto front."""
-        solutions = self.get_solutions_near_to_pareto_front(
-            pareto_front, max_distance=max_distance
-        )
+        solutions = self.get_solutions_near_to_pareto_front(pareto_front, max_distance=max_distance)
         if not solutions:
             return None
         print_l3(f"Found {len(solutions)} solutions near pareto front.")

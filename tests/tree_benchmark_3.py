@@ -67,14 +67,10 @@ def benchmark():
 
         for _ in range(queries_per_iteration):
             query_point = np.random.rand(2)
-            nearest_rtree = next(
-                rtree_idx.nearest((*query_point, *query_point), 1, objects=True)
-            )
+            nearest_rtree = next(rtree_idx.nearest((*query_point, *query_point), 1, objects=True))
 
         for _ in range(pops_per_iteration):
-            nearest_rtree = next(
-                rtree_idx.nearest((*query_point, *query_point), 1, objects=True)
-            )
+            nearest_rtree = next(rtree_idx.nearest((*query_point, *query_point), 1, objects=True))
             rtree_idx.delete(nearest_rtree.id, nearest_rtree.bbox)
 
         times_rtree.append(time.time() - start_time)

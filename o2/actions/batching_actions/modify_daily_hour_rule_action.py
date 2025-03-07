@@ -65,9 +65,7 @@ class ModifyDailyHourRuleAction(BatchingRuleBaseAction, str=False):
 
         assert rule_selector.firing_rule_index is not None
 
-        new_batching_rule = rule.replace_firing_rule(
-            rule_selector, replace(firing_rule, value=new_hour)
-        )
+        new_batching_rule = rule.replace_firing_rule(rule_selector, replace(firing_rule, value=new_hour))
 
         return state.replace_timetable(
             batch_processing=timetable.batch_processing[:index]
@@ -93,17 +91,13 @@ class ModifyDailyHourRuleAction(BatchingRuleBaseAction, str=False):
                         yield (
                             RATING.LOW,
                             ModifyDailyHourRuleAction(
-                                ModifyDailyHourRuleActionParamsType(
-                                    rule=selector, hour_increment=-1
-                                )
+                                ModifyDailyHourRuleActionParamsType(rule=selector, hour_increment=-1)
                             ),
                         )
                         yield (
                             RATING.LOW,
                             ModifyDailyHourRuleAction(
-                                ModifyDailyHourRuleActionParamsType(
-                                    rule=selector, hour_increment=1
-                                )
+                                ModifyDailyHourRuleActionParamsType(rule=selector, hour_increment=1)
                             ),
                         )
 

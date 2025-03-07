@@ -79,9 +79,7 @@ class AddResourceAction(ModifyResourceBaseAction, str=False):
                             ),
                         )
             else:
-                sorted_resources = (
-                    parent_evaluation.get_resources_sorted_by_task_execution_count(task)
-                )
+                sorted_resources = parent_evaluation.get_resources_sorted_by_task_execution_count(task)
                 for resource_id in sorted_resources:
                     resource = timetable.get_resource(resource_id)
                     if resource is None:
@@ -100,10 +98,8 @@ class AddResourceAction(ModifyResourceBaseAction, str=False):
                             ),
                         )
                     else:
-                        least_done_task = (
-                            AddResourceAction._find_least_done_task_to_remove(
-                                store, input, resource.id, task
-                            )
+                        least_done_task = AddResourceAction._find_least_done_task_to_remove(
+                            store, input, resource.id, task
                         )
                         if least_done_task is not None:
                             yield (

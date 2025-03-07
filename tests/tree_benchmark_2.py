@@ -62,9 +62,7 @@ def benchmark():
     # Insert initial points into the R-tree and heap
     for i, point in enumerate(points):
         rtree_idx.insert(i, (*point, *point))
-    heap.add_points(
-        points, query_point=np.array([0, 0])
-    )  # Initially arbitrary query point
+    heap.add_points(points, query_point=np.array([0, 0]))  # Initially arbitrary query point
 
     for iteration in range(num_iterations):
         # Generate new points and choose a random query point
@@ -97,9 +95,7 @@ def benchmark():
             rtree_idx.insert(i + iteration * points_per_iteration, (*point, *point))
 
         for _ in range(pops_per_iteration):
-            nearest_rtree = next(
-                rtree_idx.nearest((*query_point, *query_point), 1, objects=True)
-            )
+            nearest_rtree = next(rtree_idx.nearest((*query_point, *query_point), 1, objects=True))
             rtree_idx.delete(nearest_rtree.id, nearest_rtree.bbox)
 
         times_rtree.append(time.time() - start_time)

@@ -64,9 +64,7 @@ def get_arcs_from_bpmn(bpmn_string: str) -> list[str]:
     file_io.seek(0)
     bpmn = ElementTree.parse(file_io)
     bpmn_root = bpmn.getroot()
-    arcs = bpmn_root.findall(
-        ".//{http://www.omg.org/spec/BPMN/20100524/MODEL}sequenceFlow"
-    )
+    arcs = bpmn_root.findall(".//{http://www.omg.org/spec/BPMN/20100524/MODEL}sequenceFlow")
     return [arc.attrib["id"] for arc in arcs]
 
 
@@ -77,15 +75,9 @@ def get_gateways_from_bpmn(bpmn_string: str) -> tuple[int, int, int]:
     file_io.seek(0)
     bpmn = ElementTree.parse(file_io)
     bpmn_root = bpmn.getroot()
-    parallel_gateways = bpmn_root.findall(
-        ".//{http://www.omg.org/spec/BPMN/20100524/MODEL}parallelGateway"
-    )
-    exclusive_gateways = bpmn_root.findall(
-        ".//{http://www.omg.org/spec/BPMN/20100524/MODEL}exclusiveGateway"
-    )
-    inclusive_gateways = bpmn_root.findall(
-        ".//{http://www.omg.org/spec/BPMN/20100524/MODEL}inclusiveGateway"
-    )
+    parallel_gateways = bpmn_root.findall(".//{http://www.omg.org/spec/BPMN/20100524/MODEL}parallelGateway")
+    exclusive_gateways = bpmn_root.findall(".//{http://www.omg.org/spec/BPMN/20100524/MODEL}exclusiveGateway")
+    inclusive_gateways = bpmn_root.findall(".//{http://www.omg.org/spec/BPMN/20100524/MODEL}inclusiveGateway")
     return len(parallel_gateways), len(exclusive_gateways), len(inclusive_gateways)
 
 
@@ -100,13 +92,9 @@ def get_scenario_stats(scenario: str) -> ScenarioStats:
         bpmn_path = f"{scenario_folder}/{scenario}/{scenario}.bpmn"
         # Check if the files exist
         if not os.path.exists(timetable_path):
-            raise FileNotFoundError(
-                f"Unknown scenario: {scenario}. Please check the scenario folder."
-            )
+            raise FileNotFoundError(f"Unknown scenario: {scenario}. Please check the scenario folder.")
         if not os.path.exists(bpmn_path):
-            raise FileNotFoundError(
-                f"Unknown scenario: {scenario}. Please check the scenario folder."
-            )
+            raise FileNotFoundError(f"Unknown scenario: {scenario}. Please check the scenario folder.")
 
     with open(timetable_path) as f:
         timetable = TimetableType.from_dict(json.load(f))
@@ -139,9 +127,7 @@ def get_scenario_stats(scenario: str) -> ScenarioStats:
         sim_time += end_time - start_time
     sim_time /= 10
 
-    parallel_gateways, exclusive_gateways, inclusive_gateways = get_gateways_from_bpmn(
-        bpmn_definition
-    )
+    parallel_gateways, exclusive_gateways, inclusive_gateways = get_gateways_from_bpmn(bpmn_definition)
 
     return {
         "scenario": scenario,
@@ -189,9 +175,7 @@ if __name__ == "__main__":
     # Construct a Table with the stats as Rows and the scenarios as Columns
     result = ""
     # Title Case Scenario Names
-    result += (
-        f";{';'.join(scenario.replace('_', ' ').title() for scenario in SCENARIOS)}"
-    )
+    result += f";{';'.join(scenario.replace('_', ' ').title() for scenario in SCENARIOS)}"
     for row, row_name in zip(ROWS, ROW_NAMES):
         result += f"\n{row_name};{';'.join(str(stats[scenario][row]) for scenario in SCENARIOS)}"
     print(result.replace(".", ","))

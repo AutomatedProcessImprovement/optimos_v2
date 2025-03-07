@@ -19,9 +19,7 @@ from tests.fixtures.timetable_generator import TimetableGenerator
 def test_remove_single_rule(store: Store):
     store = replace_timetable(
         store,
-        batch_processing=[
-            TimetableGenerator.batching_size_rule(TimetableGenerator.FIRST_ACTIVITY, 2)
-        ],
+        batch_processing=[TimetableGenerator.batching_size_rule(TimetableGenerator.FIRST_ACTIVITY, 2)],
     )
     first_rule = store.base_timetable.batch_processing[0]
     selector = RuleSelector.from_batching_rule(first_rule, (0, 0))
@@ -35,9 +33,7 @@ def test_remove_one_of_two_batching_rules(store: Store):
         store,
         batch_processing=[
             TimetableGenerator.batching_size_rule(TimetableGenerator.FIRST_ACTIVITY, 2),
-            TimetableGenerator.batching_size_rule(
-                TimetableGenerator.SECOND_ACTIVITY, 2
-            ),
+            TimetableGenerator.batching_size_rule(TimetableGenerator.SECOND_ACTIVITY, 2),
         ],
     )
     first_rule = store.base_timetable.batch_processing[0]
@@ -49,9 +45,7 @@ def test_remove_one_of_two_batching_rules(store: Store):
 
 
 def test_remove_one_of_two_firing_rules(store: Store):
-    batching_rule = TimetableGenerator.batching_size_rule(
-        TimetableGenerator.FIRST_ACTIVITY, 2
-    )
+    batching_rule = TimetableGenerator.batching_size_rule(TimetableGenerator.FIRST_ACTIVITY, 2)
     batching_rule.firing_rules.append(
         [
             FiringRule(
@@ -128,9 +122,7 @@ def test_self_rating_optimal_rule(store: Store):
         store,
         batch_processing=[
             # Be a 1000 times more efficient with batching
-            TimetableGenerator.batching_size_rule(
-                TimetableGenerator.FIRST_ACTIVITY, 3, 0.001
-            )
+            TimetableGenerator.batching_size_rule(TimetableGenerator.FIRST_ACTIVITY, 3, 0.001)
         ],
     )
 
@@ -144,11 +136,7 @@ def test_self_rating_optimal_rule(store: Store):
 def test_self_rating_non_optimal_rule(one_task_store: Store):
     store = replace_timetable(
         one_task_store,
-        batch_processing=[
-            TimetableGenerator.batching_size_rule(
-                TimetableGenerator.FIRST_ACTIVITY, 50, 1
-            )
-        ],
+        batch_processing=[TimetableGenerator.batching_size_rule(TimetableGenerator.FIRST_ACTIVITY, 50, 1)],
         task_resource_distribution=TimetableGenerator.task_resource_distribution_simple(
             TimetableGenerator(one_task_store.base_state.bpmn_definition).task_ids, 60
         ),

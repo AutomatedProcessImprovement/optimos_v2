@@ -77,8 +77,7 @@ class RemoveDateTimeRuleAction(BaseAction):
         )
         if len(new_batching_rule.firing_rules) == 0:
             return state.replace_timetable(
-                batch_processing=timetable.batch_processing[:index]
-                + timetable.batch_processing[index + 1 :],
+                batch_processing=timetable.batch_processing[:index] + timetable.batch_processing[index + 1 :],
             )
 
         return state.replace_timetable(

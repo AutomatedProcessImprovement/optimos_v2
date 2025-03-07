@@ -17,9 +17,7 @@ def distance(point1: tuple[float, float], point2: tuple[float, float]) -> float:
     return float(np.linalg.norm(np.array(point1) - np.array(point2)))
 
 
-def calculate_hyperarea(
-    solutions: list[Solution], reference_point: tuple[float, float]
-) -> float:
+def calculate_hyperarea(solutions: list[Solution], reference_point: tuple[float, float]) -> float:
     """Compute the hyperarea of the solutions.
 
     The hyperarea is the hypervolume in 2D of the region dominated by the set of
@@ -173,9 +171,7 @@ def calculate_delta_metric(pareto_front: list, reference_set: list) -> float:
     return delta
 
 
-def calculate_purity(
-    pareto_front: list[Solution], reference_set: list[Solution]
-) -> float:
+def calculate_purity(pareto_front: list[Solution], reference_set: list[Solution]) -> float:
     """Calculate the Purity metric for the Pareto front."""
     pareto_set = {tuple(sol.point) for sol in pareto_front}
     reference_set_points = {tuple(sol.point) for sol in reference_set}
@@ -183,9 +179,7 @@ def calculate_purity(
     return len(pure_points) / len(pareto_front) if pareto_front else 0.0
 
 
-def store_from_files(
-    timetable_path: str, constraints_path: str, bpmn_path: str
-) -> Store:
+def store_from_files(timetable_path: str, constraints_path: str, bpmn_path: str) -> Store:
     """Create a store from the given files."""
     with open(timetable_path) as f:
         timetable = TimetableType.from_dict(json.load(f))

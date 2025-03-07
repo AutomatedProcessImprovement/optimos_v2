@@ -45,9 +45,7 @@ def setup_logging() -> None:
 
     # Create formatters
     simple_formatter = ColoredFormatter("%(asctime)s [%(levelname)s]: %(message)s")
-    detailed_formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s: %(message)s"
-    )
+    detailed_formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s: %(message)s")
 
     # Create handlers
     console_handler = logging.StreamHandler()

@@ -205,9 +205,7 @@ class TimePeriod(BaseModel):
         return int("".join(map(str, bitarray)), 2)
 
     def __repr__(self) -> str:
-        return (
-            f"TimePeriod({self.from_},{self.begin_time} -> {self.to},{self.end_time})"
-        )
+        return f"TimePeriod({self.from_},{self.begin_time} -> {self.to},{self.end_time})"
 
     @staticmethod
     def from_bitmask(bitmask: int, day: "DAY") -> list["TimePeriod"]:

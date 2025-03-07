@@ -57,9 +57,7 @@ class TensorBoardHelper:
             return
         with self.writer.as_default():
             if isinstance(self.agent, SimulatedAnnealingAgent):
-                tf.summary.scalar(
-                    "sa/temperature", self.agent.temperature, step=self.step
-                )
+                tf.summary.scalar("sa/temperature", self.agent.temperature, step=self.step)
 
                 if self.step % SA_CALCULATION_INTERVAL == 0:
                     solutions_left_for_temperature = len(
@@ -104,12 +102,8 @@ class TensorBoardHelper:
                 step=self.step,
             )
 
-            x_label = (
-                Settings.get_pareto_x_label().replace(" ", "_").replace(".", "").lower()
-            )
-            y_label = (
-                Settings.get_pareto_y_label().replace(" ", "_").replace(".", "").lower()
-            )
+            x_label = Settings.get_pareto_x_label().replace(" ", "_").replace(".", "").lower()
+            y_label = Settings.get_pareto_y_label().replace(" ", "_").replace(".", "").lower()
 
             tf.summary.scalar(
                 f"front/avg_{x_label}",

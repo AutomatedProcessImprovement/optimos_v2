@@ -33,15 +33,11 @@ class ConstraintsGenerator:
         self.bpmn = ElementTree.parse(fileIo)
         self.bpmnRoot = self.bpmn.getroot()
         # Get all the Elements of kind bpmn:task in bpmn:process
-        self.tasks = self.bpmnRoot.findall(
-            ".//{http://www.omg.org/spec/BPMN/20100524/MODEL}task"
-        )
+        self.tasks = self.bpmnRoot.findall(".//{http://www.omg.org/spec/BPMN/20100524/MODEL}task")
         self.task_ids = [task.attrib["id"] for task in self.tasks]
 
     # Add a size constraint to the constraints
-    def add_size_constraint(
-        self, optimal_duration=5, optimal_duration_bonus=0.75, min_size=0, max_size=10
-    ):
+    def add_size_constraint(self, optimal_duration=5, optimal_duration_bonus=0.75, min_size=0, max_size=10):
         self.constraints.batching_constraints.append(
             self.size_constraint(
                 task_ids=[task.attrib["id"] for task in self.tasks],
@@ -140,20 +136,15 @@ class ConstraintsGenerator:
             ConstraintsResourcesItem(
                 id=resource_id,
                 constraints=ResourceConstraints(
-                    never_work_masks=never_work_masks
-                    or ConstraintsGenerator.work_mask(),
-                    always_work_masks=always_work_masks
-                    or ConstraintsGenerator.work_mask(),
-                    global_constraints=global_constraints
-                    or ConstraintsGenerator.global_constraints(),
+                    never_work_masks=never_work_masks or ConstraintsGenerator.work_mask(),
+                    always_work_masks=always_work_masks or ConstraintsGenerator.work_mask(),
+                    global_constraints=global_constraints or ConstraintsGenerator.global_constraints(),
                 ),
             )
         ]
 
     @staticmethod
-    def week_day_constraint(
-        task_ids: list[str], allowed_days: Optional[list[DAY]] = None
-    ):
+    def week_day_constraint(task_ids: list[str], allowed_days: Optional[list[DAY]] = None):
         if allowed_days is None:
             allowed_days = list(DAY)
         return WeekDayRuleConstraints(

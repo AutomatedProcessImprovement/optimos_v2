@@ -44,8 +44,7 @@ class SelfRatingInput:
         increasing_rules = {
             rule_selector: solution
             for rule_selector, solution in self.rule_solutions.items()
-            if solution.evaluation.total_waiting_time
-            < self.parent_solution.evaluation.total_waiting_time
+            if solution.evaluation.total_waiting_time < self.parent_solution.evaluation.total_waiting_time
         }
         if len(increasing_rules) == 0:
             return None
@@ -72,8 +71,7 @@ class SelfRatingInput:
         reducing_rules = {
             rule_selector: solution
             for rule_selector, solution in self.rule_solutions.items()
-            if solution.evaluation.total_waiting_time
-            > self.parent_solution.evaluation.total_waiting_time
+            if solution.evaluation.total_waiting_time > self.parent_solution.evaluation.total_waiting_time
         }
         if len(reducing_rules) == 0:
             return None
@@ -111,8 +109,7 @@ class SelfRatingInput:
         most_impactful_rule_selector = max(
             solutions,
             key=lambda rule_selector: abs(
-                base.evaluation.total_waiting_time
-                - solutions[rule_selector].evaluation.total_waiting_time
+                base.evaluation.total_waiting_time - solutions[rule_selector].evaluation.total_waiting_time
             ),
         )
 

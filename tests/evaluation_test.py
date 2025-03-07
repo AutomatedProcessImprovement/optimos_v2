@@ -11,25 +11,17 @@ def test_evaluation_calculation_without_batching(one_task_state: State):
     """
     state = one_task_state.replace_timetable(
         # Resource has cost of $10/h
-        resource_profiles=TimetableGenerator.resource_pools(
-            [TimetableGenerator.FIRST_ACTIVITY], 10
-        ),
+        resource_profiles=TimetableGenerator.resource_pools([TimetableGenerator.FIRST_ACTIVITY], 10),
         # Working one case takes 30min
         task_resource_distribution=TimetableGenerator.task_resource_distribution_simple(
             [TimetableGenerator.FIRST_ACTIVITY], 30 * 60
         ),
         # Work from 9 to 17 (8h)
-        resource_calendars=TimetableGenerator.resource_calendars(
-            9, 18, include_end_hour=False
-        ),
+        resource_calendars=TimetableGenerator.resource_calendars(9, 18, include_end_hour=False),
         # One Case every 45min
-        arrival_time_distribution=TimetableGenerator.arrival_time_distribution(
-            45 * 60, 45 * 60
-        ),
+        arrival_time_distribution=TimetableGenerator.arrival_time_distribution(45 * 60, 45 * 60),
         # Cases from 9:00 to 17:59 (~8h)
-        arrival_time_calendar=TimetableGenerator.arrival_time_calendar(
-            9, 17, include_end_hour=True
-        ),
+        arrival_time_calendar=TimetableGenerator.arrival_time_calendar(9, 17, include_end_hour=True),
         total_cases=26,
     )
 
@@ -81,9 +73,7 @@ def test_evaluation_calculation_without_batching(one_task_state: State):
     )
 
     # Should be the ratio between worked time and available time
-    assert evaluation.resource_utilizations[TimetableGenerator.RESOURCE_ID] == (
-        26 * 0.5
-    ) / (9 * 2 + 1.25)
+    assert evaluation.resource_utilizations[TimetableGenerator.RESOURCE_ID] == (26 * 0.5) / (9 * 2 + 1.25)
 
 
 def test_evaluation_without_batching_but_fixed_costs(one_task_state: State):
@@ -100,17 +90,11 @@ def test_evaluation_without_batching_but_fixed_costs(one_task_state: State):
             [TimetableGenerator.FIRST_ACTIVITY], 30 * 60
         ),
         # Work from 9 to 17 (8h)
-        resource_calendars=TimetableGenerator.resource_calendars(
-            9, 18, include_end_hour=False
-        ),
+        resource_calendars=TimetableGenerator.resource_calendars(9, 18, include_end_hour=False),
         # One Case every 45min
-        arrival_time_distribution=TimetableGenerator.arrival_time_distribution(
-            45 * 60, 45 * 60
-        ),
+        arrival_time_distribution=TimetableGenerator.arrival_time_distribution(45 * 60, 45 * 60),
         # Cases from 9:00 to 17:59 (~8h)
-        arrival_time_calendar=TimetableGenerator.arrival_time_calendar(
-            9, 17, include_end_hour=True
-        ),
+        arrival_time_calendar=TimetableGenerator.arrival_time_calendar(9, 17, include_end_hour=True),
         total_cases=26,
     )
 
@@ -121,14 +105,8 @@ def test_evaluation_without_batching_but_fixed_costs(one_task_state: State):
     assert evaluation.total_cost_for_worked_time == 19.25 * 10
 
     assert evaluation.total_cost == 26 * 15 + 19.25 * 10
-    assert (
-        evaluation.get_total_cost_per_task()[TimetableGenerator.FIRST_ACTIVITY]
-        == 26 * 15 + 26 * 0.5 * 10
-    )
-    assert (
-        evaluation.get_avg_cost_per_task()[TimetableGenerator.FIRST_ACTIVITY]
-        == 0.5 * 10 + 15
-    )
+    assert evaluation.get_total_cost_per_task()[TimetableGenerator.FIRST_ACTIVITY] == 26 * 15 + 26 * 0.5 * 10
+    assert evaluation.get_avg_cost_per_task()[TimetableGenerator.FIRST_ACTIVITY] == 0.5 * 10 + 15
 
 
 def test_evaluation_with_intra_task_idling(one_task_state: State):
@@ -146,9 +124,7 @@ def test_evaluation_with_intra_task_idling(one_task_state: State):
             9, 11, include_end_hour=False, only_week_days=True
         ),
         # One Case every 4h
-        arrival_time_distribution=TimetableGenerator.arrival_time_distribution(
-            4 * 60 * 60, 4 * 60 * 60
-        ),
+        arrival_time_distribution=TimetableGenerator.arrival_time_distribution(4 * 60 * 60, 4 * 60 * 60),
         # Cases from 9:00 to 10:59 (~2h)
         arrival_time_calendar=TimetableGenerator.arrival_time_calendar(
             9, 11, include_end_hour=False, only_week_days=True
@@ -168,10 +144,7 @@ def test_evaluation_with_intra_task_idling(one_task_state: State):
 
     # We have 7 "nights" of idling time (11:00 - 9:00, 22h)
     # Additionally we have 48h of weekend idling time
-    assert (
-        evaluation.task_kpis[TimetableGenerator.FIRST_ACTIVITY].idle_time.total
-        == (7 * 22 + 48) * 60 * 60
-    )
+    assert evaluation.task_kpis[TimetableGenerator.FIRST_ACTIVITY].idle_time.total == (7 * 22 + 48) * 60 * 60
     assert evaluation.total_task_idle_time == (7 * 22 + 48) * 60 * 60
 
 
@@ -190,9 +163,7 @@ def test_evaluation_with_intra_task_idling_task_stats(one_task_state: State):
             9, 11, include_end_hour=False, only_week_days=True
         ),
         # One Case every 1h
-        arrival_time_distribution=TimetableGenerator.arrival_time_distribution(
-            1 * 60 * 60, 1 * 60 * 60
-        ),
+        arrival_time_distribution=TimetableGenerator.arrival_time_distribution(1 * 60 * 60, 1 * 60 * 60),
         # Cases from 10:00 to 11:00 (1h)
         arrival_time_calendar=TimetableGenerator.arrival_time_calendar(
             10, 14, include_end_hour=False, only_week_days=True
@@ -205,10 +176,7 @@ def test_evaluation_with_intra_task_idling_task_stats(one_task_state: State):
     # Because the first task only arrives one hour later, it spans over two days
     # Processing time is 2h
     assert (
-        evaluation.get_total_processing_time_per_task()[
-            TimetableGenerator.FIRST_ACTIVITY
-        ]
-        == 2 * 4 * 60 * 60
+        evaluation.get_total_processing_time_per_task()[TimetableGenerator.FIRST_ACTIVITY] == 2 * 4 * 60 * 60
     )
     assert evaluation.total_processing_time == 2 * 4 * 60 * 60
 
@@ -222,10 +190,7 @@ def test_evaluation_with_intra_task_idling_task_stats(one_task_state: State):
     assert evaluation.total_waiting_time == (0 + 23 + 46 + 69) * 60 * 60
 
     # Idle time is 22h for each task (11:00 -> 09:00)
-    assert (
-        evaluation.get_total_idle_time_of_task_id(TimetableGenerator.FIRST_ACTIVITY)
-        == 22 * 4 * 60 * 60
-    )
+    assert evaluation.get_total_idle_time_of_task_id(TimetableGenerator.FIRST_ACTIVITY) == 22 * 4 * 60 * 60
     assert evaluation.total_task_idle_time == 22 * 4 * 60 * 60
     # Duration is processing time + idle time
     assert (
@@ -262,9 +227,7 @@ def test_evaluation_with_waiting_times(one_task_state: State):
             9, 18, include_end_hour=False, only_week_days=True
         ),
         # One Case every 30min
-        arrival_time_distribution=TimetableGenerator.arrival_time_distribution(
-            30 * 60, 30 * 60
-        ),
+        arrival_time_distribution=TimetableGenerator.arrival_time_distribution(30 * 60, 30 * 60),
         # Cases from 9:00 to 16:59 (~8h)
         arrival_time_calendar=TimetableGenerator.arrival_time_calendar(
             9, 17, include_end_hour=False, only_week_days=True
@@ -292,18 +255,8 @@ def test_evaluation_with_waiting_times(one_task_state: State):
     assert evaluation.avg_batch_processing_time_per_task_instance == 1 * 60 * 60
     assert evaluation.total_task_idle_time == 0
 
-    assert (
-        evaluation.get_average_processing_time_per_task()[
-            TimetableGenerator.FIRST_ACTIVITY
-        ]
-        == 1 * 60 * 60
-    )
-    assert (
-        evaluation.avg_batching_waiting_time_per_task.get(
-            TimetableGenerator.FIRST_ACTIVITY, 0
-        )
-        == 0
-    )
+    assert evaluation.get_average_processing_time_per_task()[TimetableGenerator.FIRST_ACTIVITY] == 1 * 60 * 60
+    assert evaluation.avg_batching_waiting_time_per_task.get(TimetableGenerator.FIRST_ACTIVITY, 0) == 0
     assert (
         evaluation.get_avg_waiting_time_of_task_id(TimetableGenerator.FIRST_ACTIVITY)
         == (0.5 * (7 / 2)) * 60 * 60
@@ -317,10 +270,7 @@ def test_evaluation_with_waiting_times(one_task_state: State):
         == (8 * (1 + (0.5 * (7 / 2)))) * 60 * 60
     )
 
-    assert (
-        evaluation.get_total_duration_time_per_task()[TimetableGenerator.FIRST_ACTIVITY]
-        == 8 * 60 * 60
-    )
+    assert evaluation.get_total_duration_time_per_task()[TimetableGenerator.FIRST_ACTIVITY] == 8 * 60 * 60
 
 
 def test_evaluation_with_wt_and_idle_batching(one_task_state: State):
@@ -361,24 +311,13 @@ def test_evaluation_with_wt_and_idle_batching(one_task_state: State):
     # 1st case in batch waits 3*24h, 2nd 2*24h, 3rd 24h, 4th 0h
     assert evaluation.total_waiting_time == (3 * 24 + 2 * 24 + 1 * 24) * 2 * 60 * 60
 
-    assert (
-        evaluation.avg_idle_wt_per_task_instance
-        == (((3 * 24 + 2 * 24 + 1 * 24) * 2) / 8) * 60 * 60
-    )
+    assert evaluation.avg_idle_wt_per_task_instance == (((3 * 24 + 2 * 24 + 1 * 24) * 2) / 8) * 60 * 60
 
     # We got two batches with 2 hours each, divided by 8 task_instances
-    assert (
-        evaluation.avg_batch_processing_time_per_task_instance
-        == ((2 * 2) / 8) * 60 * 60
-    )
+    assert evaluation.avg_batch_processing_time_per_task_instance == ((2 * 2) / 8) * 60 * 60
 
     # Due to batching the processing time is increased, but still less than 4 * 1h
-    assert (
-        evaluation.get_average_processing_time_per_task()[
-            TimetableGenerator.FIRST_ACTIVITY
-        ]
-        == 2 * 60 * 60
-    )
+    assert evaluation.get_average_processing_time_per_task()[TimetableGenerator.FIRST_ACTIVITY] == 2 * 60 * 60
 
 
 def test_batch_detection(one_task_state: State):

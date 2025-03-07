@@ -29,14 +29,10 @@ class ModifySizeRuleByWTAction(ModifySizeRuleBaseAction):
     params: ModifySizeRuleByWTActionParamsType
 
     @staticmethod
-    def rate_self(
-        store: "Store", input: SelfRatingInput
-    ) -> RateSelfReturnType["ModifySizeRuleByWTAction"]:
+    def rate_self(store: "Store", input: SelfRatingInput) -> RateSelfReturnType["ModifySizeRuleByWTAction"]:
         """Generate a best set of parameters & self-evaluates this action."""
         timetable = store.current_timetable
-        avg_batching_waiting_time_per_task = (
-            store.current_evaluation.avg_batching_waiting_time_per_task
-        )
+        avg_batching_waiting_time_per_task = store.current_evaluation.avg_batching_waiting_time_per_task
         sorted_tasks = sorted(
             avg_batching_waiting_time_per_task.items(),
             key=lambda x: x[1],
@@ -49,9 +45,7 @@ class ModifySizeRuleByWTAction(ModifySizeRuleBaseAction):
             for batching_rule in batching_rules:
                 selectors = batching_rule.get_firing_rule_selectors(type=RULE_TYPE.SIZE)
                 for selector in selectors:
-                    constraints = store.constraints.get_batching_size_rule_constraints(
-                        task_id
-                    )
+                    constraints = store.constraints.get_batching_size_rule_constraints(task_id)
                     duration_fn = "1" if not constraints else constraints[0].duration_fn
                     yield (
                         RATING.LOW,

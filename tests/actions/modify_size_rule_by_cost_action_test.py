@@ -17,9 +17,7 @@ from tests.fixtures.timetable_generator import TimetableGenerator
 def test_self_rating_optimal_rule(one_task_store: Store):
     store = replace_timetable(
         one_task_store,
-        batch_processing=[
-            TimetableGenerator.batching_size_rule(TimetableGenerator.FIRST_ACTIVITY, 1)
-        ],
+        batch_processing=[TimetableGenerator.batching_size_rule(TimetableGenerator.FIRST_ACTIVITY, 1)],
         task_resource_distribution=TimetableGenerator.task_resource_distribution_simple(
             [TimetableGenerator.FIRST_ACTIVITY],
             # Long duration, therefore good to batch
@@ -41,9 +39,7 @@ def test_self_rating_optimal_rule(one_task_store: Store):
     evaluations = TabuAgent.evaluate_rules(store)
     rating_input = SelfRatingInput.from_rule_solutions(store, evaluations)
     assert rating_input is not None
-    rating, action = first_valid(
-        store, ModifySizeRuleByCostAction.rate_self(store, rating_input)
-    )
+    rating, action = first_valid(store, ModifySizeRuleByCostAction.rate_self(store, rating_input))
     assert rating == RATING.MEDIUM
     assert action is not None
     assert action.params["size_increment"] == 1  # type: ignore
@@ -66,9 +62,7 @@ def test_self_rating_non_optimal_rule_decrement(two_tasks_store: Store):
         ),
         batch_processing=[
             TimetableGenerator.batching_size_rule(TimetableGenerator.FIRST_ACTIVITY, 1),
-            TimetableGenerator.batching_size_rule(
-                TimetableGenerator.SECOND_ACTIVITY, 1
-            ),
+            TimetableGenerator.batching_size_rule(TimetableGenerator.SECOND_ACTIVITY, 1),
         ],
     )
     store = replace_constraints(
@@ -88,9 +82,7 @@ def test_self_rating_non_optimal_rule_decrement(two_tasks_store: Store):
     evaluations = TabuAgent.evaluate_rules(store)
     rating_input = SelfRatingInput.from_rule_solutions(store, evaluations)
     assert rating_input is not None
-    rating, action = first_valid(
-        store, ModifySizeRuleByCostAction.rate_self(store, rating_input)
-    )
+    rating, action = first_valid(store, ModifySizeRuleByCostAction.rate_self(store, rating_input))
     assert rating == RATING.MEDIUM
     assert action is not None
     assert (

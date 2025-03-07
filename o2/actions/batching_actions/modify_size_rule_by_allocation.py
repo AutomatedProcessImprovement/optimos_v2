@@ -44,18 +44,16 @@ class ModifySizeRuleByLowAllocationAction(ModifySizeRuleBaseAction):
         evaluation = store.current_evaluation
 
         resource_allocations = evaluation.resource_allocation_ratio_task
-        tasks_by_allocation = sorted(
-            resource_allocations.items(), key=lambda x: x[1], reverse=True
-        )[:LIMIT_OF_OPTIONS]
+        tasks_by_allocation = sorted(resource_allocations.items(), key=lambda x: x[1], reverse=True)[
+            :LIMIT_OF_OPTIONS
+        ]
 
         for task_id, _ in tasks_by_allocation:
             batching_rules = timetable.get_batching_rules_for_task(task_id)
             for batching_rule in batching_rules:
                 selectors = batching_rule.get_firing_rule_selectors(type=RULE_TYPE.SIZE)
                 for selector in selectors:
-                    constraints = store.constraints.get_batching_size_rule_constraints(
-                        task_id
-                    )
+                    constraints = store.constraints.get_batching_size_rule_constraints(task_id)
                     duration_fn = "1" if not constraints else constraints[0].duration_fn
                     yield (
                         ModifySizeRuleBaseAction.get_default_rating(),
@@ -109,9 +107,7 @@ class ModifySizeRuleByHighAllocationAction(ModifySizeRuleBaseAction):
             for batching_rule in batching_rules:
                 selectors = batching_rule.get_firing_rule_selectors(type=RULE_TYPE.SIZE)
                 for selector in selectors:
-                    constraints = store.constraints.get_batching_size_rule_constraints(
-                        task_id
-                    )
+                    constraints = store.constraints.get_batching_size_rule_constraints(task_id)
                     duration_fn = "1" if not constraints else constraints[0].duration_fn
                     yield (
                         ModifySizeRuleBaseAction.get_default_rating(),

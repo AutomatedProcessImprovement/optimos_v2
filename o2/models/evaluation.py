@@ -191,8 +191,7 @@ class Evaluation:
     def resource_worked_times(self) -> dict[str, float]:
         """Get the worked time of all resources."""
         return {
-            resource_id: resource_kpi.worked_time
-            for resource_id, resource_kpi in self.resource_kpis.items()
+            resource_id: resource_kpi.worked_time for resource_id, resource_kpi in self.resource_kpis.items()
         }
 
     @cached_property
@@ -207,8 +206,7 @@ class Evaluation:
     def resource_utilizations(self) -> dict[str, float]:
         """Get the utilization of all resources."""
         return {
-            resource_id: resource_kpi.utilization
-            for resource_id, resource_kpi in self.resource_kpis.items()
+            resource_id: resource_kpi.utilization for resource_id, resource_kpi in self.resource_kpis.items()
         }
 
     @cached_property
@@ -280,26 +278,16 @@ class Evaluation:
     def get_task_names_sorted_by_waiting_time_desc(self) -> list[str]:
         """Get a list of task names sorted by the average waiting time in desc order."""
         task_waiting_time = [
-            (task_name, task_kpi.waiting_time.avg)
-            for task_name, task_kpi in self.task_kpis.items()
+            (task_name, task_kpi.waiting_time.avg) for task_name, task_kpi in self.task_kpis.items()
         ]
-        return [
-            task_name
-            for task_name, _ in sorted(
-                task_waiting_time, key=lambda x: x[1], reverse=True
-            )
-        ]
+        return [task_name for task_name, _ in sorted(task_waiting_time, key=lambda x: x[1], reverse=True)]
 
     def get_task_names_sorted_by_idle_time_desc(self) -> list[str]:
         """Get a list of task names sorted by the average idle time in desc order."""
         task_idle_time = [
-            (task_name, task_kpi.idle_time.avg)
-            for task_name, task_kpi in self.task_kpis.items()
+            (task_name, task_kpi.idle_time.avg) for task_name, task_kpi in self.task_kpis.items()
         ]
-        return [
-            task_name
-            for task_name, _ in sorted(task_idle_time, key=lambda x: x[1], reverse=True)
-        ]
+        return [task_name for task_name, _ in sorted(task_idle_time, key=lambda x: x[1], reverse=True)]
 
     def get_most_frequent_enablement_weekdays(self, task_name: str) -> list[DAY]:
         """Get a list of weekdays, on which the task was enabled.
@@ -335,12 +323,7 @@ class Evaluation:
         they were executed(number of events) and had either a waiting or idle time.
         """
         occurrences = self.task_execution_count_with_wt_or_it
-        return [
-            task_name
-            for task_name, _ in sorted(
-                occurrences.items(), key=lambda x: x[1], reverse=True
-            )
-        ]
+        return [task_name for task_name, _ in sorted(occurrences.items(), key=lambda x: x[1], reverse=True)]
 
     def get_task_execution_count_by_resource(self, resource_id: str) -> dict[str, int]:
         """Get the number of times each task was executed by a given resource."""
@@ -348,15 +331,12 @@ class Evaluation:
 
     def get_avg_processing_cost_per_task(self) -> dict[str, float]:
         """Get the average processing cost per task."""
-        return {
-            task_id: task_kpi.cost.avg for task_id, task_kpi in self.task_kpis.items()
-        }
+        return {task_id: task_kpi.cost.avg for task_id, task_kpi in self.task_kpis.items()}
 
     def get_avg_cost_per_task(self) -> dict[str, float]:
         """Get the average total (fixed + processing) cost per task."""
         return {
-            task_id: task_kpi.cost.avg
-            + (self.total_fixed_cost_by_task.get(task_id, 0) / task_kpi.cost.count)
+            task_id: task_kpi.cost.avg + (self.total_fixed_cost_by_task.get(task_id, 0) / task_kpi.cost.count)
             for task_id, task_kpi in self.task_kpis.items()
         }
 
@@ -385,24 +365,15 @@ class Evaluation:
 
     def get_total_processing_time_per_task(self) -> dict[str, float]:
         """Get the total processing time per task (excl. idle times)."""
-        return {
-            task_id: task_kpi.processing_time.total
-            for task_id, task_kpi in self.task_kpis.items()
-        }
+        return {task_id: task_kpi.processing_time.total for task_id, task_kpi in self.task_kpis.items()}
 
     def get_average_processing_time_per_task(self) -> dict[str, float]:
         """Get the average processing time per task (excl. idle times)."""
-        return {
-            task_id: task_kpi.processing_time.avg
-            for task_id, task_kpi in self.task_kpis.items()
-        }
+        return {task_id: task_kpi.processing_time.avg for task_id, task_kpi in self.task_kpis.items()}
 
     def get_total_duration_time_per_task(self) -> dict[str, float]:
         """Get the total duration time per task (incl. idle times)."""
-        return {
-            task_id: task_kpi.idle_processing_time.total
-            for task_id, task_kpi in self.task_kpis.items()
-        }
+        return {task_id: task_kpi.idle_processing_time.total for task_id, task_kpi in self.task_kpis.items()}
 
     def get_avg_duration_time_per_task(self) -> dict[str, float]:
         """Get the average duration time per task (incl. idle times & wt)."""
@@ -425,10 +396,7 @@ class Evaluation:
 
     def distance_to(self, other: "Evaluation") -> float:
         """Calculate the euclidean distance between two evaluations."""
-        return math.sqrt(
-            (self.pareto_x - other.pareto_x) ** 2
-            + (self.pareto_y - other.pareto_y) ** 2
-        )
+        return math.sqrt((self.pareto_x - other.pareto_x) ** 2 + (self.pareto_y - other.pareto_y) ** 2)
 
     # Is this evaluation dominated by another evaluation?
     # (Taking only the total cost & total cycle time into account)
@@ -489,12 +457,7 @@ class Evaluation:
     @staticmethod
     def _get_events_for_task(cases: list[Trace], task_name: str) -> list[TaskEvent]:
         """Get all events for a task."""
-        return [
-            event
-            for case in cases
-            for event in case.event_list
-            if event.task_id == task_name
-        ]
+        return [event for case in cases for event in case.event_list if event.task_id == task_name]
 
     @staticmethod
     def get_resource_started_weekdays(
@@ -586,9 +549,7 @@ class Evaluation:
         for case in cases:
             event_list: list[TaskEvent] = case.event_list
             for event in event_list:
-                resources_per_task[event.task_id] = resources_per_task.get(
-                    event.task_id, set()
-                )
+                resources_per_task[event.task_id] = resources_per_task.get(event.task_id, set())
                 resources_per_task[event.task_id].add(event.resource_id)
                 resources_total.add(event.resource_id)
 
@@ -742,20 +703,14 @@ class Evaluation:
         global_kpis, task_kpis, resource_kpis, log_info = result
         cases: list[Trace] = [] if log_info is None else log_info.trace_list
 
-        all_cases_are_non_empty = all(
-            [len(trace.event_list) > 0 for trace in log_info.trace_list]
-        )
+        all_cases_are_non_empty = all([len(trace.event_list) > 0 for trace in log_info.trace_list])
         if not all_cases_are_non_empty:
             return Evaluation.empty()
 
-        batches = get_batches_from_event_log(
-            log_info, fixed_cost_fns, batching_rules_exist
-        )
+        batches = get_batches_from_event_log(log_info, fixed_cost_fns, batching_rules_exist)
 
         batches_greater_than_one = {
-            batch_key: batch
-            for batch_key, batch in batches.items()
-            if batch["size"] > 1
+            batch_key: batch for batch_key, batch in batches.items() if batch["size"] > 1
         }
 
         batch_pd = pd.DataFrame(
@@ -784,42 +739,24 @@ class Evaluation:
             ],
         )
 
-        total_fixed_cost_by_task = (
-            batch_pd.groupby("activity")["fixed_cost"].sum().fillna(0).to_dict()
-        )
+        total_fixed_cost_by_task = batch_pd.groupby("activity")["fixed_cost"].sum().fillna(0).to_dict()
 
         avg_fixed_cost_per_case = batch_pd.groupby("case")["fixed_cost"].sum().mean()
 
         first_enablement = min(
-            [
-                event.enabled_datetime
-                for trace in log_info.trace_list
-                for event in trace.event_list
-            ],
+            [event.enabled_datetime for trace in log_info.trace_list for event in trace.event_list],
             default=log_info.started_at,
         )
         last_completion = max(
-            [
-                event.completed_datetime
-                for trace in log_info.trace_list
-                for event in trace.event_list
-            ],
+            [event.completed_datetime for trace in log_info.trace_list for event in trace.event_list],
             default=log_info.ended_at,
         )
         total_cycle_time = (last_completion - first_enablement).total_seconds()
         total_idle_time = sum(
-            [
-                kpi.idle_time.total
-                for kpi in task_kpis.values()
-                if kpi.idle_time.total is not None
-            ]
+            [kpi.idle_time.total for kpi in task_kpis.values() if kpi.idle_time.total is not None]
         )
         total_processing_time = sum(
-            [
-                kpi.processing_time.total
-                for kpi in task_kpis.values()
-                if kpi.processing_time.total is not None
-            ]
+            [kpi.processing_time.total for kpi in task_kpis.values() if kpi.processing_time.total is not None]
         )
 
         total_duration = total_idle_time + total_processing_time
@@ -830,14 +767,10 @@ class Evaluation:
         task_instance_count = batch_pd.groupby("batch_id")["batch_size"].first().sum()
         if task_instance_count > 0:
             avg_batch_processing_time_per_task_instance = (
-                batch_pd.groupby("batch_id")["processing_time"].first().sum()
-                / task_instance_count
+                batch_pd.groupby("batch_id")["processing_time"].first().sum() / task_instance_count
             )
             avg_idle_wt_per_task_instance = (
-                sum(
-                    kpi.idle_time.total + kpi.waiting_time.total
-                    for kpi in task_kpis.values()
-                )
+                sum(kpi.idle_time.total + kpi.waiting_time.total for kpi in task_kpis.values())
                 / task_instance_count
             )
 
@@ -854,11 +787,7 @@ class Evaluation:
         )
 
         sum_of_cycle_times = sum(
-            [
-                kpi.idle_cycle_time.total
-                for kpi in task_kpis.values()
-                if kpi.idle_cycle_time.total is not None
-            ]
+            [kpi.idle_cycle_time.total for kpi in task_kpis.values() if kpi.idle_cycle_time.total is not None]
         )
 
         # print("\n".join([f"{event.started_datetime.isoformat()} -> {event.completed_datetime.isoformat()} (enabled: {event.enabled_datetime.isoformat()}) (I:{event.idle_time / 3600}, P:{event.processing_time/3600}, WT:{event.waiting_time/3600}, C:{event.cycle_time / 3600})" for trace in log_info.trace_list for event in trace.event_list]))
@@ -877,48 +806,29 @@ class Evaluation:
             is_empty=not cases,
             task_kpis=task_kpis,
             resource_kpis=resource_kpis,
-            task_execution_count_with_wt_or_it=Evaluation.get_task_execution_count_with_wt_or_it(
-                cases
-            ),
-            task_execution_count_by_resource=Evaluation.get_task_execution_count_by_resources(
-                cases
-            ),
+            task_execution_count_with_wt_or_it=Evaluation.get_task_execution_count_with_wt_or_it(cases),
+            task_execution_count_by_resource=Evaluation.get_task_execution_count_by_resources(cases),
             task_execution_counts=Evaluation.get_task_execution_counts(cases),
             task_enablement_weekdays=Evaluation.get_task_enablement_weekdays(cases),
             task_started_weekdays=Evaluation.get_task_started_at_weekdays(cases),
-            resource_allocation_ratio_task=Evaluation.get_resource_allocation_ratio(
-                cases
-            ),
+            resource_allocation_ratio_task=Evaluation.get_resource_allocation_ratio(cases),
             avg_batching_waiting_time_per_task=(
-                batch_pd.groupby("activity")["batch_waiting_time_seconds"]
-                .mean()
-                .fillna(0)
-                .to_dict()
+                batch_pd.groupby("activity")["batch_waiting_time_seconds"].mean().fillna(0).to_dict()
             ),
             total_batching_waiting_time_per_task=(
-                batch_pd.groupby("activity")["batch_waiting_time_seconds"]
-                .sum()
-                .fillna(0)
-                .to_dict()
+                batch_pd.groupby("activity")["batch_waiting_time_seconds"].sum().fillna(0).to_dict()
             ),
             total_batching_waiting_time_per_resource=(
-                batch_pd.groupby("resource")["batch_waiting_time_seconds"]
-                .sum()
-                .fillna(0)
-                .to_dict()
+                batch_pd.groupby("resource")["batch_waiting_time_seconds"].sum().fillna(0).to_dict()
             ),
-            avg_batching_waiting_time_by_case=(
-                batch_pd["batch_waiting_time_seconds"].mean()
-            ),
+            avg_batching_waiting_time_by_case=(batch_pd["batch_waiting_time_seconds"].mean()),
             total_batching_waiting_time=(batch_pd["batch_waiting_time_seconds"].sum()),
             total_fixed_cost_by_task=total_fixed_cost_by_task,
             avg_fixed_cost_per_case=avg_fixed_cost_per_case,
             batches_by_activity_with_idle=Evaluation.get_batches_by_activity_with_idle(
                 batches_greater_than_one
             ),
-            avg_batch_size_per_task=Evaluation.get_average_batch_size_per_task(
-                batches_greater_than_one
-            ),
+            avg_batch_size_per_task=Evaluation.get_average_batch_size_per_task(batches_greater_than_one),
             avg_batch_size_for_batch_enabled_tasks=Evaluation.get_avg_batch_size_for_batch_enabled_tasks(
                 batches_greater_than_one
             ),

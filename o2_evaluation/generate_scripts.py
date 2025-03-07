@@ -21,28 +21,16 @@ SA_COOLING_FACTOR = "auto"
 SA_INITIAL_TEMPERATURE = "auto"
 
 
-def generate_script(
-    scenario: str, model: str, mode_name: str, max_batch_size: int, duration_fn: str
-) -> str:
+def generate_script(scenario: str, model: str, mode_name: str, max_batch_size: int, duration_fn: str) -> str:
     """Generate a script for the given params."""
     model_name = model.replace(" ", "_").lower()
     scenario_name = scenario.replace(" ", "_").lower()
     mode_name_sanitized = mode_name.replace(" ", "_").lower()
     memory_gb = MEMORY_GB if model != "Proximal Policy Optimization" else MEMORY_GB_PPO
     cores = CORES if model != "Proximal Policy Optimization" else CORES_PPO
-    max_time_hours = (
-        MAX_TIME_HOURS
-        if model != "Proximal Policy Optimization"
-        else MAX_TIME_HOURS_PPO
-    )
-    max_iterations = (
-        MAX_ITERATIONS
-        if model != "Proximal Policy Optimization"
-        else MAX_ITERATIONS_PPO
-    )
-    dump_interval = (
-        DUMP_INTERVAL if model != "Proximal Policy Optimization" else DUMP_INTERVAL_PPO
-    )
+    max_time_hours = MAX_TIME_HOURS if model != "Proximal Policy Optimization" else MAX_TIME_HOURS_PPO
+    max_iterations = MAX_ITERATIONS if model != "Proximal Policy Optimization" else MAX_ITERATIONS_PPO
+    dump_interval = DUMP_INTERVAL if model != "Proximal Policy Optimization" else DUMP_INTERVAL_PPO
     max_non_improving_actions = (
         MAX_NON_IMPROVING_ACTIONS
         if model != "Proximal Policy Optimization"
@@ -138,9 +126,7 @@ if __name__ == "__main__":
                 model_name = model.replace(" ", "_").lower()
                 scenario_name = scenario.replace(" ", "_").lower()
                 mode_name = mode["name"].replace(" ", "_").lower()
-                file_name = (
-                    f"o2_evaluation/scripts/{scenario_name}_{model_name}_{mode_name}.sh"
-                )
+                file_name = f"o2_evaluation/scripts/{scenario_name}_{model_name}_{mode_name}.sh"
                 with open(file_name, "w") as f:
                     f.write(script)
 

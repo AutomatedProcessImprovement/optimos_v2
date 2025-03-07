@@ -63,15 +63,8 @@ class ModifyLargeReadyWtOfSignificantRuleAction(BaseAction):
                     new_wt = wt + change_wt
                     if new_wt < 1 or new_wt > 23:
                         continue
-                    if (
-                        change_wt > 0
-                        and wt < significant_wt
-                        or change_wt < 0
-                        and wt > significant_wt
-                    ):
-                        significant_rule = RuleSelector.from_batching_rule(
-                            batching_rule, (i, 0)
-                        )
+                    if change_wt > 0 and wt < significant_wt or change_wt < 0 and wt > significant_wt:
+                        significant_rule = RuleSelector.from_batching_rule(batching_rule, (i, 0))
                         significant_wt = wt
         # If no significant rule is found, add a new one
         if significant_rule is None:
@@ -83,15 +76,11 @@ class ModifyLargeReadyWtOfSignificantRuleAction(BaseAction):
                 ],
                 duration_fn=duration_fn,
             )
-            return state.replace_timetable(
-                batch_processing=timetable.batch_processing + [batching_rule]
-            )
+            return state.replace_timetable(batch_processing=timetable.batch_processing + [batching_rule])
         else:
             timetable = timetable.replace_firing_rule(
                 rule_selector=significant_rule,
-                new_firing_rule=FiringRule.gte(
-                    firing_rule_type, (significant_wt + change_wt) * 3600
-                ),
+                new_firing_rule=FiringRule.gte(firing_rule_type, (significant_wt + change_wt) * 3600),
             )
             return state.replace_timetable(timetable=timetable)
 
