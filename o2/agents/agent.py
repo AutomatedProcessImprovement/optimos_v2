@@ -71,7 +71,6 @@ from o2.actions.legacy_optimos_actions.remove_resource_by_cost_action import (
 from o2.actions.legacy_optimos_actions.remove_resource_by_utilization_action import (
     RemoveResourceByUtilizationAction,
 )
-from o2.agents.tabu_agent import TabuAgent
 from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.solution import Solution
 from o2.store import SolutionTry, Store
@@ -157,6 +156,8 @@ class Agent(ABC):
             else ACTION_CATALOG
         )
         self.action_generators: list[RateSelfReturnType[BaseAction]] = []
+        self.action_generator_tabu_ids: set[str] = set()
+        self.action_generator_counter: dict[RateSelfReturnType[BaseAction], int] = defaultdict(int)
         self.set_action_generators(store.solution)
 
     def select_actions(self) -> Optional[list[BaseAction]]:
@@ -172,7 +173,7 @@ class Agent(ABC):
 
             # Get valid actions from the generators, even multiple per generator,
             # if we don't have enough valid actions yet
-            possible_actions = TabuAgent.get_valid_actions(self.store, self.action_generators)
+            possible_actions = self.get_valid_actions()
             # Remove None values
             possible_actions = [action for action in possible_actions if action is not None]
 
@@ -192,7 +193,7 @@ class Agent(ABC):
 
             sorted_actions = sorted(possible_actions, key=lambda x: x[0], reverse=True)
 
-            number_of_actions_to_select = self.store.settings.max_number_of_actions_to_select
+            number_of_actions_to_select = self.store.settings.max_number_of_actions_per_iteration
             selected_actions = sorted_actions[:number_of_actions_to_select]
             avg_rating = sum(rating for rating, _ in selected_actions) / len(selected_actions)
 
@@ -212,6 +213,8 @@ class Agent(ABC):
         NOTE: This function **must** be called when setting a new base solution.
         """
         rating_input = SelfRatingInput.from_base_solution(solution)
+        self.action_generator_tabu_ids = set()
+        self.action_generator_counter = defaultdict(int)
         self.action_generators = [Action.rate_self(self.store, rating_input) for Action in self.catalog]
 
     def process_many_solutions(
@@ -262,11 +265,7 @@ class Agent(ABC):
         """Handle the result of the evaluation with this callback."""
         pass
 
-    @staticmethod
-    def get_valid_actions(
-        store: "Store",
-        generators_queue: list[RateSelfReturnType[BaseAction]],
-    ) -> list[tuple[RATING, BaseAction]]:
+    def get_valid_actions(self) -> list[tuple[RATING, BaseAction]]:
         """Get settings.number_of_actions_to_select valid actions from the generators.
 
         If an action has already been selected for this iteration, it will skip it.
@@ -282,46 +281,46 @@ class Agent(ABC):
         """
         actions: list[tuple[RATING, BaseAction]] = []
         low_actions: list[tuple[RATING, BaseAction]] = []
-        ignored_action_ids: set[str] = set()
-        counter: dict[RateSelfReturnType[BaseAction], int] = defaultdict(int)
 
-        while len(generators_queue) > 0:
-            action_generator = generators_queue.pop(0)
+        while len(self.action_generators) > 0:
+            action_generator = self.action_generators.pop(0)
             if isinstance(action_generator, tuple):
                 continue
 
             for rating, action in action_generator:
                 if rating == RATING.NOT_APPLICABLE or action is None:
                     break
-                if action.id in ignored_action_ids:
+                if action.id in self.action_generator_tabu_ids:
                     continue
-                if store.is_tabu(action):
-                    ignored_action_ids.add(action.id)
+                if self.store.is_tabu(action):
+                    self.action_generator_tabu_ids.add(action.id)
                     continue
-                if not store.settings.disable_action_validity_check and not action.check_if_valid(
-                    store, mark_no_change_as_invalid=True
+                if not self.store.settings.disable_action_validity_check and not action.check_if_valid(
+                    self.store, mark_no_change_as_invalid=True
                 ):
-                    ignored_action_ids.add(action.id)
+                    self.action_generator_tabu_ids.add(action.id)
                     continue
-                if store.settings.only_allow_low_last and rating <= RATING.LOW:
+                if self.store.settings.only_allow_low_last and rating <= RATING.LOW:
                     low_actions.append((rating, action))
-                    ignored_action_ids.add(action.id)
-                    counter[action_generator] += 1
+                    self.action_generator_tabu_ids.add(action.id)
+                    self.action_generator_counter[action_generator] += 1
                 else:
                     actions.append((rating, action))
-                    ignored_action_ids.add(action.id)
-                    counter[action_generator] += 1
-                if len(actions) >= store.settings.max_number_of_actions_to_select:
+                    self.action_generator_tabu_ids.add(action.id)
+                    self.action_generator_counter[action_generator] += 1
+                if len(actions) >= self.store.settings.max_number_of_actions_per_iteration:
+                    self.action_generators.append(action_generator)
                     return actions
                 # If the action generator has yielded more than the max,
                 # do not re-add it, thereby forbidding it to yield more
                 if (
-                    store.settings.MAX_YIELDS_PER_ACTION is not None
-                    and counter[action_generator] >= store.settings.MAX_YIELDS_PER_ACTION
+                    self.store.settings.MAX_YIELDS_PER_ACTION is not None
+                    and self.action_generator_counter[action_generator]
+                    >= self.store.settings.MAX_YIELDS_PER_ACTION
                 ):
                     break
 
-                generators_queue.append(action_generator)
+                self.action_generators.append(action_generator)
                 break
         if len(actions) == 0:
             return low_actions

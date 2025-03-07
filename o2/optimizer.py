@@ -19,7 +19,8 @@ from o2.util.logger import STATS_LOG_LEVEL
 class Optimizer:
     """The Optimizer class is the main class that runs the optimization process."""
 
-    def __init__(self, store: Store):
+    def __init__(self, store: Store) -> None:
+        """Initialize the optimizer."""
         self.settings = store.settings
         self.max_iter = store.settings.max_iterations
         self.max_non_improving_iter = store.settings.max_non_improving_actions
