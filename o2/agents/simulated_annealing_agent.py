@@ -2,6 +2,8 @@ import math
 import random
 from typing import Optional
 
+from typing_extensions import override
+
 from o2.actions.base_actions.base_action import BaseAction, RateSelfReturnType
 from o2.agents.agent import (
     ACTION_CATALOG,
@@ -24,6 +26,7 @@ DISTANCE_MULTIPLIER = 4
 class SimulatedAnnealingAgent(Agent):
     """Selects the best action to take next, based on the current state of the store."""
 
+    @override
     def __init__(self, store: Store) -> None:
         super().__init__(store)
 
@@ -60,66 +63,8 @@ class SimulatedAnnealingAgent(Agent):
             )
             print_l1(f"Auto-estimated cooling factor: {self.store.settings.sa_cooling_factor}")
 
-    def select_actions(self, store: Store) -> Optional[list[BaseAction]]:
-        """Select the best actions to take next.
-
-        It will pick at most cpu_count actions, so parallel evaluation is possible.
-
-        If the possible options for the current base evaluation are exhausted,
-        it will choose a new base evaluation.
-        """
-        while True:
-            evaluations = TabuAgent.evaluate_rules(store)
-
-            rating_input = SelfRatingInput.from_rule_solutions(store, evaluations)
-            if rating_input is None:
-                rating_input = SelfRatingInput.from_base_solution(store.solution)
-
-            print_l1(f"Choosing best action (based on {store.solution.id})...")
-
-            # Get a list rating generators for all actions
-            action_generators: list[RateSelfReturnType[BaseAction]] = [
-                Action.rate_self(store, rating_input) for Action in self.catalog
-            ]
-
-            # Get valid actions from the generators, even multiple per generator,
-            # if we don't have enough valid actions yet
-            possible_actions = TabuAgent.get_valid_actions(store, action_generators)
-            # Remove None values
-            possible_actions = [action for action in possible_actions if action is not None]
-
-            if len(possible_actions) == 0:
-                print_l1("No actions remaining, after removing Tabu & N/A actions.")
-                new_solution = self._select_new_base_evaluation(
-                    # We exhausted all possible actions, so we don't need to
-                    # reinsert the current solution
-                    reinsert_current_solution=False
-                )
-                success = new_solution is not None
-                if not success:
-                    print_l2("No new baseline evaluation found. Stopping.")
-                    return None
-                store.solution = new_solution
-                continue
-
-            sorted_actions = sorted(possible_actions, key=lambda x: x[0], reverse=True)
-
-            number_of_actions_to_select = store.settings.max_number_of_actions_to_select
-            selected_actions = sorted_actions[:number_of_actions_to_select]
-            avg_rating = sum(rating for rating, _ in selected_actions) / len(selected_actions)
-
-            print_l1(
-                f"Chose {len(selected_actions)} actions with average rating {avg_rating:.1f} to evaluate."  # noqa: E501
-            )
-
-            if store.settings.print_chosen_actions:
-                for rating, action in selected_actions:
-                    print_l2(f"{action} with rating {rating}")
-
-            return [action for _, action in selected_actions]
-
+    @override
     def select_new_base_solution(self, proposed_solution_try: Optional[SolutionTry] = None) -> Solution:
-        """Select a new base solution."""
         print_l2("Selecting new base evaluation...")
         print_l2(f"Old temperature: {self.temperature:_}")
         assert isinstance(self.temperature, float)
@@ -133,7 +78,7 @@ class SimulatedAnnealingAgent(Agent):
                 # TODO: Min Distance to front
                 distance = solution.distance_to(self.store.solution)
                 debug(f"Discarded solution {solution.id} distance: {distance}")
-                if accept_worse_solution(distance, self.temperature):
+                if self._accept_worse_solution(distance, self.temperature):
                     debug(f"Randomly accepted discarded solution {solution.id}.")
                     return solution
 
@@ -145,6 +90,11 @@ class SimulatedAnnealingAgent(Agent):
             # of the optimization)
             reinsert_current_solution=proposed_solution_try is not None
         )
+
+    @override
+    def result_callback(self, chosen_tries: list[SolutionTry], not_chosen_tries: list[SolutionTry]) -> None:
+        """Call to handle the result of the evaluation."""
+        pass
 
     def _select_new_base_evaluation(self, reinsert_current_solution: bool = False) -> Solution:
         """Select a new base evaluation."""
@@ -165,12 +115,7 @@ class SimulatedAnnealingAgent(Agent):
         self.store.solution_tree.remove_solution(solution)
         return solution
 
-    def result_callback(self, chosen_tries: list[SolutionTry], not_chosen_tries: list[SolutionTry]) -> None:
-        """Call to handle the result of the evaluation."""
-        pass
-
-
-def accept_worse_solution(distance: float, temperature: float) -> bool:
-    """Determine whether to accept a worse solution."""
-    probability = math.exp(-distance / temperature)
-    return random.random() < probability
+    def _accept_worse_solution(self, distance: float, temperature: float) -> bool:
+        """Determine whether to accept a worse solution."""
+        probability = math.exp(-distance / temperature)
+        return random.random() < probability

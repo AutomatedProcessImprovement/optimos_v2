@@ -1,12 +1,15 @@
 import os
-from typing import TYPE_CHECKING, Optional
 
+# Disable GPU
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+
+from typing import TYPE_CHECKING, Optional
 
 import gymnasium as gym
 import numpy as np
 import torch as th
 from stable_baselines3.common.utils import obs_as_tensor
+from typing_extensions import override
 
 from o2.actions.base_actions.base_action import BaseAction
 from o2.agents.agent import Agent, NoActionsLeftError
@@ -25,6 +28,7 @@ if TYPE_CHECKING:
 class PPOAgent(Agent):
     """Selects the best action to take next, based on the current state of the store."""
 
+    @override
     def __init__(self, store: Store) -> None:
         super().__init__(store)
         from sb3_contrib import MaskablePPO
@@ -58,10 +62,7 @@ class PPOAgent(Agent):
             self.log_probs: ndarray
             self.last_action_mask: ndarray
 
-    def get_env(self) -> gym.Env:
-        """Get the environment for the PPO agent."""
-        return PPOEnv(self.store, max_steps=self.store.settings.ppo_steps_per_iteration)
-
+    @override
     def select_actions(self, store: Store) -> Optional[list[BaseAction]]:
         """Select the best actions to take next.
 
@@ -97,10 +98,12 @@ class PPOAgent(Agent):
             return None
         return [action]
 
+    @override
     def select_new_base_solution(self, proposed_solution_try: Optional[SolutionTry] = None) -> Solution:
         """Select a new base solution."""
         return TabuAgent(self.store).select_new_base_solution(proposed_solution_try)
 
+    @override
     def result_callback(self, chosen_tries: list[SolutionTry], not_chosen_tries: list[SolutionTry]) -> None:
         """Handle the result of the evaluation."""
         result = chosen_tries[0] if chosen_tries else not_chosen_tries[0]
@@ -148,6 +151,10 @@ class PPOAgent(Agent):
                     break
                 else:
                     print_l1("Still no actions available for next step, selecting new base solution again.")
+
+    def get_env(self) -> gym.Env:
+        """Get the environment for the PPO agent."""
+        return PPOEnv(self.store, max_steps=self.store.settings.ppo_steps_per_iteration)
 
     def update_state(self) -> None:
         """Update the state of the agent."""

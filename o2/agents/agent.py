@@ -71,9 +71,11 @@ from o2.actions.legacy_optimos_actions.remove_resource_by_cost_action import (
 from o2.actions.legacy_optimos_actions.remove_resource_by_utilization_action import (
     RemoveResourceByUtilizationAction,
 )
-from o2.models.self_rating import RATING
+from o2.agents.tabu_agent import TabuAgent
+from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.solution import Solution
 from o2.store import SolutionTry, Store
+from o2.util.indented_printer import print_l1, print_l2
 
 ACTION_CATALOG: list[type[BaseAction]] = [
     AddResourceAction,
@@ -147,8 +149,14 @@ class Agent(ABC):
     def __init__(self, store: Store) -> None:
         super().__init__()
         self.store = store
+        self.catalog = (
+            ACTION_CATALOG_LEGACY
+            if store.settings.optimos_legacy_mode
+            else ACTION_CATALOG_BATCHING_ONLY
+            if store.settings.batching_only
+            else ACTION_CATALOG
+        )
 
-    @abstractmethod
     def select_actions(self, store: Store) -> Optional[list[BaseAction]]:
         """Select the best actions to take next.
 
@@ -157,13 +165,64 @@ class Agent(ABC):
         If the possible options for the current base evaluation are exhausted,
         it will choose a new base evaluation.
         """
-        pass
+        while True:
+            rating_input = SelfRatingInput.from_base_solution(store.solution)
+
+            print_l1(f"Choosing best action (based on {store.solution.id})...")
+
+            # Get a list rating generators for all actions
+            action_generators: list[RateSelfReturnType[BaseAction]] = [
+                Action.rate_self(store, rating_input) for Action in self.catalog
+            ]
+
+            # Get valid actions from the generators, even multiple per generator,
+            # if we don't have enough valid actions yet
+            possible_actions = TabuAgent.get_valid_actions(store, action_generators)
+            # Remove None values
+            possible_actions = [action for action in possible_actions if action is not None]
+
+            if len(possible_actions) == 0:
+                print_l1("No actions remaining, after removing Tabu & N/A actions.")
+                new_solution = self.select_new_base_solution(
+                    # Setting proposed_solution_try to None, we make sure that
+                    # the current solution is not reinserted into the solution tree
+                    proposed_solution_try=None
+                )
+                success = new_solution is not None
+                if not success:
+                    print_l2("No new baseline evaluation found. Stopping.")
+                    return None
+                store.solution = new_solution
+                continue
+
+            sorted_actions = sorted(possible_actions, key=lambda x: x[0], reverse=True)
+
+            number_of_actions_to_select = store.settings.max_number_of_actions_to_select
+            selected_actions = sorted_actions[:number_of_actions_to_select]
+            avg_rating = sum(rating for rating, _ in selected_actions) / len(selected_actions)
+
+            print_l1(
+                f"Chose {len(selected_actions)} actions with average rating {avg_rating:.1f} to evaluate."  # noqa: E501
+            )
+
+            if store.settings.print_chosen_actions:
+                for rating, action in selected_actions:
+                    print_l2(f"{action} with rating {rating}")
+
+            return [action for _, action in selected_actions]
 
     @abstractmethod
     def select_new_base_solution(self, proposed_solution_try: Optional[SolutionTry] = None) -> Solution:
         """Select a new base solution.
 
-        E.g from the SolutionTree
+        E.g from the SolutionTree.
+
+        If proposed_solution_try is None, than the current solution is not
+        reinserted into the solution tree, as it's assumed that the function
+        was called outside of the normal optimization loop. (E.g. when running out of
+        actions)
+        If it's not None, than this proposed_solution_try **may** be used as
+        the new base solution, but this depends on the Agent implementation.
         """
         pass
 
