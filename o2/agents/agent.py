@@ -207,64 +207,6 @@ class Agent(ABC):
 
             return [action for _, action in selected_actions]
 
-    def set_action_generators(self, solution: Solution) -> None:
-        """Set the action generators for the given solution.
-
-        NOTE: This function **must** be called when setting a new base solution.
-        """
-        rating_input = SelfRatingInput.from_base_solution(solution)
-        self.action_generator_tabu_ids = set()
-        self.action_generator_counter = defaultdict(int)
-        self.action_generators = [Action.rate_self(self.store, rating_input) for Action in self.catalog]
-
-    def process_many_solutions(
-        self, solutions: list[Solution]
-    ) -> tuple[list[SolutionTry], list[SolutionTry]]:
-        """Process a list of solutions.
-
-        See Store.process_many_solutions for more information.
-        """
-        chosen_tries, not_chosen_tries = self.store.process_many_solutions(
-            solutions,
-            self.set_new_base_solution if not self.store.settings.never_select_new_base_solution else None,
-        )
-
-        self.result_callback(chosen_tries, not_chosen_tries)
-        return chosen_tries, not_chosen_tries
-
-    def set_new_base_solution(self, proposed_solution_try: Optional[SolutionTry] = None) -> None:
-        """Set a new base solution."""
-        solution = self.find_new_base_solution(proposed_solution_try)
-        if solution != self.store.solution:
-            self.set_action_generators(solution)
-        self.store.solution = solution
-
-    def try_solution(self, solution: Solution) -> SolutionTry:
-        """Try a solution and return the result."""
-        return self.store.try_solution(solution)
-
-    @abstractmethod
-    def find_new_base_solution(self, proposed_solution_try: Optional[SolutionTry] = None) -> Solution:
-        """Select a new base solution.
-
-        E.g from the SolutionTree.
-
-        If proposed_solution_try is None, than the current solution is not
-        reinserted into the solution tree, as it's assumed that the function
-        was called outside of the normal optimization loop. (E.g. when running out of
-        actions)
-        If it's not None, than this proposed_solution_try **may** be used as
-        the new base solution, but this depends on the Agent implementation.
-
-        NOTE: This function will update the store.solution attribute.
-        """
-        pass
-
-    @abstractmethod
-    def result_callback(self, chosen_tries: list[SolutionTry], not_chosen_tries: list[SolutionTry]) -> None:
-        """Handle the result of the evaluation with this callback."""
-        pass
-
     def get_valid_actions(self) -> list[tuple[RATING, BaseAction]]:
         """Get settings.number_of_actions_to_select valid actions from the generators.
 
@@ -325,3 +267,61 @@ class Agent(ABC):
         if len(actions) == 0:
             return low_actions
         return actions
+
+    def set_action_generators(self, solution: Solution) -> None:
+        """Set the action generators for the given solution.
+
+        NOTE: This function **must** be called when setting a new base solution.
+        """
+        rating_input = SelfRatingInput.from_base_solution(solution)
+        self.action_generator_tabu_ids = set()
+        self.action_generator_counter = defaultdict(int)
+        self.action_generators = [Action.rate_self(self.store, rating_input) for Action in self.catalog]
+
+    def process_many_solutions(
+        self, solutions: list[Solution]
+    ) -> tuple[list[SolutionTry], list[SolutionTry]]:
+        """Process a list of solutions.
+
+        See Store.process_many_solutions for more information.
+        """
+        chosen_tries, not_chosen_tries = self.store.process_many_solutions(
+            solutions,
+            self.set_new_base_solution if not self.store.settings.never_select_new_base_solution else None,
+        )
+
+        self.result_callback(chosen_tries, not_chosen_tries)
+        return chosen_tries, not_chosen_tries
+
+    def set_new_base_solution(self, proposed_solution_try: Optional[SolutionTry] = None) -> None:
+        """Set a new base solution."""
+        solution = self.find_new_base_solution(proposed_solution_try)
+        if solution != self.store.solution:
+            self.set_action_generators(solution)
+        self.store.solution = solution
+
+    def try_solution(self, solution: Solution) -> SolutionTry:
+        """Try a solution and return the result."""
+        return self.store.try_solution(solution)
+
+    @abstractmethod
+    def find_new_base_solution(self, proposed_solution_try: Optional[SolutionTry] = None) -> Solution:
+        """Select a new base solution.
+
+        E.g from the SolutionTree.
+
+        If proposed_solution_try is None, than the current solution is not
+        reinserted into the solution tree, as it's assumed that the function
+        was called outside of the normal optimization loop. (E.g. when running out of
+        actions)
+        If it's not None, than this proposed_solution_try **may** be used as
+        the new base solution, but this depends on the Agent implementation.
+
+        NOTE: This function will update the store.solution attribute.
+        """
+        pass
+
+    @abstractmethod
+    def result_callback(self, chosen_tries: list[SolutionTry], not_chosen_tries: list[SolutionTry]) -> None:
+        """Handle the result of the evaluation with this callback."""
+        pass
