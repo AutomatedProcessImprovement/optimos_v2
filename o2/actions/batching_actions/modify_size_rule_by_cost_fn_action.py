@@ -16,7 +16,7 @@ from o2.store import Store
 from o2.util.helper import select_variants
 
 
-class ModifySizeRuleByCostFnParamsType(ModifySizeRuleBaseActionParamsType):
+class ModifySizeRuleByCostFnActionParamsType(ModifySizeRuleBaseActionParamsType):
     """Parameter for ModifySizeRuleByCostFn."""
 
     pass
@@ -59,7 +59,7 @@ def rate_self_helper_by_metric_dict(
                     yield (
                         ModifySizeRuleBaseAction.get_default_rating(),
                         task_class(
-                            ModifySizeRuleByCostFnParamsType(
+                            ModifySizeRuleByCostFnActionParamsType(
                                 rule=firing_rule_selector,
                                 size_increment=1,
                                 duration_fn=size_constraint.duration_fn,
@@ -68,82 +68,82 @@ def rate_self_helper_by_metric_dict(
                     )
 
 
-class ModifySizeRuleByCostFnRepetitiveTasks(ModifySizeRuleBaseAction):
+class ModifySizeRuleByCostFnRepetitiveTasksAction(ModifySizeRuleBaseAction):
     """An Action to modify size batching rules based on the cost fn.
 
     If batch size increment reduces Costs => Increase Batch Size
     - For repetitive tasks (higher frequencies first)
     """
 
-    params: ModifySizeRuleByCostFnParamsType
+    params: ModifySizeRuleByCostFnActionParamsType
 
     @staticmethod
     def rate_self(
         store: "Store", input: SelfRatingInput
-    ) -> RateSelfReturnType["ModifySizeRuleByCostFnRepetitiveTasks"]:
+    ) -> RateSelfReturnType["ModifySizeRuleByCostFnRepetitiveTasksAction"]:
         """Generate a best set of parameters & self-evaluates this action."""
         evaluation = store.current_evaluation
 
         task_frequencies = evaluation.task_execution_counts
         yield from rate_self_helper_by_metric_dict(
-            store, task_frequencies, ModifySizeRuleByCostFnRepetitiveTasks
+            store, task_frequencies, ModifySizeRuleByCostFnRepetitiveTasksAction
         )
 
 
-class ModifySizeRuleByCostFnHighCosts(ModifySizeRuleBaseAction):
+class ModifySizeRuleByCostFnHighCostsAction(ModifySizeRuleBaseAction):
     """An Action to modify size batching rules based on the cost fn.
 
     If batch size increment reduces Costs => Increase Batch Size
     - For tasks with high costs (higher costs first).
     """
 
-    params: ModifySizeRuleByCostFnParamsType
+    params: ModifySizeRuleByCostFnActionParamsType
 
     @staticmethod
     def rate_self(
         store: "Store", input: SelfRatingInput
-    ) -> RateSelfReturnType["ModifySizeRuleByCostFnHighCosts"]:
+    ) -> RateSelfReturnType["ModifySizeRuleByCostFnHighCostsAction"]:
         """Generate a best set of parameters & self-evaluates this action."""
         evaluation = store.current_evaluation
 
         task_costs = evaluation.get_total_cost_per_task()
-        yield from rate_self_helper_by_metric_dict(store, task_costs, ModifySizeRuleByCostFnHighCosts)
+        yield from rate_self_helper_by_metric_dict(store, task_costs, ModifySizeRuleByCostFnHighCostsAction)
 
 
-class ModifySizeRuleByCostFnLowProcessingTime(ModifySizeRuleBaseAction):
+class ModifySizeRuleByCostFnLowProcessingTimeAction(ModifySizeRuleBaseAction):
     """An Action to modify size batching rules based on the cost fn.
 
     If batch size increment reduces processing time => Increase Batch Size
     - For tasks with low processing time (lower processing time first)
     """
 
-    params: ModifySizeRuleByCostFnParamsType
+    params: ModifySizeRuleByCostFnActionParamsType
 
     @staticmethod
     def rate_self(
         store: "Store", input: SelfRatingInput
-    ) -> RateSelfReturnType["ModifySizeRuleByCostFnLowProcessingTime"]:
+    ) -> RateSelfReturnType["ModifySizeRuleByCostFnLowProcessingTimeAction"]:
         """Generate a best set of parameters & self-evaluates this action."""
         evaluation = store.current_evaluation
 
         task_processing_times = evaluation.get_average_processing_time_per_task()
         yield from rate_self_helper_by_metric_dict(
-            store, task_processing_times, ModifySizeRuleByCostFnLowProcessingTime
+            store, task_processing_times, ModifySizeRuleByCostFnLowProcessingTimeAction
         )
 
 
-class ModifyBatchSizeIfNoCostImprovement(ModifySizeRuleBaseAction):
+class ModifyBatchSizeIfNoCostImprovementAction(ModifySizeRuleBaseAction):
     """An Action to modify size batching rules based on the cost fn.
 
     If batch size decrement does not increase Costs (looking at the cost fn) => Decrease Batch Size
     """
 
-    params: ModifySizeRuleByCostFnParamsType
+    params: ModifySizeRuleByCostFnActionParamsType
 
     @staticmethod
     def rate_self(
         store: "Store", input: SelfRatingInput
-    ) -> RateSelfReturnType["ModifyBatchSizeIfNoCostImprovement"]:
+    ) -> RateSelfReturnType["ModifyBatchSizeIfNoCostImprovementAction"]:
         """Generate a best set of parameters & self-evaluates this action."""
         timetable = store.current_timetable
         constraints = store.constraints
@@ -183,8 +183,8 @@ class ModifyBatchSizeIfNoCostImprovement(ModifySizeRuleBaseAction):
                 duration_fn = constraints.get_duration_fn_for_task(rule_selector.batching_rule_task_id)
                 yield (
                     RATING.LOW,
-                    ModifyBatchSizeIfNoCostImprovement(
-                        ModifySizeRuleByCostFnParamsType(
+                    ModifyBatchSizeIfNoCostImprovementAction(
+                        ModifySizeRuleByCostFnActionParamsType(
                             rule=rule_selector,
                             size_increment=-1,
                             duration_fn=duration_fn,
@@ -193,19 +193,19 @@ class ModifyBatchSizeIfNoCostImprovement(ModifySizeRuleBaseAction):
                 )
 
 
-class ModifySizeRuleByCostFnLowCycleTimeImpact(ModifySizeRuleBaseAction):
+class ModifySizeRuleByCostFnLowCycleTimeImpactAction(ModifySizeRuleBaseAction):
     """An Action to modify size batching rules based on the cost fn.
 
     If batch size increment reduces Costs => Increase Batch Size
     - For Tasks which have a low impact on the cycle time (looking at the duration fn)
     """
 
-    params: ModifySizeRuleByCostFnParamsType
+    params: ModifySizeRuleByCostFnActionParamsType
 
     @staticmethod
     def rate_self(
         store: "Store", input: SelfRatingInput
-    ) -> RateSelfReturnType["ModifySizeRuleByCostFnLowCycleTimeImpact"]:
+    ) -> RateSelfReturnType["ModifySizeRuleByCostFnLowCycleTimeImpactAction"]:
         """Generate a best set of parameters & self-evaluates this action."""
         timetable = store.current_timetable
         constraints = store.constraints
@@ -252,8 +252,8 @@ class ModifySizeRuleByCostFnLowCycleTimeImpact(ModifySizeRuleBaseAction):
 
                 yield (
                     ModifySizeRuleBaseAction.get_default_rating(),
-                    ModifySizeRuleByCostFnLowCycleTimeImpact(
-                        ModifySizeRuleByCostFnParamsType(
+                    ModifySizeRuleByCostFnLowCycleTimeImpactAction(
+                        ModifySizeRuleByCostFnActionParamsType(
                             rule=rule_selector,
                             size_increment=1,
                             duration_fn=duration_fn,
@@ -262,18 +262,18 @@ class ModifySizeRuleByCostFnLowCycleTimeImpact(ModifySizeRuleBaseAction):
                 )
 
 
-class ModifySizeRuleByManySimilarEnablements(ModifySizeRuleBaseAction):
+class ModifySizeRuleByManySimilarEnablementsAction(ModifySizeRuleBaseAction):
     """An Action to modify size batching rules based on the cost fn.
 
     - Modify those tasks, which have many enablements at the same time
     """
 
-    params: ModifySizeRuleByCostFnParamsType
+    params: ModifySizeRuleByCostFnActionParamsType
 
     @staticmethod
     def rate_self(
         store: "Store", input: SelfRatingInput
-    ) -> RateSelfReturnType["ModifySizeRuleByManySimilarEnablements"]:
+    ) -> RateSelfReturnType["ModifySizeRuleByManySimilarEnablementsAction"]:
         """Generate a best set of parameters & self-evaluates this action."""
         evaluation = store.current_evaluation
 
@@ -283,5 +283,5 @@ class ModifySizeRuleByManySimilarEnablements(ModifySizeRuleBaseAction):
         yield from rate_self_helper_by_metric_dict(
             store,
             tasks_by_number_of_duplicate_enablement_dates,
-            ModifySizeRuleByManySimilarEnablements,
+            ModifySizeRuleByManySimilarEnablementsAction,
         )

@@ -1,6 +1,6 @@
 from dataclasses import replace
 
-from o2.actions.batching_actions.add_large_wt_rule_by_idle import (
+from o2.actions.batching_actions.add_large_wt_rule_by_idle_action import (
     AddLargeWTRuleByIdleAction,
 )
 from o2.models.constraints import BatchingConstraints, LargeWtRuleConstraints

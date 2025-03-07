@@ -1,4 +1,4 @@
-from o2.actions.batching_actions.add_date_time_rule_by_enablement import (
+from o2.actions.batching_actions.add_date_time_rule_by_enablement_action import (
     AddDateTimeRuleByEnablementAction,
 )
 from o2.models.days import DAY

@@ -14,24 +14,24 @@ from o2.store import Store
 from o2.util.helper import select_variants
 
 
-class ModifySizeRuleByDurationFnParamsType(ModifySizeRuleBaseActionParamsType):
+class ModifySizeRuleByDurationFnActionParamsType(ModifySizeRuleBaseActionParamsType):
     """Parameter for ModifySizeRuleByCostFn."""
 
     pass
 
 
-class ModifyBatchSizeIfNoDurationImprovement(ModifySizeRuleBaseAction):
+class ModifyBatchSizeIfNoDurationImprovementAction(ModifySizeRuleBaseAction):
     """An Action to modify size batching rules based on the cost fn.
 
     If batch size decrement does not increase Duration (looking at the duration fn) => Decrease Batch Size
     """
 
-    params: ModifySizeRuleByDurationFnParamsType
+    params: ModifySizeRuleByDurationFnActionParamsType
 
     @staticmethod
     def rate_self(
         store: "Store", input: SelfRatingInput
-    ) -> RateSelfReturnType["ModifyBatchSizeIfNoDurationImprovement"]:
+    ) -> RateSelfReturnType["ModifyBatchSizeIfNoDurationImprovementAction"]:
         """Generate a best set of parameters & self-evaluates this action."""
         timetable = store.current_timetable
         constraints = store.constraints
@@ -75,8 +75,8 @@ class ModifyBatchSizeIfNoDurationImprovement(ModifySizeRuleBaseAction):
 
                 yield (
                     RATING.LOW,
-                    ModifyBatchSizeIfNoDurationImprovement(
-                        ModifySizeRuleByDurationFnParamsType(
+                    ModifyBatchSizeIfNoDurationImprovementAction(
+                        ModifySizeRuleByDurationFnActionParamsType(
                             rule=rule_selector,
                             size_increment=-1,
                             duration_fn=duration_fn,
@@ -85,7 +85,7 @@ class ModifyBatchSizeIfNoDurationImprovement(ModifySizeRuleBaseAction):
                 )
 
 
-class ModifySizeRuleByDurationFnCostImpact(ModifySizeRuleBaseAction):
+class ModifySizeRuleByDurationFnCostImpactAction(ModifySizeRuleBaseAction):
     """An Action to modify size batching rules based on the duration fn.
 
     If batch size increment reduces Duration => Increase Batch Size
@@ -96,12 +96,12 @@ class ModifySizeRuleByDurationFnCostImpact(ModifySizeRuleBaseAction):
     if sensible.
     """
 
-    params: ModifySizeRuleByDurationFnParamsType
+    params: ModifySizeRuleByDurationFnActionParamsType
 
     @staticmethod
     def rate_self(
         store: "Store", input: SelfRatingInput
-    ) -> RateSelfReturnType["ModifySizeRuleByDurationFnCostImpact"]:
+    ) -> RateSelfReturnType["ModifySizeRuleByDurationFnCostImpactAction"]:
         """Generate a best set of parameters & self-evaluates this action."""
         timetable = store.current_timetable
         constraints = store.constraints
@@ -148,8 +148,8 @@ class ModifySizeRuleByDurationFnCostImpact(ModifySizeRuleBaseAction):
 
                 yield (
                     RATING.LOW,
-                    ModifySizeRuleByDurationFnCostImpact(
-                        ModifySizeRuleByDurationFnParamsType(
+                    ModifySizeRuleByDurationFnCostImpactAction(
+                        ModifySizeRuleByDurationFnActionParamsType(
                             rule=rule_selector,
                             size_increment=1,
                             duration_fn=duration_fn,

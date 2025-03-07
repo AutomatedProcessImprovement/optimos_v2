@@ -1,11 +1,9 @@
 from dataclasses import replace
 
-from o2.actions.batching_actions.modify_size_rule_by_cost_fn import (
-    ModifyBatchSizeIfNoCostImprovement,
-    ModifySizeRuleByCostFnHighCosts,
-    ModifySizeRuleByCostFnLowProcessingTime,
+from o2.actions.batching_actions.modify_size_rule_by_cost_fn_action import (
+    ModifyBatchSizeIfNoCostImprovementAction,
+    ModifySizeRuleByCostFnHighCostsAction,
 )
-from o2.actions.batching_actions.modify_size_rule_by_utilization import ModifySizeRuleByHighUtilizationAction
 from o2.actions.batching_actions.modify_size_rule_by_wt_action import ModifySizeRuleByWTAction
 from o2.agents.tabu_agent import TabuAgent
 from o2.models.rule_selector import RuleSelector
@@ -42,7 +40,7 @@ def test_get_valid_actions_one_task(one_task_solution: Solution):
     constraints = (
         ConstraintsGenerator(one_task_solution.state.bpmn_definition)
         .add_size_constraint(
-            # For ModifyBatchSizeIfNoCostImprovement to propose a change,
+            # For ModifyBatchSizeIfNoCostImprovementAction to propose a change,
             # we need to assume static costs
             cost_fn="1"
         )
@@ -63,15 +61,15 @@ def test_get_valid_actions_one_task(one_task_solution: Solution):
 
     agent = TabuAgent(store)
     agent.catalog = [
-        ModifySizeRuleByCostFnHighCosts,
-        ModifyBatchSizeIfNoCostImprovement,
+        ModifySizeRuleByCostFnHighCostsAction,
+        ModifyBatchSizeIfNoCostImprovementAction,
     ]
     agent.set_action_generators(store.solution)
 
     a1, a2 = agent.get_valid_actions()
 
-    assert isinstance(a1[1], ModifySizeRuleByCostFnHighCosts)
-    assert isinstance(a2[1], ModifyBatchSizeIfNoCostImprovement)
+    assert isinstance(a1[1], ModifySizeRuleByCostFnHighCostsAction)
+    assert isinstance(a2[1], ModifyBatchSizeIfNoCostImprovementAction)
 
     assert a1[1].params["rule"].firing_rule_index == (0, 0)
     assert a2[1].params["rule"].firing_rule_index == (0, 0)
@@ -80,8 +78,8 @@ def test_get_valid_actions_one_task(one_task_solution: Solution):
 
     a3, a4 = agent.get_valid_actions()
 
-    assert isinstance(a3[1], ModifySizeRuleByCostFnHighCosts)
-    assert isinstance(a4[1], ModifyBatchSizeIfNoCostImprovement)
+    assert isinstance(a3[1], ModifySizeRuleByCostFnHighCostsAction)
+    assert isinstance(a4[1], ModifyBatchSizeIfNoCostImprovementAction)
 
     assert a3[1].params["rule"].firing_rule_index == (1, 0)
     assert a4[1].params["rule"].firing_rule_index == (1, 0)
@@ -130,7 +128,7 @@ def test_get_valid_actions_two_tasks(two_tasks_solution: Solution):
     constraints = (
         ConstraintsGenerator(two_tasks_solution.state.bpmn_definition)
         .add_size_constraint(
-            # For ModifyBatchSizeIfNoCostImprovement to propose a change,
+            # For ModifyBatchSizeIfNoCostImprovementAction to propose a change,
             # we need to assume static costs
             cost_fn="1",
             max_size=50,
@@ -152,14 +150,14 @@ def test_get_valid_actions_two_tasks(two_tasks_solution: Solution):
 
     agent = TabuAgent(store)
     agent.catalog = [
-        ModifySizeRuleByCostFnHighCosts,
+        ModifySizeRuleByCostFnHighCostsAction,
         ModifySizeRuleByWTAction,
     ]
     agent.set_action_generators(store.solution)
 
     a1, a2 = agent.get_valid_actions()
 
-    assert isinstance(a1[1], ModifySizeRuleByCostFnHighCosts)
+    assert isinstance(a1[1], ModifySizeRuleByCostFnHighCostsAction)
     assert isinstance(a2[1], ModifySizeRuleByWTAction)
 
     assert a1[1].params["rule"].firing_rule_index == (0, 0)
@@ -169,7 +167,7 @@ def test_get_valid_actions_two_tasks(two_tasks_solution: Solution):
 
     a3, a4 = agent.get_valid_actions()
 
-    assert isinstance(a3[1], ModifySizeRuleByCostFnHighCosts)
+    assert isinstance(a3[1], ModifySizeRuleByCostFnHighCostsAction)
     assert isinstance(a4[1], ModifySizeRuleByWTAction)
 
     assert a3[1].params["rule"].firing_rule_index == (1, 0)
@@ -179,7 +177,7 @@ def test_get_valid_actions_two_tasks(two_tasks_solution: Solution):
 
     # Last run starts with second task
     a5, a6 = agent.get_valid_actions()
-    assert isinstance(a5[1], ModifySizeRuleByCostFnHighCosts)
+    assert isinstance(a5[1], ModifySizeRuleByCostFnHighCostsAction)
     assert isinstance(a6[1], ModifySizeRuleByWTAction)
 
     assert a5[1].params["rule"].firing_rule_index == (0, 0)

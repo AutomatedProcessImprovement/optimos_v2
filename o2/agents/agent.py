@@ -3,43 +3,43 @@ from collections import defaultdict
 from typing import Optional
 
 from o2.actions.base_actions.base_action import BaseAction, RateSelfReturnType
-from o2.actions.batching_actions.add_date_time_rule_by_availability import (
+from o2.actions.batching_actions.add_date_time_rule_by_availability_action import (
     AddDateTimeRuleByAvailabilityAction,
 )
-from o2.actions.batching_actions.add_date_time_rule_by_enablement import (
+from o2.actions.batching_actions.add_date_time_rule_by_enablement_action import (
     AddDateTimeRuleByEnablementAction,
 )
-from o2.actions.batching_actions.add_date_time_rule_by_start import (
+from o2.actions.batching_actions.add_date_time_rule_by_start_action import (
     AddDateTimeRuleByStartAction,
 )
-from o2.actions.batching_actions.add_large_wt_rule_by_idle import (
+from o2.actions.batching_actions.add_large_wt_rule_by_idle_action import (
     AddLargeWTRuleByIdleAction,
 )
-from o2.actions.batching_actions.add_large_wt_rule_by_wt import AddLargeWTRuleByWTAction
-from o2.actions.batching_actions.add_ready_wt_rule_by_wt import AddReadyWTRuleByWTAction
+from o2.actions.batching_actions.add_large_wt_rule_by_wt_action import AddLargeWTRuleByWTAction
+from o2.actions.batching_actions.add_ready_wt_rule_by_wt_action import AddReadyWTRuleByWTAction
 from o2.actions.batching_actions.modify_daily_hour_rule_action import (
     ModifyDailyHourRuleAction,
 )
-from o2.actions.batching_actions.modify_size_rule_by_allocation import (
+from o2.actions.batching_actions.modify_size_rule_by_allocation_action import (
     ModifySizeRuleByHighAllocationAction,
     ModifySizeRuleByLowAllocationAction,
 )
 from o2.actions.batching_actions.modify_size_rule_by_cost_action import (
     ModifySizeRuleByCostAction,
 )
-from o2.actions.batching_actions.modify_size_rule_by_cost_fn import (
-    ModifyBatchSizeIfNoCostImprovement,
-    ModifySizeRuleByCostFnHighCosts,
-    ModifySizeRuleByCostFnLowCycleTimeImpact,
-    ModifySizeRuleByCostFnLowProcessingTime,
-    ModifySizeRuleByCostFnRepetitiveTasks,
-    ModifySizeRuleByManySimilarEnablements,
+from o2.actions.batching_actions.modify_size_rule_by_cost_fn_action import (
+    ModifyBatchSizeIfNoCostImprovementAction,
+    ModifySizeRuleByCostFnHighCostsAction,
+    ModifySizeRuleByCostFnLowCycleTimeImpactAction,
+    ModifySizeRuleByCostFnLowProcessingTimeAction,
+    ModifySizeRuleByCostFnRepetitiveTasksAction,
+    ModifySizeRuleByManySimilarEnablementsAction,
 )
-from o2.actions.batching_actions.modify_size_rule_by_duration_fn import (
-    ModifyBatchSizeIfNoDurationImprovement,
-    ModifySizeRuleByDurationFnCostImpact,
+from o2.actions.batching_actions.modify_size_rule_by_duration_fn_action import (
+    ModifyBatchSizeIfNoDurationImprovementAction,
+    ModifySizeRuleByDurationFnCostImpactAction,
 )
-from o2.actions.batching_actions.modify_size_rule_by_utilization import (
+from o2.actions.batching_actions.modify_size_rule_by_utilization_action import (
     ModifySizeRuleByHighUtilizationAction,
     ModifySizeRuleByLowUtilizationAction,
 )
@@ -107,19 +107,19 @@ ACTION_CATALOG_BATCHING_ONLY: list[type[BaseAction]] = [
     AddLargeWTRuleByIdleAction,
     AddLargeWTRuleByWTAction,
     AddReadyWTRuleByWTAction,
-    ModifyBatchSizeIfNoCostImprovement,
-    ModifyBatchSizeIfNoDurationImprovement,
+    ModifyBatchSizeIfNoCostImprovementAction,
+    ModifyBatchSizeIfNoDurationImprovementAction,
     ModifySizeRuleByCostAction,
-    ModifySizeRuleByCostFnHighCosts,
-    ModifySizeRuleByCostFnLowCycleTimeImpact,
-    ModifySizeRuleByCostFnLowProcessingTime,
-    ModifySizeRuleByCostFnRepetitiveTasks,
-    ModifySizeRuleByDurationFnCostImpact,
+    ModifySizeRuleByCostFnHighCostsAction,
+    ModifySizeRuleByCostFnLowCycleTimeImpactAction,
+    ModifySizeRuleByCostFnLowProcessingTimeAction,
+    ModifySizeRuleByCostFnRepetitiveTasksAction,
+    ModifySizeRuleByDurationFnCostImpactAction,
     ModifySizeRuleByHighAllocationAction,
     ModifySizeRuleByHighUtilizationAction,
     ModifySizeRuleByLowAllocationAction,
     ModifySizeRuleByLowUtilizationAction,
-    ModifySizeRuleByManySimilarEnablements,
+    ModifySizeRuleByManySimilarEnablementsAction,
     ModifySizeRuleByWTAction,
     # Legacy Rules, that are fallbacks now
     ModifyDailyHourRuleAction,
@@ -295,6 +295,7 @@ class Agent(ABC):
 
     def set_new_base_solution(self, proposed_solution_try: Optional[SolutionTry] = None) -> None:
         """Set a new base solution."""
+        print_l2(f"Selecting new base evaluation {'(reinserting)' if proposed_solution_try else ''}...")
         solution = self.find_new_base_solution(proposed_solution_try)
         if solution != self.store.solution:
             self.set_action_generators(solution)

@@ -3,13 +3,13 @@ from o2.actions.base_actions.add_datetime_rule_base_action import (
     AddDateTimeRuleBaseActionParamsType,
 )
 from o2.actions.base_actions.base_action import BaseAction, RateSelfReturnType
-from o2.actions.batching_actions.add_date_time_rule_by_availability import (
+from o2.actions.batching_actions.add_date_time_rule_by_availability_action import (
     AddDateTimeRuleByAvailabilityAction,
 )
-from o2.actions.batching_actions.add_date_time_rule_by_enablement import (
+from o2.actions.batching_actions.add_date_time_rule_by_enablement_action import (
     AddDateTimeRuleByEnablementAction,
 )
-from o2.actions.batching_actions.modify_size_rule_by_allocation import (
+from o2.actions.batching_actions.modify_size_rule_by_allocation_action import (
     ModifySizeRuleByAllocationActionParamsType,
     ModifySizeRuleByLowAllocationAction,
 )
