@@ -2,10 +2,16 @@ import functools
 import random
 import re
 import string
-from typing import Any, Callable, Concatenate, Generic, Optional, ParamSpec, TypeVar
+from collections.abc import Generator
+from typing import TYPE_CHECKING, Any, Callable, Concatenate, Generic, Optional, ParamSpec, TypeVar
 
 import xxhash
 from sympy import Symbol, lambdify
+
+from o2.models.settings import ActionVariationSelection
+
+if TYPE_CHECKING:
+    from o2.store import Store
 
 CLONE_REGEX = re.compile(r"^(.*)_clone_[a-z0-9]{8}(?:timetable)?$")
 
@@ -75,3 +81,55 @@ def withSignatureFrom(
     f: Callable[Concatenate[Any, P], R], /
 ) -> Callable[[Callable[Concatenate[Any, P], R]], Callable[Concatenate[Any, P], R]]:
     return lambda _: _
+
+
+P = TypeVar("P")
+
+
+def pick(store: "Store", options: list[P], inner: Optional[bool] = False) -> list[P]:
+    """Pick a single or multiple elements from the list.
+
+    This depends on the action_variation_selection setting.
+    The inner parameter can be used to signal, that this is an inner loop,
+    and so we should at max pick 1 element.
+
+    If inner is True and the action_variation_selection is FIRST_MAX_VARIANTS_PER_ACTION_IN_ORDER or RANDOM_MAX_VARIANTS_PER_ACTION,
+    we will pick at max 1 element. This is used to limit the number of elements
+    we need to consider in the inner loop.
+    """
+    action_variation_selection = store.settings.action_variation_selection
+
+    if action_variation_selection == ActionVariationSelection.SINGLE_RANDOM:
+        return random.sample(options, 1)
+    elif action_variation_selection == ActionVariationSelection.ALL_RANDOM:
+        return random.sample(options, len(options))
+    elif action_variation_selection == ActionVariationSelection.FIRST_IN_ORDER:
+        return [options[0]]
+    elif action_variation_selection == ActionVariationSelection.FIRST_MAX_VARIANTS_PER_ACTION_IN_ORDER:
+        assert isinstance(store.settings.max_variants_per_action, int)
+        if inner:
+            return options[:1]
+        return options[: store.settings.max_variants_per_action]
+    elif action_variation_selection == ActionVariationSelection.RANDOM_MAX_VARIANTS_PER_ACTION:
+        assert isinstance(store.settings.max_variants_per_action, int)
+        if inner:
+            return random.sample(options, 1)
+        return random.sample(options, min(store.settings.max_variants_per_action, len(options)))
+    elif action_variation_selection == ActionVariationSelection.ALL_IN_ORDER:
+        return options
+    else:
+        raise ValueError(f"Invalid action variation selection: {action_variation_selection}")
+
+
+def action_variations(
+    store: "Store", options: list[P], inner: Optional[bool] = False
+) -> Generator[P, None, None]:
+    """Create a generator (to be used in a for loop) that yields action variations.
+
+    In accordance with the action_variation_selection setting.
+
+    The inner parameter can be used to signal, that this is an inner loop,
+    and (if action_variation_selection is FIRST_MAX_VARIANTS_PER_ACTION_IN_ORDER or RANDOM_MAX_VARIANTS_PER_ACTION)
+    we should pick at max 1 element.
+    """
+    yield from pick(store, options, inner)
