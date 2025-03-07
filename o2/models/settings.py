@@ -168,6 +168,13 @@ class Settings:
     Useful for debugging, but should be disabled for production.
     """
 
+    disable_action_validity_check = False
+    """Disables the logic to check if actions produces sensible results, before actually evaluating them.
+
+    This is used by the Random Agents, as they should be able to select any action,
+    even if it's not valid. (The validity check is considered to be part of the metrics)
+    """
+
     MAX_YIELDS_PER_ACTION: ClassVar[Optional[int]] = None
     """The maximum number of yields per action.
 

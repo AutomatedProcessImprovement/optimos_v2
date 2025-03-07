@@ -9,4 +9,5 @@ class SimulatedAnnealingAgentRandom(SimulatedAnnealingAgent):
     def __init__(self, store: Store) -> None:
         super().__init__(store)
 
+        store.settings.disable_action_validity_check = True
         self.catalog = ACTION_CATALOG_RANDOM

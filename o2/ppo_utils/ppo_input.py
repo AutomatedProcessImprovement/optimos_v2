@@ -432,7 +432,10 @@ class PPOInput:
             if (
                 action is not None
                 and store.is_tabu(action) is False
-                and action.check_if_valid(store, mark_no_change_as_invalid=True)
+                and (
+                    Settings.disable_action_validity_check
+                    or action.check_if_valid(store, mark_no_change_as_invalid=True)
+                )
             )
             else None
             for action in actions

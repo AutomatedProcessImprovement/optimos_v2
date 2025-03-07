@@ -210,7 +210,10 @@ class Agent(ABC):
                 if store.is_tabu(action):
                     ignored_action_ids.add(action.id)
                     continue
-                if not action.check_if_valid(store, mark_no_change_as_invalid=True):
+                if (
+                    not store.settings.disable_action_validity_check
+                    and not action.check_if_valid(store, mark_no_change_as_invalid=True)
+                ):
                     ignored_action_ids.add(action.id)
                     continue
                 if store.settings.only_allow_low_last and rating <= RATING.LOW:
