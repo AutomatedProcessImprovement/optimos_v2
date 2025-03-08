@@ -16,7 +16,7 @@ from o2.models.settings import AgentType, Settings
 from o2.models.solution import Solution
 from o2.pareto_front import FRONT_STATUS
 from o2.store import SolutionTry, Store
-from o2.util.indented_printer import print_l0, print_l1, print_l2, print_l3
+from o2.util.indented_printer import print_l0, print_l1, print_l2, print_l3, print_l4
 from o2.util.logger import STATS_LOG_LEVEL
 
 
@@ -129,31 +129,31 @@ class Optimizer:
                             yield solution
                 else:
                     if len(not_chosen_tries) > 0:
-                        print_l1("Actions NOT chosen:")
+                        print_l2("Actions NOT chosen:")
                     for _, solution in not_chosen_tries:
-                        print_l2(f"{solution.id}: {repr(solution.last_action)}")
+                        print_l3(f"{solution.id}: {repr(solution.last_action)}")
                         self.max_non_improving_iter -= 1
                         if yield_on_non_acceptance:
                             yield solution
-                    print_l1("Actions chosen:")
+                    print_l2("Actions chosen:")
                     for status, solution in chosen_tries:
                         self.max_non_improving_iter = self.settings.max_non_improving_actions
-                        print_l2(f"{solution.id}: {repr(solution.last_action)}")
+                        print_l3(f"{solution.id}: {repr(solution.last_action)}")
                         if status == FRONT_STATUS.IN_FRONT:
-                            print_l3(
+                            print_l4(
                                 "Pareto front CONTAINS new evaluation.",
                                 log_level=STATS_LOG_LEVEL,
                             )
-                            print_l3(
+                            print_l4(
                                 f"{solution.id}: {Settings.get_pareto_x_label()}: {solution.pareto_x:.2f}; {Settings.get_pareto_y_label()}: {solution.pareto_y:.2f}",
                                 log_level=STATS_LOG_LEVEL,
                             )
                         elif status == FRONT_STATUS.IS_DOMINATED:
-                            print_l3(
+                            print_l4(
                                 "Pareto front IS DOMINATED by new evaluation.",
                                 log_level=STATS_LOG_LEVEL,
                             )
-                            print_l3(
+                            print_l4(
                                 f"{solution.id}: {Settings.get_pareto_x_label()}: {solution.pareto_x:.2f}; {Settings.get_pareto_y_label()}: {solution.pareto_y:.2f}",
                                 log_level=STATS_LOG_LEVEL,
                             )

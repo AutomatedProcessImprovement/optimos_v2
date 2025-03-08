@@ -32,8 +32,22 @@ class TabuAgent(Agent):
         return solution
 
     @override
-    def result_callback(self, chosen_tries: list[SolutionTry], not_chosen_tries: list[SolutionTry]) -> None:
-        pass
+    def process_many_solutions(
+        self, solutions: list[Solution]
+    ) -> tuple[list[SolutionTry], list[SolutionTry]]:
+        chosen_tries, not_chosen_tries = super().process_many_solutions(solutions)
+
+        solutions_in_radius = 0
+        for _, solution_try in not_chosen_tries:
+            min_distance = min(
+                solution_try.distance_to(solution) for solution in self.store.current_pareto_front.solutions
+            )
+            if solution_try.is_valid and min_distance <= self.get_max_distance():
+                solutions_in_radius += 1
+        print_l2(
+            f"Out of the {len(not_chosen_tries)} not chosen tries, {solutions_in_radius} are in the radius."
+        )
+        return chosen_tries, not_chosen_tries
 
     def get_max_distance(self) -> float:
         """Get the maximum distance to a new base solution, aka the error radius."""

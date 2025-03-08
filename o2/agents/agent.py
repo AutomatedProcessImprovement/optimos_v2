@@ -305,13 +305,18 @@ class Agent(ABC):
             self.set_new_base_solution if not self.store.settings.never_select_new_base_solution else None,
         )
 
-        self.result_callback(chosen_tries, not_chosen_tries)
+        print_l1("Actions processed:")
+        print_l2(
+            f"Out of the {len(solutions)} solutions, {len(chosen_tries)} in/better than the current front"
+        )
+
         return chosen_tries, not_chosen_tries
 
     def set_new_base_solution(self, proposed_solution_try: Optional[SolutionTry] = None) -> None:
         """Set a new base solution."""
         print_l2(f"Selecting new base evaluation {'(reinserting)' if proposed_solution_try else ''}...")
         print_l3(f"Solutions explored so far: {self.store.solution_tree.discarded_solutions}")
+        print_l3(f"Current solution: {self.store.solution.id}")
         solution = self.find_new_base_solution(proposed_solution_try)
         if solution != self.store.solution:
             self.iterations_per_solution = self.store.settings.iterations_per_solution or float("inf")
@@ -339,9 +344,4 @@ class Agent(ABC):
 
         NOTE: This function will update the store.solution attribute.
         """
-        pass
-
-    @abstractmethod
-    def result_callback(self, chosen_tries: list[SolutionTry], not_chosen_tries: list[SolutionTry]) -> None:
-        """Handle the result of the evaluation with this callback."""
         pass

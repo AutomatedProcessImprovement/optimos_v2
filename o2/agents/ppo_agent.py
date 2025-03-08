@@ -104,7 +104,14 @@ class PPOAgent(Agent):
         return TabuAgent(self.store).find_new_base_solution(proposed_solution_try)
 
     @override
-    def result_callback(self, chosen_tries: list[SolutionTry], not_chosen_tries: list[SolutionTry]) -> None:
+    def process_many_solutions(
+        self, solutions: list[Solution]
+    ) -> tuple[list[SolutionTry], list[SolutionTry]]:
+        chosen_tries, not_chosen_tries = super().process_many_solutions(solutions)
+        self._result_callback(chosen_tries, not_chosen_tries)
+        return chosen_tries, not_chosen_tries
+
+    def _result_callback(self, chosen_tries: list[SolutionTry], not_chosen_tries: list[SolutionTry]) -> None:
         """Handle the result of the evaluation."""
         result = chosen_tries[0] if chosen_tries else not_chosen_tries[0]
 

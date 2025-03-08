@@ -114,7 +114,7 @@ class SolutionTree:
 
         if nearest_solution is None:
             print_l3(
-                f"NO nearest solution was found in tree. ({error_count} errors, {len(neighbours)} neighbours, {len(pareto_front.solutions)} pareto solutions, {self.total_solutions} solutions in tree, {self.solutions_left} solutions left)"
+                f"NO nearest solution was found in tree. ({error_count} errors, {len(neighbours)} neighbours, {len(pareto_front.solutions)} pareto solutions, {self.total_solutions} solutions in tree, {self.solutions_left} solutions unexplored)"
             )
         else:
             print_l3(f"... of which {valid_count} were valid.")

@@ -26,6 +26,13 @@ text_wrapper_l3 = TextWrapper(
     subsequent_indent=" " * (len(l3_prefix) + 35),
 )
 
+l4_prefix = 10 * " " + ">>>> "
+text_wrapper_l4 = TextWrapper(
+    initial_indent=l4_prefix,
+    width=PREFERRED_WIDTH,
+    subsequent_indent=" " * (len(l4_prefix) + 35),
+)
+
 
 def print_l0(string, log_level=STATS_LOG_LEVEL) -> None:
     """Print a string with no indentation."""
@@ -45,3 +52,8 @@ def print_l2(string, log_level=logging.DEBUG) -> None:
 def print_l3(string, log_level=logging.DEBUG) -> None:
     """Print a string with l3 indentation."""
     log(log_level, text_wrapper_l3.fill(string))
+
+
+def print_l4(string, log_level=logging.DEBUG) -> None:
+    """Print a string with l4 indentation."""
+    log(log_level, text_wrapper_l4.fill(string))

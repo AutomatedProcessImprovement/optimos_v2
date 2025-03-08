@@ -90,11 +90,6 @@ class SimulatedAnnealingAgent(Agent):
             reinsert_current_solution=proposed_solution_try is not None
         )
 
-    @override
-    def result_callback(self, chosen_tries: list[SolutionTry], not_chosen_tries: list[SolutionTry]) -> None:
-        """Call to handle the result of the evaluation."""
-        pass
-
     def _select_new_base_evaluation(self, reinsert_current_solution: bool = False) -> Solution:
         """Select a new base evaluation."""
         if reinsert_current_solution:
@@ -111,6 +106,8 @@ class SimulatedAnnealingAgent(Agent):
         distance = self.store.current_pareto_front.avg_distance_to(solution)
         print_l2(f"Selected new random base solution {solution.id} with distance: {distance:_}")
 
+        # We delete the newly found solution from the tree, so this is a "pop" action,
+        # similarly to the TabuAgent.
         self.store.solution_tree.remove_solution(solution)
         return solution
 
