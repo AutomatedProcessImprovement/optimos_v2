@@ -3,7 +3,7 @@ from textwrap import dedent
 
 from o2.agents.agent import ACTION_CATALOG_BATCHING_ONLY
 
-MAX_NUMBER_OF_ACTIONS_TO_SELECT = len(ACTION_CATALOG_BATCHING_ONLY)
+MAX_NUMBER_OF_ACTIONS_PER_ITERATION = len(ACTION_CATALOG_BATCHING_ONLY)
 ITERATIONS_PER_SOLUTION = 3
 # We go with a higher number than ITERATIONS_PER_SOLUTION,
 MAX_NUMBER_OF_VARIATIONS_PER_ACTION = ITERATIONS_PER_SOLUTION
@@ -12,14 +12,15 @@ MAX_NON_IMPROVING_ITERATIONS = 50
 MAX_NON_IMPROVING_ITERATIONS_PPO = 100
 
 
-# Have one extr core for the main process
-CORES = MAX_NUMBER_OF_ACTIONS_TO_SELECT + 1
+# Have one extra core for the main process
+CORES = MAX_NUMBER_OF_ACTIONS_PER_ITERATION + 1
 CORES_PPO = 2
 MEMORY_GB = 48
 MEMORY_GB_PPO = 10
 MAX_TIME_HOURS = 5
 MAX_TIME_HOURS_PPO = 12
 MAX_ITERATIONS = 1001
+# We want 10 dumps per optimization run
 DUMP_INTERVAL = MAX_ITERATIONS // 10 * CORES
 # For PPO, because it's only doing one step per iteration,
 # we need to run it for much more iterations to get the same result
@@ -42,7 +43,7 @@ def generate_script(scenario: str, model: str, mode_name: str, max_batch_size: i
     max_iterations = MAX_ITERATIONS if "Proximal Policy Optimization" not in model else MAX_ITERATIONS_PPO
     dump_interval = DUMP_INTERVAL if "Proximal Policy Optimization" not in model else DUMP_INTERVAL_PPO
     max_non_improving_actions = (
-        MAX_NON_IMPROVING_ITERATIONS * MAX_NUMBER_OF_ACTIONS_TO_SELECT
+        MAX_NON_IMPROVING_ITERATIONS * MAX_NUMBER_OF_ACTIONS_PER_ITERATION
         if "Proximal Policy Optimization" not in model
         else MAX_NON_IMPROVING_ITERATIONS_PPO
     )
@@ -71,7 +72,7 @@ def generate_script(scenario: str, model: str, mode_name: str, max_batch_size: i
         --max-iterations {max_iterations} \\
         --dump-interval {dump_interval} \\
         --max-threads {CORES - 1} \\
-        --max-number-of-actions-per-iteration {MAX_NUMBER_OF_ACTIONS_TO_SELECT} \\
+        --max-number-of-actions-per-iteration {MAX_NUMBER_OF_ACTIONS_PER_ITERATION} \\
         --max-non-improving-actions {max_non_improving_actions} \\
         --iterations-per-solution {ITERATIONS_PER_SOLUTION} \\
         --max-number-of-variations-per-action {MAX_NUMBER_OF_VARIATIONS_PER_ACTION} \\
