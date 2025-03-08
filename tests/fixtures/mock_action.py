@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 
-from typing_extensions import NotRequired
+from typing_extensions import NotRequired, override
 
 from o2.actions.base_actions.base_action import BaseAction, BaseActionParamsType
 from o2.models.self_rating import RATING
@@ -19,6 +19,7 @@ class MockAction(BaseAction):
     )
     pass
 
+    @override
     def apply(self, state, enable_prints=True):
         return state
 

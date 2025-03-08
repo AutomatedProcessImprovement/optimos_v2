@@ -10,6 +10,10 @@ from o2.actions.base_actions.add_ready_large_wt_rule_base_action import (
     AddReadyLargeWTRuleAction,
     AddReadyLargeWTRuleBaseActionParamsType,
 )
+from o2.actions.base_actions.add_size_rule_base_action import (
+    AddSizeRuleAction,
+    AddSizeRuleBaseActionParamsType,
+)
 from o2.actions.base_actions.base_action import (
     BaseAction,
     BaseActionParamsType,
@@ -35,9 +39,10 @@ from o2.models.time_period import TimePeriod
 from o2.models.timetable import RULE_TYPE
 from o2.store import Store
 
-ACTIONS: list[type[BatchingRuleBaseAction]] = [
+ACTIONS: list[type[BaseAction]] = [
     AddDateTimeRuleAction,
     AddReadyLargeWTRuleAction,
+    AddSizeRuleAction,
     ModifyDailyHourRuleAction,
     ModifySizeRuleAction,
     RemoveRuleAction,
@@ -91,6 +96,15 @@ class RandomAction(BaseAction):
                     task_id=task_id,
                     waiting_time=waiting_time,
                     type=rule_type,  # type: ignore
+                    duration_fn=duration_fn,
+                )
+            elif action == AddSizeRuleAction:
+                task_id = random.choice(timetable.get_task_ids())
+                size = random.randint(1, 10)
+                duration_fn = store.constraints.get_duration_fn_for_task(task_id)
+                params = AddSizeRuleBaseActionParamsType(
+                    task_id=task_id,
+                    size=size,
                     duration_fn=duration_fn,
                 )
             elif action == ModifyDailyHourRuleAction:

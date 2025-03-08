@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from collections import defaultdict
 from typing import Optional
 
+from o2.actions.base_actions.add_size_rule_base_action import AddSizeRuleAction
 from o2.actions.base_actions.base_action import BaseAction, RateSelfReturnType
 from o2.actions.batching_actions.add_date_time_rule_by_availability_action import (
     AddDateTimeRuleByAvailabilityAction,
@@ -122,6 +123,7 @@ ACTION_CATALOG_BATCHING_ONLY: list[type[BaseAction]] = [
     ModifySizeRuleByManySimilarEnablementsAction,
     ModifySizeRuleByWTAction,
     # Legacy Rules, that are fallbacks now
+    AddSizeRuleAction,
     ModifyDailyHourRuleAction,
     RemoveRuleAction,
 ]

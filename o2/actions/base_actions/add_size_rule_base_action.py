@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, replace
 
 from sympy import Symbol, lambdify
-from typing_extensions import Required
+from typing_extensions import Required, override
 
 from o2.actions.base_actions.base_action import (
     BaseAction,
@@ -20,6 +20,7 @@ from o2.models.timetable import (
     FiringRule,
 )
 from o2.store import Store
+from o2.util.helper import select_variants
 
 
 class AddSizeRuleBaseActionParamsType(BaseActionParamsType):
@@ -40,9 +41,8 @@ class AddSizeRuleBaseAction(BaseAction, ABC, str=False):
 
     params: AddSizeRuleBaseActionParamsType
 
+    @override
     def apply(self, state: State, enable_prints: bool = True) -> State:
-        """Create a copy of the timetable with the rule size modified."""
-
         new_size = self.params["size"]
         task_id = self.params["task_id"]
         duration_fn = self.params.get("duration_fn", "1")
@@ -100,6 +100,7 @@ class AddSizeRuleBaseAction(BaseAction, ABC, str=False):
             )
             return replace(state, timetable=new_timetable)
 
+    @override
     @staticmethod
     @abstractmethod
     def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
@@ -114,6 +115,21 @@ class AddSizeRuleBaseAction(BaseAction, ABC, str=False):
 class AddSizeRuleAction(AddSizeRuleBaseAction):
     """AddSizeRuleAction will add a BatchingRule."""
 
+    @override
+    @override
     @staticmethod
     def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
-        raise NotImplementedError("Not implemented")
+        task_ids = store.current_timetable.get_task_ids()
+
+        for task_id in select_variants(store, task_ids):
+            duration_fn = store.constraints.get_duration_fn_for_task(task_id)
+            yield (
+                RATING.VERY_LOW,
+                AddSizeRuleAction(
+                    AddSizeRuleBaseActionParamsType(
+                        task_id=task_id,
+                        size=2,
+                        duration_fn=duration_fn,
+                    )
+                ),
+            )
