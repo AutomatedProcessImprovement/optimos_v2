@@ -1,6 +1,6 @@
 import math
 import random
-from typing import Optional
+from typing import Optional, cast
 
 from typing_extensions import override
 
@@ -46,7 +46,7 @@ class SimulatedAnnealingAgent(Agent):
                 math.sqrt(store.base_evaluation.pareto_x**2 + store.base_evaluation.pareto_y**2)
                 * DISTANCE_MULTIPLIER
             )
-            print_l1(f"Auto-estimated initial temperature: {self.temperature:_}")
+            print_l1(f"Auto-estimated initial temperature: {self.temperature:_.2f}")
         if self.store.settings.sa_cooling_factor == "auto":
             number_of_iterations_to_cool = (
                 self.store.settings.sa_cooling_iteration_percent * self.store.settings.max_iterations
@@ -61,15 +61,24 @@ class SimulatedAnnealingAgent(Agent):
             self.store.settings.sa_cooling_factor = (temperature_to_reach / self.temperature) ** (
                 1 / number_of_iterations_to_cool
             )
-            print_l1(f"Auto-estimated cooling factor: {self.store.settings.sa_cooling_factor}")
+            print_l1(f"Auto-estimated cooling factor: {self.store.settings.sa_cooling_factor:.4f}")
+            print_l2(
+                f"Which will reach {temperature_to_reach:_.2f} after {number_of_iterations_to_cool} iterations..."
+            )
+            max_iterations = self.store.settings.max_iterations
+            assert isinstance(self.store.settings.sa_cooling_factor, float)
+            temp_after_all_iterations = self.temperature * (
+                self.store.settings.sa_cooling_factor**max_iterations
+            )
+            print_l2(f"Which means {temp_after_all_iterations:_.2f} after all {max_iterations} iterations.")
 
     @override
     def find_new_base_solution(self, proposed_solution_try: Optional[SolutionTry] = None) -> Solution:
-        print_l2(f"Old temperature: {self.temperature:_}")
+        print_l2(f"Old temperature: {self.temperature:_.2f}")
         assert isinstance(self.temperature, float)
         assert isinstance(self.store.settings.sa_cooling_factor, float)
         self.temperature *= self.store.settings.sa_cooling_factor
-        print_l2(f"New temperature: {self.temperature:_}")
+        print_l2(f"New temperature: {self.temperature:_.2f}")
         if proposed_solution_try is not None:
             status, solution = proposed_solution_try
             # Maybe accept bad solution
@@ -104,7 +113,7 @@ class SimulatedAnnealingAgent(Agent):
             raise NoNewBaseSolutionFoundError("No new baseline evaluation found.")
 
         distance = self.store.current_pareto_front.avg_distance_to(solution)
-        print_l2(f"Selected new random base solution {solution.id} with distance: {distance:_}")
+        print_l2(f"Selected new random base solution {solution.id} with distance: {distance:_.2f}")
 
         # We delete the newly found solution from the tree, so this is a "pop" action,
         # similarly to the TabuAgent.

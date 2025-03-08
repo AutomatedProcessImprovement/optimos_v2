@@ -63,7 +63,7 @@ class PPOAgent(Agent):
             self.last_action_mask: ndarray
 
     @override
-    def select_actions(self, store: Store) -> Optional[list[BaseAction]]:
+    def select_actions(self) -> Optional[list[BaseAction]]:
         """Select the best actions to take next.
 
         It will pick at most cpu_count actions, so parallel evaluation is possible.
@@ -71,7 +71,7 @@ class PPOAgent(Agent):
         If the possible options for the current base evaluation are exhausted,
         it will choose a new base evaluation.
         """
-        action_from_store = PPOInput.get_actions_from_store(store)
+        action_from_store = PPOInput.get_actions_from_store(self.store)
         action_count = len([a for a in action_from_store if a is not None])
         if action_count == 0:
             # TODO: We need to reset the env here

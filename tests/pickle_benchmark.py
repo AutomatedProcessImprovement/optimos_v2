@@ -54,8 +54,8 @@ def benchmark_pickle(
     batch_size = os.path.getsize(filename_batch)
 
     # Print results
-    print(f"Single dump: {single_time:.4f} sec, File size: {single_size / 1024:.2f} KB")
-    print(f"Batch dump : {batch_time:.4f} sec, File size: {batch_size / 1024:.2f} KB")
+    print(f"Single dump: {single_time:.4f} sec, File size: {single_size / 1024:_.2f} KB")
+    print(f"Batch dump : {batch_time:.4f} sec, File size: {batch_size / 1024:_.2f} KB")
 
 
 store = pickle.load(

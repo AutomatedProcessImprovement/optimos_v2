@@ -186,7 +186,7 @@ def solve_store(store: Store, dump_interval: int) -> None:
     optimizer = Optimizer(store)
     generator = optimizer.get_iteration_generator(yield_on_non_acceptance=True)
     iteration = 1
-    print(f"Start processing of {store.name}")
+    info(f"Start processing of {store.name}")
     for _ in generator:
         if store.settings.log_to_tensor_board:
             from o2.util.tensorboard_helper import TensorBoardHelper

@@ -76,7 +76,7 @@ class SolutionTree:
             num_results=1,
             max_dists=max_distances,
         )
-        print_l3(f"Found {len(neighbours)} neighbours in radius {max_distance:.2f}.")
+        print_l3(f"Found {len(neighbours)} neighbours in radius {max_distance:_.2f}.")
         for neighbour in neighbours:
             if error_count > 20:
                 warn(f"Got too many None items from rtree! Returning None. {error_count} errors so far.")
