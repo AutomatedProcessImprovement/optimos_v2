@@ -74,7 +74,7 @@ from o2.actions.legacy_optimos_actions.remove_resource_by_utilization_action imp
 from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.solution import Solution
 from o2.store import SolutionTry, Store
-from o2.util.indented_printer import print_l1, print_l2
+from o2.util.indented_printer import print_l1, print_l2, print_l3
 
 ACTION_CATALOG: list[type[BaseAction]] = [
     AddResourceAction,
@@ -142,6 +142,12 @@ class NoActionsLeftError(Exception):
     pass
 
 
+class IterationsPerSolutionReached(Exception):
+    """Exception raised when the iterations per solution limit is reached."""
+
+    pass
+
+
 class Agent(ABC):
     """Selects the best action to take next, based on the current state of the store."""
 
@@ -155,6 +161,7 @@ class Agent(ABC):
             if store.settings.batching_only
             else ACTION_CATALOG
         )
+        self.iterations_per_solution: float = store.settings.iterations_per_solution or float("inf")
         self.action_generators: list[RateSelfReturnType[BaseAction]] = []
         self.action_generator_tabu_ids: set[str] = set()
         self.action_generator_counter: dict[RateSelfReturnType[BaseAction], int] = defaultdict(int)
@@ -169,7 +176,17 @@ class Agent(ABC):
         it will choose a new base evaluation.
         """
         while True:
-            print_l1(f"Choosing best action (based on {self.store.solution.id})...")
+            if self.iterations_per_solution < 0:
+                print_l1(f"Finished iterations for solution {self.store.solution.id}.")
+                self.set_new_base_solution()
+                continue
+
+            if self.store.settings.iterations_per_solution is not None:
+                done = self.store.settings.iterations_per_solution - self.iterations_per_solution + 1
+                extra_info = f" - {done}/{self.store.settings.iterations_per_solution}"
+            else:
+                extra_info = ""
+            print_l1(f"Choosing best action (based on {self.store.solution.id}{extra_info})...")
 
             # Get valid actions from the generators, even multiple per generator,
             # if we don't have enough valid actions yet
@@ -179,16 +196,11 @@ class Agent(ABC):
 
             if len(possible_actions) == 0:
                 print_l1("No actions remaining, after removing Tabu & N/A actions.")
-                new_solution = self.find_new_base_solution(
+                self.set_new_base_solution(
                     # Setting proposed_solution_try to None, we make sure that
                     # the current solution is not reinserted into the solution tree
                     proposed_solution_try=None
                 )
-                success = new_solution is not None
-                if not success:
-                    print_l2("No new baseline evaluation found. Stopping.")
-                    return None
-                self.store.solution = new_solution
                 continue
 
             sorted_actions = sorted(possible_actions, key=lambda x: x[0], reverse=True)
@@ -205,6 +217,7 @@ class Agent(ABC):
                 for rating, action in selected_actions:
                     print_l2(f"{action} with rating {rating}")
 
+            self.iterations_per_solution -= 1
             return [action for _, action in selected_actions]
 
     def get_valid_actions(self) -> list[tuple[RATING, BaseAction]]:
@@ -296,9 +309,13 @@ class Agent(ABC):
     def set_new_base_solution(self, proposed_solution_try: Optional[SolutionTry] = None) -> None:
         """Set a new base solution."""
         print_l2(f"Selecting new base evaluation {'(reinserting)' if proposed_solution_try else ''}...")
+        print_l3(f"Solutions explored so far: {self.store.solution_tree.discarded_solutions}")
         solution = self.find_new_base_solution(proposed_solution_try)
         if solution != self.store.solution:
+            self.iterations_per_solution = self.store.settings.iterations_per_solution or float("inf")
             self.set_action_generators(solution)
+        else:
+            print_l3("The new base solution is the same as the current solution.")
         self.store.solution = solution
 
     def try_solution(self, solution: Solution) -> SolutionTry:

@@ -122,6 +122,14 @@ class Settings:
     current Pareto Front.
     """
 
+    iterations_per_solution: Optional[int] = None
+    """The number of iterations to run for each base solution.
+
+    If this is set, the optimizer will run for this number of iterations for each
+    base solution, before selecting a new one. If this is not set, the optimizer
+    will run until the max_iterations is reached.
+    """
+
     max_iterations = 1000
     """The maximum (total) number of iterations before the application stops."""
 
