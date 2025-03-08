@@ -1,3 +1,4 @@
+from o2.models.solution import Solution
 from o2.models.solution_tree import SolutionTree
 from o2.models.state import State
 from o2.pareto_front import ParetoFront
@@ -148,3 +149,39 @@ def test_pop_nearest_solution(one_task_store: Store):
     assert solution1.id in tree.solution_lookup
     assert solution2.id in tree.solution_lookup
     assert solution3.id in tree.solution_lookup
+
+
+def test_get_solutions_near_to_pareto_front(one_task_store: Store):
+    tree = SolutionTree()
+
+    pareto_solution1 = create_mock_solution(one_task_store.base_state, 30, 30)
+    pareto_solution2 = create_mock_solution(one_task_store.base_state, 50, 50)
+    pareto_solution3 = create_mock_solution(one_task_store.base_state, 100, 100)
+    tree_solution1 = create_mock_solution(one_task_store.base_state, 10, 10)
+    tree_solution2 = create_mock_solution(one_task_store.base_state, 50, 60)
+    tree_solution3 = create_mock_solution(one_task_store.base_state, 75, 75)
+
+    pareto_front = ParetoFront()
+    pareto_front.add(pareto_solution1)
+    pareto_front.add(pareto_solution2)
+    pareto_front.add(pareto_solution3)
+
+    tree.add_solution(tree_solution1)
+    tree.add_solution(tree_solution2)
+    tree.add_solution(tree_solution3)
+
+    assert soltions_unordered_equal(
+        tree.get_solutions_near_to_pareto_front(pareto_front, max_distance=10), [tree_solution2]
+    )
+    assert soltions_unordered_equal(
+        tree.get_solutions_near_to_pareto_front(pareto_front, max_distance=30),
+        [tree_solution1, tree_solution2],
+    )
+    assert soltions_unordered_equal(
+        tree.get_solutions_near_to_pareto_front(pareto_front, max_distance=100),
+        [tree_solution1, tree_solution2, tree_solution3],
+    )
+
+
+def soltions_unordered_equal(list1: list["Solution"], list2: list["Solution"]) -> bool:
+    return sorted(list1, key=lambda x: x.point) == sorted(list2, key=lambda x: x.point)
