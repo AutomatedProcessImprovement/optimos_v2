@@ -2,6 +2,7 @@ import random
 from collections import OrderedDict
 from typing import TYPE_CHECKING, Optional, cast
 
+import numpy as np
 import rtree
 
 from o2.models.settings import Settings
@@ -64,42 +65,52 @@ class SolutionTree:
         nearest_distance = float("inf")
         pareto_solutions = list(reversed(pareto_front.solutions))
         error_count = 0
-        while len(pareto_solutions) > 0:
+
+        pareto_points = np.array([s.point for s in pareto_solutions])
+        max_distances = np.array([max_distance] * len(pareto_solutions))
+
+        neighbours, _ = self.rtree.nearest_v(  # type: ignore
+            mins=pareto_points,
+            maxs=pareto_points,
+            num_results=1,
+            max_dists=max_distances,
+        )
+        print_l3(f"Found {len(neighbours)} neighbours in radius {max_distance:.2f}.")
+        for neighbour in neighbours:
             if error_count > 20:
-                warn("Got too many None items from rtree! Returning None.")
+                warn(f"Got too many None items from rtree! Returning None. {error_count} errors so far.")
                 break
-            pareto_solution = pareto_solutions[0]
-            item = next(self.rtree.nearest(pareto_solution.point, 1, objects=True), None)
-            if item is None:
-                warn("WARNING: Got None item from rtree.")
+            if neighbour is None:
+                warn(f"WARNING: Got None item from rtree. {error_count} errors so far.")
                 error_count += 1
                 continue
-            item_id = hex_id(item.id)
+            item_id = hex_id(neighbour)
+            if item_id not in self.solution_lookup:
+                warn(
+                    f"WARNING: Got non-existent solution from rtree ({item_id}). {error_count} errors so far."
+                )
+                error_count += 1
+                continue
             solution = self.solution_lookup[item_id]
-
-            if item_id in self.solution_lookup and solution is None:
-                warn("WARNING: Got discarded solution from rtree.")
-                self.rtree.delete(item.id, item.bbox)
-                error_count += 1
-                continue
-
             if solution is None:
-                warn("WARNING: Got non-existent solution from rtree.")
+                warn(f"WARNING: Got discarded solution from rtree ({item_id}). {error_count} errors so far.")
+                # TODO: How to remove the solution from the rtree?
                 error_count += 1
                 continue
-
-            distance = pareto_solution.distance_to(solution)
             # Early exit if we find a pareto solution.
             # Because of reversed, it will be the most recent
-            if distance == 0:
+            if solution in pareto_front.solutions:
                 return solution
+
+            distance = min(s.distance_to(solution) for s in pareto_front.solutions)
+            # Sanity check, that the distance is smaller than the max distance.
             if distance < nearest_distance and distance <= max_distance:
                 nearest_solution = solution
                 nearest_distance = distance
-            pareto_solutions.pop(0)
+
         if nearest_solution is None:
             print_l3(
-                f"NO nearest solution was found in tree, for the given Pareto Front (size: {len(pareto_front.solutions)})."
+                f"NO nearest solution was found in tree. ({error_count} errors, {len(neighbours)} neighbours, {len(pareto_front.solutions)} pareto solutions, {self.total_solutions} solutions in tree, {self.solutions_left} solutions left)"
             )
         return nearest_solution
 
@@ -125,10 +136,7 @@ class SolutionTree:
         nearest_solution = self.get_nearest_solution(pareto_front, max_distance=max_distance)
         if nearest_solution is not None:
             self.remove_solution(nearest_solution)
-            len_discarded_solutions = self.discarded_solutions
-            print_l3(
-                f"Popped solution ({nearest_solution.id}). {self.total_solutions - len_discarded_solutions} solutions left. ({len_discarded_solutions} exhausted so far)"  # noqa: E501
-            )
+            print_l3(f"Popped solution ({nearest_solution.id})")
             if nearest_solution not in pareto_front.solutions:
                 print_l3("Nearest solution is NOT in pareto front.")
             else:
@@ -147,18 +155,19 @@ class SolutionTree:
         self, pareto_front: ParetoFront, max_distance: float = float("inf")
     ) -> list["Solution"]:
         """Get a list of solutions near the pareto front."""
-        bounding_rect = pareto_front.get_bounding_rect()
-        bounding_rect_with_distance = (
-            bounding_rect[0] - max_distance,
-            bounding_rect[1] - max_distance,
-            bounding_rect[2] + max_distance,
-            bounding_rect[3] + max_distance,
+        bounding_points_mins = (np.array([s.point for s in pareto_front.solutions]) - max_distance).clip(
+            min=0
         )
-        items = self.rtree.intersection(bounding_rect_with_distance, objects=True)
-        solutions: list["Solution"] = [
-            cast(Solution, self.solution_lookup[hex_id(item.id)])
-            for item in items
-            if self.solution_lookup[hex_id(item.id)] is not None
+        bounding_points_maxs = np.array([s.point for s in pareto_front.solutions]) + max_distance
+        solution_ids, _ = self.rtree.intersection_v(bounding_points_mins, bounding_points_maxs)
+        solutions = [
+            cast(Solution, self.solution_lookup[hex_id(solution_id)])
+            for solution_id in set(solution_ids)
+            if self.solution_lookup[hex_id(solution_id)] is not None
+        ]
+        # Filter out solutions, that are distanced more than max_distance
+        solutions = [
+            s for s in solutions if min(s.distance_to(p) for p in pareto_front.solutions) <= max_distance
         ]
 
         return solutions
