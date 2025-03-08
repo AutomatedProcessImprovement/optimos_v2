@@ -70,7 +70,7 @@ def create_mock_solution(
     kpis.waiting_time.total = total_cycle_time
 
     task_kpi = KPIMap()
-    task_kpi.idle_time.total = total_cycle_time
+    task_kpi.idle_time.total = total_cost
     task_kpi.processing_time.total = total_cycle_time
     task_kpi.processing_time.count = 1
 
@@ -91,7 +91,7 @@ def create_mock_solution(
     event.idle_processing_time = total_cycle_time
     event.enabled_datetime = datetime(2000, 1, 1)
     event.started_datetime = event.enabled_datetime + timedelta(  # type: ignore
-        seconds=total_cycle_time
+        seconds=total_cost
     )  # type: ignore
     event.completed_datetime = event.started_datetime + timedelta(  # type: ignore
         seconds=total_cycle_time

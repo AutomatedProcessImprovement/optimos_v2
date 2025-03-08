@@ -28,14 +28,15 @@ class TabuAgent(Agent):
             reinsert_current_solution=proposed_solution_try is not None,
         )
         if proposed_solution_try is not None and proposed_solution_try[1].id == solution.id:
-            print_l3("The proposed solution is the same as the current solution.")
+            print_l3("The proposed solution is the same as the newly found solution (see below).")
         return solution
 
     @override
     def result_callback(self, chosen_tries: list[SolutionTry], not_chosen_tries: list[SolutionTry]) -> None:
         pass
 
-    def _get_max_distance(self) -> float:
+    def get_max_distance(self) -> float:
+        """Get the maximum distance to a new base solution, aka the error radius."""
         if self.store.settings.max_distance_to_new_base_solution != float("inf"):
             return self.store.settings.max_distance_to_new_base_solution
         elif self.store.settings.error_radius_in_percent is not None:
@@ -52,11 +53,10 @@ class TabuAgent(Agent):
         reinserted into the solution tree. This is useful if you aren't
         sure if you exhausted all possible actions for this solution.
         """
-        print_l2(f"Selecting new base evaluation {'(reinserting)' if reinsert_current_solution else ''}...")
         if reinsert_current_solution:
             self.store.solution_tree.add_solution(self.store.solution, archive=False)
 
-        max_distance = self._get_max_distance()
+        max_distance = self.get_max_distance()
 
         new_solution = self.store.solution_tree.pop_nearest_solution(
             self.store.current_pareto_front, max_distance=max_distance

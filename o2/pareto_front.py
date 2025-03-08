@@ -146,7 +146,11 @@ class ParetoFront:
         return all(s.evaluation.is_dominated_by(evaluation) for s in self.solutions)
 
     def get_bounding_rect(self) -> tuple[float, float, float, float]:
-        """Get the bounding rectangle of the front."""
+        """Get the bounding rectangle of the front.
+
+        Note, that this is of course only a very broad estimate,
+        because the front is more a polygon than a rectangle.
+        """
         min_x = min(s.pareto_x for s in self.solutions)
         max_x = max(s.pareto_x for s in self.solutions)
         min_y = min(s.pareto_y for s in self.solutions)

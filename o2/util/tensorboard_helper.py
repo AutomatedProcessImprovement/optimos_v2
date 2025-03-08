@@ -6,6 +6,7 @@ from datetime import datetime
 import matplotlib
 import tensorflow as tf
 
+from o2.agents.tabu_agent import TabuAgent
 from o2.util.logger import debug
 
 matplotlib.use("Agg")
@@ -71,6 +72,17 @@ class TensorBoardHelper:
                         solutions_left_for_temperature,
                         step=self.step,
                     )
+            if isinstance(self.agent, TabuAgent):
+                tf.summary.scalar(
+                    "tabu/solutions_left_in_radius",
+                    len(
+                        self.store.solution_tree.get_solutions_near_to_pareto_front(
+                            self.store.current_pareto_front,
+                            max_distance=float(self.agent.get_max_distance()),
+                        )
+                    ),
+                    step=self.step,
+                )
 
             tf.summary.scalar(
                 "current_base/cycle_time",
