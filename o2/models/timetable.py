@@ -988,7 +988,9 @@ class BatchingRule(JSONWizard):
         Currently this will check:
          - if daily hour rules come after week day rules
          - if there are no duplicate daily hour rules
+         - if there is more than 1 (single) size rule
         """
+        has_single_size_rule = False
         for and_rules in self.firing_rules:
             # OR rules should not be duplicated
             largest_smaller_than_time = None
@@ -999,6 +1001,10 @@ class BatchingRule(JSONWizard):
             if len(and_rules) == 0:
                 # Empty AND rules are not allowed
                 return False
+            if len(and_rules) == 1 and rule_is_size(and_rules[0]) and and_rules[0].is_gte:
+                if has_single_size_rule:
+                    return False
+                has_single_size_rule = True
             has_daily_hour_rule = False
             for rule in and_rules:
                 if and_rules.count(rule) > 1:
