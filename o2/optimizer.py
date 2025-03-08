@@ -100,7 +100,7 @@ class Optimizer:
                 TensorBoardHelper.instance.iteration += 1
             try:
                 if self.max_non_improving_iter <= 0:
-                    print_l1("Maximum non improving iterations reached!")
+                    print_l1("Maximum non improving iterations reached!", log_level=STATS_LOG_LEVEL)
                     break
 
                 print_l0(f"{self.settings.agent.name} - Iteration {it + 1}/{self.max_iter}")

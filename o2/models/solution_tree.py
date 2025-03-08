@@ -65,6 +65,7 @@ class SolutionTree:
         nearest_distance = float("inf")
         pareto_solutions = list(reversed(pareto_front.solutions))
         error_count = 0
+        valid_count = 0
 
         pareto_points = np.array([s.point for s in pareto_solutions])
         max_distances = np.array([max_distance] * len(pareto_solutions))
@@ -104,7 +105,10 @@ class SolutionTree:
 
             distance = min(s.distance_to(solution) for s in pareto_front.solutions)
             # Sanity check, that the distance is smaller than the max distance.
-            if distance < nearest_distance and distance <= max_distance:
+            if distance > max_distance:
+                continue
+            valid_count += 1
+            if distance < nearest_distance:
                 nearest_solution = solution
                 nearest_distance = distance
 
@@ -112,6 +116,8 @@ class SolutionTree:
             print_l3(
                 f"NO nearest solution was found in tree. ({error_count} errors, {len(neighbours)} neighbours, {len(pareto_front.solutions)} pareto solutions, {self.total_solutions} solutions in tree, {self.solutions_left} solutions left)"
             )
+        else:
+            print_l3(f"... of which {valid_count} were valid.")
         return nearest_solution
 
     @property
