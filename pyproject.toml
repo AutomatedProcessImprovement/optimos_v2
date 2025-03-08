@@ -20,7 +20,8 @@ sympy = "^1.12.1"
 scipy = "^1.13.0"
 fastapi = "^0.114.0"
 uvicorn = "^0.30.6"
-rtree = "^1.4.0"
+rtree = { git = "https://github.com/sinnaj-r/rtree.git", branch = "main" }
+# rtree = { path = "../rtree", develop = true }
 xxhash = "^3.5.0"
 torch = "^2.5.0"
 sb3-contrib = "^2.3.0"
