@@ -22,7 +22,7 @@ conda run -n opti2 --no-capture-output python ./o2_evaluation/data_collector.py 
     --dump-interval 1000 \
     --max-threads 23 \
     --max-number-of-actions-per-iteration 23 \
-    --max-non-improving-actions 100 \
+    --max-non-improving-actions 2500 \
     --iterations-per-solution 3 \
     --max-number-of-variations-per-action 3 \
     --log-level DEBUG \
