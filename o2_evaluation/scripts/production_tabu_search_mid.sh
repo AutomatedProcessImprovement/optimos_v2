@@ -4,7 +4,7 @@
 #SBATCH --partition=main
 #SBATCH --time=05:00:00
 #SBATCH --mem=48G
-#SBATCH --cpus-per-task=22
+#SBATCH --cpus-per-task=23
 
 module load any/python/3.8.3-conda
 conda activate opti2
@@ -19,10 +19,10 @@ conda run -n opti2 --no-capture-output python ./o2_evaluation/data_collector.py 
     --sa-initial-temperature auto \
     --max-batch-size 50 \
     --max-iterations 1001 \
-    --dump-interval 2200 \
-    --max-threads 21 \
+    --dump-interval 2300 \
+    --max-threads 22 \
     --max-number-of-actions-per-iteration 22 \
-    --max-non-improving-actions 440 \
+    --max-non-improving-actions 1100 \
     --iterations-per-solution 3 \
     --max-number-of-variations-per-action 3 \
     --log-level DEBUG \
