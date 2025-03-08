@@ -6,6 +6,7 @@
 #SBATCH --mem=10G
 #SBATCH --cpus-per-task=2
 
+module load libspatialindex
 module load any/python/3.8.3-conda
 conda activate opti2
 

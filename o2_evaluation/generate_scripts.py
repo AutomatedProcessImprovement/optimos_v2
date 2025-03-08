@@ -60,6 +60,7 @@ def generate_script(scenario: str, model: str, mode_name: str, max_batch_size: i
     #SBATCH --mem={memory_gb}G
     #SBATCH --cpus-per-task={cores}
 
+    module load libspatialindex
     module load any/python/3.8.3-conda
     conda activate opti2
 
