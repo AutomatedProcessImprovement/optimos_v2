@@ -8,8 +8,11 @@ ITERATIONS_PER_SOLUTION = 3
 # We go with a higher number than ITERATIONS_PER_SOLUTION,
 MAX_NUMBER_OF_VARIATIONS_PER_ACTION = ITERATIONS_PER_SOLUTION
 
-MAX_NON_IMPROVING_ITERATIONS = 50
-MAX_NON_IMPROVING_ITERATIONS_PPO = 100
+# This is catch-error measure than anything controlling the optimization.
+# If some missconfiguration leads to no improving actions / crashes every iteration,
+# we want to stop the optimization after a while.
+MAX_NON_IMPROVING_ITERATIONS = 250
+MAX_NON_IMPROVING_ITERATIONS_PPO = 2500
 
 
 # Have one extra core for the main process
