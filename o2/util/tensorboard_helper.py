@@ -52,16 +52,17 @@ class TensorBoardHelper:
         self.iteration = 0
         TensorBoardHelper.instance = self
 
-    def tensor_board_iteration_callback(self, solution: Solution) -> None:
+    def tensor_board_iteration_callback(self, solution: Solution, write_everything: bool = False) -> None:
         """Log the current solution to TensorBoard, including a 2D chart of the Pareto front."""
-        self.step += 1
-        if self.step % TENSORBOARD_DUMP_INTERVAL != 0:
-            return
+        if not write_everything:
+            self.step += 1
+            if self.step % TENSORBOARD_DUMP_INTERVAL != 0:
+                return
         with self.writer.as_default():
             if isinstance(self.agent, SimulatedAnnealingAgent):
                 tf.summary.scalar("sa/temperature", self.agent.temperature, step=self.step)
 
-                if self.step % SA_CALCULATION_INTERVAL == 0:
+                if self.step % SA_CALCULATION_INTERVAL == 0 or write_everything:
                     solutions_left_for_temperature = len(
                         self.store.solution_tree.get_solutions_near_to_pareto_front(
                             self.store.current_pareto_front,
@@ -73,7 +74,9 @@ class TensorBoardHelper:
                         solutions_left_for_temperature,
                         step=self.step,
                     )
-            if isinstance(self.agent, TabuAgent) and self.step % TABU_CALCULATION_INTERVAL == 0:
+            if isinstance(self.agent, TabuAgent) and (
+                self.step % TABU_CALCULATION_INTERVAL == 0 or write_everything
+            ):
                 tf.summary.scalar(
                     "tabu/solutions_left_in_radius",
                     len(
@@ -202,7 +205,7 @@ class TensorBoardHelper:
             )
             tf.summary.scalar("global/iteration", self.iteration, step=self.step)
 
-            if self.step % DIAGRAM_DUMP_INTERVAL == 0:
+            if self.step % DIAGRAM_DUMP_INTERVAL == 0 or write_everything:
                 # --- Plot and log the 2D Pareto front image ---
                 fig = self._create_pareto_front_plot()
                 image = self._plot_to_image(fig)

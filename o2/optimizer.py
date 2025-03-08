@@ -81,6 +81,13 @@ class Optimizer:
 
         if not self.settings.disable_parallel_evaluation:
             self.executor.shutdown()
+
+        # Final write to tensorboard
+        if self.settings.log_to_tensor_board:
+            from o2.util.tensorboard_helper import TensorBoardHelper
+
+            TensorBoardHelper.instance.tensor_board_iteration_callback(store.solution, write_everything=True)
+
         self._print_result()
 
     def get_iteration_generator(
