@@ -197,6 +197,13 @@ def solve_store(store: Store, dump_interval: int) -> None:
         iteration += 1
 
     persist_store(store)
+
+    # Final write to tensorboard
+    if store.settings.log_to_tensor_board:
+        from o2.util.tensorboard_helper import TensorBoardHelper
+
+        TensorBoardHelper.instance.tensor_board_iteration_callback(store.solution, write_everything=True)
+
     if not store.settings.disable_parallel_evaluation:
         optimizer.executor.shutdown()
 
