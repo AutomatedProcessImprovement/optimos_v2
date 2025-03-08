@@ -1,5 +1,7 @@
 import os
-from typing import TYPE_CHECKING, Optional, override
+from typing import TYPE_CHECKING
+
+from typing_extensions import override
 
 from o2.agents.ppo_agent import PPOAgent
 from o2.ppo_utils.ppo_env_random import PPOEnvRandom
@@ -8,22 +10,10 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 import gymnasium as gym
 import numpy as np
-import torch as th
 from gymnasium import spaces
-from stable_baselines3.common.utils import obs_as_tensor
 
-from o2.actions.base_actions.base_action import BaseAction
-from o2.agents.agent import Agent, NoActionsLeftError
-from o2.agents.tabu_agent import TabuAgent
-from o2.models.solution import Solution
-from o2.pareto_front import FRONT_STATUS
-from o2.ppo_utils.ppo_env import PPOEnv
 from o2.ppo_utils.ppo_input import PPOInput
-from o2.store import SolutionTry, Store
-from o2.util.indented_printer import print_l1
-
-if TYPE_CHECKING:
-    from numpy import ndarray
+from o2.store import Store
 
 
 class PPOAgentRandom(PPOAgent):
