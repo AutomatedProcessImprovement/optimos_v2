@@ -17,8 +17,8 @@ def distance(point1: tuple[float, float], point2: tuple[float, float]) -> float:
     return float(np.linalg.norm(np.array(point1) - np.array(point2)))
 
 
-def calculate_hyperarea(solutions: list[Solution], reference_point: tuple[float, float]) -> float:
-    """Compute the hyperarea of the solutions.
+def calculate_hyperarea(pareto_solutions: list[Solution], reference_point: tuple[float, float]) -> float:
+    """Compute the hyperarea of the Pareto solutions.
 
     The hyperarea is the hypervolume in 2D of the region dominated by the set of
     solutions and bounded above by the given reference_point.  Formally:
@@ -26,34 +26,33 @@ def calculate_hyperarea(solutions: list[Solution], reference_point: tuple[float,
         HV(Y; r) = LebesgueMeasure(  ∪_{y ∈ Y}  [y, r]  )
 
     where each y ∈ Y is a 2D point, and r = (r_x, r_y) is "worse" than all y.
+
+    NOTE: We are using a simplified version of the hyperarea calculation, which
+    will only work will valid pareto fronts (e.g. no dominating solutions).
     """
     # Quick exit if there are no solutions
-    if not solutions:
+    if not pareto_solutions:
         return 0.0
 
-    # Sort solutions in ascending order by their x-coordinate
-    sorted_solutions = sorted(solutions, key=lambda s: s.pareto_x)
+    # Sort solutions in descending order by their x-coordinate
+    sorted_solutions = sorted(pareto_solutions, key=lambda s: s.pareto_x, reverse=True)
 
-    # Accumulate area by "slicing" from right to left.
+    ref_x, ref_y = reference_point
+
+    # Accumulate area by "slicing" from right to left
     area = 0.0
     # Start from the reference corner
-    last_x = reference_point[0]
-    min_y = reference_point[1]
+    last_x = ref_x
 
     # Traverse from the solution with the largest x to the smallest
-    for sol in reversed(sorted_solutions):
-        # Extract coordinates (x, y)
-        x = sol.pareto_x
-        y = sol.pareto_y
-        # If this point has a lower y than we've seen before,
-        # then it "cuts out" a new rectangle in the union.
-        if y < min_y:
-            width = last_x - x
-            height = min_y - y
-            # Add the area of that rectangle
-            area += width * height
-            # Update the current "lowest" y
-            min_y = y
+    for sol in sorted_solutions:
+        x, y = sol.point
+
+        width = last_x - x
+        height = ref_y - y
+        # Add the area of that rectangle
+        area += width * height
+
         # Move the x-boundary left
         last_x = x
 
