@@ -19,7 +19,8 @@ from o2.models.solution import Solution
 from o2.store import Store
 
 DIAGRAM_DUMP_INTERVAL = 2000
-SA_CALCULATION_INTERVAL = 100
+SA_CALCULATION_INTERVAL = 50
+TABU_CALCULATION_INTERVAL = 50
 TENSORBOARD_DUMP_INTERVAL = 10
 
 TENSORBOARD_LOG_DIR = "./logs/optimos_v2_tensorboard"
@@ -72,7 +73,7 @@ class TensorBoardHelper:
                         solutions_left_for_temperature,
                         step=self.step,
                     )
-            if isinstance(self.agent, TabuAgent):
+            if isinstance(self.agent, TabuAgent) and self.step % TABU_CALCULATION_INTERVAL == 0:
                 tf.summary.scalar(
                     "tabu/solutions_left_in_radius",
                     len(
