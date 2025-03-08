@@ -169,7 +169,8 @@ class SolutionTree:
         solutions = [
             cast(Solution, self.solution_lookup[hex_id(solution_id)])
             for solution_id in set(solution_ids)
-            if self.solution_lookup[hex_id(solution_id)] is not None
+            if hex_id(solution_id) in self.solution_lookup
+            and self.solution_lookup[hex_id(solution_id)] is not None
         ]
         # Filter out solutions, that are distanced more than max_distance
         solutions = [
