@@ -1,5 +1,7 @@
 from math import ceil
 
+from typing_extensions import override
+
 from o2.actions.base_actions.add_ready_large_wt_rule_base_action import (
     AddReadyLargeWTRuleBaseAction,
     AddReadyLargeWTRuleBaseActionParamsType,
@@ -29,9 +31,9 @@ class AddReadyWTRuleByWTAction(AddReadyLargeWTRuleBaseAction):
 
     params: AddReadyWTRuleByWTActionParamsType
 
+    @override
     @staticmethod
     def rate_self(store: "Store", input: SelfRatingInput) -> RateSelfReturnType["AddReadyWTRuleByWTAction"]:
-        """Generate a best set of parameters & self-evaluates this action."""
         sorted_tasks = sorted(
             store.current_evaluation.total_batching_waiting_time_per_task.items(),
             key=lambda x: x[1],

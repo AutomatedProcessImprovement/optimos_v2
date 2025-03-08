@@ -1,3 +1,5 @@
+from typing_extensions import override
+
 from o2.actions.base_actions.base_action import (
     RateSelfReturnType,
 )
@@ -27,9 +29,9 @@ class ModifySizeRuleByWTAction(ModifySizeRuleBaseAction):
 
     params: ModifySizeRuleByWTActionParamsType
 
+    @override
     @staticmethod
     def rate_self(store: "Store", input: SelfRatingInput) -> RateSelfReturnType["ModifySizeRuleByWTAction"]:
-        """Generate a best set of parameters & self-evaluates this action."""
         timetable = store.current_timetable
         avg_batching_waiting_time_per_task = store.current_evaluation.avg_batching_waiting_time_per_task
         sorted_tasks = sorted(

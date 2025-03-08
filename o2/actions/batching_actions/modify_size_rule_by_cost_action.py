@@ -14,8 +14,6 @@ from o2.models.timetable import RULE_TYPE
 from o2.store import Store
 from o2.util.helper import select_variants
 
-LIMIT_OF_OPTIONS = 5
-
 
 class ModifySizeRuleByCostActionParamsType(ModifySizeRuleBaseActionParamsType):
     """Parameter for ModifySizeRuleByCostAction."""
@@ -44,7 +42,7 @@ class ModifySizeRuleByCostAction(ModifySizeRuleBaseAction):
             store.current_evaluation.get_avg_cost_per_task().items(),
             key=lambda x: x[1],
             reverse=True,
-        )[:LIMIT_OF_OPTIONS]
+        )
 
         for task_id, _ in sorted_tasks:
             selectors = timetable.get_firing_rule_selectors_for_task(task_id, rule_type=RULE_TYPE.SIZE)

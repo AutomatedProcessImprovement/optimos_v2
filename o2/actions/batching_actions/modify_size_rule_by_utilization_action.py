@@ -10,8 +10,6 @@ from o2.models.timetable import RULE_TYPE
 from o2.store import Store
 from o2.util.helper import select_variants
 
-LIMIT_OF_OPTIONS = 5
-
 
 class ModifySizeRuleByUtilizationActionParamsType(ModifySizeRuleBaseActionParamsType):
     """Parameter for ModifySizeRuleByUtilizationAction."""

@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, replace
 from typing import TYPE_CHECKING
 
-from typing_extensions import NotRequired
+from typing_extensions import NotRequired, override
 
 from o2.actions.base_actions.base_action import (
     BaseAction,
@@ -36,8 +36,8 @@ class ModifyResourceBaseAction(BaseAction, ABC):
 
     params: ModifyResourceBaseActionParamsType
 
+    @override
     def apply(self, state: State, enable_prints: bool = True) -> State:
-        """Apply the action to the state."""
         if "remove_resource" in self.params and self.params["remove_resource"]:
             new_timetable = state.timetable.remove_resource(self.params["resource_id"])
             return replace(state, timetable=new_timetable)
@@ -59,13 +59,10 @@ class ModifyResourceBaseAction(BaseAction, ABC):
             return replace(state, timetable=new_timetable)
         return state
 
+    @override
     @staticmethod
     @abstractmethod
     def rate_self(store: "Store", input: SelfRatingInput) -> RateSelfReturnType["ModifyResourceBaseAction"]:
-        """Generate a best set of parameters & self-evaluates this action.
-
-        To be implemented by subclasses.
-        """
         pass
 
     def __str__(self) -> str:

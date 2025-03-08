@@ -10,7 +10,7 @@ from typing import (
 )
 
 from dataclass_wizard import JSONSerializable
-from typing_extensions import TypedDict
+from typing_extensions import TypedDict, override
 
 from o2.util.helper import hash_string
 from o2.util.logger import warn

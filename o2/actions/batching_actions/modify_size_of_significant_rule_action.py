@@ -1,4 +1,4 @@
-from typing_extensions import Required
+from typing_extensions import Required, override
 
 from o2.actions.base_actions.base_action import (
     BaseAction,
@@ -35,8 +35,8 @@ class ModifySizeOfSignificantRuleAction(BaseAction):
 
     params: ModifySizeOfSignificantRuleActionParamsType
 
+    @override
     def apply(self, state: State, enable_prints: bool = True) -> State:
-        """Apply the action to the state."""
         timetable = state.timetable
         task_id = self.params["task_id"]
         change_size = self.params["change_size"]
@@ -87,7 +87,7 @@ class ModifySizeOfSignificantRuleAction(BaseAction):
             )
         ).apply(state, enable_prints=enable_prints)
 
+    @override
     @staticmethod
     def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
-        """Generate a best set of parameters & self-evaluates this action."""
         raise NotImplementedError("Not implemented")

@@ -1,14 +1,13 @@
 import random
-from collections import Counter
+
+from typing_extensions import override
 
 from o2.actions.base_actions.add_datetime_rule_base_action import (
     AddDateTimeRuleAction,
-    AddDateTimeRuleBaseAction,
     AddDateTimeRuleBaseActionParamsType,
 )
 from o2.actions.base_actions.add_ready_large_wt_rule_base_action import (
     AddReadyLargeWTRuleAction,
-    AddReadyLargeWTRuleBaseAction,
     AddReadyLargeWTRuleBaseActionParamsType,
 )
 from o2.actions.base_actions.base_action import (
@@ -19,7 +18,6 @@ from o2.actions.base_actions.base_action import (
 from o2.actions.base_actions.batching_rule_base_action import BatchingRuleBaseAction
 from o2.actions.base_actions.modify_size_rule_base_action import (
     ModifySizeRuleAction,
-    ModifySizeRuleBaseAction,
     ModifySizeRuleBaseActionParamsType,
 )
 from o2.actions.batching_actions.modify_daily_hour_rule_action import (
@@ -34,7 +32,7 @@ from o2.models.days import DAYS
 from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.settings import Settings
 from o2.models.time_period import TimePeriod
-from o2.models.timetable import RULE_TYPE, rule_is_daily_hour
+from o2.models.timetable import RULE_TYPE
 from o2.store import Store
 
 ACTIONS: list[type[BatchingRuleBaseAction]] = [
@@ -60,9 +58,9 @@ class RandomAction(BaseAction):
 
     params: RandomActionParamsType
 
+    @override
     @staticmethod
     def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
-        """Generate a best set of parameters & self-evaluates this action."""
         timetable = store.current_timetable
         params: BaseActionParamsType | None = None
 

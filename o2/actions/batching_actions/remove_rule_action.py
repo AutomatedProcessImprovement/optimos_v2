@@ -1,6 +1,8 @@
 import random
 from dataclasses import dataclass
 
+from typing_extensions import override
+
 from o2.actions.base_actions.base_action import (
     RateSelfReturnType,
 )
@@ -30,8 +32,8 @@ class RemoveRuleAction(BatchingRuleBaseAction, str=False):
 
     params: RemoveRuleActionParamsType
 
+    @override
     def apply(self, state: State, enable_prints: bool = True) -> State:
-        """Create a copy of the timetable with the rule removed."""
         timetable = state.timetable
         rule_selector = self.params["rule"]
 
@@ -54,9 +56,9 @@ class RemoveRuleAction(BatchingRuleBaseAction, str=False):
             + timetable.batch_processing[index + 1 :],
         )
 
+    @override
     @staticmethod
     def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
-        """Create a set of parameters & rate this action."""
         if Settings.DISABLE_REMOVE_ACTION_RULE:
             return (
                 RATING.NOT_APPLICABLE,

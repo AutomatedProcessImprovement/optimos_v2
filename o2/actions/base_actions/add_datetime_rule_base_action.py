@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, replace
 
-from typing_extensions import NotRequired, Required
+from typing_extensions import NotRequired, Required, override
 
 from o2.actions.base_actions.base_action import (
     BaseActionParamsType,
@@ -38,9 +38,8 @@ class AddDateTimeRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
 
     params: AddDateTimeRuleBaseActionParamsType
 
+    @override
     def apply(self, state: State, enable_prints: bool = True) -> State:
-        """Create a copy of the timetable with the rule size modified."""
-        """Apply the action to the state."""
         timetable = state.timetable
         task_id = self.params["task_id"]
         time_period = self.params["time_period"]
@@ -82,6 +81,7 @@ class AddDateTimeRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
             ),
         )
 
+    @override
     @staticmethod
     @abstractmethod
     def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
@@ -98,6 +98,8 @@ class AddDateTimeRuleAction(AddDateTimeRuleBaseAction):
 
     params: AddDateTimeRuleBaseActionParamsType
 
+    @override
+    @override
     @staticmethod
     def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
         raise NotImplementedError("rate_self is not implemented")

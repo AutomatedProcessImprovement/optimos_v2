@@ -3,7 +3,6 @@ from o2.actions.base_actions.add_size_rule_base_action import (
     AddSizeRuleBaseActionParamsType,
 )
 from o2.actions.base_actions.base_action import (
-    BaseAction,
     RateSelfReturnType,
 )
 from o2.actions.base_actions.modify_size_rule_base_action import (
@@ -14,8 +13,6 @@ from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.timetable import RULE_TYPE
 from o2.store import Store
 from o2.util.helper import select_variants
-
-LIMIT_OF_OPTIONS = 5
 
 
 class ModifySizeRuleByAllocationActionParamsType(ModifySizeRuleBaseActionParamsType):

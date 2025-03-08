@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, replace
 from typing import TYPE_CHECKING
 
-from typing_extensions import NotRequired
+from typing_extensions import NotRequired, override
 
 from o2.actions.base_actions.base_action import (
     BaseAction,
@@ -42,8 +42,8 @@ class ModifyCalendarBaseAction(BaseAction, ABC):
 
     params: ModifyCalendarBaseActionParamsType
 
+    @override
     def apply(self, state: State, enable_prints: bool = True) -> State:
-        """Apply the action to the state."""
         calendar_id = self.params["calendar_id"]
         period_id = self.params["period_id"]
         day = self.params["day"]
@@ -82,10 +82,10 @@ class ModifyCalendarBaseAction(BaseAction, ABC):
 
         return replace(state, timetable=new_timetable)
 
+    @override
     @staticmethod
     @abstractmethod
     def rate_self(store: "Store", input: SelfRatingInput) -> RateSelfReturnType["ModifyCalendarBaseAction"]:
-        """Generate a best set of parameters & self-evaluates this action."""
         pass
 
     def __str__(self) -> str:

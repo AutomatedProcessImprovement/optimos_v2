@@ -1,5 +1,7 @@
 from collections import Counter
 
+from typing_extensions import override
+
 from o2.actions.base_actions.add_datetime_rule_base_action import (
     AddDateTimeRuleBaseAction,
     AddDateTimeRuleBaseActionParamsType,
@@ -32,9 +34,9 @@ class AddDateTimeRuleByStartAction(AddDateTimeRuleBaseAction):
 
     params: AddDateTimeRuleByStartActionParamsType
 
+    @override
     @staticmethod
     def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
-        """Generate a best set of parameters & self-evaluates this action."""
         evaluation = store.current_evaluation
         timetable = store.current_timetable
 

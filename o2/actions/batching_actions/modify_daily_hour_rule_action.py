@@ -1,6 +1,8 @@
 from dataclasses import replace
 from typing import Literal
 
+from typing_extensions import override
+
 from o2.actions.base_actions.base_action import RateSelfReturnType
 from o2.actions.base_actions.batching_rule_base_action import (
     BatchingRuleBaseAction,
@@ -39,8 +41,8 @@ class ModifyDailyHourRuleAction(BatchingRuleBaseAction, str=False):
 
     params: ModifyDailyHourRuleActionParamsType
 
+    @override
     def apply(self, state: State, enable_prints: bool = True) -> State:
-        """Apply the action to the state."""
         timetable = state.timetable
         rule_selector = self.params["rule"]
         hour_increment = self.params["hour_increment"]
@@ -74,9 +76,9 @@ class ModifyDailyHourRuleAction(BatchingRuleBaseAction, str=False):
             + timetable.batch_processing[index + 1 :],
         )
 
+    @override
     @staticmethod
     def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
-        """Generate a best set of parameters & self-evaluates this action."""
         selectors = [
             RuleSelector(
                 batching_rule_task_id=batching_rule.task_id,

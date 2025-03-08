@@ -1,8 +1,8 @@
 from dataclasses import replace
 
-from typing_extensions import Required
+from typing_extensions import Required, override
 
-from o2.actions.base_actions.base_action import BaseAction, BaseActionParamsType
+from o2.actions.base_actions.base_action import BaseAction, BaseActionParamsType, RateSelfReturnType
 from o2.models.days import DAY
 from o2.models.self_rating import SelfRatingInput
 from o2.models.state import State, TabuState
@@ -21,8 +21,8 @@ class RemoveDateTimeRuleAction(BaseAction):
 
     params: RemoveDateTimeRuleActionParamsType
 
+    @override
     def apply(self, state: State, enable_prints: bool = True) -> State:
-        """Create a copy of the timetable with the rule removed."""
         timetable = state.timetable
         task_id = self.params["task_id"]
 
@@ -86,6 +86,7 @@ class RemoveDateTimeRuleAction(BaseAction):
             + timetable.batch_processing[index + 1 :],
         )
 
+    @override
     @staticmethod
-    def rate_self(store: Store, input: SelfRatingInput):
+    def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
         raise NotImplementedError("Not implemented")

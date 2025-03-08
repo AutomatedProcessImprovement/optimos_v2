@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, replace
 
 from sympy import Symbol, lambdify
+from typing_extensions import override
 
 from o2.actions.base_actions.base_action import (
     RateSelfReturnType,
@@ -42,8 +43,8 @@ class ModifySizeRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
 
     params: ModifySizeRuleBaseActionParamsType
 
+    @override
     def apply(self, state: State, enable_prints: bool = True) -> State:
-        """Create a copy of the timetable with the rule size modified."""
         timetable = state.timetable
         rule_selector = self.params["rule"]
 
@@ -78,10 +79,10 @@ class ModifySizeRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
             key=lambda distribution: distribution.value,
         )
 
+    @override
     @staticmethod
     @abstractmethod
     def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
-        """Generate a best set of parameters & self-evaluates this action."""
         pass
 
     @staticmethod
@@ -93,7 +94,7 @@ class ModifySizeRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
 class ModifySizeRuleAction(ModifySizeRuleBaseAction):
     """ModifySizeRuleAction will modify the size of a BatchingRule."""
 
+    @override
     @staticmethod
     def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
-        """Generate a best set of parameters & self-evaluates this action."""
         raise NotImplementedError("Not implemented")

@@ -1,7 +1,7 @@
 from abc import ABC
 from dataclasses import dataclass, replace
 
-from typing_extensions import NotRequired
+from typing_extensions import NotRequired, override
 
 from o2.actions.base_actions.base_action import (
     BaseActionParamsType,
@@ -41,8 +41,8 @@ class ShiftDateTimeRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
 
     params: ShiftDateTimeRuleBaseActionParamsType
 
+    @override
     def apply(self, state: State, enable_prints: bool = True) -> State:
-        """Create a copy of the timetable with the rule size modified."""
         timetable = state.timetable
         task_id = self.params["task_id"]
         add_to_start = self.params.get("add_to_start", 0)
@@ -95,7 +95,7 @@ class ShiftDateTimeRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
 class ShiftDateTimeRuleAction(ShiftDateTimeRuleBaseAction):
     """ShiftDateTimeRuleAction will shift a day of week and time of day rule."""
 
+    @override
     @staticmethod
     def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType[ShiftDateTimeRuleBaseAction]:
-        """Generate a best set of parameters & self-evaluates this action."""
         raise NotImplementedError("Not implemented")
