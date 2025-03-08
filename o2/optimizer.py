@@ -5,7 +5,11 @@ import traceback
 from collections.abc import Generator
 
 from o2.actions.base_actions.base_action import BaseAction
-from o2.agents.agent import Agent, NoActionsLeftError, NoNewBaseSolutionFoundError
+from o2.agents.agent import (
+    Agent,
+    NoActionsLeftError,
+    NoNewBaseSolutionFoundError,
+)
 from o2.agents.simulated_annealing_agent import SimulatedAnnealingAgent
 from o2.agents.tabu_agent import TabuAgent
 from o2.models.settings import AgentType, Settings
@@ -96,11 +100,10 @@ class Optimizer:
                 TensorBoardHelper.instance.iteration += 1
             try:
                 if self.max_non_improving_iter <= 0:
-                    print_l0("Maximum non improving iterations reached!")
-                    self.agent.set_new_base_solution()
-                    self.max_non_improving_iter = self.settings.max_non_improving_actions
+                    print_l1("Maximum non improving iterations reached!")
+                    break
 
-                print_l0(f"{self.settings.agent.name} - Iteration {it}/{self.max_iter}")
+                print_l0(f"{self.settings.agent.name} - Iteration {it + 1}/{self.max_iter}")
 
                 actions_to_perform = self.agent.select_actions()
                 if actions_to_perform is None or len(actions_to_perform) == 0:
@@ -134,21 +137,26 @@ class Optimizer:
                             yield solution
                     print_l1("Actions chosen:")
                     for status, solution in chosen_tries:
+                        self.max_non_improving_iter = self.settings.max_non_improving_actions
                         print_l2(f"{solution.id}: {repr(solution.last_action)}")
                         if status == FRONT_STATUS.IN_FRONT:
-                            print_l3("Pareto front CONTAINS new evaluation.")
                             print_l3(
-                                f"Evaluation: {Settings.get_pareto_x_label()}: {solution.pareto_x:2f}; {Settings.get_pareto_y_label()}: {solution.pareto_y:2f}",
+                                "Pareto front CONTAINS new evaluation.",
                                 log_level=STATS_LOG_LEVEL,
                             )
-
+                            print_l3(
+                                f"{solution.id}: {Settings.get_pareto_x_label()}: {solution.pareto_x:.2f}; {Settings.get_pareto_y_label()}: {solution.pareto_y:.2f}",
+                                log_level=STATS_LOG_LEVEL,
+                            )
                         elif status == FRONT_STATUS.IS_DOMINATED:
-                            print_l3("Pareto front IS DOMINATED by new evaluation.")
                             print_l3(
-                                f"New best Evaluation: {Settings.get_pareto_x_label()}: {solution.pareto_x:2f}; {Settings.get_pareto_y_label()}: {solution.pareto_y:2f}",
+                                "Pareto front IS DOMINATED by new evaluation.",
                                 log_level=STATS_LOG_LEVEL,
                             )
-                            self.max_non_improving_iter = self.settings.max_non_improving_actions
+                            print_l3(
+                                f"{solution.id}: {Settings.get_pareto_x_label()}: {solution.pareto_x:.2f}; {Settings.get_pareto_y_label()}: {solution.pareto_y:.2f}",
+                                log_level=STATS_LOG_LEVEL,
+                            )
                         yield solution
                 print_l1(f"Non improving actions left: {self.max_non_improving_iter}")
             except NoActionsLeftError:
