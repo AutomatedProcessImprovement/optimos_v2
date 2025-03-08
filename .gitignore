@@ -252,3 +252,6 @@ viztracer*
 result.json
 /states
 /evaluations
+/all_metrics.pkl
+/local_file_list.txt
+/out.txt
