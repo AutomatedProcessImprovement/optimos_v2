@@ -86,18 +86,31 @@ def write_required_evaluation_files(
     # Create a temporary directory
     temporary_file = tempfile.NamedTemporaryFile(delete=False)
 
-    solutions = all_solutions_front + [
-        solution
-        for _, store in stores
-        for solution in store.solution_tree.solution_lookup.values()
-        if solution is not None and solution.is_valid
-    ]
+    solutions = (
+        all_solutions_front
+        + [
+            solution
+            for _, store in stores
+            for solution in store.solution_tree.solution_lookup.values()
+            if solution is not None
+        ]
+        + [
+            solution
+            for _, store in stores
+            for solution in store.current_pareto_front.solutions
+            if solution is not None
+        ]
+    )
 
     # List of paths to the required files
-    required_files = [
-        f"evaluation_{solution.__dict__['_store_name'].replace(' ', '_').lower()}_{solution.id}.pkl"
-        for solution in solutions
-    ]
+    required_files = list(
+        set(
+            [
+                f"evaluation_{solution.__dict__['_store_name'].replace(' ', '_').lower()}_{solution.id}.pkl"
+                for solution in solutions
+            ]
+        )
+    )
 
     # Write the required files to the temporary file
     with open(temporary_file.name, "w") as f:
@@ -157,7 +170,7 @@ def calculate_metrics(
     avg_y = sum(solution.pareto_y for solution in all_solutions_front) / len(all_solutions_front)
 
     avg_cycle_time = sum(solution.evaluation.total_cycle_time for solution in all_solutions_front) / len(
-        all_solutions
+        all_solutions_front
     )
 
     best_cycle_time = min(solution.evaluation.total_cycle_time for solution in all_solutions_front)
@@ -262,6 +275,8 @@ def get_agent_from_filename(path: str) -> str:
         return "Tabu Search"
     elif "simulated_annealing" in filename:
         return "Simulated Annealing"
+    elif "proximal_policy_optimization_random" in filename:
+        return "Proximal Policy Optimization Random"
     elif "proximal_policy_optimization" in filename:
         return "Proximal Policy Optimization"
     else:
@@ -311,6 +326,8 @@ def get_agent_from_store_name(store_name: str) -> str:
         return "Tabu Search Random"
     elif "simulated annealing random" in store_name.lower():
         return "Simulated Annealing Random"
+    elif "proximal policy optimization random" in store_name.lower():
+        return "Proximal Policy Optimization Random"
     elif "tabu search" in store_name.lower():
         return "Tabu Search"
     elif "simulated annealing" in store_name.lower():
@@ -393,11 +410,10 @@ def print_metrics_in_google_sheet_format(metrics: list[Metrics]) -> None:
         result += f";Tabu Search;{tabu_search_easy['number_of_solutions']};{tabu_search_mid['number_of_solutions']};{tabu_search_hard['number_of_solutions']}\n"
         result += f";PPO;{ppo_easy['number_of_solutions']};{ppo_mid['number_of_solutions']};{ppo_hard['number_of_solutions']}\n"
         result += f";Tabu Random;{tabu_search_random_easy['number_of_solutions']};{tabu_search_random_mid['number_of_solutions']};{tabu_search_random_hard['number_of_solutions']}\n"
-        result += f";SA Random;{simulated_annealing_random_easy['number_of_solutions']};{simulated_annealing_random_mid['number_of_solutions']};{simulated_annealing_random_hard['number_of_solutions']}\n\n"
+        result += f";SA Random;{simulated_annealing_random_easy['number_of_solutions']};{simulated_annealing_random_mid['number_of_solutions']};{simulated_annealing_random_hard['number_of_solutions']}\n"
         result += f";PPO Random;{ppo_random_easy['number_of_solutions']};{ppo_random_mid['number_of_solutions']};{ppo_random_hard['number_of_solutions']}\n\n"
 
         result += "# Invalid Solutions Ratio\n"
-        result += f";Total Unique;{reference_easy['invalid_solutions_ratio']};{reference_mid['invalid_solutions_ratio']};{reference_hard['invalid_solutions_ratio']}\n"
         result += f";SA;{sa_easy['invalid_solutions_ratio']};{sa_mid['invalid_solutions_ratio']};{sa_hard['invalid_solutions_ratio']}\n"
         result += f";Tabu Search;{tabu_search_easy['invalid_solutions_ratio']};{tabu_search_mid['invalid_solutions_ratio']};{tabu_search_hard['invalid_solutions_ratio']}\n"
         result += f";PPO;{ppo_easy['invalid_solutions_ratio']};{ppo_mid['invalid_solutions_ratio']};{ppo_hard['invalid_solutions_ratio']}\n"
@@ -411,7 +427,7 @@ def print_metrics_in_google_sheet_format(metrics: list[Metrics]) -> None:
         result += f";Tabu Search;{tabu_search_easy['patreto_size']};{tabu_search_mid['patreto_size']};{tabu_search_hard['patreto_size']}\n"
         result += f";PPO;{ppo_easy['patreto_size']};{ppo_mid['patreto_size']};{ppo_hard['patreto_size']}\n"
         result += f";Tabu Random;{tabu_search_random_easy['patreto_size']};{tabu_search_random_mid['patreto_size']};{tabu_search_random_hard['patreto_size']}\n"
-        result += f";SA Random;{simulated_annealing_random_easy['patreto_size']};{simulated_annealing_random_mid['patreto_size']};{simulated_annealing_random_hard['patreto_size']}\n\n"
+        result += f";SA Random;{simulated_annealing_random_easy['patreto_size']};{simulated_annealing_random_mid['patreto_size']};{simulated_annealing_random_hard['patreto_size']}\n"
         result += f";PPO Random;{ppo_random_easy['patreto_size']};{ppo_random_mid['patreto_size']};{ppo_random_hard['patreto_size']}\n\n"
 
         result += "Hyperarea Ratio\n"
@@ -423,7 +439,7 @@ def print_metrics_in_google_sheet_format(metrics: list[Metrics]) -> None:
             f";PPO;{ppo_easy['hyperarea_ratio']};{ppo_mid['hyperarea_ratio']};{ppo_hard['hyperarea_ratio']}\n"
         )
         result += f";Tabu Random;{tabu_search_random_easy['hyperarea_ratio']};{tabu_search_random_mid['hyperarea_ratio']};{tabu_search_random_hard['hyperarea_ratio']}\n"
-        result += f";SA Random;{simulated_annealing_random_easy['hyperarea_ratio']};{simulated_annealing_random_mid['hyperarea_ratio']};{simulated_annealing_random_hard['hyperarea_ratio']}\n\n"
+        result += f";SA Random;{simulated_annealing_random_easy['hyperarea_ratio']};{simulated_annealing_random_mid['hyperarea_ratio']};{simulated_annealing_random_hard['hyperarea_ratio']}\n"
         result += f";PPO Random;{ppo_random_easy['hyperarea_ratio']};{ppo_random_mid['hyperarea_ratio']};{ppo_random_hard['hyperarea_ratio']}\n\n"
 
         result += "Hausdorff\n"
@@ -431,7 +447,7 @@ def print_metrics_in_google_sheet_format(metrics: list[Metrics]) -> None:
         result += f";Tabu Search;{tabu_search_easy['hausdorff_distance']};{tabu_search_mid['hausdorff_distance']};{tabu_search_hard['hausdorff_distance']}\n"
         result += f";PPO;{ppo_easy['hausdorff_distance']};{ppo_mid['hausdorff_distance']};{ppo_hard['hausdorff_distance']}\n"
         result += f";Tabu Random;{tabu_search_random_easy['hausdorff_distance']};{tabu_search_random_mid['hausdorff_distance']};{tabu_search_random_hard['hausdorff_distance']}\n"
-        result += f";SA Random;{simulated_annealing_random_easy['hausdorff_distance']};{simulated_annealing_random_mid['hausdorff_distance']};{simulated_annealing_random_hard['hausdorff_distance']}\n\n"
+        result += f";SA Random;{simulated_annealing_random_easy['hausdorff_distance']};{simulated_annealing_random_mid['hausdorff_distance']};{simulated_annealing_random_hard['hausdorff_distance']}\n"
         result += f";PPO Random;{ppo_random_easy['hausdorff_distance']};{ppo_random_mid['hausdorff_distance']};{ppo_random_hard['hausdorff_distance']}\n\n"
 
         result += "Delta\n"
@@ -439,7 +455,7 @@ def print_metrics_in_google_sheet_format(metrics: list[Metrics]) -> None:
         result += f";Tabu Search;{tabu_search_easy['delta']};{tabu_search_mid['delta']};{tabu_search_hard['delta']}\n"
         result += f";PPO;{ppo_easy['delta']};{ppo_mid['delta']};{ppo_hard['delta']}\n"
         result += f";Tabu Random;{tabu_search_random_easy['delta']};{tabu_search_random_mid['delta']};{tabu_search_random_hard['delta']}\n"
-        result += f";SA Random;{simulated_annealing_random_easy['delta']};{simulated_annealing_random_mid['delta']};{simulated_annealing_random_hard['delta']}\n\n"
+        result += f";SA Random;{simulated_annealing_random_easy['delta']};{simulated_annealing_random_mid['delta']};{simulated_annealing_random_hard['delta']}\n"
         result += (
             f";PPO Random;{ppo_random_easy['delta']};{ppo_random_mid['delta']};{ppo_random_hard['delta']}\n\n"
         )
