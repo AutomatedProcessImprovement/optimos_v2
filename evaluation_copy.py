@@ -13,10 +13,12 @@ LOCAL_OUTPUT_DIR = "evaluations"
 
 def run_command(cmd):
     print(f"Running: {cmd}")
-    result = subprocess.run(cmd, shell=True, check=True, capture_output=True, text=True)
-    print(result.stdout)
-    if result.stderr:
-        print(result.stderr)
+
+    process = subprocess.Popen(cmd, shell=True, stdout=sys.stdout, stderr=sys.stderr)
+    process.wait()  # Wait for the process to finish
+
+    if process.returncode != 0:
+        raise subprocess.CalledProcessError(process.returncode, cmd)
 
 
 def copy_file_to_remote(file_path):
