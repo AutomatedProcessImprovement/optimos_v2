@@ -25,6 +25,9 @@ class Metrics(TypedDict):
     scenario: str
     agent: str
     mode: str
+
+    iterations: int
+
     number_of_solutions: int
     invalid_solutions: int
     invalid_solutions_ratio: float
@@ -54,6 +57,7 @@ EMPTY_METRIC: Metrics = {
     "scenario": "Empty",
     "agent": "Empty",
     "mode": "Empty",
+    "iterations": -1,
     "number_of_solutions": -1,
     "invalid_solutions": -1,
     "invalid_solutions_ratio": -1.0,
@@ -187,6 +191,7 @@ def calculate_metrics(
             "scenario": scenario,
             "agent": "Global",
             "mode": mode,
+            "iterations": -1,
             "number_of_solutions": len(all_solutions),
             "invalid_solutions": len(invalid_solution_ids),
             "invalid_solutions_ratio": len(invalid_solution_ids) / len(all_solutions),
@@ -238,6 +243,7 @@ def calculate_metrics(
                 "scenario": scenario,
                 "agent": agent,
                 "mode": mode,
+                "iterations": store.__dict__["_iteration"],
                 "number_of_solutions": number_of_solutions,
                 "invalid_solutions": invalid_solutions,
                 "invalid_solutions_ratio": invalid_solutions_ratio,
@@ -403,6 +409,14 @@ def print_metrics_in_google_sheet_format(metrics: list[Metrics]) -> None:
         (ppo_random_easy, ppo_random_mid, ppo_random_hard) = get_metrics_for_agent(
             metrics, "Proximal Policy Optimization Random"
         )
+
+        result += "# Iterations\n"
+        result += f"SA;{sa_easy['iterations']};{sa_mid['iterations']};{sa_hard['iterations']}\n"
+        result += f"Tabu Search;{tabu_search_easy['iterations']};{tabu_search_mid['iterations']};{tabu_search_hard['iterations']}\n"
+        result += f"PPO;{ppo_easy['iterations']};{ppo_mid['iterations']};{ppo_hard['iterations']}\n"
+        result += f"Tabu Search Random;{tabu_search_random_easy['iterations']};{tabu_search_random_mid['iterations']};{tabu_search_random_hard['iterations']}\n"
+        result += f"Simulated Annealing Random;{simulated_annealing_random_easy['iterations']};{simulated_annealing_random_mid['iterations']};{simulated_annealing_random_hard['iterations']}\n"
+        result += f"PPO Random;{ppo_random_easy['iterations']};{ppo_random_mid['iterations']};{ppo_random_hard['iterations']}\n\n"
 
         result += "# Solutions\n"
         result += f";Total Unique;{reference_easy['number_of_solutions']};{reference_mid['number_of_solutions']};{reference_hard['number_of_solutions']}\n"
