@@ -40,6 +40,8 @@ class SolutionDumper:
         self.solutions_filename: str = ""
         self.solutions_file: Optional[BufferedWriter] = None
 
+        self.iteration: int = 0
+
         if self.global_mode:
             log_io("Using global folders to load states and evaluations.")
             self.use_global_folders()
@@ -111,6 +113,9 @@ class SolutionDumper:
         # Ensure file handles are available.
         assert self.store_file is not None
 
+        # Write the iteration number to the store
+        store.__dict__["_iteration"] = self.iteration
+
         # Dump the store object.
         self.store_file.seek(0)
         pickle.dump(store, self.store_file)
@@ -125,9 +130,10 @@ class SolutionDumper:
         # Make sure, that the solution is archived.
         solution.archive()
 
-        # We write the store name into the solution object, so we can
-        # identify it later.
+        # We write the store name & iteration number into the
+        # solution object, so we can identify it later.
         solution.__dict__["_store_name"] = self.current_store_name
+        solution.__dict__["_iteration"] = self.iteration
 
         pickle.dump(solution, self.solutions_file)
         self.solutions_file.flush()

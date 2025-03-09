@@ -18,6 +18,7 @@ from o2.pareto_front import FRONT_STATUS
 from o2.store import SolutionTry, Store
 from o2.util.indented_printer import print_l0, print_l1, print_l2, print_l3, print_l4
 from o2.util.logger import STATS_LOG_LEVEL
+from o2.util.solution_dumper import SolutionDumper
 
 
 class Optimizer:
@@ -101,10 +102,13 @@ class Optimizer:
         """
         for it in range(self.max_iter):
             start_time = time.time()
+            if Settings.DUMP_DISCARDED_SOLUTIONS or Settings.ARCHIVE_SOLUTIONS:
+                SolutionDumper.instance.iteration = it
             if self.settings.log_to_tensor_board:
                 from o2.util.tensorboard_helper import TensorBoardHelper
 
                 TensorBoardHelper.instance.iteration += 1
+
             try:
                 if self.max_non_improving_iter <= 0:
                     print_l1("Maximum non improving iterations reached!", log_level=STATS_LOG_LEVEL)
