@@ -243,7 +243,7 @@ def calculate_metrics(
                 "scenario": scenario,
                 "agent": agent,
                 "mode": mode,
-                "iterations": store.__dict__["_iteration"],
+                "iterations": store.__dict__.get("_iteration", -1),
                 "number_of_solutions": number_of_solutions,
                 "invalid_solutions": invalid_solutions,
                 "invalid_solutions_ratio": invalid_solutions_ratio,
