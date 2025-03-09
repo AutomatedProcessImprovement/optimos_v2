@@ -3046,7 +3046,7 @@ develop = false
 type = "git"
 url = "https://github.com/sinnaj-r/rtree.git"
 reference = "main"
-resolved_reference = "295f37a364cf5eca55c75ffd6804241ecad5cdbc"
+resolved_reference = "91583d77515ed25c25306a3b86c7c350d6d1a174"
 
 [[package]]
 name = "sb3-contrib"
