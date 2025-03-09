@@ -104,6 +104,7 @@ def parse_args():
             "Proximal Policy Optimization",
             "Tabu Search Random",
             "Simulated Annealing Random",
+            "Proximal Policy Optimization Random",
         ],
         help="List of agents to run (e.g. 'Tabu Search', 'Simulated Annealing', 'Proximal Policy Optimization')",
     )
