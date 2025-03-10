@@ -14,17 +14,18 @@ conda run -n opti2 --no-capture-output python ./o2_evaluation/data_collector.py 
     --name "strict_ordered_trafic_das_easy" \
     --active-scenarios "Trafic_DAS" \
     --agents "Tabu Search" \
-    --number-of-cases 1000 \
+    --number-of-cases 500 \
     --duration-fn "1/size" \
     --sa-cooling-factor auto \
     --sa-initial-temperature auto \
     --sa-strict-ordered \
     --max-batch-size 50 \
-    --max-iterations 1001 \
-    --dump-interval 2400 \
+    --max-iterations 868 \
+    --max-solutions 10000 \
+    --dump-interval 1000 \
     --max-threads 23 \
     --max-number-of-actions-per-iteration 23 \
-    --max-non-improving-actions 5750 \
+    --max-non-improving-actions 1000 \
     --iterations-per-solution 3 \
     --max-number-of-variations-per-action 3 \
     --log-level DEBUG \
