@@ -119,7 +119,16 @@ class Optimizer:
                     print_l1("Maximum number of solutions reached!", log_level=STATS_LOG_LEVEL)
                     break
 
-                print_l0(f"{self.settings.agent.name} - Iteration {it + 1}/{self.max_iter}")
+                max_solutions_setting = self.settings.max_solutions or float("inf")
+                solution_no = max_solutions_setting - self.max_solutions
+
+                msg = f"{self.settings.agent.name} - Iteration {it + 1}/{self.max_iter}"
+                msg += (
+                    f" (Solution {solution_no}/{max_solutions_setting})"
+                    if max_solutions_setting != float("inf")
+                    else ""
+                )
+                print_l0(msg)
 
                 actions_to_perform = self.agent.select_actions()
                 if actions_to_perform is None or len(actions_to_perform) == 0:
