@@ -390,6 +390,20 @@ class Settings:
     optimizer to find a better solution.
     """
 
+    NUMBER_OF_SIMULATION_FOR_MEDIAN: ClassVar[int] = 5
+    """The number of simulations to run for each new state.
+
+    Because of simulation variation/error, we run multiple simulations and take the median.
+    It's recommended to set this to an odd number, to avoid ties.
+    """
+
+    USE_MEDIAN_SIMULATION_FOR_EVALUATION: ClassVar[bool] = True
+    """Should the median simulation be used for evaluation?
+
+    Because of simulation variation/error, it's recommended to run multiple
+    simulations and take the median. (See NUMBER_OF_SIMULATION_FOR_MEDIAN for more details)
+    """
+
     @staticmethod
     def get_pareto_x_label() -> str:
         """Get the label for the x-axis (cost) of the pareto front."""

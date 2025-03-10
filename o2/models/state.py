@@ -42,7 +42,10 @@ class State:
             warn("Trying to evaluate an invalid state.")
             return Evaluation.empty()
         try:
-            result = SimulationRunner.run_simulation(self)
+            if Settings.USE_MEDIAN_SIMULATION_FOR_EVALUATION:
+                result = SimulationRunner.run_simulation_median(self)
+            else:
+                result = SimulationRunner.run_simulation(self)
         except Exception as e:
             if Settings.RAISE_SIMULATION_ERRORS:
                 raise e
