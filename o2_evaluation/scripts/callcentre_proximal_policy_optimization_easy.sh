@@ -11,7 +11,7 @@ module load any/python/3.8.3-conda
 conda activate opti2
 
 conda run -n opti2 --no-capture-output python ./o2_evaluation/data_collector.py \
-    --name "callcentre_easy" \
+    --name "less_actions_callcentre_easy" \
     --active-scenarios "callcentre" \
     --agents "Proximal Policy Optimization" \
     --number-of-cases 1000 \
@@ -27,6 +27,6 @@ conda run -n opti2 --no-capture-output python ./o2_evaluation/data_collector.py 
     --iterations-per-solution 2 \
     --max-number-of-variations-per-action 2 \
     --log-level DEBUG \
-    --log-file ./logs/proximal_policy_optimization_callcentre_easy.log \
+    --log-file ./logs/less_actions_proximal_policy_optimization_callcentre_easy.log \
     --log-to-tensor-board \
     --no-archive-tensorboard-logs

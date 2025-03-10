@@ -11,7 +11,7 @@ module load any/python/3.8.3-conda
 conda activate opti2
 
 conda run -n opti2 --no-capture-output python ./o2_evaluation/data_collector.py \
-    --name "consulta_data_mining_hard" \
+    --name "less_actions_consulta_data_mining_hard" \
     --active-scenarios "consulta_data_mining" \
     --agents "Simulated Annealing" \
     --number-of-cases 1000 \
@@ -27,6 +27,6 @@ conda run -n opti2 --no-capture-output python ./o2_evaluation/data_collector.py 
     --iterations-per-solution 2 \
     --max-number-of-variations-per-action 2 \
     --log-level DEBUG \
-    --log-file ./logs/simulated_annealing_consulta_data_mining_hard.log \
+    --log-file ./logs/less_actions_simulated_annealing_consulta_data_mining_hard.log \
     --log-to-tensor-board \
     --no-archive-tensorboard-logs

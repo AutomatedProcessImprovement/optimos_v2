@@ -3,6 +3,8 @@ from textwrap import dedent
 
 from o2.agents.agent import ACTION_CATALOG_BATCHING_ONLY
 
+NAME_PREFIX = "less_actions_"
+
 MAX_NUMBER_OF_ACTIONS_PER_ITERATION = len(ACTION_CATALOG_BATCHING_ONLY)
 ITERATIONS_PER_SOLUTION = 2
 # We go with a higher number than ITERATIONS_PER_SOLUTION,
@@ -65,7 +67,7 @@ def generate_script(scenario: str, model: str, mode_name: str, max_batch_size: i
     conda activate opti2
 
     conda run -n opti2 --no-capture-output python ./o2_evaluation/data_collector.py \\
-        --name "{scenario_name}_{mode_name_sanitized}" \\
+        --name "{NAME_PREFIX}{scenario_name}_{mode_name_sanitized}" \\
         --active-scenarios "{scenario}" \\
         --agents "{model}" \\
         --number-of-cases {NUMBER_OF_CASES} \\
@@ -81,7 +83,7 @@ def generate_script(scenario: str, model: str, mode_name: str, max_batch_size: i
         --iterations-per-solution {ITERATIONS_PER_SOLUTION} \\
         --max-number-of-variations-per-action {MAX_NUMBER_OF_VARIATIONS_PER_ACTION} \\
         --log-level DEBUG \\
-        --log-file ./logs/{model_name}_{scenario_name}_{mode_name_sanitized}.log \\
+        --log-file ./logs/{NAME_PREFIX}{model_name}_{scenario_name}_{mode_name_sanitized}.log \\
         --log-to-tensor-board \\
         --no-archive-tensorboard-logs
     """)

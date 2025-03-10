@@ -11,7 +11,7 @@ module load any/python/3.8.3-conda
 conda activate opti2
 
 conda run -n opti2 --no-capture-output python ./o2_evaluation/data_collector.py \
-    --name "poc_mid" \
+    --name "less_actions_poc_mid" \
     --active-scenarios "POC" \
     --agents "Tabu Search Random" \
     --number-of-cases 1000 \
@@ -27,6 +27,6 @@ conda run -n opti2 --no-capture-output python ./o2_evaluation/data_collector.py 
     --iterations-per-solution 2 \
     --max-number-of-variations-per-action 2 \
     --log-level DEBUG \
-    --log-file ./logs/tabu_search_random_poc_mid.log \
+    --log-file ./logs/less_actions_tabu_search_random_poc_mid.log \
     --log-to-tensor-board \
     --no-archive-tensorboard-logs
