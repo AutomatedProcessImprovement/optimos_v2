@@ -22,9 +22,6 @@ from o2.models.timetable import (
 from o2.store import Store
 from o2.util.logger import warn
 
-MARGIN_OF_ERROR = 0.03
-SIZE_OF_CHANGE = 1
-
 
 class ModifySizeRuleBaseActionParamsType(BatchingRuleBaseActionParamsType):
     """Parameter for ModifySizeRuleBaseAction."""
