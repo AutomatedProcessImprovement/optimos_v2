@@ -10,12 +10,6 @@ ITERATIONS_PER_SOLUTION = 3
 # We go with a higher number than ITERATIONS_PER_SOLUTION,
 MAX_NUMBER_OF_VARIATIONS_PER_ACTION = ITERATIONS_PER_SOLUTION
 
-# This is catch-error measure than anything controlling the optimization.
-# If some missconfiguration leads to no improving actions / crashes every iteration,
-# we want to stop the optimization after a while.
-MAX_NON_IMPROVING_ITERATIONS = 250
-MAX_NON_IMPROVING_ITERATIONS_PPO = 2500
-
 
 # Have one extra core for the main process
 CORES = MAX_NUMBER_OF_ACTIONS_PER_ITERATION + 1
@@ -24,15 +18,27 @@ MEMORY_GB = 48
 MEMORY_GB_PPO = 10
 MAX_TIME_HOURS = 5
 MAX_TIME_HOURS_PPO = 12
-MAX_ITERATIONS = 1001
+
+MAX_SOLUTIONS = 10_000
+
+# As an upper limit for the itearions, double the amount of "expected" iterations
+# (E.g. solutions divided by actions per iteration (which is +/- 30% the number of solutions per iteration))
+MAX_ITERATIONS = (MAX_SOLUTIONS // MAX_NUMBER_OF_ACTIONS_PER_ITERATION) * 2.0
+
 # We want 10 dumps per optimization run
 DUMP_INTERVAL = MAX_ITERATIONS // 10 * CORES
 # For PPO, because it's only doing one step per iteration,
 # we need to run it for much more iterations to get the same result
-MAX_ITERATIONS_PPO = 1000 * 10 + 1
+MAX_ITERATIONS_PPO = MAX_SOLUTIONS
 DUMP_INTERVAL_PPO = MAX_ITERATIONS_PPO // 10
 
-NUMBER_OF_CASES = 1000
+
+# Early stopping after 10% of the max iterations without improvement
+MAX_NON_IMPROVING_ITERATIONS = 0.1 * MAX_ITERATIONS
+MAX_NON_IMPROVING_ITERATIONS_PPO = 0.1 * MAX_ITERATIONS_PPO
+
+
+NUMBER_OF_CASES = 500
 SA_COOLING_FACTOR = "auto"
 SA_INITIAL_TEMPERATURE = "auto"
 
@@ -77,6 +83,7 @@ def generate_script(scenario: str, model: str, mode_name: str, max_batch_size: i
         --sa-strict-ordered \\
         --max-batch-size {max_batch_size} \\
         --max-iterations {max_iterations} \\
+        --max-solutions {MAX_SOLUTIONS} \\
         --dump-interval {dump_interval} \\
         --max-threads {CORES - 1} \\
         --max-number-of-actions-per-iteration {MAX_NUMBER_OF_ACTIONS_PER_ITERATION} \\
