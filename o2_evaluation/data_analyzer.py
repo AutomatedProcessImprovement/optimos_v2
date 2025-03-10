@@ -90,21 +90,12 @@ def write_required_evaluation_files(
     # Create a temporary directory
     temporary_file = tempfile.NamedTemporaryFile(delete=False)
 
-    solutions = (
-        all_solutions_front
-        + [
-            solution
-            for _, store in stores
-            for solution in store.solution_tree.solution_lookup.values()
-            if solution is not None
-        ]
-        + [
-            solution
-            for _, store in stores
-            for solution in store.current_pareto_front.solutions
-            if solution is not None
-        ]
-    )
+    solutions = all_solutions_front + [
+        solution
+        for _, store in stores
+        for solution in store.current_pareto_front.solutions
+        if solution is not None
+    ]
 
     # List of paths to the required files
     required_files = list(
@@ -411,12 +402,12 @@ def print_metrics_in_google_sheet_format(metrics: list[Metrics]) -> None:
         )
 
         result += "# Iterations\n"
-        result += f"SA;{sa_easy['iterations']};{sa_mid['iterations']};{sa_hard['iterations']}\n"
-        result += f"Tabu Search;{tabu_search_easy['iterations']};{tabu_search_mid['iterations']};{tabu_search_hard['iterations']}\n"
-        result += f"PPO;{ppo_easy['iterations']};{ppo_mid['iterations']};{ppo_hard['iterations']}\n"
-        result += f"Tabu Search Random;{tabu_search_random_easy['iterations']};{tabu_search_random_mid['iterations']};{tabu_search_random_hard['iterations']}\n"
-        result += f"Simulated Annealing Random;{simulated_annealing_random_easy['iterations']};{simulated_annealing_random_mid['iterations']};{simulated_annealing_random_hard['iterations']}\n"
-        result += f"PPO Random;{ppo_random_easy['iterations']};{ppo_random_mid['iterations']};{ppo_random_hard['iterations']}\n\n"
+        result += f";SA;{sa_easy['iterations']};{sa_mid['iterations']};{sa_hard['iterations']}\n"
+        result += f";Tabu Search;{tabu_search_easy['iterations']};{tabu_search_mid['iterations']};{tabu_search_hard['iterations']}\n"
+        result += f";PPO;{ppo_easy['iterations']};{ppo_mid['iterations']};{ppo_hard['iterations']}\n"
+        result += f";Tabu Search Random;{tabu_search_random_easy['iterations']};{tabu_search_random_mid['iterations']};{tabu_search_random_hard['iterations']}\n"
+        result += f";Simulated Annealing Random;{simulated_annealing_random_easy['iterations']};{simulated_annealing_random_mid['iterations']};{simulated_annealing_random_hard['iterations']}\n"
+        result += f";PPO Random;{ppo_random_easy['iterations']};{ppo_random_mid['iterations']};{ppo_random_hard['iterations']}\n\n"
 
         result += "# Solutions\n"
         result += f";Total Unique;{reference_easy['number_of_solutions']};{reference_mid['number_of_solutions']};{reference_hard['number_of_solutions']}\n"
