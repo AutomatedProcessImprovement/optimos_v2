@@ -11,14 +11,13 @@ module load any/python/3.8.3-conda
 conda activate opti2
 
 conda run -n opti2 --no-capture-output python ./o2_evaluation/data_collector.py \
-    --name "strict_ordered_callcentre_easy" \
+    --name "callcentre_easy" \
     --active-scenarios "callcentre" \
     --agents "Tabu Search" \
     --number-of-cases 500 \
     --duration-fn "1/size" \
     --sa-cooling-factor auto \
     --sa-initial-temperature auto \
-    --sa-strict-ordered \
     --max-batch-size 50 \
     --max-iterations 868 \
     --max-solutions 10000 \
@@ -29,6 +28,6 @@ conda run -n opti2 --no-capture-output python ./o2_evaluation/data_collector.py 
     --iterations-per-solution 3 \
     --max-number-of-variations-per-action 3 \
     --log-level DEBUG \
-    --log-file ./logs/strict_ordered_tabu_search_callcentre_easy.log \
+    --log-file ./logs/tabu_search_callcentre_easy.log \
     --log-to-tensor-board \
     --no-archive-tensorboard-logs
