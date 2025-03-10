@@ -194,7 +194,7 @@ class Settings:
     base solution.E.g. in the PPO Training.
     """
 
-    error_radius_in_percent: Optional[float] = 0.05
+    error_radius_in_percent: Optional[float] = 0.025
     """This is the "error" for the hill climbing agent to still consider a solution.
 
     Also this will be used to calculate the sa_cooling_factor if this is set to "auto".
@@ -222,6 +222,16 @@ class Settings:
 
     sa_initial_temperature: Union[float, Literal["auto"]] = "auto"
     """The initial temperature for the simulated annealing agent."""
+
+    sa_strict_ordered = False
+    """Should the SA agent be strict ordered?
+
+    If this is set to True, the SA agent will take solutions in temperature range ordered by their distance
+    to the current pareto front (Similar to the hill climbing approach). This is not strictly SA, because that
+    would require a random selection of the solutions, but it will speed up the optimization.
+
+    Also setting this to True will disable the random acceptance of a bad solutions.
+    """
 
     ppo_model_path = "models/ppo_maskable-20241025-075307"
     """The path to the PPO model to use for the PPO agent."""

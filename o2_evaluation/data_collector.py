@@ -65,6 +65,12 @@ def parse_args():
         help="Cooling factor for Simulated Annealing (either number or 'auto' for auto-estimation; default: 'auto')",
     )
     parser.add_argument(
+        "--sa-strict-ordered",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="Should the SA agent be strict ordered? (default: False)",
+    )
+    parser.add_argument(
         "--fixed-cost-fn",
         type=str,
         default="1 * 1/size",
@@ -156,23 +162,21 @@ def parse_args():
 def update_store_settings(
     store: Store,
     agent: AgentType,
-    max_iterations: int,
-    max_non_improving_actions: int,
-    max_threads: int,
-    max_number_of_actions_per_iteration: int,
-    log_to_tensor_board: bool,
-    iterations_per_solution: int,
+    args: argparse.Namespace,
 ) -> None:
     """Update the store settings for the given agent."""
     store.settings.optimos_legacy_mode = False
     store.settings.batching_only = True
-    store.settings.max_iterations = max_iterations
-    store.settings.max_non_improving_actions = max_non_improving_actions
     store.settings.agent = agent
-    store.settings.max_threads = max_threads
-    store.settings.max_number_of_actions_per_iteration = max_number_of_actions_per_iteration
-    store.settings.log_to_tensor_board = log_to_tensor_board
-    store.settings.iterations_per_solution = iterations_per_solution
+    store.settings.max_iterations = args.max_iterations
+    store.settings.max_non_improving_actions = args.max_non_improving_actions
+    store.settings.max_threads = args.max_threads
+    store.settings.max_number_of_actions_per_iteration = (
+        args.max_number_of_actions_per_iteration or args.max_threads
+    )
+    store.settings.log_to_tensor_board = args.log_to_tensor_board
+    store.settings.iterations_per_solution = args.iterations_per_solution
+    store.settings.sa_strict_ordered = args.sa_strict_ordered
 
 
 def persist_store(store: Store) -> None:
@@ -209,7 +213,7 @@ def solve_store(store: Store, dump_interval: int) -> None:
         optimizer.executor.shutdown()
 
 
-def collect_data_sequentially(base_store: Store, args) -> None:
+def collect_data_sequentially(base_store: Store, args: argparse.Namespace) -> None:
     """Collect all possible solutions and the respective Pareto fronts."""
     info("Setting up Store")
     # Set some global settings
@@ -251,16 +255,7 @@ def collect_data_sequentially(base_store: Store, args) -> None:
             base_store.constraints,
             store_name,
         )
-        update_store_settings(
-            tabu_store,
-            AgentType.TABU_SEARCH,
-            args.max_iterations,
-            args.max_non_improving_actions,
-            args.max_threads,
-            args.max_number_of_actions_per_iteration or args.max_threads,
-            args.log_to_tensor_board,
-            args.iterations_per_solution,
-        )
+        update_store_settings(tabu_store, AgentType.TABU_SEARCH, args)
         solve_store(tabu_store, args.dump_interval)
         stores_to_run.append(("Tabu Search", tabu_store))
     if "Tabu Search Random" in args.agents:
@@ -270,16 +265,7 @@ def collect_data_sequentially(base_store: Store, args) -> None:
             base_store.constraints,
             store_name,
         )
-        update_store_settings(
-            tabu_store,
-            AgentType.TABU_SEARCH_RANDOM,
-            args.max_iterations,
-            args.max_non_improving_actions,
-            args.max_threads,
-            args.max_number_of_actions_per_iteration or args.max_threads,
-            args.log_to_tensor_board,
-            args.iterations_per_solution,
-        )
+        update_store_settings(tabu_store, AgentType.TABU_SEARCH_RANDOM, args)
         solve_store(tabu_store, args.dump_interval)
         stores_to_run.append(("Tabu Search Random", tabu_store))
 
@@ -291,16 +277,7 @@ def collect_data_sequentially(base_store: Store, args) -> None:
             base_store.constraints,
             store_name,
         )
-        update_store_settings(
-            sa_store,
-            AgentType.SIMULATED_ANNEALING,
-            args.max_iterations,
-            args.max_non_improving_actions,
-            args.max_threads,
-            args.max_number_of_actions_per_iteration or args.max_threads,
-            args.log_to_tensor_board,
-            args.iterations_per_solution,
-        )
+        update_store_settings(sa_store, AgentType.SIMULATED_ANNEALING, args)
         sa_store.settings.sa_initial_temperature = (
             float(args.sa_initial_temperature) if args.sa_initial_temperature != "auto" else "auto"
         )
@@ -317,16 +294,7 @@ def collect_data_sequentially(base_store: Store, args) -> None:
             base_store.constraints,
             store_name,
         )
-        update_store_settings(
-            sa_store,
-            AgentType.SIMULATED_ANNEALING_RANDOM,
-            args.max_iterations,
-            args.max_non_improving_actions,
-            args.max_threads,
-            args.max_number_of_actions_per_iteration or args.max_threads,
-            args.log_to_tensor_board,
-            args.iterations_per_solution,
-        )
+        update_store_settings(sa_store, AgentType.SIMULATED_ANNEALING_RANDOM, args)
         sa_store.settings.sa_initial_temperature = (
             float(args.sa_initial_temperature) if args.sa_initial_temperature != "auto" else "auto"
         )
@@ -343,16 +311,7 @@ def collect_data_sequentially(base_store: Store, args) -> None:
             base_store.constraints,
             f"Proximal Policy Optimization {base_store.name}",
         )
-        update_store_settings(
-            ppo_store,
-            AgentType.PROXIMAL_POLICY_OPTIMIZATION,
-            args.max_iterations,
-            args.max_non_improving_actions,
-            args.max_threads,
-            args.max_number_of_actions_per_iteration or args.max_threads,
-            args.log_to_tensor_board,
-            args.iterations_per_solution,
-        )
+        update_store_settings(ppo_store, AgentType.PROXIMAL_POLICY_OPTIMIZATION, args)
         ppo_store.settings.disable_parallel_evaluation = True
         ppo_store.settings.max_threads = 1
         ppo_store.settings.max_number_of_actions_per_iteration = 1
@@ -369,16 +328,7 @@ def collect_data_sequentially(base_store: Store, args) -> None:
             base_store.constraints,
             f"Proximal Policy Optimization Random {base_store.name}",
         )
-        update_store_settings(
-            ppo_store,
-            AgentType.PROXIMAL_POLICY_OPTIMIZATION_RANDOM,
-            args.max_iterations,
-            args.max_non_improving_actions,
-            args.max_threads,
-            args.max_number_of_actions_per_iteration or args.max_threads,
-            args.log_to_tensor_board,
-            args.iterations_per_solution,
-        )
+        update_store_settings(ppo_store, AgentType.PROXIMAL_POLICY_OPTIMIZATION_RANDOM, args)
         ppo_store.settings.disable_parallel_evaluation = True
         ppo_store.settings.max_threads = 1
         ppo_store.settings.max_number_of_actions_per_iteration = 1

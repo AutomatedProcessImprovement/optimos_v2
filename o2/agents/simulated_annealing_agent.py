@@ -17,7 +17,7 @@ from o2.models.self_rating import SelfRatingInput
 from o2.models.solution import Solution
 from o2.pareto_front import FRONT_STATUS
 from o2.store import SolutionTry, Store
-from o2.util.indented_printer import print_l1, print_l2
+from o2.util.indented_printer import print_l1, print_l2, print_l3
 from o2.util.logger import debug
 
 DISTANCE_MULTIPLIER = 4
@@ -86,7 +86,9 @@ class SimulatedAnnealingAgent(Agent):
                 # TODO: Min Distance to front
                 distance = solution.distance_to(self.store.solution)
                 debug(f"Discarded solution {solution.id} distance: {distance}")
-                if self._accept_worse_solution(distance, self.temperature):
+                if not self.store.settings.sa_strict_ordered and self._accept_worse_solution(
+                    distance, self.temperature
+                ):
                     debug(f"Randomly accepted discarded solution {solution.id}.")
                     return solution
 
@@ -105,15 +107,28 @@ class SimulatedAnnealingAgent(Agent):
             self.store.solution_tree.add_solution(self.store.solution, archive=True)
 
         assert isinstance(self.temperature, float)
-        solution = self.store.solution_tree.get_random_solution_near_to_pareto_front(
-            self.store.current_pareto_front,
-            max_distance=self.temperature,
-        )
+
+        if self.store.settings.sa_strict_ordered:
+            solution = self.store.solution_tree.get_nearest_solution(
+                self.store.current_pareto_front,
+                max_distance=self.temperature,
+            )
+            if solution not in self.store.current_pareto_front.solutions:
+                print_l3("Nearest solution is NOT in pareto front.")
+            else:
+                print_l3("Nearest solution is IN pareto front.")
+        else:
+            solution = self.store.solution_tree.get_random_solution_near_to_pareto_front(
+                self.store.current_pareto_front,
+                max_distance=self.temperature,
+            )
         if solution is None:
             raise NoNewBaseSolutionFoundError("No new baseline evaluation found.")
 
         distance = self.store.current_pareto_front.avg_distance_to(solution)
-        print_l2(f"Selected new random base solution {solution.id} with distance: {distance:_.2f}")
+        print_l2(
+            f"Selected {'nearest' if self.store.settings.sa_strict_ordered else 'random'} base solution {solution.id} with distance: {distance:_.2f}"
+        )
 
         # We delete the newly found solution from the tree, so this is a "pop" action,
         # similarly to the TabuAgent.
