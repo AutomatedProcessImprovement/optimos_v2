@@ -11,22 +11,23 @@ module load any/python/3.8.3-conda
 conda activate opti2
 
 conda run -n opti2 --no-capture-output python ./o2_evaluation/data_collector.py \
-    --name "less_actions_consulta_data_mining_hard" \
+    --name "strict_ordered_consulta_data_mining_hard" \
     --active-scenarios "consulta_data_mining" \
     --agents "Tabu Search Random" \
     --number-of-cases 1000 \
     --duration-fn "1 * size" \
     --sa-cooling-factor auto \
     --sa-initial-temperature auto \
+    --sa-strict-ordered \
     --max-batch-size 50 \
     --max-iterations 1001 \
     --dump-interval 2400 \
     --max-threads 23 \
     --max-number-of-actions-per-iteration 23 \
     --max-non-improving-actions 5750 \
-    --iterations-per-solution 2 \
-    --max-number-of-variations-per-action 2 \
+    --iterations-per-solution 3 \
+    --max-number-of-variations-per-action 3 \
     --log-level DEBUG \
-    --log-file ./logs/less_actions_tabu_search_random_consulta_data_mining_hard.log \
+    --log-file ./logs/strict_ordered_tabu_search_random_consulta_data_mining_hard.log \
     --log-to-tensor-board \
     --no-archive-tensorboard-logs

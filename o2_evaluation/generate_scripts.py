@@ -3,10 +3,10 @@ from textwrap import dedent
 
 from o2.agents.agent import ACTION_CATALOG_BATCHING_ONLY
 
-NAME_PREFIX = "less_actions_"
+NAME_PREFIX = "strict_ordered_"
 
 MAX_NUMBER_OF_ACTIONS_PER_ITERATION = len(ACTION_CATALOG_BATCHING_ONLY)
-ITERATIONS_PER_SOLUTION = 2
+ITERATIONS_PER_SOLUTION = 3
 # We go with a higher number than ITERATIONS_PER_SOLUTION,
 MAX_NUMBER_OF_VARIATIONS_PER_ACTION = ITERATIONS_PER_SOLUTION
 
@@ -74,6 +74,7 @@ def generate_script(scenario: str, model: str, mode_name: str, max_batch_size: i
         --duration-fn "{duration_fn}" \\
         --sa-cooling-factor {SA_COOLING_FACTOR} \\
         --sa-initial-temperature {SA_INITIAL_TEMPERATURE} \\
+        --sa-strict-ordered \\
         --max-batch-size {max_batch_size} \\
         --max-iterations {max_iterations} \\
         --dump-interval {dump_interval} \\
