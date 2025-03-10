@@ -79,43 +79,6 @@ EMPTY_METRIC: Metrics = {
 }
 
 
-def write_required_evaluation_files(
-    stores: list[tuple[str, Store]],
-    all_solutions_front: list[Solution],
-) -> None:
-    """Write a file with the required evaluation files for the given solutions.
-
-    This file can be used e.g. by rsync to download them
-    """
-    # Create a temporary directory
-    temporary_file = tempfile.NamedTemporaryFile(delete=False)
-
-    solutions = all_solutions_front + [
-        solution
-        for _, store in stores
-        for solution in store.current_pareto_front.solutions
-        if solution is not None
-    ]
-
-    # List of paths to the required files
-    required_files = list(
-        set(
-            [
-                f"evaluation_{solution.__dict__['_store_name'].replace(' ', '_').lower()}_{solution.id}.pkl"
-                for solution in solutions
-            ]
-        )
-    )
-
-    # Write the required files to the temporary file
-    with open(temporary_file.name, "w") as f:
-        for file in required_files:
-            f.write(file + "\n")
-
-    # Print the file name
-    print(temporary_file.name)
-
-
 def calculate_metrics(
     scenario: str,
     mode: str,
@@ -148,8 +111,6 @@ def calculate_metrics(
             if (Settings.EQUAL_DOMINATION_ALLOWED or other.point != solution.point)
         )
     ]
-
-    write_required_evaluation_files(stores, all_solutions_front)
 
     debug(f"Calculated reference front with {len(all_solutions_front)} solutions")
     # Calculate the hyperarea (using the max cost and time as the center point)
