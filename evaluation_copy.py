@@ -1,5 +1,6 @@
-import subprocess
 import os
+import subprocess
+import sys
 
 # Config
 REMOTE_HOST = "rocket.hpc.ut.ee"
@@ -51,7 +52,7 @@ def main():
     os.makedirs(LOCAL_OUTPUT_DIR, exist_ok=True)
 
     # 1. Copy file with list of filenames to remote
-    copy_file_to_remote("/var/folders/dc/mhx8033j757bdr6m2lhpg5h00000gn/T/tmpztm4l594")
+    copy_file_to_remote("/var/folders/dc/mhx8033j757bdr6m2lhpg5h00000gn/T/tmpjpm41p4w")
 
     # 2. Run find command on remote to get full paths
     find_files_on_remote()

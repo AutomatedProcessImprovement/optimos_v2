@@ -24,8 +24,8 @@ conda run -n opti2 --no-capture-output python ./o2_evaluation/data_collector.py 
     --max-threads 23 \
     --max-number-of-actions-per-iteration 23 \
     --max-non-improving-actions 5750 \
-    --iterations-per-solution 3 \
-    --max-number-of-variations-per-action 3 \
+    --iterations-per-solution 2 \
+    --max-number-of-variations-per-action 2 \
     --log-level DEBUG \
     --log-file ./logs/tabu_search_random_consulta_data_mining_hard.log \
     --log-to-tensor-board \

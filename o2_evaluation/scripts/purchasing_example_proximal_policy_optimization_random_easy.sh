@@ -24,8 +24,8 @@ conda run -n opti2 --no-capture-output python ./o2_evaluation/data_collector.py 
     --max-threads 23 \
     --max-number-of-actions-per-iteration 23 \
     --max-non-improving-actions 2500 \
-    --iterations-per-solution 3 \
-    --max-number-of-variations-per-action 3 \
+    --iterations-per-solution 2 \
+    --max-number-of-variations-per-action 2 \
     --log-level DEBUG \
     --log-file ./logs/proximal_policy_optimization_random_purchasing_example_easy.log \
     --log-to-tensor-board \
