@@ -1,10 +1,10 @@
-from math import ceil
 import os
+from math import ceil
 from textwrap import dedent
 
 from o2.agents.agent import ACTION_CATALOG_BATCHING_ONLY
 
-NAME_PREFIX = "strict_ordered_"
+NAME_PREFIX = ""
 
 MAX_NUMBER_OF_ACTIONS_PER_ITERATION = len(ACTION_CATALOG_BATCHING_ONLY)
 ITERATIONS_PER_SOLUTION = 3
@@ -74,7 +74,6 @@ def generate_script(scenario: str, model: str, mode_name: str, max_batch_size: i
         --duration-fn "{duration_fn}" \\
         --sa-cooling-factor {SA_COOLING_FACTOR} \\
         --sa-initial-temperature {SA_INITIAL_TEMPERATURE} \\
-        --sa-strict-ordered \\
         --max-batch-size {max_batch_size} \\
         --max-iterations {max_iterations} \\
         --max-solutions {MAX_SOLUTIONS} \\
