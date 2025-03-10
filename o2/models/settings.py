@@ -133,6 +133,13 @@ class Settings:
     max_iterations = 1000
     """The maximum (total) number of iterations before the application stops."""
 
+    max_solutions: Optional[int] = None
+    """The maximum number of solutions to evaluate.
+
+    If this is set, the optimizer will stop after this number of solutions has been evaluated.
+    Often, rather then setting this, it's better to set max_iterations.
+    """
+
     optimos_legacy_mode = False
     """Should this application behave like an approximation of the original OPTIMOS?"""
 
@@ -194,7 +201,7 @@ class Settings:
     base solution.E.g. in the PPO Training.
     """
 
-    error_radius_in_percent: Optional[float] = 0.025
+    error_radius_in_percent: Optional[float] = 0.02
     """This is the "error" for the hill climbing agent to still consider a solution.
 
     Also this will be used to calculate the sa_cooling_factor if this is set to "auto".
@@ -212,7 +219,7 @@ class Settings:
     temperature will be error_radius_in_percent
     """
 
-    sa_cooling_iteration_percent = 0.80
+    sa_cooling_iteration_percent = 0.60
     """Percentage of iterations after which the SA should basically be hill climbing.
 
     This is only relveant if sa_cooling_factor is set to "auto".

@@ -28,6 +28,12 @@ def parse_args():
         help="Maximum number of iterations (default: 1500)",
     )
     parser.add_argument(
+        "--max-solutions",
+        type=int,
+        default=None,
+        help="Maximum number of solutions to evaluate (default: None; Meaning only max-iterations is used)",
+    )
+    parser.add_argument(
         "--max-non-improving-actions",
         type=int,
         default=(os.cpu_count() or 1) * 100,
@@ -169,6 +175,7 @@ def update_store_settings(
     store.settings.batching_only = True
     store.settings.agent = agent
     store.settings.max_iterations = args.max_iterations
+    store.settings.max_solutions = args.max_solutions
     store.settings.max_non_improving_actions = args.max_non_improving_actions
     store.settings.max_threads = args.max_threads
     store.settings.max_number_of_actions_per_iteration = (

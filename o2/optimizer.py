@@ -29,6 +29,7 @@ class Optimizer:
         self.settings = store.settings
         self.max_iter = store.settings.max_iterations
         self.max_non_improving_iter = store.settings.max_non_improving_actions
+        self.max_solutions = store.settings.max_solutions or float("inf")
         self.max_parallel = store.settings.max_threads
         self.running_avg_time = 0
         if not store.settings.disable_parallel_evaluation:
@@ -114,6 +115,10 @@ class Optimizer:
                     print_l1("Maximum non improving iterations reached!", log_level=STATS_LOG_LEVEL)
                     break
 
+                if self.max_solutions <= 0:
+                    print_l1("Maximum number of solutions reached!", log_level=STATS_LOG_LEVEL)
+                    break
+
                 print_l0(f"{self.settings.agent.name} - Iteration {it + 1}/{self.max_iter}")
 
                 actions_to_perform = self.agent.select_actions()
@@ -127,6 +132,8 @@ class Optimizer:
                 print_l2(f"Simulation took {time.time() - start_time:_.2f}s")
 
                 chosen_tries, not_chosen_tries = self.agent.process_many_solutions(solutions)
+
+                self.max_solutions -= len(chosen_tries) + len(not_chosen_tries)
 
                 if len(chosen_tries) == 0:
                     print_l1("No action improved the evaluation")
