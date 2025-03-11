@@ -50,6 +50,15 @@
       "justMyCode": false
     },
     {
+      "name": "Python: Run data_downloader.py",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/o2_evaluation/data_downloader.py",
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": false
+    },
+    {
       "name": "Python: Run scenario_analyzer.py",
       "type": "debugpy",
       "request": "launch",
