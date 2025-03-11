@@ -94,7 +94,11 @@ def find_required_files() -> list[str]:
         all_solutions: set[Solution] = set()
 
         for _, store in stores:
-            for _, solution in store.solution_tree.solution_lookup.items():
+            store_solutions = [
+                *store.solution_tree.solution_lookup.values(),
+                *[s for pareto in store.pareto_fronts for s in pareto.solutions],
+            ]
+            for solution in store_solutions:
                 if solution is not None and solution.is_valid:
                     # Add store name so we can load the evaluation and state later
                     solution.__dict__["_store_name"] = store.name
@@ -115,12 +119,14 @@ def find_required_files() -> list[str]:
             )
         ]
 
-        required_solutions = all_solutions_front + [
-            solution
-            for _, store in stores
-            for solution in store.current_pareto_front.solutions
-            if solution is not None
-        ]
+        required_solutions = (
+            # Add every non-dominated solution from the reference front
+            all_solutions_front
+            # Add every solution of the current Pareto front from each store
+            + [solution for _, store in stores for solution in store.current_pareto_front.solutions]
+            # Add base solution from each store
+            + [store.base_solution for _, store in stores if store.base_solution is not None]
+        )
 
         # List of paths to the required files
         required_files.extend(

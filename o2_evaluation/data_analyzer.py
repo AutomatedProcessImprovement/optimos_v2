@@ -97,6 +97,12 @@ def calculate_metrics(
                 all_solutions.add(solution)
             else:
                 invalid_solution_ids.add(solution_id)
+        for pareto in store.pareto_fronts:
+            for solution in pareto.solutions:
+                if solution is not None and solution.is_valid:
+                    # Add store name so we can load the evaluation and state later
+                    solution.__dict__["_store_name"] = store.name
+                    all_solutions.add(solution)
 
     all_solutions.update([extra_solution for extra_solution in extra_solutions if extra_solution.is_valid])
     invalid_solution_ids.update([solution.id for solution in extra_solutions if not solution.is_valid])
