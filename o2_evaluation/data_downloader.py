@@ -135,6 +135,10 @@ def find_required_files() -> list[str]:
                     f"evaluation_{solution.__dict__['_store_name'].replace(' ', '_').lower()}_{solution.id}.pkl"
                     for solution in required_solutions
                 ]
+                + [
+                    f"state_{solution.__dict__['_store_name'].replace(' ', '_').lower()}_{solution.id}.pkl"
+                    for solution in required_solutions
+                ]
             )
         )
 
