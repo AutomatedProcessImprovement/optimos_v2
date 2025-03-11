@@ -45,9 +45,17 @@ class ModifySizeRuleByLowAllocationAction(ModifySizeRuleBaseAction):
         tasks_by_allocation = sorted(resource_allocations.items(), key=lambda x: x[1], reverse=True)
 
         for task_id, _ in tasks_by_allocation:
+            duration_fn = store.constraints.get_duration_fn_for_task(task_id)
             selectors = timetable.get_firing_rule_selectors_for_task(task_id, rule_type=RULE_TYPE.SIZE)
+            # If no size rule exists, add one
+            if not selectors:
+                yield (
+                    RATING.LOW,
+                    AddSizeRuleAction(
+                        AddSizeRuleBaseActionParamsType(task_id=task_id, size=2, duration_fn=duration_fn)
+                    ),
+                )
             for selector in select_variants(store, selectors):
-                duration_fn = store.constraints.get_duration_fn_for_task(task_id)
                 yield (
                     ModifySizeRuleBaseAction.get_default_rating(),
                     ModifySizeRuleByLowAllocationAction(
@@ -58,19 +66,6 @@ class ModifySizeRuleByLowAllocationAction(ModifySizeRuleBaseAction):
                         )
                     ),
                 )
-        # If nothing else helps, try to add a size rule
-        for task_id, _ in tasks_by_allocation:
-            duration_fn = store.constraints.get_duration_fn_for_task(task_id)
-            yield (
-                RATING.LOW,
-                AddSizeRuleAction(
-                    AddSizeRuleBaseActionParamsType(
-                        task_id=task_id,
-                        size=2,
-                        duration_fn=duration_fn,
-                    )
-                ),
-            )
 
 
 class ModifySizeRuleByHighAllocationAction(ModifySizeRuleBaseAction):
@@ -98,6 +93,7 @@ class ModifySizeRuleByHighAllocationAction(ModifySizeRuleBaseAction):
 
         for task_id, _ in tasks_by_allocation:
             selectors = timetable.get_firing_rule_selectors_for_task(task_id, rule_type=RULE_TYPE.SIZE)
+            # NOTE: We do NOT try to add a new size rule here, because in this action we try to reduce batching
             for selector in select_variants(store, selectors):
                 duration_fn = store.constraints.get_duration_fn_for_task(task_id)
                 yield (
@@ -110,16 +106,3 @@ class ModifySizeRuleByHighAllocationAction(ModifySizeRuleBaseAction):
                         )
                     ),
                 )
-        # If nothing else helps, try to add a size rule
-        for task_id, _ in tasks_by_allocation:
-            duration_fn = store.constraints.get_duration_fn_for_task(task_id)
-            yield (
-                RATING.LOW,
-                AddSizeRuleAction(
-                    AddSizeRuleBaseActionParamsType(
-                        task_id=task_id,
-                        size=2,
-                        duration_fn=duration_fn,
-                    )
-                ),
-            )

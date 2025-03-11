@@ -2,6 +2,10 @@ from collections import defaultdict
 from itertools import groupby
 from typing import Mapping
 
+from o2.actions.base_actions.add_size_rule_base_action import (
+    AddSizeRuleAction,
+    AddSizeRuleBaseActionParamsType,
+)
 from o2.actions.base_actions.base_action import (
     RateSelfReturnType,
 )
@@ -40,13 +44,24 @@ def rate_self_helper_by_metric_dict(
             firing_rule_selectors = timetable.get_firing_rule_selectors_for_task(
                 task_id, rule_type=RULE_TYPE.SIZE
             )
-            if not firing_rule_selectors:
-                continue
-
             size_constraints = constraints.get_batching_size_rule_constraints(task_id)
             if size_constraints is None:
                 continue
             size_constraint = size_constraints[0]
+
+            # In case we do not have firing_rule selectors, we might want to add a new rule
+            if not firing_rule_selectors:
+                new_cost = size_constraint.cost_fn_lambda(2)
+                old_cost = size_constraint.cost_fn_lambda(1)
+                if new_cost <= old_cost:
+                    duration_fn = store.constraints.get_duration_fn_for_task(task_id)
+                    yield (
+                        RATING.LOW,
+                        AddSizeRuleAction(
+                            AddSizeRuleBaseActionParamsType(task_id=task_id, size=2, duration_fn=duration_fn)
+                        ),
+                    )
+
             for firing_rule_selector in select_variants(store, firing_rule_selectors, inner=True):
                 firing_rule = firing_rule_selector.get_firing_rule_from_state(state)
                 if firing_rule is None:
@@ -143,7 +158,7 @@ class ModifyBatchSizeIfNoCostImprovementAction(ModifySizeRuleBaseAction):
     @staticmethod
     def rate_self(
         store: "Store", input: SelfRatingInput
-    ) -> RateSelfReturnType["ModifyBatchSizeIfNoCostImprovementAction"]:
+    ) -> RateSelfReturnType["ModifyBatchSizeIfNoCostImprovementAction | AddSizeRuleAction"]:
         """Generate a best set of parameters & self-evaluates this action."""
         timetable = store.current_timetable
         constraints = store.constraints
@@ -153,16 +168,19 @@ class ModifyBatchSizeIfNoCostImprovementAction(ModifySizeRuleBaseAction):
         rule_selectors_by_cost: dict[float, list[RuleSelector]] = defaultdict(list)
 
         for task_id in task_ids:
-            firing_rule_selectors = timetable.get_firing_rule_selectors_for_task(
-                task_id, rule_type=RULE_TYPE.SIZE
-            )
-            if not firing_rule_selectors:
-                continue
-
             size_constraints = constraints.get_batching_size_rule_constraints(task_id)
             if size_constraints is None:
                 continue
             size_constraint = size_constraints[0]
+
+            firing_rule_selectors = timetable.get_firing_rule_selectors_for_task(
+                task_id, rule_type=RULE_TYPE.SIZE
+            )
+
+            # Because we are aiming to reduce batch size, we do NOT add a new rule here
+            if not firing_rule_selectors:
+                continue
+
             for firing_rule_selector in firing_rule_selectors:
                 firing_rule = firing_rule_selector.get_firing_rule_from_state(state)
                 if firing_rule is None:
@@ -205,7 +223,7 @@ class ModifySizeRuleByCostFnLowCycleTimeImpactAction(ModifySizeRuleBaseAction):
     @staticmethod
     def rate_self(
         store: "Store", input: SelfRatingInput
-    ) -> RateSelfReturnType["ModifySizeRuleByCostFnLowCycleTimeImpactAction"]:
+    ) -> RateSelfReturnType["ModifySizeRuleByCostFnLowCycleTimeImpactAction | AddSizeRuleAction"]:
         """Generate a best set of parameters & self-evaluates this action."""
         timetable = store.current_timetable
         constraints = store.constraints
@@ -215,16 +233,26 @@ class ModifySizeRuleByCostFnLowCycleTimeImpactAction(ModifySizeRuleBaseAction):
         rule_selectors_by_cycle_time_impact: dict[float, list[RuleSelector]] = defaultdict(list)
 
         for task_id in task_ids:
-            firing_rule_selectors = timetable.get_firing_rule_selectors_for_task(
-                task_id, rule_type=RULE_TYPE.SIZE
-            )
-            if not firing_rule_selectors:
-                continue
-
             size_constraints = constraints.get_batching_size_rule_constraints(task_id)
             if size_constraints is None:
                 continue
             size_constraint = size_constraints[0]
+
+            firing_rule_selectors = timetable.get_firing_rule_selectors_for_task(
+                task_id, rule_type=RULE_TYPE.SIZE
+            )
+            if not firing_rule_selectors:
+                new_cost = size_constraint.cost_fn_lambda(2)
+                old_cost = size_constraint.cost_fn_lambda(1)
+
+                old_duration = size_constraint.duration_fn_lambda(1)
+                new_duration = size_constraint.duration_fn_lambda(2)
+                if new_cost < old_cost:
+                    cycle_time_impact = old_duration - new_duration
+                    rule_selectors_by_cycle_time_impact[cycle_time_impact].append(
+                        RuleSelector(batching_rule_task_id=task_id, firing_rule_index=None)
+                    )
+
             for firing_rule_selector in firing_rule_selectors:
                 firing_rule = firing_rule_selector.get_firing_rule_from_state(state)
                 if firing_rule is None:
@@ -250,16 +278,28 @@ class ModifySizeRuleByCostFnLowCycleTimeImpactAction(ModifySizeRuleBaseAction):
             for rule_selector in select_variants(store, rule_selectors):
                 duration_fn = constraints.get_duration_fn_for_task(rule_selector.batching_rule_task_id)
 
-                yield (
-                    ModifySizeRuleBaseAction.get_default_rating(),
-                    ModifySizeRuleByCostFnLowCycleTimeImpactAction(
-                        ModifySizeRuleByCostFnActionParamsType(
-                            rule=rule_selector,
-                            size_increment=1,
-                            duration_fn=duration_fn,
-                        )
-                    ),
-                )
+                if rule_selector.firing_rule_index is not None:
+                    yield (
+                        ModifySizeRuleBaseAction.get_default_rating(),
+                        ModifySizeRuleByCostFnLowCycleTimeImpactAction(
+                            ModifySizeRuleByCostFnActionParamsType(
+                                rule=rule_selector,
+                                size_increment=1,
+                                duration_fn=duration_fn,
+                            )
+                        ),
+                    )
+                else:
+                    yield (
+                        RATING.LOW,
+                        AddSizeRuleAction(
+                            AddSizeRuleBaseActionParamsType(
+                                task_id=rule_selector.batching_rule_task_id,
+                                size=2,
+                                duration_fn=duration_fn,
+                            )
+                        ),
+                    )
 
 
 class ModifySizeRuleByManySimilarEnablementsAction(ModifySizeRuleBaseAction):

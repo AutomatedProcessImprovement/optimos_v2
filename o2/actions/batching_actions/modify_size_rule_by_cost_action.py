@@ -45,9 +45,16 @@ class ModifySizeRuleByCostAction(ModifySizeRuleBaseAction):
         )
 
         for task_id, _ in sorted_tasks:
+            duration_fn = store.constraints.get_duration_fn_for_task(task_id)
             selectors = timetable.get_firing_rule_selectors_for_task(task_id, rule_type=RULE_TYPE.SIZE)
+            if not selectors:
+                yield (
+                    RATING.LOW,
+                    AddSizeRuleAction(
+                        AddSizeRuleBaseActionParamsType(task_id=task_id, size=2, duration_fn=duration_fn)
+                    ),
+                )
             for selector in select_variants(store, selectors):
-                duration_fn = store.constraints.get_duration_fn_for_task(task_id)
                 yield (
                     ModifySizeRuleBaseAction.get_default_rating(),
                     ModifySizeRuleByCostAction(
@@ -58,16 +65,3 @@ class ModifySizeRuleByCostAction(ModifySizeRuleBaseAction):
                         )
                     ),
                 )
-        # If nothing else helps, try to add a size rule
-        for task_id, _ in sorted_tasks:
-            duration_fn = store.constraints.get_duration_fn_for_task(task_id)
-            yield (
-                RATING.LOW,
-                AddSizeRuleAction(
-                    AddSizeRuleBaseActionParamsType(
-                        task_id=task_id,
-                        size=2,
-                        duration_fn=duration_fn,
-                    )
-                ),
-            )

@@ -1,3 +1,7 @@
+from o2.actions.base_actions.add_size_rule_base_action import (
+    AddSizeRuleAction,
+    AddSizeRuleBaseActionParamsType,
+)
 from o2.actions.base_actions.base_action import (
     RateSelfReturnType,
 )
@@ -31,7 +35,7 @@ class ModifySizeRuleByLowUtilizationAction(ModifySizeRuleBaseAction):
     @staticmethod
     def rate_self(
         store: "Store", input: SelfRatingInput
-    ) -> RateSelfReturnType["ModifySizeRuleByLowUtilizationAction"]:
+    ) -> RateSelfReturnType["ModifySizeRuleByLowUtilizationAction | AddSizeRuleAction"]:
         """Generate a best set of parameters & self-evaluates this action."""
         timetable = store.current_timetable
         evaluation = store.current_evaluation
@@ -45,6 +49,20 @@ class ModifySizeRuleByLowUtilizationAction(ModifySizeRuleBaseAction):
 
             tasks = timetable.get_task_ids_assigned_to_resource(resource_id)
             selectors = timetable.get_firing_rule_selectors_for_tasks(tasks, rule_type=RULE_TYPE.SIZE)
+            if not selectors:
+                for task_id in select_variants(store, tasks):
+                    duration_fn = store.constraints.get_duration_fn_for_task(task_id)
+                    yield (
+                        RATING.LOW,
+                        AddSizeRuleAction(
+                            AddSizeRuleBaseActionParamsType(
+                                task_id=task_id,
+                                size=2,
+                                duration_fn=duration_fn,
+                            )
+                        ),
+                    )
+                continue
             for selector in select_variants(store, selectors):
                 duration_fn = store.constraints.get_duration_fn_for_task(selector.batching_rule_task_id)
                 yield (

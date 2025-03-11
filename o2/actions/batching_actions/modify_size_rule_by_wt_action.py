@@ -1,5 +1,9 @@
 from typing_extensions import override
 
+from o2.actions.base_actions.add_size_rule_base_action import (
+    AddSizeRuleAction,
+    AddSizeRuleBaseActionParamsType,
+)
 from o2.actions.base_actions.base_action import (
     RateSelfReturnType,
 )
@@ -31,7 +35,9 @@ class ModifySizeRuleByWTAction(ModifySizeRuleBaseAction):
 
     @override
     @staticmethod
-    def rate_self(store: "Store", input: SelfRatingInput) -> RateSelfReturnType["ModifySizeRuleByWTAction"]:
+    def rate_self(
+        store: "Store", input: SelfRatingInput
+    ) -> RateSelfReturnType["ModifySizeRuleByWTAction | AddSizeRuleAction"]:
         timetable = store.current_timetable
         avg_batching_waiting_time_per_task = store.current_evaluation.avg_batching_waiting_time_per_task
         sorted_tasks = sorted(
@@ -42,9 +48,21 @@ class ModifySizeRuleByWTAction(ModifySizeRuleBaseAction):
         for task_id, waiting_time in sorted_tasks:
             if (waiting_time) < 1:
                 continue
+            duration_fn = store.constraints.get_duration_fn_for_task(task_id)
+
             selectors = timetable.get_firing_rule_selectors_for_task(task_id, rule_type=RULE_TYPE.SIZE)
+            if not selectors:
+                yield (
+                    RATING.LOW,
+                    AddSizeRuleAction(
+                        AddSizeRuleBaseActionParamsType(
+                            task_id=task_id,
+                            size=2,
+                            duration_fn=duration_fn,
+                        )
+                    ),
+                )
             for selector in select_variants(store, selectors):
-                duration_fn = store.constraints.get_duration_fn_for_task(selector.batching_rule_task_id)
                 yield (
                     RATING.LOW,
                     ModifySizeRuleByWTAction(
