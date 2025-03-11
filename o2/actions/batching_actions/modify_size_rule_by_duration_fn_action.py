@@ -68,7 +68,6 @@ class ModifyBatchSizeIfNoDurationImprovementAction(ModifySizeRuleBaseAction):
 
         sorted_rule_selectors = sorted(
             rule_selectors_by_duration.keys(),
-            key=lambda duration: rule_selectors_by_duration[duration],
             reverse=True,
         )
 
@@ -147,7 +146,6 @@ class ModifySizeRuleByDurationFnCostImpactAction(ModifySizeRuleBaseAction):
 
         sorted_rule_selectors = sorted(
             rule_selectors_by_duration.keys(),
-            key=lambda duration: rule_selectors_by_duration[duration],
             reverse=True,
         )
 
