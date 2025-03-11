@@ -183,6 +183,11 @@ class Store:
         try:
             if not solution.is_valid:
                 return (FRONT_STATUS.INVALID, solution)
+            if self.settings.disable_action_validity_check and (
+                not self.constraints.verify_batching_constraints(solution.state.timetable)
+                or not self.constraints.verify_legacy_constraints(solution.state.timetable)
+            ):
+                return (FRONT_STATUS.INVALID, solution)
             status = self.current_pareto_front.is_in_front(solution)
             return (status, solution)
         except Exception as e:
