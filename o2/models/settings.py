@@ -219,7 +219,7 @@ class Settings:
     temperature will be error_radius_in_percent
     """
 
-    sa_cooling_iteration_percent = 0.60
+    sa_cooling_iteration_percent = 0.50
     """Percentage of iterations after which the SA should basically be hill climbing.
 
     This is only relveant if sa_cooling_factor is set to "auto".

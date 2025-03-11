@@ -48,9 +48,20 @@ class SimulatedAnnealingAgent(Agent):
             )
             print_l1(f"Auto-estimated initial temperature: {self.temperature:_.2f}")
         if self.store.settings.sa_cooling_factor == "auto":
-            number_of_iterations_to_cool = (
-                self.store.settings.sa_cooling_iteration_percent * self.store.settings.max_iterations
-            )
+            if self.store.settings.max_solutions:
+                number_of_iterations_to_cool = self.store.settings.sa_cooling_iteration_percent * (
+                    self.store.settings.max_solutions
+                    // (
+                        self.store.settings.max_number_of_actions_per_iteration
+                        # Usually we don't actually create max_number_of_actions_per_iteration solutions
+                        # per iteration, so we multiply by 0.75 to allow for some slack.
+                        * 0.75
+                    )
+                )
+            else:
+                number_of_iterations_to_cool = (
+                    self.store.settings.sa_cooling_iteration_percent * self.store.settings.max_iterations
+                )
             if self.store.settings.error_radius_in_percent is None:
                 raise ValueError(
                     "Settings.error_radius_in_percent is not set, so we can't auto calculate the cooling factor."
