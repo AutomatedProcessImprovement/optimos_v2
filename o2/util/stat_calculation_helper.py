@@ -92,7 +92,7 @@ def calculate_averaged_hausdorff_distance(
     The p=2 averaged Hausdorff distance (also called the modified Hausdorff distance)
     is defined as:
 
-        Δ₂(A, B) = max{ GD₂(A, B), GD₂(B, A) },
+        Δ₂(A, B) = avg{ GD₂(A, B), GD₂(B, A) },
 
     where GD₂(A, B) is the generational distance in the direction A->B:
 
@@ -107,8 +107,8 @@ def calculate_averaged_hausdorff_distance(
     gd_2 = generational_distance_p2(pareto_front, reference_set)
     igd_2 = generational_distance_p2(reference_set, pareto_front)
 
-    # The averaged Hausdorff distance is the max of the two directions
-    return max(gd_2, igd_2)
+    # The averaged Hausdorff distance is the avg of the two directions
+    return (gd_2 + igd_2) / 2
 
 
 def calculate_delta_metric(pareto_front: list, reference_set: list) -> float:
