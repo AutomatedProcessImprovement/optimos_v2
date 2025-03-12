@@ -1,5 +1,5 @@
 from o2.optimizer import Optimizer
-from o2.models.settings import AgentType
+from o2.models.settings import AgentType, Settings
 from o2.store import Store
 from tests.fixtures.constraints_generator import ConstraintsGenerator
 from tests.fixtures.test_helpers import replace_constraints, replace_timetable
@@ -20,10 +20,9 @@ def test_optimizer_simple(one_task_store: Store):
         .constraints.batching_constraints,
     )
 
+    Settings.DISABLE_PARALLEL_EVALUATION = True
     store.settings.throw_on_iteration_errors = True
-    store.settings.disable_parallel_evaluation = True
     store.settings.max_iterations = 3
-    store.settings.max_threads = 1
 
     optimizer = Optimizer(store)
     optimizer.solve()
@@ -47,10 +46,9 @@ def test_optimizer_batching(one_task_store: Store):
         .constraints.batching_constraints,
     )
 
+    Settings.DISABLE_PARALLEL_EVALUATION = True
     store.settings.throw_on_iteration_errors = True
     store.settings.max_iterations = 3
-    store.settings.max_threads = 1
-    store.settings.disable_parallel_evaluation = True
     store.settings.optimos_legacy_mode = False
 
     store.settings.batching_only = True
@@ -73,10 +71,9 @@ def test_optimizer_ppo(one_task_store: Store):
         .constraints.batching_constraints,
     )
 
+    Settings.DISABLE_PARALLEL_EVALUATION = True
     store.settings.throw_on_iteration_errors = True
     store.settings.max_iterations = 3
-    store.settings.max_threads = 1
-    store.settings.disable_parallel_evaluation = True
     store.settings.optimos_legacy_mode = False
 
     store.settings.agent = AgentType.PROXIMAL_POLICY_OPTIMIZATION

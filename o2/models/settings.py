@@ -176,14 +176,8 @@ class Settings:
       are optimized first, and the calendar is optimized afterwards.
     """
 
-    max_threads = os.cpu_count() or 1
-    """The maximum number of threads to use for parallel evaluation."""
-
     max_number_of_actions_per_iteration = os.cpu_count() or 1
     """The maximum number of actions to select for for (parallel) evaluation."""
-
-    disable_parallel_evaluation = False
-    """Should the parallel evaluation be disabled? This is useful for debugging."""
 
     max_distance_to_new_base_solution = float("inf")
     """The max distance to the new base solution to be considered for TABU evaluation.
@@ -287,6 +281,23 @@ class Settings:
     size rule or a specific resource for a task.
 
     NOTE: This number is _not_ per iteration, but per base_solution.
+    """
+
+    DISABLE_PARALLEL_EVALUATION: ClassVar[bool] = False
+    """Should the parallel evaluation be disabled? This is useful for debugging.
+
+    This will overide any MAX_THREADS_ACTION_EVALUATION/MAX_THREADS_MEDIAN_CALCULATION settings.
+    """
+
+    MAX_THREADS_ACTION_EVALUATION: ClassVar[int] = os.cpu_count() or 1
+    """The maximum number of threads to use for parallel evaluation 
+    of actions."""
+
+    MAX_THREADS_MEDIAN_CALCULATION: ClassVar[int] = 1
+    """The maximum number of threads to use for parallel median calculation.
+
+    If you are already using parallel evaluation of actions, you might want to keep this at 1,
+    not to have to much processes running at the same time.
     """
 
     MAX_YIELDS_PER_ACTION: ClassVar[Optional[int]] = None

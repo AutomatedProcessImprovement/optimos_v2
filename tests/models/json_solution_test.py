@@ -1,4 +1,5 @@
 from o2.models.json_report import JSONReport
+from o2.models.settings import Settings
 from o2.optimizer import Optimizer
 from o2.store import Store
 from tests.fixtures.constraints_generator import ConstraintsGenerator
@@ -10,7 +11,7 @@ def test_creating_json_solution(store: Store):
     store = replace_constraints(store, resources=ConstraintsGenerator.resource_constraints())
 
     store.settings.max_iterations = 5
-    store.settings.max_threads = 1
+    Settings.DISABLE_PARALLEL_EVALUATION = True
 
     optimizer = Optimizer(store)
     generator = optimizer.get_iteration_generator()
@@ -30,8 +31,7 @@ def test_creating_json_solution_with_timetable_id(store: Store):
     )
 
     store.settings.max_iterations = 5
-    store.settings.max_threads = 1
-
+    Settings.DISABLE_PARALLEL_EVALUATION = True
     optimizer = Optimizer(store)
     generator = optimizer.get_iteration_generator()
     next(generator)

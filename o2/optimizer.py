@@ -15,6 +15,7 @@ from o2.agents.tabu_agent import TabuAgent
 from o2.models.settings import AgentType, Settings
 from o2.models.solution import Solution
 from o2.pareto_front import FRONT_STATUS
+from o2.simulation_runner import SimulationRunner
 from o2.store import SolutionTry, Store
 from o2.util.indented_printer import print_l0, print_l1, print_l2, print_l3, print_l4
 from o2.util.logger import STATS_LOG_LEVEL
@@ -30,10 +31,12 @@ class Optimizer:
         self.max_iter = store.settings.max_iterations
         self.max_non_improving_iter = store.settings.max_non_improving_actions
         self.max_solutions = store.settings.max_solutions or float("inf")
-        self.max_parallel = store.settings.max_threads
+        self.max_parallel = store.settings.MAX_THREADS_ACTION_EVALUATION
         self.running_avg_time = 0
-        if not store.settings.disable_parallel_evaluation:
-            self.executor = concurrent.futures.ProcessPoolExecutor(max_workers=self.settings.max_threads)
+        if not Settings.DISABLE_PARALLEL_EVALUATION and Settings.MAX_THREADS_ACTION_EVALUATION > 1:
+            self.executor = concurrent.futures.ProcessPoolExecutor(
+                max_workers=Settings.MAX_THREADS_ACTION_EVALUATION
+            )
         self.agent: Agent = self._init_agent(store)
         if self.settings.log_to_tensor_board:
             from o2.util.tensorboard_helper import TensorBoardHelper
@@ -81,8 +84,10 @@ class Optimizer:
                 # Just iterate through the generator to run it
                 TensorBoardHelper.instance.tensor_board_iteration_callback(store.solution)
 
-        if not self.settings.disable_parallel_evaluation:
+        if not Settings.DISABLE_PARALLEL_EVALUATION and Settings.MAX_THREADS_ACTION_EVALUATION > 1:
             self.executor.shutdown()
+
+        SimulationRunner.close_executor()
 
         # Final write to tensorboard
         if self.settings.log_to_tensor_board:
@@ -238,7 +243,7 @@ class Optimizer:
         store = self.agent.store
         solution_tries: list[SolutionTry] = []
 
-        if not self.settings.disable_parallel_evaluation:
+        if not Settings.DISABLE_PARALLEL_EVALUATION and Settings.MAX_THREADS_ACTION_EVALUATION > 1:
             futures: list[concurrent.futures.Future[Solution]] = []
             for action in actions_to_perform:
                 futures.append(self.executor.submit(Solution.from_parent, store.solution, action))

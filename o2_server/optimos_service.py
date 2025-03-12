@@ -8,6 +8,7 @@ from zipfile import ZIP_DEFLATED, ZipFile
 
 from o2.models.json_report import JSONReport
 from o2.models.legacy_approach import LegacyApproach
+from o2.models.settings import Settings
 from o2.models.state import State
 from o2.optimizer import Optimizer
 from o2.store import Store
@@ -53,13 +54,13 @@ class OptimosService:
         # Update settings
 
         # Keep one cpu core free for other processes (e.g. web request handling)
-        store.settings.max_threads = max(1, (os.cpu_count() or 1) - 1)
+        Settings.MAX_THREADS_ACTION_EVALUATION = max(1, (os.cpu_count() or 1) - 1)
 
         store.settings.optimos_legacy_mode = config["disable_batch_optimization"]
 
         # We limit the number of actions to select to the number of threads
         store.settings.max_number_of_actions_per_iteration = min(
-            (config["max_actions_per_iteration"] or 1000), store.settings.max_threads
+            (config["max_actions_per_iteration"] or 1000), Settings.MAX_THREADS_ACTION_EVALUATION
         )
         store.settings.legacy_approach = LegacyApproach.from_abbreviation(config["approach"])
         store.settings.max_iterations = config["max_iterations"]

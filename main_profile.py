@@ -7,6 +7,7 @@ import memray
 import o2.optimizer
 import o2.store
 from o2.models.constraints import ConstraintsType
+from o2.models.settings import Settings
 from o2.models.timetable import TimetableType
 
 
@@ -45,11 +46,11 @@ def main():
     # store.settings.[...] = ...
 
     # Enable legacy mode
+    Settings.MAX_THREADS_ACTION_EVALUATION = 5
+    Settings.DISABLE_PARALLEL_EVALUATION = True
     store.settings.optimos_legacy_mode = True
     store.settings.max_iterations = 10
-    store.settings.max_threads = 5
     store.settings.max_number_of_actions_per_iteration = 5
-    store.settings.disable_parallel_evaluation = True
 
     optimizer = o2.optimizer.Optimizer(store)
     optimizer.solve()

@@ -5,6 +5,7 @@ import os
 
 from o2.models.settings import ActionVariationSelection, AgentType, CostType, Settings
 from o2.optimizer import Optimizer
+from o2.simulation_runner import SimulationRunner
 from o2.store import Store
 from o2.util.logger import info, setup_logging, stats
 from o2.util.solution_dumper import SolutionDumper
@@ -171,13 +172,14 @@ def update_store_settings(
     args: argparse.Namespace,
 ) -> None:
     """Update the store settings for the given agent."""
+    Settings.MAX_THREADS_ACTION_EVALUATION = args.max_threads
+    Settings.MAX_THREADS_MEDIAN_CALCULATION = 1
     store.settings.optimos_legacy_mode = False
     store.settings.batching_only = True
     store.settings.agent = agent
     store.settings.max_iterations = args.max_iterations
     store.settings.max_solutions = args.max_solutions
     store.settings.max_non_improving_actions = args.max_non_improving_actions
-    store.settings.max_threads = args.max_threads
     store.settings.max_number_of_actions_per_iteration = (
         args.max_number_of_actions_per_iteration or args.max_threads
     )
@@ -216,8 +218,10 @@ def solve_store(store: Store, dump_interval: int) -> None:
 
         TensorBoardHelper.instance.tensor_board_iteration_callback(store.solution, write_everything=True)
 
-    if not store.settings.disable_parallel_evaluation:
+    if not Settings.DISABLE_PARALLEL_EVALUATION:
         optimizer.executor.shutdown()
+
+    SimulationRunner.close_executor()
 
 
 def collect_data_sequentially(base_store: Store, args: argparse.Namespace) -> None:
@@ -319,8 +323,9 @@ def collect_data_sequentially(base_store: Store, args: argparse.Namespace) -> No
             f"Proximal Policy Optimization {base_store.name}",
         )
         update_store_settings(ppo_store, AgentType.PROXIMAL_POLICY_OPTIMIZATION, args)
-        ppo_store.settings.disable_parallel_evaluation = True
-        ppo_store.settings.max_threads = 1
+        Settings.MAX_THREADS_ACTION_EVALUATION = 1
+        Settings.MAX_THREADS_ACTION_EVALUATION = Settings.NUMBER_OF_SIMULATION_FOR_MEDIAN
+
         ppo_store.settings.max_number_of_actions_per_iteration = 1
         # Disable distance based selection (so we always find a new base solution)
         ppo_store.settings.max_distance_to_new_base_solution = float("inf")
@@ -336,8 +341,9 @@ def collect_data_sequentially(base_store: Store, args: argparse.Namespace) -> No
             f"Proximal Policy Optimization Random {base_store.name}",
         )
         update_store_settings(ppo_store, AgentType.PROXIMAL_POLICY_OPTIMIZATION_RANDOM, args)
-        ppo_store.settings.disable_parallel_evaluation = True
-        ppo_store.settings.max_threads = 1
+        Settings.MAX_THREADS_ACTION_EVALUATION = 1
+        Settings.MAX_THREADS_ACTION_EVALUATION = Settings.NUMBER_OF_SIMULATION_FOR_MEDIAN
+
         ppo_store.settings.max_number_of_actions_per_iteration = 1
         # Disable distance based selection (so we always find a new base solution)
         ppo_store.settings.max_distance_to_new_base_solution = float("inf")
