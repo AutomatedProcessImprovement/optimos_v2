@@ -100,7 +100,7 @@ class RandomAction(BaseAction):
                 )
             elif action == AddSizeRuleAction:
                 task_id = random.choice(timetable.get_task_ids())
-                size = random.randint(1, 10)
+                size = 2
                 duration_fn = store.constraints.get_duration_fn_for_task(task_id)
                 params = AddSizeRuleBaseActionParamsType(
                     task_id=task_id,
