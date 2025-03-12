@@ -4,7 +4,7 @@
 #SBATCH --partition=main
 #SBATCH --time=012:00:00
 #SBATCH --mem=10G
-#SBATCH --cpus-per-task=2
+#SBATCH --cpus-per-task=6
 
 export LD_LIBRARY_PATH="$HOME/lib"
 module load any/python/3.8.3-conda
