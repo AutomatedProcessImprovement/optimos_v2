@@ -80,6 +80,9 @@ class SimulationRunner:
         results: list[MedianResult] = []
         if not Settings.DISABLE_PARALLEL_EVALUATION and Settings.MAX_THREADS_MEDIAN_CALCULATION > 1:
             if SimulationRunner._executor is None:
+                info(
+                    f"Starting ProcessPoolExecutor with {Settings.MAX_THREADS_MEDIAN_CALCULATION} workers for median calculation"
+                )
                 SimulationRunner._executor = ProcessPoolExecutor(
                     max_workers=Settings.MAX_THREADS_MEDIAN_CALCULATION
                 )

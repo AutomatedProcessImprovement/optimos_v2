@@ -324,7 +324,7 @@ def collect_data_sequentially(base_store: Store, args: argparse.Namespace) -> No
         )
         update_store_settings(ppo_store, AgentType.PROXIMAL_POLICY_OPTIMIZATION, args)
         Settings.MAX_THREADS_ACTION_EVALUATION = 1
-        Settings.MAX_THREADS_ACTION_EVALUATION = Settings.NUMBER_OF_SIMULATION_FOR_MEDIAN
+        Settings.MAX_THREADS_MEDIAN_CALCULATION = Settings.NUMBER_OF_SIMULATION_FOR_MEDIAN
 
         ppo_store.settings.max_number_of_actions_per_iteration = 1
         # Disable distance based selection (so we always find a new base solution)
@@ -342,7 +342,7 @@ def collect_data_sequentially(base_store: Store, args: argparse.Namespace) -> No
         )
         update_store_settings(ppo_store, AgentType.PROXIMAL_POLICY_OPTIMIZATION_RANDOM, args)
         Settings.MAX_THREADS_ACTION_EVALUATION = 1
-        Settings.MAX_THREADS_ACTION_EVALUATION = Settings.NUMBER_OF_SIMULATION_FOR_MEDIAN
+        Settings.MAX_THREADS_MEDIAN_CALCULATION = Settings.NUMBER_OF_SIMULATION_FOR_MEDIAN
 
         ppo_store.settings.max_number_of_actions_per_iteration = 1
         # Disable distance based selection (so we always find a new base solution)
