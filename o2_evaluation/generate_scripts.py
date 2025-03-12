@@ -34,8 +34,11 @@ DUMP_INTERVAL = MAX_SOLUTIONS // 10
 DUMP_INTERVAL_PPO = MAX_SOLUTIONS // 10
 
 # Early stopping after 10% of the max iterations without improvement
-MAX_NON_IMPROVING_SOLUTIONS = ceil(0.1 * MAX_SOLUTIONS)
+MAX_NON_IMPROVING_SOLUTIONS_TABU = ceil(0.1 * MAX_SOLUTIONS)
 MAX_NON_IMPROVING_SOLUTIONS_PPO = ceil(0.1 * MAX_SOLUTIONS)
+# For SA we shoudln't stop super early, because in the random phase at the begining with a very high temperature,
+# it's very normal, that the solutions are not improving.
+MAX_NON_IMPROVING_SOLUTIONS_SA = ceil((MAX_SOLUTIONS // MAX_NUMBER_OF_ACTIONS_PER_ITERATION) * 0.75)
 
 NUMBER_OF_CASES = 500
 SA_COOLING_FACTOR = "auto"
@@ -52,6 +55,13 @@ def generate_script(scenario: str, model: str, mode_name: str, max_batch_size: i
     max_time_hours = MAX_TIME_HOURS if "Proximal Policy Optimization" not in model else MAX_TIME_HOURS_PPO
     max_iterations = MAX_ITERATIONS if "Proximal Policy Optimization" not in model else MAX_ITERATIONS_PPO
     dump_interval = DUMP_INTERVAL if "Proximal Policy Optimization" not in model else DUMP_INTERVAL_PPO
+    max_non_improving_actions = (
+        MAX_NON_IMPROVING_SOLUTIONS_TABU
+        if "Tabu Search" in model
+        else MAX_NON_IMPROVING_SOLUTIONS_SA
+        if "Simulated Annealing" in model
+        else MAX_NON_IMPROVING_SOLUTIONS_PPO
+    )
 
     return dedent(f"""\
     #!/bin/bash
@@ -80,7 +90,7 @@ def generate_script(scenario: str, model: str, mode_name: str, max_batch_size: i
         --dump-interval {dump_interval} \\
         --max-threads {CORES - 1} \\
         --max-number-of-actions-per-iteration {MAX_NUMBER_OF_ACTIONS_PER_ITERATION} \\
-        --max-non-improving-actions {MAX_NON_IMPROVING_SOLUTIONS} \\
+        --max-non-improving-actions {max_non_improving_actions} \\
         --iterations-per-solution {ITERATIONS_PER_SOLUTION} \\
         --max-number-of-variations-per-action {MAX_NUMBER_OF_VARIATIONS_PER_ACTION} \\
         --log-level DEBUG \\
