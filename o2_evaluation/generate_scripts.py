@@ -3,6 +3,7 @@ from math import ceil
 from textwrap import dedent
 
 from o2.agents.agent import ACTION_CATALOG_BATCHING_ONLY
+from o2.models.settings import Settings
 
 NAME_PREFIX = ""
 
@@ -14,7 +15,7 @@ MAX_NUMBER_OF_VARIATIONS_PER_ACTION = ITERATIONS_PER_SOLUTION
 
 # Have one extra core for the main process
 CORES = MAX_NUMBER_OF_ACTIONS_PER_ITERATION + 1
-CORES_PPO = 2
+CORES_PPO = Settings.NUMBER_OF_SIMULATION_FOR_MEDIAN + 1
 MEMORY_GB = 48
 MEMORY_GB_PPO = 10
 MAX_TIME_HOURS = 5
