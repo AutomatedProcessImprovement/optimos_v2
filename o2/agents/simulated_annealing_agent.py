@@ -88,8 +88,20 @@ class SimulatedAnnealingAgent(Agent):
         print_l2(f"Old temperature: {self.temperature:_.2f}")
         assert isinstance(self.temperature, float)
         assert isinstance(self.store.settings.sa_cooling_factor, float)
-        self.temperature *= self.store.settings.sa_cooling_factor
-        print_l2(f"New temperature: {self.temperature:_.2f}")
+        if self.store.settings.error_radius_in_percent is not None:
+            min_radius = self.store.settings.error_radius_in_percent * math.sqrt(
+                self.store.base_evaluation.pareto_x**2 + self.store.base_evaluation.pareto_y**2
+            )
+            new_temp = self.temperature * self.store.settings.sa_cooling_factor
+            if new_temp < min_radius:
+                print_l2(f"New temperature: {min_radius:_.2f} (min radius)")
+                self.temperature = min_radius
+            else:
+                print_l2(f"New temperature: {new_temp:_.2f}")
+                self.temperature = new_temp
+        else:
+            self.temperature *= self.store.settings.sa_cooling_factor
+            print_l2(f"New temperature: {self.temperature:_.2f}")
         if proposed_solution_try is not None:
             status, solution = proposed_solution_try
             # Maybe accept bad solution
