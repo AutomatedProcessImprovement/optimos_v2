@@ -1,5 +1,7 @@
 import traceback
 from collections import namedtuple
+from concurrent import futures
+from concurrent.futures import Future, ProcessPoolExecutor, as_completed
 from dataclasses import dataclass
 from datetime import datetime
 from typing import TYPE_CHECKING, Optional, TypeAlias
@@ -37,6 +39,14 @@ class MedianResult:
 class SimulationRunner:
     """Helper class to run simulations and return the results."""
 
+    _executor: Optional[ProcessPoolExecutor] = None
+    """Process Pool Executor that can be used to evaluate the median calculation in parallel.
+
+    Makes sense esp. when not using parallel evaluation of actions, so at least
+    the median calculation is sped up. Set Settings.MAX_THREADS_MEDIAN_CALCULATION
+    to a value > 1 to enable this.
+    """
+
     @staticmethod
     def run_simulation(state: "State") -> RunSimulationResult:
         """Run simulation and return the results."""
@@ -68,21 +78,53 @@ class SimulationRunner:
     def run_simulation_median(state: "State") -> RunSimulationResult:
         """Run multiple simulations and return the median simulation's results."""
         results: list[MedianResult] = []
-        for _ in range(Settings.NUMBER_OF_SIMULATION_FOR_MEDIAN):
-            result = SimulationRunner.run_simulation(state)
-            _, _, _, log_info = result
+        if not Settings.DISABLE_PARALLEL_EVALUATION and Settings.MAX_THREADS_MEDIAN_CALCULATION > 1:
+            if SimulationRunner._executor is None:
+                SimulationRunner._executor = ProcessPoolExecutor(
+                    max_workers=Settings.MAX_THREADS_MEDIAN_CALCULATION
+                )
+            futures: list[Future[RunSimulationResult]] = []
+            for _ in range(Settings.NUMBER_OF_SIMULATION_FOR_MEDIAN):
+                futures.append(SimulationRunner._executor.submit(SimulationRunner.run_simulation, state))
 
-            first_enablement = min(
-                [event.enabled_datetime for trace in log_info.trace_list for event in trace.event_list],
-                default=log_info.started_at,
-            )
-            last_completion = max(
-                [event.completed_datetime for trace in log_info.trace_list for event in trace.event_list],
-                default=log_info.ended_at,
-            )
-            total_cycle_time = (last_completion - first_enablement).total_seconds()
-            results.append(MedianResult(total_cycle_time, result))
+            results: list[MedianResult] = []
+            for future in as_completed(futures):
+                result = future.result()
+                _, _, _, log_info = result
+
+                first_enablement = min(
+                    [event.enabled_datetime for trace in log_info.trace_list for event in trace.event_list],
+                    default=log_info.started_at,
+                )
+                last_completion = max(
+                    [event.completed_datetime for trace in log_info.trace_list for event in trace.event_list],
+                    default=log_info.ended_at,
+                )
+                total_cycle_time = (last_completion - first_enablement).total_seconds()
+                results.append(MedianResult(total_cycle_time, result))
+        else:
+            for _ in range(Settings.NUMBER_OF_SIMULATION_FOR_MEDIAN):
+                result = SimulationRunner.run_simulation(state)
+                _, _, _, log_info = result
+
+                first_enablement = min(
+                    [event.enabled_datetime for trace in log_info.trace_list for event in trace.event_list],
+                    default=log_info.started_at,
+                )
+                last_completion = max(
+                    [event.completed_datetime for trace in log_info.trace_list for event in trace.event_list],
+                    default=log_info.ended_at,
+                )
+                total_cycle_time = (last_completion - first_enablement).total_seconds()
+                results.append(MedianResult(total_cycle_time, result))
 
         results.sort(key=lambda x: x.total_cycle_time)
         median_result = results[len(results) // 2]
         return median_result.result
+
+    @staticmethod
+    def close_executor() -> None:
+        """Close the executor."""
+        if SimulationRunner._executor is not None:
+            SimulationRunner._executor.shutdown(wait=True)
+            SimulationRunner._executor = None
