@@ -38,7 +38,7 @@ MAX_NON_IMPROVING_SOLUTIONS_TABU = ceil(0.1 * MAX_SOLUTIONS)
 MAX_NON_IMPROVING_SOLUTIONS_PPO = ceil(0.1 * MAX_SOLUTIONS)
 # For SA we shoudln't stop super early, because in the random phase at the begining with a very high temperature,
 # it's very normal, that the solutions are not improving.
-MAX_NON_IMPROVING_SOLUTIONS_SA = ceil((MAX_SOLUTIONS // MAX_NUMBER_OF_ACTIONS_PER_ITERATION) * 0.75)
+MAX_NON_IMPROVING_SOLUTIONS_SA = ceil(0.5 * MAX_SOLUTIONS)
 
 NUMBER_OF_CASES = 500
 SA_COOLING_FACTOR = "auto"
