@@ -218,7 +218,7 @@ def solve_store(store: Store, dump_interval: int) -> None:
 
         TensorBoardHelper.instance.tensor_board_iteration_callback(store.solution, write_everything=True)
 
-    if not Settings.DISABLE_PARALLEL_EVALUATION:
+    if not Settings.DISABLE_PARALLEL_EVALUATION and Settings.MAX_THREADS_ACTION_EVALUATION > 1:
         optimizer.executor.shutdown()
 
     SimulationRunner.close_executor()
