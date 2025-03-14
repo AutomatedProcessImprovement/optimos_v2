@@ -108,6 +108,9 @@ def select_variant(
     The ordered parameter can be used to signal, that the options are already ordered,
     so random selection is not needed.
     """
+    if not options:
+        return []
+
     action_variation_selection = store.settings.action_variation_selection
 
     if ordered:
