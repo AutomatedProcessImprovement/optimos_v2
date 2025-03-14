@@ -3,7 +3,7 @@
 #SBATCH --job-name="Optimos V2 Run GOV Proximal Policy Optimization EASY"
 #SBATCH --partition=main
 #SBATCH --time=024:00:00
-#SBATCH --mem=10G
+#SBATCH --mem=30G
 #SBATCH --cpus-per-task=6
 
 export LD_LIBRARY_PATH="$HOME/lib"
