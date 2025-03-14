@@ -16,7 +16,7 @@ MAX_NUMBER_OF_VARIATIONS_PER_ACTION = ITERATIONS_PER_SOLUTION
 # Have one extra core for the main process
 CORES = MAX_NUMBER_OF_ACTIONS_PER_ITERATION + 1
 CORES_PPO = Settings.NUMBER_OF_SIMULATION_FOR_MEDIAN + 1
-MEMORY_GB = 48
+MEMORY_GB = 64
 MEMORY_GB_PPO = 30
 MAX_TIME_HOURS = 10
 MAX_TIME_HOURS_PPO = 24
@@ -39,7 +39,7 @@ MAX_NON_IMPROVING_SOLUTIONS_TABU = ceil(0.1 * MAX_SOLUTIONS)
 MAX_NON_IMPROVING_SOLUTIONS_PPO = ceil(0.1 * MAX_SOLUTIONS)
 # For SA we shoudln't stop super early, because in the random phase at the begining with a very high temperature,
 # it's very normal, that the solutions are not improving.
-MAX_NON_IMPROVING_SOLUTIONS_SA = ceil(0.5 * MAX_SOLUTIONS)
+MAX_NON_IMPROVING_SOLUTIONS_SA = ceil(0.25 * MAX_SOLUTIONS)
 
 NUMBER_OF_CASES = 500
 SA_COOLING_FACTOR = "auto"

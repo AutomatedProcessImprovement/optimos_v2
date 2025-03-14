@@ -3,7 +3,7 @@
 #SBATCH --job-name="Optimos V2 Run BPI_Challenge_2017 Tabu Search Random EASY"
 #SBATCH --partition=main
 #SBATCH --time=010:00:00
-#SBATCH --mem=48G
+#SBATCH --mem=64G
 #SBATCH --cpus-per-task=24
 
 export LD_LIBRARY_PATH="$HOME/lib"
