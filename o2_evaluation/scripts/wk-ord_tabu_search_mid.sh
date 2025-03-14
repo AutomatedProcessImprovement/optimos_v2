@@ -2,7 +2,7 @@
 
 #SBATCH --job-name="Optimos V2 Run WK-ORD Tabu Search MID"
 #SBATCH --partition=main
-#SBATCH --time=05:00:00
+#SBATCH --time=010:00:00
 #SBATCH --mem=48G
 #SBATCH --cpus-per-task=24
 

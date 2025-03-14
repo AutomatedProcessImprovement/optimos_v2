@@ -2,7 +2,7 @@
 
 #SBATCH --job-name="Optimos V2 Run insurance Proximal Policy Optimization Random EASY"
 #SBATCH --partition=main
-#SBATCH --time=012:00:00
+#SBATCH --time=024:00:00
 #SBATCH --mem=10G
 #SBATCH --cpus-per-task=6
 
