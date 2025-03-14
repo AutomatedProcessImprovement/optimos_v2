@@ -1,14 +1,16 @@
 import gc
 import glob
 import pickle
-import tempfile
 from collections import defaultdict
-from typing import TypedDict
+from collections.abc import Iterable
+from typing import Optional, TypedDict
 
+from o2.models.evaluation import Evaluation
 from o2.models.settings import CostType, Settings
 from o2.models.solution import Solution
+from o2.models.state import State
 from o2.store import Store
-from o2.util.logger import IO_LOG_LEVEL, debug, info, setup_logging, stats, warn
+from o2.util.logger import IO_LOG_LEVEL, debug, info, log_io, setup_logging, stats, warn
 from o2.util.solution_dumper import SolutionDumper
 from o2.util.stat_calculation_helper import (
     calculate_averaged_hausdorff_distance,
@@ -79,6 +81,96 @@ EMPTY_METRIC: Metrics = {
 }
 
 
+def create_front_from_solutions(solutions: Iterable[Solution]) -> list[Solution]:
+    """Create the Pareto front from the given solutions."""
+    return list(
+        set(
+            solution
+            for solution in solutions
+            if solution.is_valid
+            and not any(
+                solution.is_dominated_by(other)
+                for other in solutions
+                if other.is_valid and other.point != solution.point
+            )
+        )
+    )
+
+
+def filter_solutions(
+    solutions: Iterable[Solution],
+    name: Optional[str] = None,
+    not_name: Optional[str] = None,
+    valid: bool = True,
+) -> list[Solution]:
+    """Filter the solutions based on the name and validity."""
+    return [
+        solution
+        for solution in solutions
+        if (name is None or name.lower() in solution.__dict__["_store_name"].lower())
+        and (not_name is None or not_name.lower() not in solution.__dict__["_store_name"].lower())
+        and solution.is_valid == valid
+    ]
+
+
+def filter_solution_ids(
+    solutions: Iterable[Solution],
+    name: Optional[str] = None,
+    not_name: Optional[str] = None,
+    valid: bool = True,
+) -> list[str]:
+    """Filter the solution ids based on the name and validity."""
+    return [solution.id for solution in filter_solutions(solutions, name, not_name, valid)]
+
+
+def _update_evaluation(solution: Solution, evaluation: Evaluation) -> None:
+    solution.__dict__["evaluation"] = None
+    solution.__dict__["_evaluation"] = evaluation
+    solution.__dict__["pareto_x"] = evaluation.pareto_x
+    solution.__dict__["pareto_y"] = evaluation.pareto_y
+    solution.__dict__["point"] = (evaluation.pareto_x, evaluation.pareto_y)
+    solution.__dict__["is_valid"] = not evaluation.is_empty
+
+
+def handle_duplicates(solutions: Iterable[Solution]) -> None:
+    """Handle duplicate solutions by updating the evaluation of the duplicate solution."""
+    duplicate_lookup: dict[int, Solution] = {}
+    for solution in solutions:
+        if not solution.is_valid:
+            continue
+        if duplicate_lookup.get(hash(solution)) is None:
+            duplicate_lookup[hash(solution)] = solution
+        else:
+            try:
+                first_solution = duplicate_lookup[hash(solution)]
+                first_evaluation = first_solution.evaluation
+                second_evaluation = solution.evaluation
+            except Exception as e:
+                warn(f"Error getting evaluation for {solution.id}: {e}")
+                continue
+            if not first_solution.is_valid and not solution.is_valid:
+                warn(f"Duplicate solution found: {solution.id}, both are invalid!")
+                continue
+            elif solution.is_valid and first_evaluation.total_cycle_time > second_evaluation.total_cycle_time:
+                _update_evaluation(first_solution, second_evaluation)
+                duplicate_lookup[hash(solution)] = solution
+                log_io(f"Duplicate solution found: {solution.id}, keeping it.")
+            else:
+                log_io(f"Duplicate solution found: {solution.id}, keeping first ({first_solution.id}).")
+                _update_evaluation(solution, first_evaluation)
+
+
+def recalculate_pareto_front(solution_dict: dict[str, Solution], store: Store) -> list[Solution]:
+    """Recalculate the Pareto front for the given store."""
+    store_solutions: list[Solution] = []
+    for solution_id in store.solution_tree.solution_lookup:
+        solution = solution_dict[solution_id]
+        if solution.is_valid:
+            store_solutions.append(solution)
+
+    return create_front_from_solutions(store_solutions)
+
+
 def calculate_metrics(
     scenario: str,
     mode: str,
@@ -87,59 +179,114 @@ def calculate_metrics(
 ) -> list[Metrics]:
     """Calculate the metrics for the given stores."""
     info(f"Calculating metrics for {scenario} ({mode})")
-    all_solutions: set[Solution] = set()
-    invalid_solution_ids: set[str] = set()
+    all_solutions_list: list[Solution] = list()
+    all_invalid_solutions: set[str] = set()
+    random_invalid_solutions: set[str] = set()
+    optimos_invalid_solutions: set[str] = set()
     for _, store in stores:
         for solution_id, solution in store.solution_tree.solution_lookup.items():
             if solution is not None and solution.is_valid:
                 # Add store name so we can load the evaluation and state later
                 solution.__dict__["_store_name"] = store.name
-                all_solutions.add(solution)
+                all_solutions_list.append(solution)
             else:
-                invalid_solution_ids.add(solution_id)
+                all_invalid_solutions.add(solution_id)
+                if "random" in store.name.lower():
+                    random_invalid_solutions.add(solution_id)
+                else:
+                    optimos_invalid_solutions.add(solution_id)
         for pareto in store.pareto_fronts:
             for solution in pareto.solutions:
                 if solution is not None and solution.is_valid:
                     # Add store name so we can load the evaluation and state later
                     solution.__dict__["_store_name"] = store.name
-                    all_solutions.add(solution)
+                    all_solutions_list.append(solution)
 
-    all_solutions.update([extra_solution for extra_solution in extra_solutions if extra_solution.is_valid])
-    invalid_solution_ids.update([solution.id for solution in extra_solutions if not solution.is_valid])
+    all_solutions_list.extend(filter_solutions(extra_solutions, valid=True))
+
+    handle_duplicates(all_solutions_list)
+
+    all_solutions_dict: dict[str, Solution] = {solution.id: solution for solution in all_solutions_list}
+    all_solutions_dict.update(
+        {solution.id: solution for solution in extra_solutions if not solution.is_valid}
+    )
+
+    all_solutions = set(all_solutions_list)
+
+    all_invalid_solutions.update(filter_solution_ids(extra_solutions, valid=False))
+    random_invalid_solutions.update(filter_solution_ids(extra_solutions, name="random", valid=False))
+    optimos_invalid_solutions.update(filter_solution_ids(extra_solutions, not_name="random", valid=False))
+
+    random_solutions: set[Solution] = set(filter_solutions(all_solutions, name="random", valid=True))
+    optimos_solutions: set[Solution] = set(filter_solutions(all_solutions, not_name="random", valid=True))
 
     # Find the Pareto front (non-dominated solutions)
-    all_solutions_front = [
-        solution
-        for solution in all_solutions
-        if not any(
-            solution.is_dominated_by(other)
-            for other in all_solutions
-            if (Settings.EQUAL_DOMINATION_ALLOWED or other.point != solution.point)
-        )
-    ]
+    all_solutions_front = create_front_from_solutions(all_solutions)
+    random_solutions_front = create_front_from_solutions(random_solutions)
+    optimos_solutions_front = create_front_from_solutions(optimos_solutions)
 
-    debug(f"Calculated reference front with {len(all_solutions_front)} solutions")
+    debug(f"Calculated reference fronts with {len(all_solutions_front)} solutions")
     # Calculate the hyperarea (using the max cost and time as the center point)
     max_cost = max(solution.pareto_x for solution in all_solutions)
     max_time = max(solution.pareto_y for solution in all_solutions)
     center_point = (max_cost, max_time)
     global_hyperarea = calculate_hyperarea(all_solutions_front, center_point)
 
-    best_x = min(solution.pareto_x for solution in all_solutions_front)
-    best_y = min(solution.pareto_y for solution in all_solutions_front)
-
-    avg_x = sum(solution.pareto_x for solution in all_solutions_front) / len(all_solutions_front)
-    avg_y = sum(solution.pareto_y for solution in all_solutions_front) / len(all_solutions_front)
-
-    avg_cycle_time = sum(solution.evaluation.total_cycle_time for solution in all_solutions_front) / len(
-        all_solutions_front
-    )
-
-    best_cycle_time = min(solution.evaluation.total_cycle_time for solution in all_solutions_front)
-
     base_cycle_time = stores[0][1].base_evaluation.total_cycle_time
     base_x = stores[0][1].base_solution.pareto_x
     base_y = stores[0][1].base_solution.pareto_y
+
+    def create_reference_metrics(
+        agent: str,
+        scenario: str,
+        mode: str,
+        front: list[Solution],
+        center_point: tuple[float, float],
+        no_of_solutions: int,
+        no_of_invalid_solutions: int,
+    ) -> Metrics:
+        pareto_hyperarea = calculate_hyperarea(front, center_point)
+        ratio = 0.0 if global_hyperarea == 0.0 else pareto_hyperarea / global_hyperarea
+
+        hausdorff_distance = calculate_averaged_hausdorff_distance(front, all_solutions_front)
+        delta = calculate_delta_metric(front, all_solutions_front)
+        purity = calculate_purity(front, all_solutions_front)
+
+        best_x = min(solution.pareto_x for solution in front)
+        best_y = min(solution.pareto_y for solution in front)
+
+        avg_x = sum(solution.pareto_x for solution in front) / len(front)
+        avg_y = sum(solution.pareto_y for solution in front) / len(front)
+
+        avg_cycle_time = sum(solution.evaluation.total_cycle_time for solution in front) / len(front)
+
+        best_cycle_time = min(solution.evaluation.total_cycle_time for solution in front)
+
+        return {
+            "store_name": f"{agent} {scenario}",
+            "scenario": scenario,
+            "agent": agent,
+            "mode": mode,
+            "iterations": -1,
+            "number_of_solutions": no_of_solutions,
+            "invalid_solutions": no_of_invalid_solutions,
+            "invalid_solutions_ratio": no_of_invalid_solutions / no_of_solutions,
+            "patreto_size": len(front),
+            "hyperarea": pareto_hyperarea,
+            "hyperarea_ratio": ratio,
+            "hausdorff_distance": hausdorff_distance,
+            "delta": delta,
+            "purity": purity,
+            "base_x": base_x,
+            "base_y": base_y,
+            "best_x": best_x,
+            "best_y": best_y,
+            "avg_x": avg_x,
+            "avg_y": avg_y,
+            "pareto_avg_cycle_time": avg_cycle_time,
+            "base_cycle_time": base_cycle_time,
+            "best_cycle_time": best_cycle_time,
+        }
 
     metrics: list[Metrics] = []
 
@@ -151,8 +298,8 @@ def calculate_metrics(
             "mode": mode,
             "iterations": -1,
             "number_of_solutions": len(all_solutions),
-            "invalid_solutions": len(invalid_solution_ids),
-            "invalid_solutions_ratio": len(invalid_solution_ids) / len(all_solutions),
+            "invalid_solutions": len(all_invalid_solutions),
+            "invalid_solutions_ratio": len(all_invalid_solutions) / len(all_solutions),
             "patreto_size": len(all_solutions_front),
             "hyperarea": global_hyperarea,
             "hyperarea_ratio": -1.0,
@@ -161,21 +308,50 @@ def calculate_metrics(
             "purity": -1.0,
             "base_x": base_x,
             "base_y": base_y,
-            "best_x": best_x,
-            "best_y": best_y,
-            "avg_x": avg_x,
-            "avg_y": avg_y,
-            "best_cycle_time": best_cycle_time,
-            "pareto_avg_cycle_time": avg_cycle_time,
+            "best_x": min(solution.pareto_x for solution in all_solutions_front),
+            "best_y": min(solution.pareto_y for solution in all_solutions_front),
+            "avg_x": sum(solution.pareto_x for solution in all_solutions_front) / len(all_solutions_front),
+            "avg_y": sum(solution.pareto_y for solution in all_solutions_front) / len(all_solutions_front),
+            "best_cycle_time": min(solution.evaluation.total_cycle_time for solution in all_solutions_front),
+            "pareto_avg_cycle_time": sum(
+                solution.evaluation.total_cycle_time for solution in all_solutions_front
+            )
+            / len(all_solutions_front),
             "base_cycle_time": base_cycle_time,
         }
     )
 
+    metrics.append(
+        create_reference_metrics(
+            "Reference (Random)",
+            scenario,
+            mode,
+            random_solutions_front,
+            center_point,
+            len(random_solutions),
+            len(random_invalid_solutions),
+        )
+    )
+
+    metrics.append(
+        create_reference_metrics(
+            "Reference (Optimos)",
+            scenario,
+            mode,
+            optimos_solutions_front,
+            center_point,
+            len(optimos_solutions),
+            len(optimos_invalid_solutions),
+        )
+    )
+
     for agent, store in stores:
+        info(f"Calculating metrics for {agent} ({scenario} {mode})...")
         number_of_solutions = store.solution_tree.total_solutions
         invalid_solutions = store.solution_tree.discarded_solutions
         invalid_solutions_ratio = invalid_solutions / number_of_solutions
-        pareto_solutions = store.current_pareto_front.solutions
+        pareto_solutions = recalculate_pareto_front(all_solutions_dict, store)
+
         pareto_hyperarea = calculate_hyperarea(pareto_solutions, center_point)
         ratio = 0.0 if global_hyperarea == 0.0 else pareto_hyperarea / global_hyperarea
 
@@ -349,6 +525,12 @@ def print_metrics_in_google_sheet_format(metrics: list[Metrics]) -> None:
         result += "----------------------------------------\n\n"
         result += "Pareto Metrics;;Easy;Mid;Hard\n"
         reference_easy, reference_mid, reference_hard = get_metrics_for_agent(metrics, "Global")
+        reference_random_easy, reference_random_mid, reference_random_hard = get_metrics_for_agent(
+            metrics, "Reference (Random)"
+        )
+        reference_optimos_easy, reference_optimos_mid, reference_optimos_hard = get_metrics_for_agent(
+            metrics, "Reference (Optimos)"
+        )
 
         ppo_easy, ppo_mid, ppo_hard = get_metrics_for_agent(metrics, "Proximal Policy Optimization")
         sa_easy, sa_mid, sa_hard = get_metrics_for_agent(metrics, "Simulated Annealing")
@@ -378,6 +560,8 @@ def print_metrics_in_google_sheet_format(metrics: list[Metrics]) -> None:
 
         result += "# Solutions\n"
         result += f";Total Unique;{reference_easy['number_of_solutions']};{reference_mid['number_of_solutions']};{reference_hard['number_of_solutions']}\n"
+        result += f";Total Unique Random;{reference_random_easy['number_of_solutions']};{reference_random_mid['number_of_solutions']};{reference_random_hard['number_of_solutions']}\n"
+        result += f";Total Unique Optimos;{reference_optimos_easy['number_of_solutions']};{reference_optimos_mid['number_of_solutions']};{reference_optimos_hard['number_of_solutions']}\n"
         result += f";SA;{sa_easy['number_of_solutions']};{sa_mid['number_of_solutions']};{sa_hard['number_of_solutions']}\n"
         result += f";Tabu Search;{tabu_search_easy['number_of_solutions']};{tabu_search_mid['number_of_solutions']};{tabu_search_hard['number_of_solutions']}\n"
         result += f";PPO;{ppo_easy['number_of_solutions']};{ppo_mid['number_of_solutions']};{ppo_hard['number_of_solutions']}\n"
@@ -386,6 +570,9 @@ def print_metrics_in_google_sheet_format(metrics: list[Metrics]) -> None:
         result += f";PPO Random;{ppo_random_easy['number_of_solutions']};{ppo_random_mid['number_of_solutions']};{ppo_random_hard['number_of_solutions']}\n\n"
 
         result += "# Invalid Solutions Ratio\n"
+        result += f";Total;{reference_easy['invalid_solutions_ratio']};{reference_mid['invalid_solutions_ratio']};{reference_hard['invalid_solutions_ratio']}\n"
+        result += f";Total Random;{reference_random_easy['invalid_solutions_ratio']};{reference_random_mid['invalid_solutions_ratio']};{reference_random_hard['invalid_solutions_ratio']}\n"
+        result += f";Total Optimos;{reference_optimos_easy['invalid_solutions_ratio']};{reference_optimos_mid['invalid_solutions_ratio']};{reference_optimos_hard['invalid_solutions_ratio']}\n"
         result += f";SA;{sa_easy['invalid_solutions_ratio']};{sa_mid['invalid_solutions_ratio']};{sa_hard['invalid_solutions_ratio']}\n"
         result += f";Tabu Search;{tabu_search_easy['invalid_solutions_ratio']};{tabu_search_mid['invalid_solutions_ratio']};{tabu_search_hard['invalid_solutions_ratio']}\n"
         result += f";PPO;{ppo_easy['invalid_solutions_ratio']};{ppo_mid['invalid_solutions_ratio']};{ppo_hard['invalid_solutions_ratio']}\n"
@@ -395,6 +582,8 @@ def print_metrics_in_google_sheet_format(metrics: list[Metrics]) -> None:
 
         result += "Pareto Size\n"
         result += f";Reference;{reference_easy['patreto_size']};{reference_mid['patreto_size']};{reference_hard['patreto_size']}\n"
+        result += f";Reference Random;{reference_random_easy['patreto_size']};{reference_random_mid['patreto_size']};{reference_random_hard['patreto_size']}\n"
+        result += f";Reference Optimos;{reference_optimos_easy['patreto_size']};{reference_optimos_mid['patreto_size']};{reference_optimos_hard['patreto_size']}\n"
         result += f";SA;{sa_easy['patreto_size']};{sa_mid['patreto_size']};{sa_hard['patreto_size']}\n"
         result += f";Tabu Search;{tabu_search_easy['patreto_size']};{tabu_search_mid['patreto_size']};{tabu_search_hard['patreto_size']}\n"
         result += f";PPO;{ppo_easy['patreto_size']};{ppo_mid['patreto_size']};{ppo_hard['patreto_size']}\n"
@@ -403,6 +592,8 @@ def print_metrics_in_google_sheet_format(metrics: list[Metrics]) -> None:
         result += f";PPO Random;{ppo_random_easy['patreto_size']};{ppo_random_mid['patreto_size']};{ppo_random_hard['patreto_size']}\n\n"
 
         result += "Hyperarea Ratio\n"
+        result += f";Reference Random;{reference_random_easy['hyperarea_ratio']};{reference_random_mid['hyperarea_ratio']};{reference_random_hard['hyperarea_ratio']}\n"
+        result += f";Reference Optimos;{reference_optimos_easy['hyperarea_ratio']};{reference_optimos_mid['hyperarea_ratio']};{reference_optimos_hard['hyperarea_ratio']}\n"
         result += (
             f";SA;{sa_easy['hyperarea_ratio']};{sa_mid['hyperarea_ratio']};{sa_hard['hyperarea_ratio']}\n"
         )
@@ -415,6 +606,8 @@ def print_metrics_in_google_sheet_format(metrics: list[Metrics]) -> None:
         result += f";PPO Random;{ppo_random_easy['hyperarea_ratio']};{ppo_random_mid['hyperarea_ratio']};{ppo_random_hard['hyperarea_ratio']}\n\n"
 
         result += "Hausdorff\n"
+        result += f";Reference Random;{reference_random_easy['hausdorff_distance']};{reference_random_mid['hausdorff_distance']};{reference_random_hard['hausdorff_distance']}\n"
+        result += f";Reference Optimos;{reference_optimos_easy['hausdorff_distance']};{reference_optimos_mid['hausdorff_distance']};{reference_optimos_hard['hausdorff_distance']}\n"
         result += f";SA;{sa_easy['hausdorff_distance']};{sa_mid['hausdorff_distance']};{sa_hard['hausdorff_distance']}\n"
         result += f";Tabu Search;{tabu_search_easy['hausdorff_distance']};{tabu_search_mid['hausdorff_distance']};{tabu_search_hard['hausdorff_distance']}\n"
         result += f";PPO;{ppo_easy['hausdorff_distance']};{ppo_mid['hausdorff_distance']};{ppo_hard['hausdorff_distance']}\n"
@@ -423,6 +616,8 @@ def print_metrics_in_google_sheet_format(metrics: list[Metrics]) -> None:
         result += f";PPO Random;{ppo_random_easy['hausdorff_distance']};{ppo_random_mid['hausdorff_distance']};{ppo_random_hard['hausdorff_distance']}\n\n"
 
         result += "Delta\n"
+        result += f";Reference Random;{reference_random_easy['delta']};{reference_random_mid['delta']};{reference_random_hard['delta']}\n"
+        result += f";Reference Optimos;{reference_optimos_easy['delta']};{reference_optimos_mid['delta']};{reference_optimos_hard['delta']}\n"
         result += f";SA;{sa_easy['delta']};{sa_mid['delta']};{sa_hard['delta']}\n"
         result += f";Tabu Search;{tabu_search_easy['delta']};{tabu_search_mid['delta']};{tabu_search_hard['delta']}\n"
         result += f";PPO;{ppo_easy['delta']};{ppo_mid['delta']};{ppo_hard['delta']}\n"
@@ -433,6 +628,8 @@ def print_metrics_in_google_sheet_format(metrics: list[Metrics]) -> None:
         )
 
         result += "Purity\n"
+        result += f";Reference Random;{reference_random_easy['purity']};{reference_random_mid['purity']};{reference_random_hard['purity']}\n"
+        result += f";Reference Optimos;{reference_optimos_easy['purity']};{reference_optimos_mid['purity']};{reference_optimos_hard['purity']}\n"
         result += f";SA;{sa_easy['purity']};{sa_mid['purity']};{sa_hard['purity']}\n"
         result += f";Tabu Search;{tabu_search_easy['purity']};{tabu_search_mid['purity']};{tabu_search_hard['purity']}\n"
         result += f";PPO;{ppo_easy['purity']};{ppo_mid['purity']};{ppo_hard['purity']}\n"
@@ -443,6 +640,8 @@ def print_metrics_in_google_sheet_format(metrics: list[Metrics]) -> None:
         result += "Avg Cycle Time\n"
         result += f";Base;{reference_easy['base_cycle_time']};{reference_mid['base_cycle_time']};{reference_hard['base_cycle_time']}\n"
         result += f";Reference;{reference_easy['pareto_avg_cycle_time']};{reference_mid['pareto_avg_cycle_time']};{reference_hard['pareto_avg_cycle_time']}\n"
+        result += f";Reference Random;{reference_random_easy['pareto_avg_cycle_time']};{reference_random_mid['pareto_avg_cycle_time']};{reference_random_hard['pareto_avg_cycle_time']}\n"
+        result += f";Reference Optimos;{reference_optimos_easy['pareto_avg_cycle_time']};{reference_optimos_mid['pareto_avg_cycle_time']};{reference_optimos_hard['pareto_avg_cycle_time']}\n"
         result += f";SA;{sa_easy['pareto_avg_cycle_time']};{sa_mid['pareto_avg_cycle_time']};{sa_hard['pareto_avg_cycle_time']}\n"
         result += f";Tabu Search;{tabu_search_easy['pareto_avg_cycle_time']};{tabu_search_mid['pareto_avg_cycle_time']};{tabu_search_hard['pareto_avg_cycle_time']}\n"
         result += f";PPO;{ppo_easy['pareto_avg_cycle_time']};{ppo_mid['pareto_avg_cycle_time']};{ppo_hard['pareto_avg_cycle_time']}\n"
@@ -453,6 +652,8 @@ def print_metrics_in_google_sheet_format(metrics: list[Metrics]) -> None:
         result += "Best Cycle Time\n"
         result += f";Base;{reference_easy['base_cycle_time']};{reference_mid['base_cycle_time']};{reference_hard['base_cycle_time']}\n"
         result += f";Reference;{reference_easy['best_cycle_time']};{reference_mid['best_cycle_time']};{reference_hard['best_cycle_time']}\n"
+        result += f";Reference Random;{reference_random_easy['best_cycle_time']};{reference_random_mid['best_cycle_time']};{reference_random_hard['best_cycle_time']}\n"
+        result += f";Reference Optimos;{reference_optimos_easy['best_cycle_time']};{reference_optimos_mid['best_cycle_time']};{reference_optimos_hard['best_cycle_time']}\n"
         result += (
             f";SA;{sa_easy['best_cycle_time']};{sa_mid['best_cycle_time']};{sa_hard['best_cycle_time']}\n"
         )
@@ -469,6 +670,8 @@ def print_metrics_in_google_sheet_format(metrics: list[Metrics]) -> None:
         result += (
             f";Reference;{reference_easy['best_x']};{reference_mid['best_x']};{reference_hard['best_x']}\n"
         )
+        result += f";Reference Random;{reference_random_easy['best_x']};{reference_random_mid['best_x']};{reference_random_hard['best_x']}\n"
+        result += f";Reference Optimos;{reference_optimos_easy['best_x']};{reference_optimos_mid['best_x']};{reference_optimos_hard['best_x']}\n"
         result += f";SA;{sa_easy['best_x']};{sa_mid['best_x']};{sa_hard['best_x']}\n"
         result += f";Tabu Search;{tabu_search_easy['best_x']};{tabu_search_mid['best_x']};{tabu_search_hard['best_x']}\n"
         result += f";PPO;{ppo_easy['best_x']};{ppo_mid['best_x']};{ppo_hard['best_x']}\n"
@@ -481,6 +684,8 @@ def print_metrics_in_google_sheet_format(metrics: list[Metrics]) -> None:
         result += (
             f";Reference;{reference_easy['best_y']};{reference_mid['best_y']};{reference_hard['best_y']}\n"
         )
+        result += f";Reference Random;{reference_random_easy['best_y']};{reference_random_mid['best_y']};{reference_random_hard['best_y']}\n"
+        result += f";Reference Optimos;{reference_optimos_easy['best_y']};{reference_optimos_mid['best_y']};{reference_optimos_hard['best_y']}\n"
         result += f";SA;{sa_easy['best_y']};{sa_mid['best_y']};{sa_hard['best_y']}\n"
         result += f";Tabu Search;{tabu_search_easy['best_y']};{tabu_search_mid['best_y']};{tabu_search_hard['best_y']}\n"
         result += f";PPO;{ppo_easy['best_y']};{ppo_mid['best_y']};{ppo_hard['best_y']}\n"
@@ -491,6 +696,8 @@ def print_metrics_in_google_sheet_format(metrics: list[Metrics]) -> None:
         result += f"Avg {Settings.get_pareto_x_label()}\n"
         result += f";Base;{reference_easy['base_x']};{reference_mid['base_x']};{reference_hard['base_x']}\n"
         result += f";Reference;{reference_easy['avg_x']};{reference_mid['avg_x']};{reference_hard['avg_x']}\n"
+        result += f";Reference Random;{reference_random_easy['avg_x']};{reference_random_mid['avg_x']};{reference_random_hard['avg_x']}\n"
+        result += f";Reference Optimos;{reference_optimos_easy['avg_x']};{reference_optimos_mid['avg_x']};{reference_optimos_hard['avg_x']}\n"
         result += f";SA;{sa_easy['avg_x']};{sa_mid['avg_x']};{sa_hard['avg_x']}\n"
         result += f";Tabu Search;{tabu_search_easy['avg_x']};{tabu_search_mid['avg_x']};{tabu_search_hard['avg_x']}\n"
         result += f";PPO;{ppo_easy['avg_x']};{ppo_mid['avg_x']};{ppo_hard['avg_x']}\n"
@@ -503,6 +710,8 @@ def print_metrics_in_google_sheet_format(metrics: list[Metrics]) -> None:
         result += f"Avg {Settings.get_pareto_y_label()}\n"
         result += f";Base;{reference_easy['base_y']};{reference_mid['base_y']};{reference_hard['base_y']}\n"
         result += f";Reference;{reference_easy['avg_y']};{reference_mid['avg_y']};{reference_hard['avg_y']}\n"
+        result += f";Reference Random;{reference_random_easy['avg_y']};{reference_random_mid['avg_y']};{reference_random_hard['avg_y']}\n"
+        result += f";Reference Optimos;{reference_optimos_easy['avg_y']};{reference_optimos_mid['avg_y']};{reference_optimos_hard['avg_y']}\n"
         result += f";SA;{sa_easy['avg_y']};{sa_mid['avg_y']};{sa_hard['avg_y']}\n"
         result += f";Tabu Search;{tabu_search_easy['avg_y']};{tabu_search_mid['avg_y']};{tabu_search_hard['avg_y']}\n"
         result += f";PPO;{ppo_easy['avg_y']};{ppo_mid['avg_y']};{ppo_hard['avg_y']}\n"
@@ -548,6 +757,24 @@ if __name__ == "__main__":
     all_metrics: list[Metrics] = []
 
     for scenario in scenarios:
+        if "ac-crd" in scenario.lower():
+            continue
+        if "2017" in scenario.lower():
+            continue
+        if "2019" in scenario.lower():
+            continue
+        if "callcentre" in scenario.lower():
+            continue
+        if "consulta" in scenario.lower():
+            continue
+        if "poc" in scenario.lower():
+            continue
+        if "wk-ord" in scenario.lower():
+            continue
+        if "gov" in scenario.lower():
+            continue
+        if "purchasing" in scenario.lower():
+            continue
         mode = get_mode_from_scenario(scenario)
         scenario_without_mode = get_scenario_without_mode(scenario)
 

@@ -5,26 +5,39 @@ import pickle
 import subprocess
 import sys
 import tempfile
-from collections import defaultdict
+from collections import Counter, defaultdict
+from typing import Generator, cast
 
 from o2.models.settings import CostType, Settings
 from o2.models.solution import Solution
 from o2.store import Store
-from o2.util.logger import debug, info, setup_logging, warn
+from o2.util.logger import debug, info, setup_logging, stats, warn
 from o2.util.solution_dumper import SolutionDumper
 from o2_evaluation.data_analyzer import (
+    create_front_from_solutions,
+    filter_solutions,
     get_agent_from_filename,
     get_scenario_from_filename,
+    handle_duplicates,
 )
 
 # Config
+# REMOTE_HOST = "crr-server.local"
 REMOTE_HOST = "rocket.hpc.ut.ee"
+# REMOTE_USER = "root"
 REMOTE_USER = "jannis"
-REMOTE_PATH = "~/optimos_v2"
+# REMOTE_PATH =  "/mnt/user/CRR-J-Data/Optimos-Backup/Stores_12_03_25_16_37"
+REMOTE_PATH = "~/optimos_v2/stores"
+# STORES_PATH = "/mnt/user/CRR-J-Data/Optimos-Backup/Stores_12_03_25_16_37/"
+STORES_PATH = "~/optimos_v2/stores/"
+# SSH_KEY = "~/.ssh/id_crr_server"
 SSH_KEY = "~/.ssh/id_rocket"
 REMOTE_LIST_FILE = "remote_file_list.txt"
 LOCAL_LIST_FILE = "local_file_list.txt"
 LOCAL_OUTPUT_DIR = "evaluations"
+
+
+FIND_NEW_PARETO_FRONT_FILES = False
 
 
 def get_stores_and_solutions():
@@ -48,6 +61,20 @@ def get_stores_and_solutions():
     scenarios = list(stores_files.keys())
 
     for scenario in scenarios:
+        if "ac-crd" in scenario.lower():
+            continue
+        if "2019" in scenario.lower():
+            continue
+        if "callcentre" in scenario.lower():
+            continue
+        if "consulta" in scenario.lower():
+            continue
+        if "poc" in scenario.lower():
+            continue
+        if "wk-ord" in scenario.lower():
+            continue
+        if "gov" in scenario.lower():
+            continue
         stores: list[tuple[str, Store]] = []
         solutions: list[Solution] = []
         for file in stores_files[scenario]:
@@ -85,13 +112,37 @@ def get_stores_and_solutions():
         yield stores, solutions
 
 
+def get_duplicate_solutions(solutions: list[Solution]) -> Generator[Solution, None, None]:
+    """Get the duplicate solutions from the solutions."""
+    counter: dict[int, tuple[Solution, bool]] = {}
+    for solution in solutions:
+        if not solution.is_valid:
+            continue
+        # If we already have seen this solution, yield the duplicate and the original
+        if hash(solution) in counter:
+            original_solution, yield_original = counter[hash(solution)]
+
+            # Make sure we only yield the original once
+            if not yield_original:
+                yield original_solution
+                counter[hash(solution)] = (original_solution, True)
+            yield solution
+        else:
+            counter[hash(solution)] = (solution, False)
+
+
 def find_required_files() -> list[str]:
     """Find the required files for the given stores and solutions."""
     # Create a temporary directory
     required_files: list[str] = []
 
     for stores, extra_solutions in get_stores_and_solutions():
-        all_solutions: set[Solution] = set()
+        info(
+            f"Start Processing of {stores[0][1].name} ({len(stores)} stores, {len(extra_solutions)} extra solutions)"
+        )
+        all_solutions_list: list[Solution] = list()
+        random_solutions: list[Solution] = list()
+        optimos_solutions: list[Solution] = list()
 
         for _, store in stores:
             store_solutions = [
@@ -102,45 +153,93 @@ def find_required_files() -> list[str]:
                 if solution is not None and solution.is_valid:
                     # Add store name so we can load the evaluation and state later
                     solution.__dict__["_store_name"] = store.name
-                    all_solutions.add(solution)
+                    all_solutions_list.append(solution)
 
-        all_solutions.update(
-            [extra_solution for extra_solution in extra_solutions if extra_solution.is_valid]
-        )
+        all_solutions_list.extend(filter_solutions(extra_solutions, valid=True))
+
+        debug("Compiled all solutions")
+        duplicate_solutions = list(get_duplicate_solutions(all_solutions_list))
+        stats(f"Found ~{len(duplicate_solutions)} duplicate solutions")
+
+        all_solutions = set(all_solutions_list)
+
+        random_solutions = filter_solutions(all_solutions, name="random", valid=True)
+        optimos_solutions = filter_solutions(all_solutions, not_name="random", valid=True)
 
         # Find the Pareto front (non-dominated solutions)
-        all_solutions_front = [
-            solution
-            for solution in all_solutions
-            if not any(
-                solution.is_dominated_by(other)
-                for other in all_solutions
-                if (Settings.EQUAL_DOMINATION_ALLOWED or other.point != solution.point)
-            )
-        ]
+        all_solutions_front = create_front_from_solutions(all_solutions)
+        random_solutions_front = create_front_from_solutions(random_solutions)
+        optimos_solutions_front = create_front_from_solutions(optimos_solutions)
+
+        debug("Compiled all pareto fronts")
 
         required_solutions = (
             # Add every non-dominated solution from the reference front
             all_solutions_front
+            # Add every non-dominated solution from the random front
+            + random_solutions_front
+            # Add every non-dominated solution from the optimos front
+            + optimos_solutions_front
             # Add every solution of the current Pareto front from each store
             + [solution for _, store in stores for solution in store.current_pareto_front.solutions]
             # Add base solution from each store
             + [store.base_solution for _, store in stores if store.base_solution is not None]
+            # Add duplicate solutions
+            + duplicate_solutions
         )
 
-        # List of paths to the required files
-        required_files.extend(
-            set(
-                [
-                    f"evaluation_{solution.__dict__['_store_name'].replace(' ', '_').lower()}_{solution.id}.pkl"
-                    for solution in required_solutions
-                ]
-                + [
-                    f"state_{solution.__dict__['_store_name'].replace(' ', '_').lower()}_{solution.id}.pkl"
-                    for solution in required_solutions
-                ]
-            )
+        new_required_files = set(
+            f"evaluation_{solution.__dict__['_store_name'].replace(' ', '_').lower()}_{solution.id}.pkl"
+            for solution in required_solutions
         )
+
+        stats(f"Found {len(required_solutions)} required solutions ({len(new_required_files)} unique)")
+
+        # List of paths to the required files
+        required_files.extend(new_required_files)
+
+    return required_files
+
+
+def find_required_files_for_new_pareto_fronts() -> list[str]:
+    """Find the required files for the new Pareto fronts."""
+    required_files: list[str] = []
+
+    for stores, extra_solutions in get_stores_and_solutions():
+        extra_solutions_lookup: dict[str, Solution] = {solution.id: solution for solution in extra_solutions}
+
+        all_solutions_list: list[Solution] = list()
+
+        for _, store in stores:
+            store_solutions = [
+                *store.solution_tree.solution_lookup.values(),
+                *[s for pareto in store.pareto_fronts for s in pareto.solutions],
+            ]
+            for solution in store_solutions:
+                if solution is not None and solution.is_valid:
+                    # Add store name so we can load the evaluation and state later
+                    solution.__dict__["_store_name"] = store.name
+                    all_solutions_list.append(solution)
+
+        all_solutions_list.extend(filter_solutions(extra_solutions, valid=True))
+        handle_duplicates(all_solutions_list)
+
+        for _, store in stores:
+            solutions = [
+                extra_solutions_lookup[solution_id]
+                if store.solution_tree.solution_lookup[solution_id] is None
+                else store.solution_tree.solution_lookup[solution_id]
+                for solution_id in store.solution_tree.solution_lookup
+            ]
+            assert all(solution is not None for solution in solutions)
+            solutions = cast(list[Solution], solutions)
+
+            new_pareto = create_front_from_solutions([s for s in solutions if s.is_valid])
+            new_required_files = set(
+                f"evaluation_{store.name.replace(' ', '_').lower()}_{solution.id}.pkl"
+                for solution in new_pareto
+            )
+            required_files.extend(new_required_files)
 
     return required_files
 
@@ -166,7 +265,7 @@ def find_files_on_remote() -> None:
     """Find the files on the remote host."""
     find_command = (
         f"ssh -i {SSH_KEY} {REMOTE_USER}@{REMOTE_HOST} "
-        f'"find ~/optimos_v2/stores/*/evaluations/ -type f | grep -F -f {REMOTE_LIST_FILE} > ~/full_paths.txt"'
+        f'"find {STORES_PATH}*/evaluations/ -type f | grep -F -f {REMOTE_LIST_FILE} | sort > ~/full_paths.txt"'
     )
     run_command(find_command)
 
@@ -203,7 +302,11 @@ def main() -> None:
 
     os.makedirs(LOCAL_OUTPUT_DIR, exist_ok=True)
 
-    required_files = find_required_files()
+    if FIND_NEW_PARETO_FRONT_FILES:
+        required_files = set(find_required_files_for_new_pareto_fronts())
+    else:
+        required_files = find_required_files()
+
     with tempfile.NamedTemporaryFile(delete=False) as f:
         f.write("\n".join(required_files).encode("utf-8"))
 
