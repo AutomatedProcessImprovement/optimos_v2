@@ -186,6 +186,11 @@ def update_store_settings(
     store.settings.log_to_tensor_board = args.log_to_tensor_board
     store.settings.iterations_per_solution = args.iterations_per_solution
     store.settings.sa_strict_ordered = args.sa_strict_ordered
+    store.settings.action_variation_selection = (
+        ActionVariationSelection.RANDOM_MAX_VARIANTS_PER_ACTION
+        if args.max_number_of_variations_per_action != float("inf")
+        else ActionVariationSelection.ALL_RANDOM
+    )
 
 
 def persist_store(store: Store) -> None:
@@ -241,11 +246,6 @@ def collect_data_sequentially(base_store: Store, args: argparse.Namespace) -> No
         args.max_number_of_variations_per_action
         if args.max_number_of_variations_per_action != float("inf")
         else None
-    )
-    Settings.action_variation_selection = (
-        ActionVariationSelection.RANDOM_MAX_VARIANTS_PER_ACTION
-        if args.max_number_of_variations_per_action != float("inf")
-        else ActionVariationSelection.ALL_RANDOM
     )
 
     # Optionally archive previous TensorBoard logs

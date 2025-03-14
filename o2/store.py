@@ -203,7 +203,7 @@ class Store:
         state: State, constraints: ConstraintsType, name: str = "An Optimos Run"
     ) -> "Store":
         """Create a new Store from a state and constraints."""
-        updated_state = replace(state, timetable=state.timetable.init_fixed_cost_fns(constraints))
+        updated_state: State = replace(state, timetable=state.timetable.init_fixed_cost_fns(constraints))
         evaluation = updated_state.evaluate()
         solution = Solution(evaluation=evaluation, state=updated_state, actions=[])
         return Store(solution, constraints, name)
