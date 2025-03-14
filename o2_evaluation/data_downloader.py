@@ -22,16 +22,18 @@ from o2_evaluation.data_analyzer import (
 )
 
 # Config
-# REMOTE_HOST = "crr-server.local"
-REMOTE_HOST = "rocket.hpc.ut.ee"
-# REMOTE_USER = "root"
-REMOTE_USER = "jannis"
-# REMOTE_PATH =  "/mnt/user/CRR-J-Data/Optimos-Backup/Stores_12_03_25_16_37"
-REMOTE_PATH = "~/optimos_v2/stores"
-# STORES_PATH = "/mnt/user/CRR-J-Data/Optimos-Backup/Stores_12_03_25_16_37/"
-STORES_PATH = "~/optimos_v2/stores/"
-# SSH_KEY = "~/.ssh/id_crr_server"
-SSH_KEY = "~/.ssh/id_rocket"
+# REMOTE_HOST = "rocket.hpc.ut.ee"
+# REMOTE_USER = "jannis"
+# REMOTE_PATH = "~/optimos_v2/stores"
+# STORES_PATH = "~/optimos_v2/stores/"
+# SSH_KEY = "~/.ssh/id_rocket"
+
+REMOTE_HOST = "crr-server.local"
+REMOTE_USER = "root"
+REMOTE_PATH = "/mnt/user/CRR-J-Data/Optimos-Backup/Stores_12_03_25_16_37"
+STORES_PATH = "/mnt/user/CRR-J-Data/Optimos-Backup/Stores_12_03_25_16_37/"
+SSH_KEY = "~/.ssh/id_crr_server"
+
 REMOTE_LIST_FILE = "remote_file_list.txt"
 LOCAL_LIST_FILE = "local_file_list.txt"
 LOCAL_OUTPUT_DIR = "evaluations"
@@ -75,6 +77,10 @@ def get_stores_and_solutions():
             continue
         if "gov" in scenario.lower():
             continue
+
+        if not ("2017" in scenario.lower()):
+            continue
+
         stores: list[tuple[str, Store]] = []
         solutions: list[Solution] = []
         for file in stores_files[scenario]:
@@ -222,21 +228,40 @@ def find_required_files_for_new_pareto_fronts() -> list[str]:
                     all_solutions_list.append(solution)
 
         all_solutions_list.extend(filter_solutions(extra_solutions, valid=True))
+
         handle_duplicates(all_solutions_list)
 
-        for _, store in stores:
-            solutions = [
-                extra_solutions_lookup[solution_id]
-                if store.solution_tree.solution_lookup[solution_id] is None
-                else store.solution_tree.solution_lookup[solution_id]
-                for solution_id in store.solution_tree.solution_lookup
-            ]
-            assert all(solution is not None for solution in solutions)
-            solutions = cast(list[Solution], solutions)
+        all_solutions = set(all_solutions_list)
 
-            new_pareto = create_front_from_solutions([s for s in solutions if s.is_valid])
+        all_solutions_front = create_front_from_solutions(filter_solutions(all_solutions, valid=True))
+
+        random_front = create_front_from_solutions(filter_solutions(all_solutions, name="random", valid=True))
+        optimos_front = create_front_from_solutions(
+            filter_solutions(all_solutions, not_name="random", valid=True)
+        )
+
+        required_solutions = all_solutions_front + random_front + optimos_front
+        new_required_files = set(
+            f"evaluation_{solution.__dict__['_store_name'].replace(' ', '_').lower()}_{solution.id}.pkl"
+            for solution in required_solutions
+        )
+        required_files.extend(new_required_files)
+
+        for _, store in stores:
+            store_solutions: list[Solution] = []
+            for solution_id in store.solution_tree.solution_lookup:
+                solution = (
+                    store.solution_tree.solution_lookup[solution_id]
+                    if store.solution_tree.solution_lookup[solution_id] is not None
+                    else extra_solutions_lookup[solution_id]
+                )
+                if solution is not None and solution.is_valid:
+                    solution.__dict__["_store_name"] = store.name
+                    store_solutions.append(solution)
+
+            new_pareto = create_front_from_solutions(store_solutions)
             new_required_files = set(
-                f"evaluation_{store.name.replace(' ', '_').lower()}_{solution.id}.pkl"
+                f"evaluation_{solution.__dict__['_store_name'].replace(' ', '_').lower()}_{solution.id}.pkl"
                 for solution in new_pareto
             )
             required_files.extend(new_required_files)

@@ -164,8 +164,9 @@ def recalculate_pareto_front(solution_dict: dict[str, Solution], store: Store) -
     """Recalculate the Pareto front for the given store."""
     store_solutions: list[Solution] = []
     for solution_id in store.solution_tree.solution_lookup:
-        solution = solution_dict[solution_id]
+        solution = store.solution_tree.solution_lookup[solution_id] or solution_dict[solution_id]
         if solution.is_valid:
+            solution.__dict__["_store_name"] = store.name
             store_solutions.append(solution)
 
     return create_front_from_solutions(store_solutions)
@@ -759,8 +760,6 @@ if __name__ == "__main__":
     for scenario in scenarios:
         if "ac-crd" in scenario.lower():
             continue
-        if "2017" in scenario.lower():
-            continue
         if "2019" in scenario.lower():
             continue
         if "callcentre" in scenario.lower():
@@ -773,8 +772,9 @@ if __name__ == "__main__":
             continue
         if "gov" in scenario.lower():
             continue
-        if "purchasing" in scenario.lower():
+        if not ("2017" in scenario.lower() or "purchasing" in scenario.lower()):
             continue
+
         mode = get_mode_from_scenario(scenario)
         scenario_without_mode = get_scenario_without_mode(scenario)
 
