@@ -185,6 +185,7 @@ def update_store_settings(
     )
     store.settings.log_to_tensor_board = args.log_to_tensor_board
     store.settings.iterations_per_solution = args.iterations_per_solution
+    store.settings.max_variants_per_action = args.max_number_of_variations_per_action
     store.settings.sa_strict_ordered = args.sa_strict_ordered
     store.settings.action_variation_selection = (
         ActionVariationSelection.RANDOM_MAX_VARIANTS_PER_ACTION
@@ -242,11 +243,6 @@ def collect_data_sequentially(base_store: Store, args: argparse.Namespace) -> No
     Settings.ARCHIVE_SOLUTIONS = True
     Settings.DELETE_LOADED_SOLUTION_ARCHIVES = False
     Settings.OVERWRITE_EXISTING_SOLUTION_ARCHIVES = False
-    Settings.MAX_YIELDS_PER_ACTION = (
-        args.max_number_of_variations_per_action
-        if args.max_number_of_variations_per_action != float("inf")
-        else None
-    )
 
     # Optionally archive previous TensorBoard logs
     if (
