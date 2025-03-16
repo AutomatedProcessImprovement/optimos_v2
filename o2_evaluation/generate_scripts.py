@@ -64,6 +64,8 @@ def generate_script(scenario: str, model: str, mode_name: str, max_batch_size: i
         else MAX_NON_IMPROVING_SOLUTIONS_PPO
     )
 
+    max_threads = CORES - 1 if "Proximal Policy Optimization" not in model else 1
+
     return dedent(f"""\
     #!/bin/bash
 
@@ -89,7 +91,7 @@ def generate_script(scenario: str, model: str, mode_name: str, max_batch_size: i
         --max-iterations {max_iterations} \\
         --max-solutions {MAX_SOLUTIONS} \\
         --dump-interval {dump_interval} \\
-        --max-threads {CORES - 1} \\
+        --max-threads {max_threads} \\
         --max-number-of-actions-per-iteration {MAX_NUMBER_OF_ACTIONS_PER_ITERATION} \\
         --max-non-improving-actions {max_non_improving_actions} \\
         --iterations-per-solution {ITERATIONS_PER_SOLUTION} \\
