@@ -154,9 +154,9 @@ def handle_duplicates(solutions: Iterable[Solution]) -> None:
             elif solution.is_valid and first_evaluation.total_cycle_time > second_evaluation.total_cycle_time:
                 _update_evaluation(first_solution, second_evaluation)
                 duplicate_lookup[hash(solution)] = solution
-                log_io(f"Duplicate solution found: {solution.id}, keeping it.")
+                # log_io(f"Duplicate solution found: {solution.id}, keeping it.")
             else:
-                log_io(f"Duplicate solution found: {solution.id}, keeping first ({first_solution.id}).")
+                # log_io(f"Duplicate solution found: {solution.id}, keeping first ({first_solution.id}).")
                 _update_evaluation(solution, first_evaluation)
 
 
@@ -180,22 +180,38 @@ def calculate_metrics(
 ) -> list[Metrics]:
     """Calculate the metrics for the given stores."""
     info(f"Calculating metrics for {scenario} ({mode})")
+
+    extra_solutions_dict: dict[str, Solution] = {solution.id: solution for solution in extra_solutions}
+
     all_solutions_list: list[Solution] = list()
     all_invalid_solutions: set[str] = set()
     random_invalid_solutions: set[str] = set()
     optimos_invalid_solutions: set[str] = set()
+
+    def handle_invalid_solution(solution_id: str, solution: Solution) -> None:
+        all_invalid_solutions.add(solution_id)
+        if "random" in store.name.lower():
+            random_invalid_solutions.add(solution_id)
+        else:
+            optimos_invalid_solutions.add(solution_id)
+        if solution is not None:
+            all_solutions_list.append(solution)
+
     for _, store in stores:
         for solution_id, solution in store.solution_tree.solution_lookup.items():
             if solution is not None and solution.is_valid:
                 # Add store name so we can load the evaluation and state later
                 solution.__dict__["_store_name"] = store.name
                 all_solutions_list.append(solution)
-            else:
-                all_invalid_solutions.add(solution_id)
-                if "random" in store.name.lower():
-                    random_invalid_solutions.add(solution_id)
+            elif solution is not None and not solution.is_valid:
+                handle_invalid_solution(solution_id, solution)
+            elif extra_solutions_dict.get(solution_id) is not None:
+                if extra_solutions_dict[solution_id].is_valid:
+                    all_solutions_list.append(extra_solutions_dict[solution_id])
                 else:
-                    optimos_invalid_solutions.add(solution_id)
+                    handle_invalid_solution(solution_id, extra_solutions_dict[solution_id])
+            else:
+                warn(f"Solution {solution_id} of {store.name} not found in store or extra solutions!")
         for pareto in store.pareto_fronts:
             for solution in pareto.solutions:
                 if solution is not None and solution.is_valid:
@@ -203,20 +219,11 @@ def calculate_metrics(
                     solution.__dict__["_store_name"] = store.name
                     all_solutions_list.append(solution)
 
-    all_solutions_list.extend(filter_solutions(extra_solutions, valid=True))
-
     handle_duplicates(all_solutions_list)
 
     all_solutions_dict: dict[str, Solution] = {solution.id: solution for solution in all_solutions_list}
-    all_solutions_dict.update(
-        {solution.id: solution for solution in extra_solutions if not solution.is_valid}
-    )
 
     all_solutions = set(all_solutions_list)
-
-    all_invalid_solutions.update(filter_solution_ids(extra_solutions, valid=False))
-    random_invalid_solutions.update(filter_solution_ids(extra_solutions, name="random", valid=False))
-    optimos_invalid_solutions.update(filter_solution_ids(extra_solutions, not_name="random", valid=False))
 
     random_solutions: set[Solution] = set(filter_solutions(all_solutions, name="random", valid=True))
     optimos_solutions: set[Solution] = set(filter_solutions(all_solutions, not_name="random", valid=True))
@@ -758,23 +765,6 @@ if __name__ == "__main__":
     all_metrics: list[Metrics] = []
 
     for scenario in scenarios:
-        if "ac-crd" in scenario.lower():
-            continue
-        if "2019" in scenario.lower():
-            continue
-        if "callcentre" in scenario.lower():
-            continue
-        if "consulta" in scenario.lower():
-            continue
-        if "poc" in scenario.lower():
-            continue
-        if "wk-ord" in scenario.lower():
-            continue
-        if "gov" in scenario.lower():
-            continue
-        if not ("2017" in scenario.lower() or "purchasing" in scenario.lower()):
-            continue
-
         mode = get_mode_from_scenario(scenario)
         scenario_without_mode = get_scenario_without_mode(scenario)
 
