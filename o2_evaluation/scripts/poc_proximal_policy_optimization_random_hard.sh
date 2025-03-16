@@ -21,10 +21,10 @@ conda run -n opti2 --no-capture-output python ./o2_evaluation/data_collector.py 
     --max-batch-size 50 \
     --max-iterations 10000 \
     --max-solutions 10000 \
-    --dump-interval 1000 \
+    --dump-interval 200 \
     --max-threads 23 \
     --max-number-of-actions-per-iteration 23 \
-    --max-non-improving-actions 1000 \
+    --max-non-improving-actions 500 \
     --iterations-per-solution 3 \
     --max-number-of-variations-per-action 3 \
     --log-level DEBUG \

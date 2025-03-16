@@ -30,16 +30,16 @@ MAX_ITERATIONS = (MAX_SOLUTIONS // MAX_NUMBER_OF_ACTIONS_PER_ITERATION) * 2
 # So iterations == solutions
 MAX_ITERATIONS_PPO = MAX_SOLUTIONS
 
-# We want 10 dumps per optimization run
-DUMP_INTERVAL = MAX_SOLUTIONS // 10
-DUMP_INTERVAL_PPO = MAX_SOLUTIONS // 10
+# We want 25 dumps per optimization run
+DUMP_INTERVAL = MAX_SOLUTIONS // 50
+DUMP_INTERVAL_PPO = MAX_SOLUTIONS // 50
 
 # Early stopping after 10% of the max iterations without improvement
-MAX_NON_IMPROVING_SOLUTIONS_TABU = ceil(0.1 * MAX_SOLUTIONS)
-MAX_NON_IMPROVING_SOLUTIONS_PPO = ceil(0.1 * MAX_SOLUTIONS)
+MAX_NON_IMPROVING_SOLUTIONS_TABU = ceil(0.05 * MAX_SOLUTIONS)
+MAX_NON_IMPROVING_SOLUTIONS_PPO = ceil(0.05 * MAX_SOLUTIONS)
 # For SA we shoudln't stop super early, because in the random phase at the begining with a very high temperature,
 # it's very normal, that the solutions are not improving.
-MAX_NON_IMPROVING_SOLUTIONS_SA = ceil(0.25 * MAX_SOLUTIONS)
+MAX_NON_IMPROVING_SOLUTIONS_SA = ceil(0.1 * MAX_SOLUTIONS)
 
 NUMBER_OF_CASES = 500
 SA_COOLING_FACTOR = "auto"
