@@ -218,25 +218,29 @@ def calculate_metrics(
                     # Add store name so we can load the evaluation and state later
                     solution.__dict__["_store_name"] = store.name
                     all_solutions_list.append(solution)
+                elif solution is not None and not solution.is_valid:
+                    handle_invalid_solution(solution.id, solution)
 
     handle_duplicates(all_solutions_list)
 
     all_solutions_dict: dict[str, Solution] = {solution.id: solution for solution in all_solutions_list}
 
-    all_solutions = set(all_solutions_list)
+    all_valid_solutions = set(filter_solutions(all_solutions_list, valid=True))
 
-    random_solutions: set[Solution] = set(filter_solutions(all_solutions, name="random", valid=True))
-    optimos_solutions: set[Solution] = set(filter_solutions(all_solutions, not_name="random", valid=True))
+    random_solutions: set[Solution] = set(filter_solutions(all_valid_solutions, name="random", valid=True))
+    optimos_solutions: set[Solution] = set(
+        filter_solutions(all_valid_solutions, not_name="random", valid=True)
+    )
 
     # Find the Pareto front (non-dominated solutions)
-    all_solutions_front = create_front_from_solutions(all_solutions)
+    all_solutions_front = create_front_from_solutions(all_valid_solutions)
     random_solutions_front = create_front_from_solutions(random_solutions)
     optimos_solutions_front = create_front_from_solutions(optimos_solutions)
 
     debug(f"Calculated reference fronts with {len(all_solutions_front)} solutions")
     # Calculate the hyperarea (using the max cost and time as the center point)
-    max_cost = max(solution.pareto_x for solution in all_solutions)
-    max_time = max(solution.pareto_y for solution in all_solutions)
+    max_cost = max(solution.pareto_x for solution in all_valid_solutions)
+    max_time = max(solution.pareto_y for solution in all_valid_solutions)
     center_point = (max_cost, max_time)
     global_hyperarea = calculate_hyperarea(all_solutions_front, center_point)
 
@@ -305,9 +309,9 @@ def calculate_metrics(
             "agent": "Global",
             "mode": mode,
             "iterations": -1,
-            "number_of_solutions": len(all_solutions),
+            "number_of_solutions": len(all_valid_solutions),
             "invalid_solutions": len(all_invalid_solutions),
-            "invalid_solutions_ratio": len(all_invalid_solutions) / len(all_solutions),
+            "invalid_solutions_ratio": len(all_invalid_solutions) / len(all_valid_solutions),
             "patreto_size": len(all_solutions_front),
             "hyperarea": global_hyperarea,
             "hyperarea_ratio": -1.0,
