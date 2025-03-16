@@ -175,7 +175,7 @@ def calculate_purity(pareto_front: list[Solution], reference_set: list[Solution]
     pareto_set = {tuple(sol.point) for sol in pareto_front}
     reference_set_points = {tuple(sol.point) for sol in reference_set}
     pure_points = pareto_set.intersection(reference_set_points)
-    return len(pure_points) / len(pareto_front) if pareto_front else 0.0
+    return len(pure_points) / len(reference_set_points) if pareto_front else 0.0
 
 
 def store_from_files(timetable_path: str, constraints_path: str, bpmn_path: str) -> Store:
