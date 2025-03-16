@@ -22,20 +22,21 @@ from o2_evaluation.data_analyzer import (
 )
 
 # Config
-# REMOTE_HOST = "rocket.hpc.ut.ee"
-# REMOTE_USER = "jannis"
-# REMOTE_PATH = "~/optimos_v2/stores"
-# STORES_PATH = "~/optimos_v2/stores/"
-# SSH_KEY = "~/.ssh/id_rocket"
+REMOTE_HOST = "rocket.hpc.ut.ee"
+REMOTE_USER = "jannis"
+REMOTE_PATH = "~/optimos_v2/stores"
+STORES_PATH = "~/optimos_v2/stores/"
+SSH_KEY = "~/.ssh/id_rocket"
 
-REMOTE_HOST = "crr-server.local"
-REMOTE_USER = "root"
-REMOTE_PATH = "/mnt/user/CRR-J-Data/Optimos-Backup/Stores_12_03_25_16_37"
-STORES_PATH = "/mnt/user/CRR-J-Data/Optimos-Backup/Stores_12_03_25_16_37/"
-SSH_KEY = "~/.ssh/id_crr_server"
+# REMOTE_HOST = "crr-server.local"
+# REMOTE_USER = "root"
+# REMOTE_PATH = "/mnt/user/CRR-J-Data/Optimos-Backup/Stores_12_03_25_16_37"
+# STORES_PATH = "/mnt/user/CRR-J-Data/Optimos-Backup/Stores_12_03_25_16_37/"
+# SSH_KEY = "~/.ssh/id_crr_server"
 
 REMOTE_LIST_FILE = "remote_file_list.txt"
 LOCAL_LIST_FILE = "local_file_list.txt"
+LOCAL_LIST_FILE_FILTERED = "local_file_list_filtered.txt"
 LOCAL_OUTPUT_DIR = "evaluations"
 
 
@@ -63,24 +64,6 @@ def get_stores_and_solutions():
     scenarios = list(stores_files.keys())
 
     for scenario in scenarios:
-        if "ac-crd" in scenario.lower():
-            continue
-        if "2019" in scenario.lower():
-            continue
-        if "callcentre" in scenario.lower():
-            continue
-        if "consulta" in scenario.lower():
-            continue
-        if "poc" in scenario.lower():
-            continue
-        if "wk-ord" in scenario.lower():
-            continue
-        if "gov" in scenario.lower():
-            continue
-
-        if not ("2017" in scenario.lower()):
-            continue
-
         stores: list[tuple[str, Store]] = []
         solutions: list[Solution] = []
         for file in stores_files[scenario]:
@@ -146,28 +129,29 @@ def find_required_files() -> list[str]:
         info(
             f"Start Processing of {stores[0][1].name} ({len(stores)} stores, {len(extra_solutions)} extra solutions)"
         )
+
+        extra_solutions_dict: dict[str, Solution] = {solution.id: solution for solution in extra_solutions}
+
         all_solutions_list: list[Solution] = list()
         random_solutions: list[Solution] = list()
         optimos_solutions: list[Solution] = list()
 
         for _, store in stores:
-            store_solutions = [
-                *store.solution_tree.solution_lookup.values(),
-                *[s for pareto in store.pareto_fronts for s in pareto.solutions],
-            ]
-            for solution in store_solutions:
-                if solution is not None and solution.is_valid:
+            for solution_id, solution in store.solution_tree.solution_lookup.items():
+                if solution is not None:
                     # Add store name so we can load the evaluation and state later
                     solution.__dict__["_store_name"] = store.name
                     all_solutions_list.append(solution)
-
-        all_solutions_list.extend(filter_solutions(extra_solutions, valid=True))
+                elif extra_solutions_dict.get(solution_id) is not None:
+                    all_solutions_list.append(extra_solutions_dict[solution_id])
+                else:
+                    warn(f"Solution {solution_id} of {store.name} not found in store or extra solutions!")
 
         debug("Compiled all solutions")
         duplicate_solutions = list(get_duplicate_solutions(all_solutions_list))
         stats(f"Found ~{len(duplicate_solutions)} duplicate solutions")
 
-        all_solutions = set(all_solutions_list)
+        all_solutions = set(filter_solutions(all_solutions_list, valid=True))
 
         random_solutions = filter_solutions(all_solutions, name="random", valid=True)
         optimos_solutions = filter_solutions(all_solutions, not_name="random", valid=True)
@@ -217,17 +201,14 @@ def find_required_files_for_new_pareto_fronts() -> list[str]:
         all_solutions_list: list[Solution] = list()
 
         for _, store in stores:
-            store_solutions = [
-                *store.solution_tree.solution_lookup.values(),
-                *[s for pareto in store.pareto_fronts for s in pareto.solutions],
-            ]
-            for solution in store_solutions:
-                if solution is not None and solution.is_valid:
-                    # Add store name so we can load the evaluation and state later
+            for solution_id, solution in store.solution_tree.solution_lookup.items():
+                if solution is not None:
                     solution.__dict__["_store_name"] = store.name
                     all_solutions_list.append(solution)
-
-        all_solutions_list.extend(filter_solutions(extra_solutions, valid=True))
+                elif extra_solutions_lookup.get(solution_id) is not None:
+                    all_solutions_list.append(extra_solutions_lookup[solution_id])
+                else:
+                    warn(f"Solution {solution_id} of {store.name} not found in store or extra solutions!")
 
         handle_duplicates(all_solutions_list)
 
@@ -253,7 +234,7 @@ def find_required_files_for_new_pareto_fronts() -> list[str]:
                 solution = (
                     store.solution_tree.solution_lookup[solution_id]
                     if store.solution_tree.solution_lookup[solution_id] is not None
-                    else extra_solutions_lookup[solution_id]
+                    else extra_solutions_lookup.get(solution_id)
                 )
                 if solution is not None and solution.is_valid:
                     solution.__dict__["_store_name"] = store.name
@@ -301,11 +282,17 @@ def copy_file_back_to_local() -> None:
     run_command(cmd)
 
 
+def only_keep_latest_entries_in_file() -> None:
+    """Only keep the latest entries in a file."""
+    cmd = f"awk -F/ '{{ name=$NF; files[name]=$0 }} END {{ for (f in files) print files[f] }}' {LOCAL_LIST_FILE} > {LOCAL_LIST_FILE_FILTERED}"
+    run_command(cmd)
+
+
 def run_rsync() -> None:
     """Run rsync to copy files flat into "evaluations/"."""
     cmd = (
         f'rsync -e "ssh -i {SSH_KEY}" -avhz --progress '
-        f"--files-from={LOCAL_LIST_FILE} --no-relative {REMOTE_USER}@{REMOTE_HOST}:/ {LOCAL_OUTPUT_DIR}/"
+        f"--files-from={LOCAL_LIST_FILE_FILTERED} --no-relative {REMOTE_USER}@{REMOTE_HOST}:/ {LOCAL_OUTPUT_DIR}/"
     )
     run_command(cmd)
 
@@ -346,7 +333,10 @@ def main() -> None:
     # 3. Copy full paths file back to local
     copy_file_back_to_local()
 
-    # 4. Run rsync to copy files flat into "evaluations/"
+    # 4. Only keep the latest entries in the file
+    only_keep_latest_entries_in_file()
+
+    # 5. Run rsync to copy files flat into "evaluations/"
     run_rsync()
 
 
