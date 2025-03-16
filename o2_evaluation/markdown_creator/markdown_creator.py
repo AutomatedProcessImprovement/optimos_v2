@@ -530,17 +530,22 @@ def generate_markdown_report(
 ):
     """
     Generate a compact Markdown report with:
-      - An Overview section listing agents, models, and modes (with links).
-      - A Metrics Explanation section.
-      - For each Model (as a top-level heading):
-          - An Analyzer Overview (from the analyzer report, filtering for desired groups).
-          - For each Mode (as a subheading): an HTML table of metric plots, a summary table, and Pareto Front images.
+      - An Overview section listing agents, models, and modes (with links) as a top-level section (## Overview).
+      - A Metrics Explanation section (## Metrics Explanation).
+      - For each Model (as a third-level heading, ### Model):
+          - An Analyzer Overview section (as a fourth-level heading, #### Analyzer Overview) with its groups
+            (as fifth-level headings, ##### Group Title).
+          - For each Mode (as a fourth-level heading, #### Mode):
+              - A Metric Plots section (##### Metric Plots) with an HTML table.
+              - A Summary Table section (##### Summary Table (Final Values)).
+              - A Pareto Front Images section (##### Pareto Front Images) with an HTML table.
     All image URLs are converted to paths relative to the Markdown file.
     """
     import os
 
     md_lines = []
 
+    # ---------- Overview Section ----------
     models = sorted({key[0] for key in plot_files.keys()})
     all_modes = sorted({mode for (m, mode, _) in plot_files.keys()})
     all_agents = set()
@@ -549,7 +554,7 @@ def generate_markdown_report(
             all_agents.update(table["Agent"].tolist())
     all_agents = sorted(all_agents)
 
-    md_lines.append("# Overview\n")
+    md_lines.append("## Overview\n")
     md_lines.append(
         "This report includes data for the following **agents**, **models**, and **modes**. "
         "Click on a model to jump to its section.\n"
@@ -571,7 +576,8 @@ def generate_markdown_report(
         md_lines.append(f"- {mode}")
     md_lines.append("\n---\n")
 
-    md_lines.append("# Metrics Explanation\n")
+    # ---------- Metrics Explanation Section ----------
+    md_lines.append("## Metrics Explanation\n")
     md_lines.append(
         "Below is an explanation of the metrics used in this report. "
         "Note that one simulation (or 'Solution') corresponds to one step on the x-axis.\n"
@@ -582,6 +588,7 @@ def generate_markdown_report(
         md_lines.append(f"<li><strong>{human_name}:</strong> {explanation}</li>")
     md_lines.append("</ul>\n")
 
+    # ---------- Desired Analyzer Groups ----------
     desired_groups = {
         "# Iterations",
         "# Solutions",
@@ -595,24 +602,28 @@ def generate_markdown_report(
         "Best Cycle Time",
     }
 
+    # ---------- Model Sections ----------
     for model in models:
         anchor = model.lower().replace(" ", "-")
-        md_lines.append(f"# {model}\n")
+        md_lines.append(f"### {model}\n")
 
+        # Analyzer Overview for the model.
         if model in analyzer_stats:
-            md_lines.append("## Analyzer Overview\n")
+            md_lines.append("#### Analyzer Overview\n")
             for group_title, header, rows in analyzer_stats[model]:
                 if group_title.strip() not in desired_groups:
                     continue
-                md_lines.append(f"### {group_title}\n")
+                md_lines.append(f"##### {group_title}\n")
                 md_lines.append(format_markdown_table(header, rows))
                 md_lines.append("<br>\n")
 
+        # Process each mode for the model.
         modes = sorted({mode for (m, mode, _) in plot_files.keys() if m == model})
         for mode in modes:
-            md_lines.append(f"## {mode}\n")
+            md_lines.append(f"#### {mode}\n")
 
-            md_lines.append("### Metric Plots\n")
+            # Metric Plots Section.
+            md_lines.append("##### Metric Plots\n")
             md_lines.append("<table>")
             num_columns = 3
             row_cells = []
@@ -638,7 +649,8 @@ def generate_markdown_report(
                 md_lines.append("<tr>" + "".join(row_cells) + "</tr>")
             md_lines.append("</table>\n")
 
-            md_lines.append("### Summary Table (Final Values)\n")
+            # Summary Table Section.
+            md_lines.append("##### Summary Table (Final Values)\n")
             table_df = summary_tables.get((model, mode))
             if table_df is not None:
                 table_df = table_df.copy()
@@ -650,7 +662,8 @@ def generate_markdown_report(
             else:
                 md_lines.append("No summary available.\n")
 
-            md_lines.append("### Pareto Front Images\n")
+            # Pareto Front Images Section.
+            md_lines.append("##### Pareto Front Images\n")
             agents_for_pf = [
                 agent for (m, mode_key, agent) in pareto_images.keys() if m == model and mode_key == mode
             ]
