@@ -39,6 +39,7 @@ LOCAL_LIST_FILE = "local_file_list.txt"
 LOCAL_LIST_FILE_FILTERED = "local_file_list_filtered.txt"
 LOCAL_OUTPUT_DIR = "evaluations"
 
+INCLUDE_SOLUTIONS_WITHOUT_STORE = True
 
 FIND_NEW_PARETO_FRONT_FILES = False
 
@@ -64,6 +65,9 @@ def get_stores_and_solutions():
     scenarios = list(stores_files.keys())
 
     for scenario in scenarios:
+        if not ("2019" in scenario.lower() or "gov" in scenario.lower() or "sepsis" in scenario.lower()):
+            continue
+
         stores: list[tuple[str, Store]] = []
         solutions: list[Solution] = []
         for file in stores_files[scenario]:
@@ -131,6 +135,7 @@ def find_required_files() -> list[str]:
         )
 
         extra_solutions_dict: dict[str, Solution] = {solution.id: solution for solution in extra_solutions}
+        added_extra_solutions: set[tuple[str, str]] = set()
 
         all_solutions_list: list[Solution] = list()
         random_solutions: list[Solution] = list()
@@ -143,9 +148,15 @@ def find_required_files() -> list[str]:
                     solution.__dict__["_store_name"] = store.name
                     all_solutions_list.append(solution)
                 elif extra_solutions_dict.get(solution_id) is not None:
+                    added_extra_solutions.add((store.name, solution_id))
                     all_solutions_list.append(extra_solutions_dict[solution_id])
                 else:
                     warn(f"Solution {solution_id} of {store.name} not found in store or extra solutions!")
+
+        if INCLUDE_SOLUTIONS_WITHOUT_STORE:
+            for solution in extra_solutions:
+                if (solution.__dict__["_store_name"], solution.id) not in added_extra_solutions:
+                    all_solutions_list.append(solution)
 
         debug("Compiled all solutions")
         duplicate_solutions = list(get_duplicate_solutions(all_solutions_list))
@@ -170,8 +181,13 @@ def find_required_files() -> list[str]:
             + random_solutions_front
             # Add every non-dominated solution from the optimos front
             + optimos_solutions_front
-            # Add every solution of the current Pareto front from each store
-            + [solution for _, store in stores for solution in store.current_pareto_front.solutions]
+            # Add every solution of all Pareto fronts from all stores
+            + [
+                solution
+                for _, store in stores
+                for front in store.pareto_fronts
+                for solution in front.solutions
+            ]
             # Add base solution from each store
             + [store.base_solution for _, store in stores if store.base_solution is not None]
             # Add duplicate solutions
@@ -197,6 +213,7 @@ def find_required_files_for_new_pareto_fronts() -> list[str]:
 
     for stores, extra_solutions in get_stores_and_solutions():
         extra_solutions_lookup: dict[str, Solution] = {solution.id: solution for solution in extra_solutions}
+        added_extra_solutions: set[tuple[str, str]] = set()
 
         all_solutions_list: list[Solution] = list()
 
@@ -206,9 +223,15 @@ def find_required_files_for_new_pareto_fronts() -> list[str]:
                     solution.__dict__["_store_name"] = store.name
                     all_solutions_list.append(solution)
                 elif extra_solutions_lookup.get(solution_id) is not None:
+                    added_extra_solutions.add((store.name, solution_id))
                     all_solutions_list.append(extra_solutions_lookup[solution_id])
                 else:
                     warn(f"Solution {solution_id} of {store.name} not found in store or extra solutions!")
+
+        if INCLUDE_SOLUTIONS_WITHOUT_STORE:
+            for solution in extra_solutions:
+                if (solution.__dict__["_store_name"], solution.id) not in added_extra_solutions:
+                    all_solutions_list.append(solution)
 
         handle_duplicates(all_solutions_list)
 
@@ -230,15 +253,28 @@ def find_required_files_for_new_pareto_fronts() -> list[str]:
 
         for _, store in stores:
             store_solutions: list[Solution] = []
+            added_extra_solutions: set[tuple[str, str]] = set()
             for solution_id in store.solution_tree.solution_lookup:
-                solution = (
-                    store.solution_tree.solution_lookup[solution_id]
-                    if store.solution_tree.solution_lookup[solution_id] is not None
-                    else extra_solutions_lookup.get(solution_id)
-                )
+                solution = store.solution_tree.solution_lookup[solution_id]
+                if solution is None:
+                    if extra_solutions_lookup.get(solution_id) is not None:
+                        added_extra_solutions.add((store.name, solution_id))
+                        solution = extra_solutions_lookup[solution_id]
+                    else:
+                        warn(f"Solution {solution_id} of {store.name} not found in store or extra solutions!")
                 if solution is not None and solution.is_valid:
                     solution.__dict__["_store_name"] = store.name
                     store_solutions.append(solution)
+
+            if INCLUDE_SOLUTIONS_WITHOUT_STORE:
+                for solution in extra_solutions_lookup.values():
+                    if (
+                        solution is not None
+                        and solution.is_valid
+                        and solution.__dict__["_store_name"] == store.name
+                        and solution.id not in store.solution_tree.solution_lookup
+                    ):
+                        store_solutions.append(solution)
 
             new_pareto = create_front_from_solutions(store_solutions)
             new_required_files = set(

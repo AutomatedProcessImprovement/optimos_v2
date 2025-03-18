@@ -19,6 +19,8 @@ from o2.util.stat_calculation_helper import (
     calculate_purity,
 )
 
+INCLUDE_SOLUTIONS_WITHOUT_STORE = True
+
 
 class Metrics(TypedDict):
     """Metrics for the given store."""
@@ -52,6 +54,8 @@ class Metrics(TypedDict):
     best_cycle_time: float
     pareto_avg_cycle_time: float
     base_cycle_time: float
+    best_avg_cycle_time: float
+    base_avg_cycle_time: float
 
 
 EMPTY_METRIC: Metrics = {
@@ -78,6 +82,8 @@ EMPTY_METRIC: Metrics = {
     "best_cycle_time": -1.0,
     "pareto_avg_cycle_time": -1.0,
     "base_cycle_time": -1.0,
+    "best_avg_cycle_time": -1.0,
+    "base_avg_cycle_time": -1.0,
 }
 
 
@@ -164,10 +170,22 @@ def recalculate_pareto_front(solution_dict: dict[str, Solution], store: Store) -
     """Recalculate the Pareto front for the given store."""
     store_solutions: list[Solution] = []
     for solution_id in store.solution_tree.solution_lookup:
-        solution = store.solution_tree.solution_lookup[solution_id] or solution_dict[solution_id]
-        if solution.is_valid:
+        solution = store.solution_tree.solution_lookup.get(solution_id) or solution_dict.get(solution_id)
+        if solution is not None and solution.is_valid:
             solution.__dict__["_store_name"] = store.name
             store_solutions.append(solution)
+        elif solution is None:
+            warn(f"Solution {solution_id} not found in store {store.name}!")
+
+    if INCLUDE_SOLUTIONS_WITHOUT_STORE:
+        for solution in solution_dict.values():
+            if (
+                solution is not None
+                and solution.is_valid
+                and solution.__dict__["_store_name"] == store.name
+                and solution.id not in store.solution_tree.solution_lookup
+            ):
+                store_solutions.append(solution)
 
     return create_front_from_solutions(store_solutions)
 
@@ -182,6 +200,7 @@ def calculate_metrics(
     info(f"Calculating metrics for {scenario} ({mode})")
 
     extra_solutions_dict: dict[str, Solution] = {solution.id: solution for solution in extra_solutions}
+    added_extra_solutions: set[tuple[str, str]] = set()
 
     all_solutions_list: list[Solution] = list()
     all_invalid_solutions: set[str] = set()
@@ -206,6 +225,7 @@ def calculate_metrics(
             elif solution is not None and not solution.is_valid:
                 handle_invalid_solution(solution_id, solution)
             elif extra_solutions_dict.get(solution_id) is not None:
+                added_extra_solutions.add((store.name, solution_id))
                 if extra_solutions_dict[solution_id].is_valid:
                     all_solutions_list.append(extra_solutions_dict[solution_id])
                 else:
@@ -219,6 +239,14 @@ def calculate_metrics(
                     solution.__dict__["_store_name"] = store.name
                     all_solutions_list.append(solution)
                 elif solution is not None and not solution.is_valid:
+                    handle_invalid_solution(solution.id, solution)
+
+    if INCLUDE_SOLUTIONS_WITHOUT_STORE:
+        for solution in extra_solutions:
+            if (solution.__dict__["_store_name"], solution.id) not in added_extra_solutions:
+                if solution is not None and solution.is_valid:
+                    all_solutions_list.append(solution)
+                elif solution is not None and not solution.is_valid:  # noqa: SIM102
                     handle_invalid_solution(solution.id, solution)
 
     handle_duplicates(all_solutions_list)
@@ -245,6 +273,7 @@ def calculate_metrics(
     global_hyperarea = calculate_hyperarea(all_solutions_front, center_point)
 
     base_cycle_time = stores[0][1].base_evaluation.total_cycle_time
+    base_avg_cycle_time = stores[0][1].base_evaluation.avg_cycle_time_by_case
     base_x = stores[0][1].base_solution.pareto_x
     base_y = stores[0][1].base_solution.pareto_y
 
@@ -274,6 +303,8 @@ def calculate_metrics(
 
         best_cycle_time = min(solution.evaluation.total_cycle_time for solution in front)
 
+        best_avg_cycle_time = min(solution.evaluation.avg_cycle_time_by_case for solution in front)
+
         return {
             "store_name": f"{agent} {scenario}",
             "scenario": scenario,
@@ -298,6 +329,8 @@ def calculate_metrics(
             "pareto_avg_cycle_time": avg_cycle_time,
             "base_cycle_time": base_cycle_time,
             "best_cycle_time": best_cycle_time,
+            "base_avg_cycle_time": base_avg_cycle_time,
+            "best_avg_cycle_time": best_avg_cycle_time,
         }
 
     metrics: list[Metrics] = []
@@ -330,6 +363,10 @@ def calculate_metrics(
             )
             / len(all_solutions_front),
             "base_cycle_time": base_cycle_time,
+            "base_avg_cycle_time": base_avg_cycle_time,
+            "best_avg_cycle_time": min(
+                solution.evaluation.avg_cycle_time_by_case for solution in all_solutions_front
+            ),
         }
     )
 
@@ -382,6 +419,7 @@ def calculate_metrics(
         )
 
         best_cycle_time = min(solution.evaluation.total_cycle_time for solution in pareto_solutions)
+        best_avg_cycle_time = min(solution.evaluation.avg_cycle_time_by_case for solution in pareto_solutions)
 
         metrics.append(
             {
@@ -408,6 +446,8 @@ def calculate_metrics(
                 "pareto_avg_cycle_time": avg_cycle_time,
                 "base_cycle_time": base_cycle_time,
                 "best_cycle_time": best_cycle_time,
+                "base_avg_cycle_time": base_avg_cycle_time,
+                "best_avg_cycle_time": best_avg_cycle_time,
             }
         )
         debug(f"Calculated metrics for agent {agent} ({scenario} {mode})")
@@ -677,6 +717,18 @@ def print_metrics_in_google_sheet_format(metrics: list[Metrics]) -> None:
         result += f";SA Random;{simulated_annealing_random_easy['best_cycle_time']};{simulated_annealing_random_mid['best_cycle_time']};{simulated_annealing_random_hard['best_cycle_time']}\n"
         result += f";PPO Random;{ppo_random_easy['best_cycle_time']};{ppo_random_mid['best_cycle_time']};{ppo_random_hard['best_cycle_time']}\n\n"
 
+        result += f"Best Avg Cycle Time\n"
+        result += f";Base;{reference_easy['base_avg_cycle_time']};{reference_mid['base_avg_cycle_time']};{reference_hard['base_avg_cycle_time']}\n"
+        result += f";Reference;{reference_easy['best_avg_cycle_time']};{reference_mid['best_avg_cycle_time']};{reference_hard['best_avg_cycle_time']}\n"
+        result += f";Reference Random;{reference_random_easy['best_avg_cycle_time']};{reference_random_mid['best_avg_cycle_time']};{reference_random_hard['best_avg_cycle_time']}\n"
+        result += f";Reference Optimos;{reference_optimos_easy['best_avg_cycle_time']};{reference_optimos_mid['best_avg_cycle_time']};{reference_optimos_hard['best_avg_cycle_time']}\n"
+        result += f";SA;{sa_easy['best_avg_cycle_time']};{sa_mid['best_avg_cycle_time']};{sa_hard['best_avg_cycle_time']}\n"
+        result += f";Tabu Search;{tabu_search_easy['best_avg_cycle_time']};{tabu_search_mid['best_avg_cycle_time']};{tabu_search_hard['best_avg_cycle_time']}\n"
+        result += f";PPO;{ppo_easy['best_avg_cycle_time']};{ppo_mid['best_avg_cycle_time']};{ppo_hard['best_avg_cycle_time']}\n"
+        result += f";Tabu Random;{tabu_search_random_easy['best_avg_cycle_time']};{tabu_search_random_mid['best_avg_cycle_time']};{tabu_search_random_hard['best_avg_cycle_time']}\n"
+        result += f";SA Random;{simulated_annealing_random_easy['best_avg_cycle_time']};{simulated_annealing_random_mid['best_avg_cycle_time']};{simulated_annealing_random_hard['best_avg_cycle_time']}\n"
+        result += f";PPO Random;{ppo_random_easy['best_avg_cycle_time']};{ppo_random_mid['best_avg_cycle_time']};{ppo_random_hard['best_avg_cycle_time']}\n\n"
+
         result += f"Best {Settings.get_pareto_x_label()}\n"
         result += f";Base;{reference_easy['base_x']};{reference_mid['base_x']};{reference_hard['base_x']}\n"
         result += (
@@ -733,7 +785,10 @@ def print_metrics_in_google_sheet_format(metrics: list[Metrics]) -> None:
             f";PPO Random;{ppo_random_easy['avg_y']};{ppo_random_mid['avg_y']};{ppo_random_hard['avg_y']}\n\n"
         )
 
-    print(result.replace(".", ","))
+    final_result_str = result.replace(".", ",")
+    print(final_result_str)
+    with open("o2_evaluation/markdown_creator/analyzer_report.ssv", "w") as f:
+        f.write(final_result_str)
 
 
 if __name__ == "__main__":
@@ -771,6 +826,12 @@ if __name__ == "__main__":
     for scenario in scenarios:
         mode = get_mode_from_scenario(scenario)
         scenario_without_mode = get_scenario_without_mode(scenario)
+
+        # if not ("gov" in scenario.lower() or "2019" in scenario.lower() or "sepsis" in scenario.lower()):
+        #     continue
+
+        if not "2019" in scenario.lower():
+            continue
 
         stats(f"Processing scenario: {scenario_without_mode} ({mode})")
         stores: list[tuple[str, Store]] = []
