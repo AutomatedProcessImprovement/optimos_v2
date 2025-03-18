@@ -142,26 +142,6 @@ def load_all_event_data(root_dir: str) -> pd.DataFrame:
 
 
 # -----------------------------------------------------------------------------
-# 2. Prepare Report Data (Filter and Group Metrics)
-# -----------------------------------------------------------------------------
-# Define the metrics of interest.
-report_metrics = [
-    "global/iteration",
-    "front/size",
-    "global/solutions_tried",
-    "tabu/solutions_left_in_radius",
-    "sa/solutions_left_for_temperature",
-    "sa/temperature",
-    "front/median_batch_processing_per_task",
-    "front/median_wt-idle_per_task",
-    "front/min_wt-idle_per_task",
-    "front/min_batch_processing_per_task",
-    "front/avg_cycle_time",
-    "front/min_cycle_time",
-]
-
-
-# -----------------------------------------------------------------------------
 # 4. Create Summary Tables for Last Values
 # -----------------------------------------------------------------------------
 def generate_summary_tables(df: pd.DataFrame) -> dict:
@@ -206,12 +186,9 @@ human_metric_names = {
     "global/solutions_tried": "Explored Solutions",
     "tabu/solutions_left_in_radius": "New Base Solutions (Radius)",
     "sa/solutions_left_for_temperature": "New Base Solutions (Temperature)",
-    "front/median_batch_processing_per_task": "Median Batch Processing Time",
-    "front/median_wt-idle_per_task": "Median Wait+Idle Time",
-    "front/min_wt-idle_per_task": "Min Wait+Idle Time",
-    "front/min_batch_processing_per_task": "Min Batch Processing Time",
     "front/avg_cycle_time": "Average Cycle Time",
     "front/min_cycle_time": "Min Cycle Time",
+    "current_base/average_batch_size": "Average Batch Size",
     "global/iteration": "Iteration Number",  # Debug metric, now reported last.
 }
 
@@ -225,10 +202,6 @@ metric_explanations = {
     "New Base Solutions (Temperature)": (
         "Potential new base solutions within the temperature radius. Only relevant for Simulated Annealing."
     ),
-    "Median Batch Processing Time": "Median task processing time per batch instance.",
-    "Median Wait+Idle Time": "Median waiting plus idle time per task instance.",
-    "Min Wait+Idle Time": "Minimum waiting plus idle time per task instance.",
-    "Min Batch Processing Time": "Minimum processing time per batch instance.",
     "Average Cycle Time": (
         "Average cycle time (from first enablement to the end of last activity) "
         "of all solutions in the current Pareto Front."
@@ -238,20 +211,16 @@ metric_explanations = {
         "In one iteration, multiple mutations are performed. Depending on the agent, the solutions "
         "will be treated differently. Note that the number of solutions per iteration is not the same for all agents."
     ),
+    "Average Batch Size": "Average number of tasks in all batches.",
 }
 
-# Reorder the report metrics so that the debug metric 'global/iteration' comes last.
 report_metrics = [
     "front/size",
     "global/solutions_tried",
-    "tabu/solutions_left_in_radius",
-    "sa/solutions_left_for_temperature",
-    "front/median_batch_processing_per_task",
-    "front/median_wt-idle_per_task",
-    "front/min_wt-idle_per_task",
-    "front/min_batch_processing_per_task",
+    "base_solutions",
     "front/avg_cycle_time",
     "front/min_cycle_time",
+    "current_base/average_batch_size",
     "global/iteration",
 ]
 
@@ -260,12 +229,9 @@ summary_metrics = [
     "global/solutions_tried",
     "tabu/solutions_left_in_radius",
     "sa/solutions_left_for_temperature",
-    "front/median_batch_processing_per_task",
-    "front/median_wt-idle_per_task",
-    "front/min_wt-idle_per_task",
-    "front/min_batch_processing_per_task",
     "front/avg_cycle_time",
     "front/min_cycle_time",
+    "current_base/average_batch_size",
     "global/iteration",
 ]
 
@@ -301,8 +267,8 @@ def generate_plots(df: pd.DataFrame, output_dir: str, agent_colors: dict):
     For each combination of Model and Mode, and for each report metric,
     create a line plot (value vs. step) with a fixed figure size.
     The x-axis corresponds to one simulation ("Solution") per step.
+    For the combined metric "base_solutions", data from both underlying metrics is concatenated.
     Only generate the image if it doesn't exist.
-    Save each plot as a PNG file.
     """
     plot_files = {}
     models = df["Model"].unique()
@@ -314,17 +280,25 @@ def generate_plots(df: pd.DataFrame, output_dir: str, agent_colors: dict):
                 safe_metric = metric.replace("/", "_")
                 filename = f"{model}_{mode}_{safe_metric}.png".replace(" ", "_")
                 file_path = os.path.join(output_dir, filename)
-                # Check if plot already exists.
                 if os.path.exists(file_path):
                     print(
                         f"  Plot exists for {model} - {mode} - {human_metric_names.get(metric, metric)}. Skipping."
                     )
                     plot_files[(model, mode, metric)] = file_path
                     continue
+
                 print(f"  Generating plot for {model} - {mode} - {human_metric_names.get(metric, metric)}...")
                 plt.figure(figsize=(6, 4))
                 for agent, agent_group in subset.groupby("Agent"):
-                    agent_data = agent_group[agent_group["metric"] == metric]
+                    if metric != "base_solutions":
+                        agent_data = agent_group[agent_group["metric"] == metric]
+                    else:
+                        # Combine data from both underlying metrics.
+                        tabu_data = agent_group[agent_group["metric"] == "tabu/solutions_left_in_radius"]
+                        sa_data = agent_group[agent_group["metric"] == "sa/solutions_left_for_temperature"]
+                        if tabu_data.empty and sa_data.empty:
+                            continue
+                        agent_data = pd.concat([tabu_data, sa_data])
                     if agent_data.empty:
                         continue
                     agent_data = agent_data.sort_values("step")
@@ -523,29 +497,26 @@ def format_markdown_table(header, rows):
 
 
 # -----------------------------------------------------------------------------
-# 8. Updated Markdown Report Generation (Including Analyzer Overview)
+# 8. Updated Markdown Report Generation (Using ##, ###, etc.)
 # -----------------------------------------------------------------------------
 def generate_markdown_report(
     plot_files: dict, summary_tables: dict, pareto_images: dict, analyzer_stats: dict, output_md: str
 ):
     """
     Generate a compact Markdown report with:
-      - An Overview section listing agents, models, and modes (with links) as a top-level section (## Overview).
+      - An Overview section (## Overview) listing agents, models, and modes.
       - A Metrics Explanation section (## Metrics Explanation).
-      - For each Model (as a third-level heading, ### Model):
-          - An Analyzer Overview section (as a fourth-level heading, #### Analyzer Overview) with its groups
-            (as fifth-level headings, ##### Group Title).
-          - For each Mode (as a fourth-level heading, #### Mode):
+      - For each Model (### Model):
+          - An Analyzer Overview (#### Analyzer Overview) with groups (##### Group Title).
+          - For each Mode (#### Mode):
               - A Metric Plots section (##### Metric Plots) with an HTML table.
-              - A Summary Table section (##### Summary Table (Final Values)).
+              - A Summary Table (##### Summary Table (Final Values)).
               - A Pareto Front Images section (##### Pareto Front Images) with an HTML table.
-    All image URLs are converted to paths relative to the Markdown file.
     """
     import os
 
     md_lines = []
 
-    # ---------- Overview Section ----------
     models = sorted({key[0] for key in plot_files.keys()})
     all_modes = sorted({mode for (m, mode, _) in plot_files.keys()})
     all_agents = set()
@@ -576,7 +547,6 @@ def generate_markdown_report(
         md_lines.append(f"- {mode}")
     md_lines.append("\n---\n")
 
-    # ---------- Metrics Explanation Section ----------
     md_lines.append("## Metrics Explanation\n")
     md_lines.append(
         "Below is an explanation of the metrics used in this report. "
@@ -588,7 +558,6 @@ def generate_markdown_report(
         md_lines.append(f"<li><strong>{human_name}:</strong> {explanation}</li>")
     md_lines.append("</ul>\n")
 
-    # ---------- Desired Analyzer Groups ----------
     desired_groups = {
         "# Iterations",
         "# Solutions",
@@ -602,12 +571,10 @@ def generate_markdown_report(
         "Best Cycle Time",
     }
 
-    # ---------- Model Sections ----------
     for model in models:
         anchor = model.lower().replace(" ", "-")
         md_lines.append(f"### {model}\n")
 
-        # Analyzer Overview for the model.
         if model in analyzer_stats:
             md_lines.append("#### Analyzer Overview\n")
             for group_title, header, rows in analyzer_stats[model]:
@@ -617,12 +584,10 @@ def generate_markdown_report(
                 md_lines.append(format_markdown_table(header, rows))
                 md_lines.append("<br>\n")
 
-        # Process each mode for the model.
         modes = sorted({mode for (m, mode, _) in plot_files.keys() if m == model})
         for mode in modes:
             md_lines.append(f"#### {mode}\n")
 
-            # Metric Plots Section.
             md_lines.append("##### Metric Plots\n")
             md_lines.append("<table>")
             num_columns = 3
@@ -649,7 +614,6 @@ def generate_markdown_report(
                 md_lines.append("<tr>" + "".join(row_cells) + "</tr>")
             md_lines.append("</table>\n")
 
-            # Summary Table Section.
             md_lines.append("##### Summary Table (Final Values)\n")
             table_df = summary_tables.get((model, mode))
             if table_df is not None:
@@ -662,7 +626,6 @@ def generate_markdown_report(
             else:
                 md_lines.append("No summary available.\n")
 
-            # Pareto Front Images Section.
             md_lines.append("##### Pareto Front Images\n")
             agents_for_pf = [
                 agent for (m, mode_key, agent) in pareto_images.keys() if m == model and mode_key == mode
