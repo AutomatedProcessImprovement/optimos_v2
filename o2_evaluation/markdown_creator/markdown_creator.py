@@ -93,7 +93,7 @@ def parse_folder_name(folder_name: str):
             break
     if agent_found is None:
         raise ValueError("Agent not recognized in folder name: " + folder_name)
-    remainder = lower_name[token_len:].strip("_")
+    remainder = lower_name[token_len:].strip("_")  # type: ignore
 
     # Look for mode tokens: _easy_, _mid_ or _hard_
     mode = None
@@ -114,7 +114,7 @@ def parse_folder_name(folder_name: str):
             break
     if mode is None:
         raise ValueError("Mode not recognized in folder name: " + folder_name)
-    model = model.replace("_", " ").title()
+    model = model.replace("_", " ").title()  # type: ignore
     return agent_found, model, mode, timestamp
 
 
@@ -186,15 +186,16 @@ human_metric_names = {
     "front/min_cycle_time": "Min Cycle Time",
     "current_base/average_batch_size": "Average Batch Size",
     "global/iteration": "Iteration Number",
-    "time per step": "Time per Step",
-    "Total Optimization Time": "Total Optimization Time",  # NEW
+    "time per step": "Time per Step",  # NEW metric
+    "Total Optimization Time": "Total Optimization Time",  # NEW column in summary table
 }
 
 metric_explanations = {
     "Pareto Front Size": "Number of solutions in the current Pareto Front.",
+    "Steps": "Number of steps. Each step is a single mutation and simulation of a solution.",
     "Explored Solutions": "Total number of solutions for which all neighbors have been explored.",
     "Potential New Base Solutions": (
-        "Potential new base solution within a small radius for Tabu Search "
+        "Potential new base solution within a small error radius for Tabu Search "
         "or within the temperature radius for Simulated Annealing."
     ),
     "Average Cycle Time": (
@@ -206,9 +207,9 @@ metric_explanations = {
         "In one iteration, multiple mutations are performed. Depending on the agent, the solutions "
         "will be treated differently. Note that the number of solutions per iteration is not the same for all agents."
     ),
-    "Average Batch Size": "Average number of tasks in all batches.",
-    "Time per Step": "Average wall time per simulation step computed from differences between consecutive global/iteration events.",
-    "Total Optimization Time": "Total wall clock time from the first iteration to the last iteration.",
+    "Average Batch Size": "Average number of tasks per batch (with a non batched task having a batch size of 1).",
+    "Time per Step": "Average wall time per simulation step computed from differences between consecutive steps.",
+    "Total Optimization Time": "Total wall clock time from the first to the last iteration (in minutes) ",
 }
 
 # Update the lists of metrics for plotting and summary.
@@ -355,7 +356,7 @@ def save_pareto_front_images(df: pd.DataFrame, output_dir: str) -> dict:
                 images[(model, mode, agent)] = file_path
                 continue
             print(f"  Saving Pareto image for {model} - {mode} - {agent}...")
-            img = Image.open(io.BytesIO(png_bytes))
+            img = Image.open(io.BytesIO(png_bytes))  # type: ignore
             img.save(file_path)
             images[(model, mode, agent)] = file_path
     return images
@@ -369,8 +370,8 @@ def generate_summary_tables(df: pd.DataFrame) -> dict:
     For each (Model, Mode) group, compute a summary table (rows: agents, columns: metrics)
     with the last (highest step) value for each metric (excluding Pareto Front Size).
     For the combined metric "base_solutions", data from both underlying metrics is concatenated.
-    In addition, for each agent, compute "Total Optimization Time" as the difference between
-    the maximum and minimum wall times of "global/iteration" events.
+    Also adds a column "Steps" (number of steps from the first to last iteration) and
+    "Total Optimization Time" (formatted in hours and minutes with total step count).
     Returns a dict mapping (model, mode) to its summary DataFrame, with rows sorted by agent.
     """
     summary = {}
@@ -396,15 +397,27 @@ def generate_summary_tables(df: pd.DataFrame) -> dict:
                 else:
                     last_row = metric_group.loc[metric_group["step"].idxmax()]
                     row[metric] = last_row["value"]
-            # Compute Total Optimization Time from global/iteration events:
+            # Compute Steps and Total Optimization Time from global/iteration events.
             global_iter = agent_group[agent_group["metric"] == "global/iteration"]
             if not global_iter.empty:
-                total_time = global_iter["time"].max() - global_iter["time"].min()
+                steps = int(global_iter["step"].max() - global_iter["step"].min() + 1)
+                total_time_sec = global_iter["time"].max() - global_iter["time"].min()
+                minutes = int((total_time_sec) // 60)
+                total_time_str = f"{minutes:,.0f}min<br/>(for {steps} Steps)"
             else:
-                total_time = None
-            row["Total Optimization Time"] = total_time
+                steps = None
+                total_time_str = None
+            row["Steps"] = steps
+            row["Total Optimization Time"] = total_time_str
             rows.append(row)
         summary_df = pd.DataFrame(rows)
+        # Reorder columns: Agent, Steps, then other metrics, then Total Optimization Time.
+        cols = (
+            ["Agent", "Steps"]
+            + [c for c in summary_df.columns if c not in ["Agent", "Steps", "Total Optimization Time"]]
+            + ["Total Optimization Time"]
+        )
+        summary_df = summary_df[cols]
         summary[(model, mode)] = summary_df
     return summary
 
@@ -624,8 +637,7 @@ def generate_markdown_report(
                     relative_plot_path = os.path.relpath(plot_files[key], os.path.dirname(output_md))
                     cell = (
                         f"<strong>{human_name}</strong><br>"
-                        f"<img src='{relative_plot_path}' alt='{human_name}' style='width:300px;height:200px;'/><br>"
-                        f"<em>Solution = Step</em>"
+                        f"<img src='{relative_plot_path}' alt='{human_name}' style='width:300px;height:200px;'/>"
                     )
                 else:
                     cell = f"<strong>{human_name}</strong><br>No data"
@@ -644,7 +656,7 @@ def generate_markdown_report(
             if table_df is not None:
                 table_df = table_df.copy()
                 table_df.rename(
-                    columns={k: human_metric_names.get(k, k) for k in table_df.columns if k != "Agent"},
+                    columns={k: human_metric_names.get(k, k) for k in table_df.columns if k not in ["Agent"]},
                     inplace=True,
                 )
                 md_lines.append(table_df.to_markdown(index=False))
