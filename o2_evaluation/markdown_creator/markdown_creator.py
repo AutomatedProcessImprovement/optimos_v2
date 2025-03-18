@@ -19,22 +19,48 @@ from tensorflow.python.framework import tensor_util
 # 1. Data Extraction and Augmentation
 # -----------------------------------------------------------------------------
 def tflog2pandas(path: str) -> pd.DataFrame:
-    """Convert a single TensorBoard log file to a pandas DataFrame."""
+    """Convert a single TensorBoard log file to a pandas DataFrame,
+    adding a 'time per step' metric computed from global/iteration events.
 
-    runlog_data = pd.DataFrame({"metric": [], "value": [], "step": []})
+    The function loads each tensor event (including its wall_time), and then
+    computes the per-step time (using differences) for the 'global/iteration' metric.
+    """
+    runlog_data = pd.DataFrame({"metric": [], "value": [], "step": [], "time": []})
     try:
         event_acc = EventAccumulator(path, STORE_EVERYTHING_SIZE_GUIDANCE)
         event_acc.Reload()
         tensors = event_acc.Tags().get("tensors", [])
         for tensor in tensors:
             event_list = event_acc.Tensors(tensor)
+            # Extract values, steps, and wall times from each event.
             values = [tensor_util.MakeNdarray(x.tensor_proto) for x in event_list]
             steps = [x.step for x in event_list]
-            df_temp = pd.DataFrame({"metric": [tensor] * len(steps), "value": values, "step": steps})
+            times = [x.wall_time for x in event_list]
+            df_temp = pd.DataFrame(
+                {"metric": [tensor] * len(steps), "value": values, "step": steps, "time": times}
+            )
             runlog_data = pd.concat([runlog_data, df_temp], ignore_index=True)
     except Exception:
         print("Event file possibly corrupt:", path)
         traceback.print_exc()
+
+    # Compute "time per step" from global/iteration events.
+    ref_df = runlog_data[runlog_data["metric"] == "global/iteration"].copy()
+    ref_df.sort_values("step", inplace=True)
+    if len(ref_df) >= 2:
+        ref_df["time_diff"] = ref_df["time"].diff()
+        ref_df["step_diff"] = ref_df["step"].diff()
+        ref_df["time_per_step"] = ref_df["time_diff"] / ref_df["step_diff"]
+        # Remove the first row (NaN) and create new rows for the metric.
+        tps_df = ref_df.iloc[1:][["step", "time_per_step"]].copy()
+        tps_df.rename(columns={"time_per_step": "value"}, inplace=True)
+        tps_df["metric"] = "time per step"
+        tps_df = tps_df[["metric", "value", "step"]]
+        runlog_data = pd.concat([runlog_data, tps_df], ignore_index=True)
+
+    # Optionally, drop the "time" column if not needed:
+    # runlog_data.drop(columns=["time"], inplace=True)
+
     return runlog_data
 
 
@@ -141,35 +167,6 @@ def load_all_event_data(root_dir: str) -> pd.DataFrame:
         return pd.DataFrame()
 
 
-# -----------------------------------------------------------------------------
-# 4. Create Summary Tables for Last Values
-# -----------------------------------------------------------------------------
-def generate_summary_tables(df: pd.DataFrame) -> dict:
-    """
-    For each (Model, Mode) group, compute a summary table (rows: agents, columns: metrics)
-    with the last (highest step) value for each metric.
-    Returns a dict mapping (model, mode) to its summary DataFrame.
-    """
-    summary = {}
-    for (model, mode), group in df.groupby(["Model", "Mode"]):
-        rows = []
-        for agent in group["Agent"].unique():
-            agent_group = group[group["Agent"] == agent]
-            row = {"Agent": agent}
-            for metric in report_metrics:
-                metric_group = agent_group[agent_group["metric"] == metric]
-                if metric_group.empty:
-                    row[metric] = None
-                else:
-                    # Take the row with maximum step (i.e. the final value)
-                    last_row = metric_group.loc[metric_group["step"].idxmax()]
-                    row[metric] = last_row["value"]
-            rows.append(row)
-        summary_df = pd.DataFrame(rows)
-        summary[(model, mode)] = summary_df
-    return summary
-
-
 import os
 import traceback
 import pandas as pd
@@ -184,23 +181,20 @@ from PIL import Image
 human_metric_names = {
     "front/size": "Pareto Front Size",
     "global/solutions_tried": "Explored Solutions",
-    "tabu/solutions_left_in_radius": "New Base Solutions (Radius)",
-    "sa/solutions_left_for_temperature": "New Base Solutions (Temperature)",
+    "base_solutions": "Potential New Base Solutions",  # Combined metric for Tabu and SA.
     "front/avg_cycle_time": "Average Cycle Time",
     "front/min_cycle_time": "Min Cycle Time",
     "current_base/average_batch_size": "Average Batch Size",
-    "global/iteration": "Iteration Number",  # Debug metric, now reported last.
+    "global/iteration": "Iteration Number",
+    "time per step": "Time per Step",  # NEW metric
 }
 
 metric_explanations = {
     "Pareto Front Size": "Number of solutions in the current Pareto Front.",
     "Explored Solutions": "Total number of solutions for which all neighbors have been explored.",
-    "New Base Solutions (Radius)": (
-        "Potential new base solution within a small radius. "
-        "Only relevant for Tabu Search/Hill-Climbing to mitigate simulation error/variance."
-    ),
-    "New Base Solutions (Temperature)": (
-        "Potential new base solutions within the temperature radius. Only relevant for Simulated Annealing."
+    "Potential New Base Solutions": (
+        "Potential new base solution within a small radius for Tabu Search "
+        "or within the temperature radius for Simulated Annealing."
     ),
     "Average Cycle Time": (
         "Average cycle time (from first enablement to the end of last activity) "
@@ -212,27 +206,30 @@ metric_explanations = {
         "will be treated differently. Note that the number of solutions per iteration is not the same for all agents."
     ),
     "Average Batch Size": "Average number of tasks in all batches.",
+    "Time per Step": "Average wall time per simulation step computed from differences between consecutive global/iteration events.",
 }
 
+# Update the lists of metrics for plotting and summary.
 report_metrics = [
     "front/size",
+    "global/solutions_tried",
+    "base_solutions",  # Combined metric for Tabu and SA.
+    "front/avg_cycle_time",
+    "front/min_cycle_time",
+    "current_base/average_batch_size",
+    "global/iteration",
+    "time per step",  # NEW metric to be plotted
+]
+
+# For summary tables, drop "front/size" (it comes from the analyzer stats) but include the new metric.
+summary_metrics = [
     "global/solutions_tried",
     "base_solutions",
     "front/avg_cycle_time",
     "front/min_cycle_time",
     "current_base/average_batch_size",
     "global/iteration",
-]
-
-# For summary tables we drop "front/size" (since Pareto Front Size comes from the analyzer stats).
-summary_metrics = [
-    "global/solutions_tried",
-    "tabu/solutions_left_in_radius",
-    "sa/solutions_left_for_temperature",
-    "front/avg_cycle_time",
-    "front/min_cycle_time",
-    "current_base/average_batch_size",
-    "global/iteration",
+    "time per step",  # NEW metric to be included in the summary table
 ]
 
 
@@ -259,17 +256,14 @@ def custom_format_number(cell):
         return cell
 
 
+# Define which metrics should be plotted using a logarithmic scale.
+log_scale_metrics = ["base_solutions", "current_base/average_batch_size"]
+
+
 # -----------------------------------------------------------------------------
-# 3. Plot Generation with Fixed Figure Size (with caching and progress prints)
+# 3. Plot Generation with Fixed Figure Size (with caching, smoothing, and log scale)
 # -----------------------------------------------------------------------------
 def generate_plots(df: pd.DataFrame, output_dir: str, agent_colors: dict):
-    """
-    For each combination of Model and Mode, and for each report metric,
-    create a line plot (value vs. step) with a fixed figure size.
-    The x-axis corresponds to one simulation ("Solution") per step.
-    For the combined metric "base_solutions", data from both underlying metrics is concatenated.
-    Only generate the image if it doesn't exist.
-    """
     plot_files = {}
     models = df["Model"].unique()
     for model in models:
@@ -286,19 +280,24 @@ def generate_plots(df: pd.DataFrame, output_dir: str, agent_colors: dict):
                     )
                     plot_files[(model, mode, metric)] = file_path
                     continue
-
                 print(f"  Generating plot for {model} - {mode} - {human_metric_names.get(metric, metric)}...")
                 plt.figure(figsize=(6, 4))
                 for agent, agent_group in subset.groupby("Agent"):
-                    if metric != "base_solutions":
-                        agent_data = agent_group[agent_group["metric"] == metric]
-                    else:
-                        # Combine data from both underlying metrics.
+                    if metric == "base_solutions":
+                        # Combine Tabu and SA metrics.
                         tabu_data = agent_group[agent_group["metric"] == "tabu/solutions_left_in_radius"]
                         sa_data = agent_group[agent_group["metric"] == "sa/solutions_left_for_temperature"]
                         if tabu_data.empty and sa_data.empty:
                             continue
                         agent_data = pd.concat([tabu_data, sa_data])
+                    elif metric == "time per step":
+                        agent_data = agent_group[agent_group["metric"] == "time per step"]
+                        if not agent_data.empty:
+                            agent_data = agent_data.sort_values("step")
+                            # Apply heavy smoothing (rolling average with window=50).
+                            agent_data["value"] = agent_data["value"].rolling(window=50, min_periods=1).mean()
+                    else:
+                        agent_data = agent_group[agent_group["metric"] == metric]
                     if agent_data.empty:
                         continue
                     agent_data = agent_data.sort_values("step")
@@ -313,6 +312,9 @@ def generate_plots(df: pd.DataFrame, output_dir: str, agent_colors: dict):
                 plt.ylabel(human_name)
                 plt.title(f"{model} - {mode} - {human_name}")
                 plt.legend()
+                # Apply logarithmic scale if required.
+                if metric in log_scale_metrics:
+                    plt.yscale("log")
                 plt.savefig(file_path)
                 plt.close()
                 plot_files[(model, mode, metric)] = file_path
@@ -357,22 +359,35 @@ def save_pareto_front_images(df: pd.DataFrame, output_dir: str) -> dict:
 
 
 # -----------------------------------------------------------------------------
-# 5. Summary Table Generation (Excluding Pareto Front Size)
+# 5. Summary Table Generation (Excluding Pareto Front Size and adding Avg. Time per 1000 Steps)
 # -----------------------------------------------------------------------------
 def generate_summary_tables(df: pd.DataFrame) -> dict:
     """
     For each (Model, Mode) group, compute a summary table (rows: agents, columns: metrics)
     with the last (highest step) value for each metric (excluding Pareto Front Size).
-    Returns a dict mapping (model, mode) to its summary DataFrame.
+    For the combined metric "base_solutions", data from both underlying metrics is concatenated.
+    Adds a new column "Avg. Time per 1000 Steps" based on "time per step".
+    Returns a dict mapping (model, mode) to its summary DataFrame, with rows sorted by agent.
     """
     summary = {}
     for (model, mode), group in df.groupby(["Model", "Mode"]):
         rows = []
-        for agent in group["Agent"].unique():
+        # Sort agents alphabetically.
+        for agent in sorted(group["Agent"].unique()):
             agent_group = group[group["Agent"] == agent]
             row = {"Agent": agent}
             for metric in summary_metrics:
-                metric_group = agent_group[agent_group["metric"] == metric]
+                if metric == "base_solutions":
+                    tabu_data = agent_group[agent_group["metric"] == "tabu/solutions_left_in_radius"]
+                    sa_data = agent_group[agent_group["metric"] == "sa/solutions_left_for_temperature"]
+                    if tabu_data.empty and sa_data.empty:
+                        metric_group = pd.DataFrame()
+                    else:
+                        metric_group = pd.concat([tabu_data, sa_data])
+                elif metric == "time per step":
+                    metric_group = agent_group[agent_group["metric"] == "time per step"]
+                else:
+                    metric_group = agent_group[agent_group["metric"] == metric]
                 if metric_group.empty:
                     row[metric] = None
                 else:
@@ -380,6 +395,10 @@ def generate_summary_tables(df: pd.DataFrame) -> dict:
                     row[metric] = last_row["value"]
             rows.append(row)
         summary_df = pd.DataFrame(rows)
+        if "time per step" in summary_df.columns:
+            summary_df["Avg. Time per 1000 Steps"] = (
+                pd.to_numeric(summary_df["time per step"], errors="coerce") * 1000
+            )
         summary[(model, mode)] = summary_df
     return summary
 
