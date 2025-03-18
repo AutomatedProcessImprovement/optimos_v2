@@ -186,7 +186,8 @@ human_metric_names = {
     "front/min_cycle_time": "Min Cycle Time",
     "current_base/average_batch_size": "Average Batch Size",
     "global/iteration": "Iteration Number",
-    "time per step": "Time per Step",  # NEW metric
+    "time per step": "Time per Step",
+    "Total Optimization Time": "Total Optimization Time",  # NEW
 }
 
 metric_explanations = {
@@ -207,6 +208,7 @@ metric_explanations = {
     ),
     "Average Batch Size": "Average number of tasks in all batches.",
     "Time per Step": "Average wall time per simulation step computed from differences between consecutive global/iteration events.",
+    "Total Optimization Time": "Total wall clock time from the first iteration to the last iteration.",
 }
 
 # Update the lists of metrics for plotting and summary.
@@ -222,6 +224,7 @@ report_metrics = [
 ]
 
 # For summary tables, drop "front/size" (it comes from the analyzer stats) but include the new metric.
+# "Total Optimization Time" is computed separately.
 summary_metrics = [
     "global/solutions_tried",
     "base_solutions",
@@ -366,13 +369,13 @@ def generate_summary_tables(df: pd.DataFrame) -> dict:
     For each (Model, Mode) group, compute a summary table (rows: agents, columns: metrics)
     with the last (highest step) value for each metric (excluding Pareto Front Size).
     For the combined metric "base_solutions", data from both underlying metrics is concatenated.
-    Adds a new column "Avg. Time per 1000 Steps" based on "time per step".
+    In addition, for each agent, compute "Total Optimization Time" as the difference between
+    the maximum and minimum wall times of "global/iteration" events.
     Returns a dict mapping (model, mode) to its summary DataFrame, with rows sorted by agent.
     """
     summary = {}
     for (model, mode), group in df.groupby(["Model", "Mode"]):
         rows = []
-        # Sort agents alphabetically.
         for agent in sorted(group["Agent"].unique()):
             agent_group = group[group["Agent"] == agent]
             row = {"Agent": agent}
@@ -393,12 +396,15 @@ def generate_summary_tables(df: pd.DataFrame) -> dict:
                 else:
                     last_row = metric_group.loc[metric_group["step"].idxmax()]
                     row[metric] = last_row["value"]
+            # Compute Total Optimization Time from global/iteration events:
+            global_iter = agent_group[agent_group["metric"] == "global/iteration"]
+            if not global_iter.empty:
+                total_time = global_iter["time"].max() - global_iter["time"].min()
+            else:
+                total_time = None
+            row["Total Optimization Time"] = total_time
             rows.append(row)
         summary_df = pd.DataFrame(rows)
-        if "time per step" in summary_df.columns:
-            summary_df["Avg. Time per 1000 Steps"] = (
-                pd.to_numeric(summary_df["time per step"], errors="coerce") * 1000
-            )
         summary[(model, mode)] = summary_df
     return summary
 
