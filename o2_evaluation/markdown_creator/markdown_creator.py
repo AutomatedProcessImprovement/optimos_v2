@@ -5,7 +5,7 @@ import traceback
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 
 # Import TensorBoard utilities (make sure TensorFlow is installed)
 from tensorboard.backend.event_processing.event_accumulator import (
@@ -626,9 +626,80 @@ def create_composite_plot_grid(model, mode, plot_files, composite_dir, cell_defa
     return composite_path, metrics
 
 
-# -----------------------------------------------------------------------------
-# 8. Updated Markdown Report Generation (Using ##, ###, etc.)
-# -----------------------------------------------------------------------------
+def create_composite_pareto_grid(
+    model, mode, pareto_images, composite_dir, grid_size=(3, 2), cell_default_size=(600, 400), title_height=40
+):
+    """
+    Combine Pareto Front images for a given model and mode into one composite image arranged in a grid.
+    Each cell will display a title (the agent name) at the top, then the corresponding Pareto image.
+    The grid size is fixed (default 3 columns x 2 rows = 6 cells).
+
+    If an agent's image is missing, a blank cell with the title "No image" is used.
+
+    Returns:
+      composite_path: The file path of the saved composite image.
+      agents_in_grid: A list (of length equal to grid cells) of agent names (or None for blank cells).
+    """
+    # Get list of agents (sorted) for which we have Pareto images for this model and mode.
+    agents = sorted(
+        [agent for (m, mode_key, agent) in pareto_images.keys() if m == model and mode_key == mode]
+    )
+    total_cells = grid_size[0] * grid_size[1]
+    # If we have fewer agents than cells, pad with None.
+    agents_in_grid = agents[:total_cells]
+    while len(agents_in_grid) < total_cells:
+        agents_in_grid.append(None)
+
+    cells = []
+    for agent in agents_in_grid:
+        if agent is not None:
+            key = (model, mode, agent)
+            if key in pareto_images:
+                try:
+                    img = Image.open(pareto_images[key])
+                except Exception as e:
+                    print(f"Error loading Pareto image for {model}, {mode}, {agent}: {e}")
+                    img = Image.new("RGB", cell_default_size, (255, 255, 255))
+            else:
+                img = Image.new("RGB", cell_default_size, (255, 255, 255))
+        else:
+            img = Image.new("RGB", cell_default_size, (255, 255, 255))
+        img = img.resize(cell_default_size)
+        cell_img = Image.new(
+            "RGB", (cell_default_size[0], cell_default_size[1] + title_height), (255, 255, 255)
+        )
+        draw = ImageDraw.Draw(cell_img)
+        # Try to load a TrueType font with increased size.
+        try:
+            font = ImageFont.truetype("Arial.ttf", 20)
+        except Exception:
+            font = ImageFont.load_default()
+        title_text = agent if agent is not None else "No image"
+        bbox = draw.textbbox((0, 0), title_text, font=font)
+        text_width = bbox[2] - bbox[0]
+        text_height = bbox[3] - bbox[1]
+        x_text = (cell_default_size[0] - text_width) // 2
+        y_text = (title_height - text_height) // 2
+        draw.text((x_text, y_text), title_text, fill="black", font=font)
+        cell_img.paste(img, (0, title_height))
+        cells.append(cell_img)
+
+    cell_width, cell_height = cell_default_size[0], cell_default_size[1] + title_height
+    composite_width = grid_size[0] * cell_width
+    composite_height = grid_size[1] * cell_height
+    composite = Image.new("RGB", (composite_width, composite_height), (255, 255, 255))
+
+    for i, cell in enumerate(cells):
+        row = i // grid_size[0]
+        col = i % grid_size[0]
+        x = col * cell_width
+        y = row * cell_height
+        composite.paste(cell, (x, y))
+
+    os.makedirs(composite_dir, exist_ok=True)
+    composite_path = os.path.join(composite_dir, f"{model}_{mode}_pareto_composite.png".replace(" ", "_"))
+    composite.save(composite_path)
+    return composite_path, agents_in_grid
 
 
 # -----------------------------------------------------------------------------
@@ -761,25 +832,22 @@ def generate_markdown_report(
                 md_lines.append("No summary available.\n")
 
             md_lines.append("##### Pareto Front Images\n")
-            agents_for_pf = [
-                agent for (m, mode_key, agent) in pareto_images.keys() if m == model and mode_key == mode
-            ]
-            if agents_for_pf:
-                md_lines.append("<table><tr>")
-                for agent in agents_for_pf:
-                    md_lines.append(f"<th>{agent}</th>")
-                md_lines.append("</tr><tr>")
-                for agent in agents_for_pf:
-                    key = (model, mode, agent)
-                    image_path = pareto_images.get(key, "No image")
-                    if image_path != "No image":
-                        relative_image_path = os.path.relpath(image_path, os.path.dirname(output_md))
-                        md_lines.append(
-                            f"<td><img src='{relative_image_path}' alt='Pareto Front for {agent}' style='width:300px;height:200px;'/></td>"
-                        )
-                    else:
-                        md_lines.append("<td>No image</td>")
-                md_lines.append("</tr></table>")
+            composite_path, agents_in_grid = create_composite_pareto_grid(
+                model, mode, pareto_images, composite_dir
+            )
+            if composite_path:
+                relative_composite = os.path.relpath(composite_path, os.path.dirname(output_md))
+                md_lines.append(f"![]({relative_composite})")
+                md_lines.append("")
+                md_lines.append("Individual Pareto images:")
+                # List links for cells that have an agent.
+                for agent in agents_in_grid:
+                    if agent is not None:
+                        key = (model, mode, agent)
+                        if key in pareto_images:
+                            relative_img = os.path.relpath(pareto_images[key], os.path.dirname(output_md))
+                            md_lines.append(f"- [{agent}]({relative_img})")
+                md_lines.append("")
             else:
                 md_lines.append("No Pareto Front images available.\n")
             md_lines.append("\n---\n")
