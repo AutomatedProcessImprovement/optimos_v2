@@ -255,3 +255,6 @@ result.json
 /all_metrics.pkl
 /local_file_list.txt
 /out.txt
+
+o2_evaluation/markdown_creator/events/
+o2_evaluation/markdown_creator/report_outputs
