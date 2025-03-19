@@ -1,6 +1,8 @@
 # Optimos V2
 
-The next generation of [Optimos](https://github.com/AutomatedProcessImprovement/roptimus-prime). A Resource, Roster and Batching optimizer using Prosimos simulator.
+The next generation of Optimos. A Resource, Roster and Batching optimizer using Prosimos simulator.
+
+# Evaluation
 
 ## Overview
 
@@ -186,32 +188,27 @@ Individual charts:
 
 ##### Summary Table (Final Values)
 
-| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time   |
-| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :------------------------ |
-| Proximal Policy Optimization        |  9991 |               1020 |                              |        1.22262e+06 |     1.1635e+06 |            17.8497 |            10000 |       4.33396 | 9h 9min (for 9991 Steps)  |
-| Proximal Policy Optimization Random |  9991 |               1347 |                              |        1.21544e+06 |    1.16689e+06 |            2.54891 |            10000 |       3.13432 | 6h 23min (for 9991 Steps) |
-| Simulated Annealing                 |  9993 |                454 |                           27 |        1.30261e+06 |    1.20913e+06 |            5.92322 |              602 |       3.59493 | 1h 16min (for 9993 Steps) |
-| Simulated Annealing Random          |   915 |                459 |                            0 |         1.3469e+06 |    1.21027e+06 |            4.44316 |              307 |       1.45809 | 0h 24min (for 915 Steps)  |
-| Tabu Search                         |  6922 |                559 |                            0 |        1.23741e+06 |     1.2117e+06 |            5.03646 |              390 |       3.05839 | 0h 43min (for 6922 Steps) |
-| Tabu Search Random                  |    60 |                 35 |                            0 |        1.27674e+06 |    1.21298e+06 |                  2 |               22 |       1.56687 | 0h 1min (for 60 Steps)    |
+| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time     |
+| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :-------------------------- |
+| Proximal Policy Optimization        |  9991 |               1020 |                              |        1.22262e+06 |     1.1635e+06 |            17.8497 |            10000 |       4.33396 | 549min<br/>(for 9991 Steps) |
+| Proximal Policy Optimization Random |  9991 |               1347 |                              |        1.21544e+06 |    1.16689e+06 |            2.54891 |            10000 |       3.13432 | 383min<br/>(for 9991 Steps) |
+| Simulated Annealing                 |  9993 |                454 |                           27 |        1.30261e+06 |    1.20913e+06 |            5.92322 |              602 |       3.59493 | 76min<br/>(for 9993 Steps)  |
+| Simulated Annealing Random          |   915 |                459 |                            0 |         1.3469e+06 |    1.21027e+06 |            4.44316 |              307 |       1.45809 | 24min<br/>(for 915 Steps)   |
+| Tabu Search                         |  6922 |                559 |                            0 |        1.23741e+06 |     1.2117e+06 |            5.03646 |              390 |       3.05839 | 43min<br/>(for 6922 Steps)  |
+| Tabu Search Random                  |    60 |                 35 |                            0 |        1.27674e+06 |    1.21298e+06 |                  2 |               22 |       1.56687 | 1min<br/>(for 60 Steps)     |
 
 ##### Pareto Front Images
 
-<table><tr>
-<th>Tabu Search</th>
-<th>Simulated Annealing</th>
-<th>Proximal Policy Optimization</th>
-<th>Proximal Policy Optimization Random</th>
-<th>Tabu Search Random</th>
-<th>Simulated Annealing Random</th>
-</tr><tr>
-<td><img src='report_images/Bpi_Challenge_2012_Easy_Tabu_Search_pareto_front.png' alt='Pareto Front for Tabu Search' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Bpi_Challenge_2012_Easy_Simulated_Annealing_pareto_front.png' alt='Pareto Front for Simulated Annealing' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Bpi_Challenge_2012_Easy_Proximal_Policy_Optimization_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Bpi_Challenge_2012_Easy_Proximal_Policy_Optimization_Random_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Bpi_Challenge_2012_Easy_Tabu_Search_Random_pareto_front.png' alt='Pareto Front for Tabu Search Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Bpi_Challenge_2012_Easy_Simulated_Annealing_Random_pareto_front.png' alt='Pareto Front for Simulated Annealing Random' style='width:300px;height:200px;'/></td>
-</tr></table>
+![](composite_plots/Bpi_Challenge_2012_Easy_pareto_composite.png)
+
+Individual Pareto images:
+
+- [Proximal Policy Optimization](report_images/Bpi_Challenge_2012_Easy_Proximal_Policy_Optimization_pareto_front.png)
+- [Proximal Policy Optimization Random](report_images/Bpi_Challenge_2012_Easy_Proximal_Policy_Optimization_Random_pareto_front.png)
+- [Simulated Annealing](report_images/Bpi_Challenge_2012_Easy_Simulated_Annealing_pareto_front.png)
+- [Simulated Annealing Random](report_images/Bpi_Challenge_2012_Easy_Simulated_Annealing_Random_pareto_front.png)
+- [Tabu Search](report_images/Bpi_Challenge_2012_Easy_Tabu_Search_pareto_front.png)
+- [Tabu Search Random](report_images/Bpi_Challenge_2012_Easy_Tabu_Search_Random_pareto_front.png)
 
 ---
 
@@ -234,32 +231,27 @@ Individual charts:
 
 ##### Summary Table (Final Values)
 
-| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time    |
-| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :------------------------- |
-| Proximal Policy Optimization        |  9991 |               1748 |                              |        7.74888e+06 |    1.17014e+06 |                  2 |            10000 |       2.76076 | 8h 6min (for 9991 Steps)   |
-| Proximal Policy Optimization Random |  9991 |               1209 |                              |        4.82441e+06 |     1.1663e+06 |                  2 |            10000 |       5.43813 | 10h 44min (for 9991 Steps) |
-| Simulated Annealing                 |  8534 |                456 |                            0 |        1.41545e+06 |    1.21131e+06 |            5.39286 |              565 |      0.252189 | 1h 31min (for 8534 Steps)  |
-| Simulated Annealing Random          |   720 |                354 |                            0 |        1.58524e+06 |    1.21104e+06 |                  0 |              242 |       1.85308 | 0h 20min (for 720 Steps)   |
-| Tabu Search                         |  2933 |                297 |                            0 |        1.52894e+06 |    1.21731e+06 |            16.5698 |              168 |      0.572584 | 0h 27min (for 2933 Steps)  |
-| Tabu Search Random                  |   180 |                 65 |                            0 |         1.7864e+06 |    1.21133e+06 |                  0 |               62 |       1.41545 | 0h 5min (for 180 Steps)    |
+| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time     |
+| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :-------------------------- |
+| Proximal Policy Optimization        |  9991 |               1748 |                              |        7.74888e+06 |    1.17014e+06 |                  2 |            10000 |       2.76076 | 486min<br/>(for 9991 Steps) |
+| Proximal Policy Optimization Random |  9991 |               1209 |                              |        4.82441e+06 |     1.1663e+06 |                  2 |            10000 |       5.43813 | 644min<br/>(for 9991 Steps) |
+| Simulated Annealing                 |  8534 |                456 |                            0 |        1.41545e+06 |    1.21131e+06 |            5.39286 |              565 |      0.252189 | 91min<br/>(for 8534 Steps)  |
+| Simulated Annealing Random          |   720 |                354 |                            0 |        1.58524e+06 |    1.21104e+06 |                  0 |              242 |       1.85308 | 20min<br/>(for 720 Steps)   |
+| Tabu Search                         |  2933 |                297 |                            0 |        1.52894e+06 |    1.21731e+06 |            16.5698 |              168 |      0.572584 | 27min<br/>(for 2933 Steps)  |
+| Tabu Search Random                  |   180 |                 65 |                            0 |         1.7864e+06 |    1.21133e+06 |                  0 |               62 |       1.41545 | 5min<br/>(for 180 Steps)    |
 
 ##### Pareto Front Images
 
-<table><tr>
-<th>Simulated Annealing Random</th>
-<th>Simulated Annealing</th>
-<th>Tabu Search</th>
-<th>Tabu Search Random</th>
-<th>Proximal Policy Optimization</th>
-<th>Proximal Policy Optimization Random</th>
-</tr><tr>
-<td><img src='report_images/Bpi_Challenge_2012_Hard_Simulated_Annealing_Random_pareto_front.png' alt='Pareto Front for Simulated Annealing Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Bpi_Challenge_2012_Hard_Simulated_Annealing_pareto_front.png' alt='Pareto Front for Simulated Annealing' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Bpi_Challenge_2012_Hard_Tabu_Search_pareto_front.png' alt='Pareto Front for Tabu Search' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Bpi_Challenge_2012_Hard_Tabu_Search_Random_pareto_front.png' alt='Pareto Front for Tabu Search Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Bpi_Challenge_2012_Hard_Proximal_Policy_Optimization_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Bpi_Challenge_2012_Hard_Proximal_Policy_Optimization_Random_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization Random' style='width:300px;height:200px;'/></td>
-</tr></table>
+![](composite_plots/Bpi_Challenge_2012_Hard_pareto_composite.png)
+
+Individual Pareto images:
+
+- [Proximal Policy Optimization](report_images/Bpi_Challenge_2012_Hard_Proximal_Policy_Optimization_pareto_front.png)
+- [Proximal Policy Optimization Random](report_images/Bpi_Challenge_2012_Hard_Proximal_Policy_Optimization_Random_pareto_front.png)
+- [Simulated Annealing](report_images/Bpi_Challenge_2012_Hard_Simulated_Annealing_pareto_front.png)
+- [Simulated Annealing Random](report_images/Bpi_Challenge_2012_Hard_Simulated_Annealing_Random_pareto_front.png)
+- [Tabu Search](report_images/Bpi_Challenge_2012_Hard_Tabu_Search_pareto_front.png)
+- [Tabu Search Random](report_images/Bpi_Challenge_2012_Hard_Tabu_Search_Random_pareto_front.png)
 
 ---
 
@@ -282,32 +274,27 @@ Individual charts:
 
 ##### Summary Table (Final Values)
 
-| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time    |
-| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :------------------------- |
-| Proximal Policy Optimization        |  9991 |               1754 |                              |        1.42909e+06 |       1.17e+06 |            5.55513 |            10000 |       2.50255 | 7h 9min (for 9991 Steps)   |
-| Proximal Policy Optimization Random |  9991 |               1677 |                              |        1.46688e+06 |       1.17e+06 |            2.97665 |            10000 |       2.94587 | 7h 51min (for 9991 Steps)  |
-| Simulated Annealing                 | 10006 |                696 |                            9 |        1.37587e+06 |    1.21377e+06 |                  2 |              642 |      0.275636 | 1h 11min (for 10006 Steps) |
-| Simulated Annealing Random          |   759 |                429 |                            0 |        1.39163e+06 |    1.21732e+06 |                  2 |              255 |        1.0461 | 0h 18min (for 759 Steps)   |
-| Tabu Search                         |  2496 |                146 |                            0 |        1.36132e+06 |    1.21358e+06 |            2.63385 |              133 |      0.264846 | 0h 16min (for 2496 Steps)  |
-| Tabu Search Random                  |   129 |                 50 |                            0 |        1.38085e+06 |    1.21129e+06 |            43.3714 |               45 |       1.22801 | 0h 3min (for 129 Steps)    |
+| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time     |
+| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :-------------------------- |
+| Proximal Policy Optimization        |  9991 |               1754 |                              |        1.42909e+06 |       1.17e+06 |            5.55513 |            10000 |       2.50255 | 429min<br/>(for 9991 Steps) |
+| Proximal Policy Optimization Random |  9991 |               1677 |                              |        1.46688e+06 |       1.17e+06 |            2.97665 |            10000 |       2.94587 | 471min<br/>(for 9991 Steps) |
+| Simulated Annealing                 | 10006 |                696 |                            9 |        1.37587e+06 |    1.21377e+06 |                  2 |              642 |      0.275636 | 71min<br/>(for 10006 Steps) |
+| Simulated Annealing Random          |   759 |                429 |                            0 |        1.39163e+06 |    1.21732e+06 |                  2 |              255 |        1.0461 | 18min<br/>(for 759 Steps)   |
+| Tabu Search                         |  2496 |                146 |                            0 |        1.36132e+06 |    1.21358e+06 |            2.63385 |              133 |      0.264846 | 16min<br/>(for 2496 Steps)  |
+| Tabu Search Random                  |   129 |                 50 |                            0 |        1.38085e+06 |    1.21129e+06 |            43.3714 |               45 |       1.22801 | 3min<br/>(for 129 Steps)    |
 
 ##### Pareto Front Images
 
-<table><tr>
-<th>Proximal Policy Optimization</th>
-<th>Simulated Annealing</th>
-<th>Tabu Search Random</th>
-<th>Tabu Search</th>
-<th>Simulated Annealing Random</th>
-<th>Proximal Policy Optimization Random</th>
-</tr><tr>
-<td><img src='report_images/Bpi_Challenge_2012_Mid_Proximal_Policy_Optimization_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Bpi_Challenge_2012_Mid_Simulated_Annealing_pareto_front.png' alt='Pareto Front for Simulated Annealing' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Bpi_Challenge_2012_Mid_Tabu_Search_Random_pareto_front.png' alt='Pareto Front for Tabu Search Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Bpi_Challenge_2012_Mid_Tabu_Search_pareto_front.png' alt='Pareto Front for Tabu Search' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Bpi_Challenge_2012_Mid_Simulated_Annealing_Random_pareto_front.png' alt='Pareto Front for Simulated Annealing Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Bpi_Challenge_2012_Mid_Proximal_Policy_Optimization_Random_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization Random' style='width:300px;height:200px;'/></td>
-</tr></table>
+![](composite_plots/Bpi_Challenge_2012_Mid_pareto_composite.png)
+
+Individual Pareto images:
+
+- [Proximal Policy Optimization](report_images/Bpi_Challenge_2012_Mid_Proximal_Policy_Optimization_pareto_front.png)
+- [Proximal Policy Optimization Random](report_images/Bpi_Challenge_2012_Mid_Proximal_Policy_Optimization_Random_pareto_front.png)
+- [Simulated Annealing](report_images/Bpi_Challenge_2012_Mid_Simulated_Annealing_pareto_front.png)
+- [Simulated Annealing Random](report_images/Bpi_Challenge_2012_Mid_Simulated_Annealing_Random_pareto_front.png)
+- [Tabu Search](report_images/Bpi_Challenge_2012_Mid_Tabu_Search_pareto_front.png)
+- [Tabu Search Random](report_images/Bpi_Challenge_2012_Mid_Tabu_Search_Random_pareto_front.png)
 
 ---
 
@@ -446,32 +433,27 @@ Individual charts:
 
 ##### Summary Table (Final Values)
 
-| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time    |
-| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :------------------------- |
-| Proximal Policy Optimization        |  9991 |               2296 |                              |             851855 |         622342 |                  2 |            10000 |        4.0034 | 10h 41min (for 9991 Steps) |
-| Proximal Policy Optimization Random |  9991 |               3480 |                              |             846913 |         773073 |            9.13759 |            10000 |       4.41904 | 9h 39min (for 9991 Steps)  |
-| Simulated Annealing                 |  9998 |               1495 |                          564 |             941853 |         847722 |                  2 |              655 |      0.717846 | 1h 30min (for 9998 Steps)  |
-| Simulated Annealing Random          |  1190 |                641 |                            0 |             869780 |         850046 |            2.01457 |              398 |        2.4041 | 0h 44min (for 1190 Steps)  |
-| Tabu Search                         | 10000 |               2778 |                          829 |             878877 |         696456 |            5.55401 |              548 |       1.09289 | 1h 43min (for 10000 Steps) |
-| Tabu Search Random                  |   620 |                285 |                            0 |             899299 |         851318 |            2.19473 |              208 |       2.49187 | 0h 25min (for 620 Steps)   |
+| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time      |
+| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :--------------------------- |
+| Proximal Policy Optimization        |  9991 |               2296 |                              |             851855 |         622342 |                  2 |            10000 |        4.0034 | 641min<br/>(for 9991 Steps)  |
+| Proximal Policy Optimization Random |  9991 |               3480 |                              |             846913 |         773073 |            9.13759 |            10000 |       4.41904 | 579min<br/>(for 9991 Steps)  |
+| Simulated Annealing                 |  9998 |               1495 |                          564 |             941853 |         847722 |                  2 |              655 |      0.717846 | 90min<br/>(for 9998 Steps)   |
+| Simulated Annealing Random          |  1190 |                641 |                            0 |             869780 |         850046 |            2.01457 |              398 |        2.4041 | 44min<br/>(for 1190 Steps)   |
+| Tabu Search                         | 10000 |               2778 |                          829 |             878877 |         696456 |            5.55401 |              548 |       1.09289 | 103min<br/>(for 10000 Steps) |
+| Tabu Search Random                  |   620 |                285 |                            0 |             899299 |         851318 |            2.19473 |              208 |       2.49187 | 25min<br/>(for 620 Steps)    |
 
 ##### Pareto Front Images
 
-<table><tr>
-<th>Simulated Annealing</th>
-<th>Proximal Policy Optimization</th>
-<th>Tabu Search Random</th>
-<th>Tabu Search</th>
-<th>Simulated Annealing Random</th>
-<th>Proximal Policy Optimization Random</th>
-</tr><tr>
-<td><img src='report_images/Bpi_Challenge_2017_Easy_Simulated_Annealing_pareto_front.png' alt='Pareto Front for Simulated Annealing' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Bpi_Challenge_2017_Easy_Proximal_Policy_Optimization_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Bpi_Challenge_2017_Easy_Tabu_Search_Random_pareto_front.png' alt='Pareto Front for Tabu Search Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Bpi_Challenge_2017_Easy_Tabu_Search_pareto_front.png' alt='Pareto Front for Tabu Search' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Bpi_Challenge_2017_Easy_Simulated_Annealing_Random_pareto_front.png' alt='Pareto Front for Simulated Annealing Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Bpi_Challenge_2017_Easy_Proximal_Policy_Optimization_Random_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization Random' style='width:300px;height:200px;'/></td>
-</tr></table>
+![](composite_plots/Bpi_Challenge_2017_Easy_pareto_composite.png)
+
+Individual Pareto images:
+
+- [Proximal Policy Optimization](report_images/Bpi_Challenge_2017_Easy_Proximal_Policy_Optimization_pareto_front.png)
+- [Proximal Policy Optimization Random](report_images/Bpi_Challenge_2017_Easy_Proximal_Policy_Optimization_Random_pareto_front.png)
+- [Simulated Annealing](report_images/Bpi_Challenge_2017_Easy_Simulated_Annealing_pareto_front.png)
+- [Simulated Annealing Random](report_images/Bpi_Challenge_2017_Easy_Simulated_Annealing_Random_pareto_front.png)
+- [Tabu Search](report_images/Bpi_Challenge_2017_Easy_Tabu_Search_pareto_front.png)
+- [Tabu Search Random](report_images/Bpi_Challenge_2017_Easy_Tabu_Search_Random_pareto_front.png)
 
 ---
 
@@ -494,32 +476,27 @@ Individual charts:
 
 ##### Summary Table (Final Values)
 
-| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time   |
-| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :------------------------ |
-| Proximal Policy Optimization        |  6299 |                734 |                              |         1.9778e+07 |         838174 |                  2 |             6309 |       2.62878 | 6h 7min (for 6299 Steps)  |
-| Proximal Policy Optimization Random |  5489 |                649 |                              |        1.71763e+07 |         837243 |                  2 |             5499 |        3.2475 | 5h 43min (for 5489 Steps) |
-| Simulated Annealing                 |  9994 |               2069 |                          211 |             974249 |         845163 |                  2 |              698 |       1.04918 | 2h 15min (for 9994 Steps) |
-| Simulated Annealing Random          |   896 |                494 |                            0 |        1.04407e+06 |         851497 |                  2 |              300 |         2.024 | 0h 32min (for 896 Steps)  |
-| Tabu Search                         |    23 |                  5 |                            1 |             853221 |         852804 |                  0 |                4 |      0.012678 | 0h 0min (for 23 Steps)    |
-| Tabu Search Random                  |    26 |                 13 |                            0 |             884157 |         852467 |                  0 |               10 |        1.5919 | 0h 1min (for 26 Steps)    |
+| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time     |
+| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :-------------------------- |
+| Proximal Policy Optimization        |  6299 |                734 |                              |         1.9778e+07 |         838174 |                  2 |             6309 |       2.62878 | 367min<br/>(for 6299 Steps) |
+| Proximal Policy Optimization Random |  5489 |                649 |                              |        1.71763e+07 |         837243 |                  2 |             5499 |        3.2475 | 343min<br/>(for 5489 Steps) |
+| Simulated Annealing                 |  9994 |               2069 |                          211 |             974249 |         845163 |                  2 |              698 |       1.04918 | 135min<br/>(for 9994 Steps) |
+| Simulated Annealing Random          |   896 |                494 |                            0 |        1.04407e+06 |         851497 |                  2 |              300 |         2.024 | 32min<br/>(for 896 Steps)   |
+| Tabu Search                         |    23 |                  5 |                            1 |             853221 |         852804 |                  0 |                4 |      0.012678 | 0min<br/>(for 23 Steps)     |
+| Tabu Search Random                  |    26 |                 13 |                            0 |             884157 |         852467 |                  0 |               10 |        1.5919 | 1min<br/>(for 26 Steps)     |
 
 ##### Pareto Front Images
 
-<table><tr>
-<th>Proximal Policy Optimization</th>
-<th>Proximal Policy Optimization Random</th>
-<th>Tabu Search</th>
-<th>Simulated Annealing Random</th>
-<th>Tabu Search Random</th>
-<th>Simulated Annealing</th>
-</tr><tr>
-<td><img src='report_images/Bpi_Challenge_2017_Hard_Proximal_Policy_Optimization_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Bpi_Challenge_2017_Hard_Proximal_Policy_Optimization_Random_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Bpi_Challenge_2017_Hard_Tabu_Search_pareto_front.png' alt='Pareto Front for Tabu Search' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Bpi_Challenge_2017_Hard_Simulated_Annealing_Random_pareto_front.png' alt='Pareto Front for Simulated Annealing Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Bpi_Challenge_2017_Hard_Tabu_Search_Random_pareto_front.png' alt='Pareto Front for Tabu Search Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Bpi_Challenge_2017_Hard_Simulated_Annealing_pareto_front.png' alt='Pareto Front for Simulated Annealing' style='width:300px;height:200px;'/></td>
-</tr></table>
+![](composite_plots/Bpi_Challenge_2017_Hard_pareto_composite.png)
+
+Individual Pareto images:
+
+- [Proximal Policy Optimization](report_images/Bpi_Challenge_2017_Hard_Proximal_Policy_Optimization_pareto_front.png)
+- [Proximal Policy Optimization Random](report_images/Bpi_Challenge_2017_Hard_Proximal_Policy_Optimization_Random_pareto_front.png)
+- [Simulated Annealing](report_images/Bpi_Challenge_2017_Hard_Simulated_Annealing_pareto_front.png)
+- [Simulated Annealing Random](report_images/Bpi_Challenge_2017_Hard_Simulated_Annealing_Random_pareto_front.png)
+- [Tabu Search](report_images/Bpi_Challenge_2017_Hard_Tabu_Search_pareto_front.png)
+- [Tabu Search Random](report_images/Bpi_Challenge_2017_Hard_Tabu_Search_Random_pareto_front.png)
 
 ---
 
@@ -542,32 +519,27 @@ Individual charts:
 
 ##### Summary Table (Final Values)
 
-| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time    |
-| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :------------------------- |
-| Proximal Policy Optimization        |  9991 |               1505 |                              |        1.02846e+06 |         825269 |                  2 |            10000 |       3.34574 | 8h 38min (for 9991 Steps)  |
-| Proximal Policy Optimization Random |  9095 |               1668 |                              |             933243 |         838151 |                  2 |             9105 |       3.33356 | 8h 13min (for 9095 Steps)  |
-| Simulated Annealing                 | 10000 |                835 |                          115 |             955819 |         846219 |                  0 |              684 |      0.568655 | 1h 46min (for 10000 Steps) |
-| Simulated Annealing Random          |   947 |                511 |                            0 |        1.11572e+06 |         850648 |                  2 |              317 |       2.13876 | 0h 34min (for 947 Steps)   |
-| Tabu Search                         | 10007 |               1426 |                          563 |             924136 |         846409 |            2.88612 |              599 |      0.756378 | 1h 45min (for 10007 Steps) |
-| Tabu Search Random                  |   173 |                 85 |                            0 |        1.12352e+06 |         852813 |             2.0259 |               59 |      0.090271 | 0h 6min (for 173 Steps)    |
+| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time      |
+| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :--------------------------- |
+| Proximal Policy Optimization        |  9991 |               1505 |                              |        1.02846e+06 |         825269 |                  2 |            10000 |       3.34574 | 518min<br/>(for 9991 Steps)  |
+| Proximal Policy Optimization Random |  9095 |               1668 |                              |             933243 |         838151 |                  2 |             9105 |       3.33356 | 493min<br/>(for 9095 Steps)  |
+| Simulated Annealing                 | 10000 |                835 |                          115 |             955819 |         846219 |                  0 |              684 |      0.568655 | 106min<br/>(for 10000 Steps) |
+| Simulated Annealing Random          |   947 |                511 |                            0 |        1.11572e+06 |         850648 |                  2 |              317 |       2.13876 | 34min<br/>(for 947 Steps)    |
+| Tabu Search                         | 10007 |               1426 |                          563 |             924136 |         846409 |            2.88612 |              599 |      0.756378 | 105min<br/>(for 10007 Steps) |
+| Tabu Search Random                  |   173 |                 85 |                            0 |        1.12352e+06 |         852813 |             2.0259 |               59 |      0.090271 | 6min<br/>(for 173 Steps)     |
 
 ##### Pareto Front Images
 
-<table><tr>
-<th>Simulated Annealing Random</th>
-<th>Tabu Search Random</th>
-<th>Simulated Annealing</th>
-<th>Tabu Search</th>
-<th>Proximal Policy Optimization Random</th>
-<th>Proximal Policy Optimization</th>
-</tr><tr>
-<td><img src='report_images/Bpi_Challenge_2017_Mid_Simulated_Annealing_Random_pareto_front.png' alt='Pareto Front for Simulated Annealing Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Bpi_Challenge_2017_Mid_Tabu_Search_Random_pareto_front.png' alt='Pareto Front for Tabu Search Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Bpi_Challenge_2017_Mid_Simulated_Annealing_pareto_front.png' alt='Pareto Front for Simulated Annealing' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Bpi_Challenge_2017_Mid_Tabu_Search_pareto_front.png' alt='Pareto Front for Tabu Search' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Bpi_Challenge_2017_Mid_Proximal_Policy_Optimization_Random_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Bpi_Challenge_2017_Mid_Proximal_Policy_Optimization_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization' style='width:300px;height:200px;'/></td>
-</tr></table>
+![](composite_plots/Bpi_Challenge_2017_Mid_pareto_composite.png)
+
+Individual Pareto images:
+
+- [Proximal Policy Optimization](report_images/Bpi_Challenge_2017_Mid_Proximal_Policy_Optimization_pareto_front.png)
+- [Proximal Policy Optimization Random](report_images/Bpi_Challenge_2017_Mid_Proximal_Policy_Optimization_Random_pareto_front.png)
+- [Simulated Annealing](report_images/Bpi_Challenge_2017_Mid_Simulated_Annealing_pareto_front.png)
+- [Simulated Annealing Random](report_images/Bpi_Challenge_2017_Mid_Simulated_Annealing_Random_pareto_front.png)
+- [Tabu Search](report_images/Bpi_Challenge_2017_Mid_Tabu_Search_pareto_front.png)
+- [Tabu Search Random](report_images/Bpi_Challenge_2017_Mid_Tabu_Search_Random_pareto_front.png)
 
 ---
 
@@ -706,32 +678,27 @@ Individual charts:
 
 ##### Summary Table (Final Values)
 
-| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time    |
-| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :------------------------- |
-| Proximal Policy Optimization        |  2009 |                  2 |                              |         1.1639e+07 |    1.08201e+06 |            4.03617 |             2019 |        15.139 | 8h 21min (for 2009 Steps)  |
-| Proximal Policy Optimization Random |  4067 |                  2 |                              |        1.22195e+07 |     1.6904e+06 |            6.67055 |             4077 |        20.129 | 17h 23min (for 4067 Steps) |
-| Simulated Annealing                 |  9999 |                202 |                          938 |         1.5071e+06 |    1.06311e+06 |            2.78258 |              591 |       0.95725 | 6h 59min (for 9999 Steps)  |
-| Simulated Annealing Random          |  2633 |               1077 |                           20 |         2.4995e+06 |    1.06716e+06 |            3.92252 |              868 |       1.46477 | 7h 34min (for 2633 Steps)  |
-| Tabu Search                         |  3537 |                 38 |                         1255 |        1.58991e+06 |    1.37119e+06 |            3.50991 |              176 |       2.03933 | 2h 17min (for 3537 Steps)  |
-| Tabu Search Random                  |   473 |                153 |                            0 |         1.7469e+06 |     1.7469e+06 |            5.83961 |              155 |       2.20628 | 1h 2min (for 473 Steps)    |
+| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time       |
+| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :---------------------------- |
+| Proximal Policy Optimization        |  2009 |                  2 |                              |         1.1639e+07 |    1.08201e+06 |            4.03617 |             2019 |        15.139 | 501min<br/>(for 2009 Steps)   |
+| Proximal Policy Optimization Random |  4067 |                  2 |                              |        1.22195e+07 |     1.6904e+06 |            6.67055 |             4077 |        20.129 | 1,043min<br/>(for 4067 Steps) |
+| Simulated Annealing                 |  9999 |                202 |                          938 |         1.5071e+06 |    1.06311e+06 |            2.78258 |              591 |       0.95725 | 419min<br/>(for 9999 Steps)   |
+| Simulated Annealing Random          |  2633 |               1077 |                           20 |         2.4995e+06 |    1.06716e+06 |            3.92252 |              868 |       1.46477 | 454min<br/>(for 2633 Steps)   |
+| Tabu Search                         |  3537 |                 38 |                         1255 |        1.58991e+06 |    1.37119e+06 |            3.50991 |              176 |       2.03933 | 137min<br/>(for 3537 Steps)   |
+| Tabu Search Random                  |   473 |                153 |                            0 |         1.7469e+06 |     1.7469e+06 |            5.83961 |              155 |       2.20628 | 62min<br/>(for 473 Steps)     |
 
 ##### Pareto Front Images
 
-<table><tr>
-<th>Proximal Policy Optimization</th>
-<th>Simulated Annealing</th>
-<th>Simulated Annealing Random</th>
-<th>Tabu Search</th>
-<th>Tabu Search Random</th>
-<th>Proximal Policy Optimization Random</th>
-</tr><tr>
-<td><img src='report_images/Bpic2019_Das_Easy_Proximal_Policy_Optimization_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Bpic2019_Das_Easy_Simulated_Annealing_pareto_front.png' alt='Pareto Front for Simulated Annealing' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Bpic2019_Das_Easy_Simulated_Annealing_Random_pareto_front.png' alt='Pareto Front for Simulated Annealing Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Bpic2019_Das_Easy_Tabu_Search_pareto_front.png' alt='Pareto Front for Tabu Search' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Bpic2019_Das_Easy_Tabu_Search_Random_pareto_front.png' alt='Pareto Front for Tabu Search Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Bpic2019_Das_Easy_Proximal_Policy_Optimization_Random_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization Random' style='width:300px;height:200px;'/></td>
-</tr></table>
+![](composite_plots/Bpic2019_Das_Easy_pareto_composite.png)
+
+Individual Pareto images:
+
+- [Proximal Policy Optimization](report_images/Bpic2019_Das_Easy_Proximal_Policy_Optimization_pareto_front.png)
+- [Proximal Policy Optimization Random](report_images/Bpic2019_Das_Easy_Proximal_Policy_Optimization_Random_pareto_front.png)
+- [Simulated Annealing](report_images/Bpic2019_Das_Easy_Simulated_Annealing_pareto_front.png)
+- [Simulated Annealing Random](report_images/Bpic2019_Das_Easy_Simulated_Annealing_Random_pareto_front.png)
+- [Tabu Search](report_images/Bpic2019_Das_Easy_Tabu_Search_pareto_front.png)
+- [Tabu Search Random](report_images/Bpic2019_Das_Easy_Tabu_Search_Random_pareto_front.png)
 
 ---
 
@@ -754,30 +721,26 @@ Individual charts:
 
 ##### Summary Table (Final Values)
 
-| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time   |
-| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :------------------------ |
-| Proximal Policy Optimization        |   631 |                  8 |                              |        2.08606e+07 |    5.14389e+06 |            9.35763 |              640 |       111.327 | 12h 53min (for 631 Steps) |
-| Proximal Policy Optimization Random |   771 |                  2 |                              |        1.97393e+09 |    3.22863e+06 |            9.58205 |              780 |       127.342 | 29h 20min (for 771 Steps) |
-| Simulated Annealing                 |  9270 |                193 |                         1695 |        2.19567e+06 |    1.00062e+06 |            3.10955 |              502 |      0.382867 | 5h 58min (for 9270 Steps) |
-| Simulated Annealing Random          |   705 |                297 |                            0 |        6.59939e+06 |    3.35898e+06 |                  5 |              254 |       6.81138 | 5h 14min (for 705 Steps)  |
-| Tabu Search                         |  7986 |                161 |                         1055 |        3.98648e+06 |    1.42871e+06 |            3.54196 |              425 |       1.25507 | 5h 33min (for 7986 Steps) |
-| Tabu Search Random                  |   128 |                 34 |                            0 |        2.48004e+06 |    1.00068e+06 |            3.72706 |               40 |       9.28795 | 0h 25min (for 128 Steps)  |
+| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time      |
+| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :--------------------------- |
+| Proximal Policy Optimization        |   631 |                  8 |                              |        2.08606e+07 |    5.14389e+06 |            9.35763 |              640 |       111.327 | 773min<br/>(for 631 Steps)   |
+| Proximal Policy Optimization Random |   771 |                  2 |                              |        1.97393e+09 |    3.22863e+06 |            9.58205 |              780 |       127.342 | 1,760min<br/>(for 771 Steps) |
+| Simulated Annealing                 |  9270 |                193 |                         1695 |        2.19567e+06 |    1.00062e+06 |            3.10955 |              502 |      0.382867 | 358min<br/>(for 9270 Steps)  |
+| Simulated Annealing Random          |   705 |                297 |                            0 |        6.59939e+06 |    3.35898e+06 |                  5 |              254 |       6.81138 | 314min<br/>(for 705 Steps)   |
+| Tabu Search                         |  7986 |                161 |                         1055 |        3.98648e+06 |    1.42871e+06 |            3.54196 |              425 |       1.25507 | 333min<br/>(for 7986 Steps)  |
+| Tabu Search Random                  |   128 |                 34 |                            0 |        2.48004e+06 |    1.00068e+06 |            3.72706 |               40 |       9.28795 | 25min<br/>(for 128 Steps)    |
 
 ##### Pareto Front Images
 
-<table><tr>
-<th>Simulated Annealing</th>
-<th>Proximal Policy Optimization</th>
-<th>Tabu Search</th>
-<th>Simulated Annealing Random</th>
-<th>Tabu Search Random</th>
-</tr><tr>
-<td><img src='report_images/Bpic2019_Das_Hard_Simulated_Annealing_pareto_front.png' alt='Pareto Front for Simulated Annealing' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Bpic2019_Das_Hard_Proximal_Policy_Optimization_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Bpic2019_Das_Hard_Tabu_Search_pareto_front.png' alt='Pareto Front for Tabu Search' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Bpic2019_Das_Hard_Simulated_Annealing_Random_pareto_front.png' alt='Pareto Front for Simulated Annealing Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Bpic2019_Das_Hard_Tabu_Search_Random_pareto_front.png' alt='Pareto Front for Tabu Search Random' style='width:300px;height:200px;'/></td>
-</tr></table>
+![](composite_plots/Bpic2019_Das_Hard_pareto_composite.png)
+
+Individual Pareto images:
+
+- [Proximal Policy Optimization](report_images/Bpic2019_Das_Hard_Proximal_Policy_Optimization_pareto_front.png)
+- [Simulated Annealing](report_images/Bpic2019_Das_Hard_Simulated_Annealing_pareto_front.png)
+- [Simulated Annealing Random](report_images/Bpic2019_Das_Hard_Simulated_Annealing_Random_pareto_front.png)
+- [Tabu Search](report_images/Bpic2019_Das_Hard_Tabu_Search_pareto_front.png)
+- [Tabu Search Random](report_images/Bpic2019_Das_Hard_Tabu_Search_Random_pareto_front.png)
 
 ---
 
@@ -800,30 +763,26 @@ Individual charts:
 
 ##### Summary Table (Final Values)
 
-| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time    |
-| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :------------------------- |
-| Proximal Policy Optimization        |   241 |                  1 |                              |        2.89777e+08 |    3.21102e+06 |            8.79699 |              250 |       44.0296 | 3h 16min (for 241 Steps)   |
-| Proximal Policy Optimization Random |  2541 |                  1 |                              |        1.79178e+08 |    2.15193e+06 |            5.65822 |             2550 |       20.6542 | 23h 56min (for 2541 Steps) |
-| Simulated Annealing                 | 10001 |                200 |                         2726 |        1.95637e+06 |    1.54438e+06 |            2.70882 |              593 |      0.388852 | 6h 41min (for 10001 Steps) |
-| Simulated Annealing Random          |  1049 |                423 |                            0 |        1.77198e+08 |    2.04851e+06 |             4.1509 |              347 |       5.50982 | 3h 45min (for 1049 Steps)  |
-| Tabu Search                         |  6357 |                 96 |                          280 |        4.26219e+06 |    3.04265e+06 |            3.03069 |              346 |       1.85831 | 4h 22min (for 6357 Steps)  |
-| Tabu Search Random                  |    29 |                  5 |                            0 |        2.07682e+06 |    2.07682e+06 |            2.96169 |                7 |       7.34266 | 0h 2min (for 29 Steps)     |
+| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time       |
+| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :---------------------------- |
+| Proximal Policy Optimization        |   241 |                  1 |                              |        2.89777e+08 |    3.21102e+06 |            8.79699 |              250 |       44.0296 | 196min<br/>(for 241 Steps)    |
+| Proximal Policy Optimization Random |  2541 |                  1 |                              |        1.79178e+08 |    2.15193e+06 |            5.65822 |             2550 |       20.6542 | 1,436min<br/>(for 2541 Steps) |
+| Simulated Annealing                 | 10001 |                200 |                         2726 |        1.95637e+06 |    1.54438e+06 |            2.70882 |              593 |      0.388852 | 401min<br/>(for 10001 Steps)  |
+| Simulated Annealing Random          |  1049 |                423 |                            0 |        1.77198e+08 |    2.04851e+06 |             4.1509 |              347 |       5.50982 | 225min<br/>(for 1049 Steps)   |
+| Tabu Search                         |  6357 |                 96 |                          280 |        4.26219e+06 |    3.04265e+06 |            3.03069 |              346 |       1.85831 | 262min<br/>(for 6357 Steps)   |
+| Tabu Search Random                  |    29 |                  5 |                            0 |        2.07682e+06 |    2.07682e+06 |            2.96169 |                7 |       7.34266 | 2min<br/>(for 29 Steps)       |
 
 ##### Pareto Front Images
 
-<table><tr>
-<th>Proximal Policy Optimization Random</th>
-<th>Simulated Annealing Random</th>
-<th>Tabu Search</th>
-<th>Simulated Annealing</th>
-<th>Tabu Search Random</th>
-</tr><tr>
-<td><img src='report_images/Bpic2019_Das_Mid_Proximal_Policy_Optimization_Random_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Bpic2019_Das_Mid_Simulated_Annealing_Random_pareto_front.png' alt='Pareto Front for Simulated Annealing Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Bpic2019_Das_Mid_Tabu_Search_pareto_front.png' alt='Pareto Front for Tabu Search' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Bpic2019_Das_Mid_Simulated_Annealing_pareto_front.png' alt='Pareto Front for Simulated Annealing' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Bpic2019_Das_Mid_Tabu_Search_Random_pareto_front.png' alt='Pareto Front for Tabu Search Random' style='width:300px;height:200px;'/></td>
-</tr></table>
+![](composite_plots/Bpic2019_Das_Mid_pareto_composite.png)
+
+Individual Pareto images:
+
+- [Proximal Policy Optimization Random](report_images/Bpic2019_Das_Mid_Proximal_Policy_Optimization_Random_pareto_front.png)
+- [Simulated Annealing](report_images/Bpic2019_Das_Mid_Simulated_Annealing_pareto_front.png)
+- [Simulated Annealing Random](report_images/Bpic2019_Das_Mid_Simulated_Annealing_Random_pareto_front.png)
+- [Tabu Search](report_images/Bpic2019_Das_Mid_Tabu_Search_pareto_front.png)
+- [Tabu Search Random](report_images/Bpic2019_Das_Mid_Tabu_Search_Random_pareto_front.png)
 
 ---
 
@@ -962,32 +921,27 @@ Individual charts:
 
 ##### Summary Table (Final Values)
 
-| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time    |
-| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :------------------------- |
-| Proximal Policy Optimization        |  6600 |                405 |                              |            73793.5 |        1881.05 |            25.3167 |             6610 |       3.35217 | 6h 1min (for 6600 Steps)   |
-| Proximal Policy Optimization Random |  5241 |                326 |                              |            12413.4 |        1951.83 |            4.70833 |             5250 |       9.54398 | 11h 57min (for 5241 Steps) |
-| Simulated Annealing                 | 10002 |                360 |                         1088 |         1.7386e+06 |     1.3876e+06 |            2.54301 |              664 |      0.907438 | 1h 22min (for 10002 Steps) |
-| Simulated Annealing Random          |  2600 |               1314 |                          542 |         1.5341e+07 |         191679 |            3.18854 |              868 |         2.347 | 1h 44min (for 2600 Steps)  |
-| Tabu Search                         |   305 |                  4 |                            0 |        1.52795e+06 |    1.52795e+06 |            2.27386 |               21 |       1.54933 | 0h 2min (for 305 Steps)    |
-| Tabu Search Random                  |  2600 |               1536 |                          356 |        1.19836e+06 |    1.06623e+06 |            2.60242 |              868 |       1.45499 | 1h 28min (for 2600 Steps)  |
+| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time     |
+| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :-------------------------- |
+| Proximal Policy Optimization        |  6600 |                405 |                              |            73793.5 |        1881.05 |            25.3167 |             6610 |       3.35217 | 361min<br/>(for 6600 Steps) |
+| Proximal Policy Optimization Random |  5241 |                326 |                              |            12413.4 |        1951.83 |            4.70833 |             5250 |       9.54398 | 717min<br/>(for 5241 Steps) |
+| Simulated Annealing                 | 10002 |                360 |                         1088 |         1.7386e+06 |     1.3876e+06 |            2.54301 |              664 |      0.907438 | 82min<br/>(for 10002 Steps) |
+| Simulated Annealing Random          |  2600 |               1314 |                          542 |         1.5341e+07 |         191679 |            3.18854 |              868 |         2.347 | 104min<br/>(for 2600 Steps) |
+| Tabu Search                         |   305 |                  4 |                            0 |        1.52795e+06 |    1.52795e+06 |            2.27386 |               21 |       1.54933 | 2min<br/>(for 305 Steps)    |
+| Tabu Search Random                  |  2600 |               1536 |                          356 |        1.19836e+06 |    1.06623e+06 |            2.60242 |              868 |       1.45499 | 88min<br/>(for 2600 Steps)  |
 
 ##### Pareto Front Images
 
-<table><tr>
-<th>Proximal Policy Optimization Random</th>
-<th>Simulated Annealing</th>
-<th>Proximal Policy Optimization</th>
-<th>Simulated Annealing Random</th>
-<th>Tabu Search</th>
-<th>Tabu Search Random</th>
-</tr><tr>
-<td><img src='report_images/Callcentre_Easy_Proximal_Policy_Optimization_Random_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Callcentre_Easy_Simulated_Annealing_pareto_front.png' alt='Pareto Front for Simulated Annealing' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Callcentre_Easy_Proximal_Policy_Optimization_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Callcentre_Easy_Simulated_Annealing_Random_pareto_front.png' alt='Pareto Front for Simulated Annealing Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Callcentre_Easy_Tabu_Search_pareto_front.png' alt='Pareto Front for Tabu Search' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Callcentre_Easy_Tabu_Search_Random_pareto_front.png' alt='Pareto Front for Tabu Search Random' style='width:300px;height:200px;'/></td>
-</tr></table>
+![](composite_plots/Callcentre_Easy_pareto_composite.png)
+
+Individual Pareto images:
+
+- [Proximal Policy Optimization](report_images/Callcentre_Easy_Proximal_Policy_Optimization_pareto_front.png)
+- [Proximal Policy Optimization Random](report_images/Callcentre_Easy_Proximal_Policy_Optimization_Random_pareto_front.png)
+- [Simulated Annealing](report_images/Callcentre_Easy_Simulated_Annealing_pareto_front.png)
+- [Simulated Annealing Random](report_images/Callcentre_Easy_Simulated_Annealing_Random_pareto_front.png)
+- [Tabu Search](report_images/Callcentre_Easy_Tabu_Search_pareto_front.png)
+- [Tabu Search Random](report_images/Callcentre_Easy_Tabu_Search_Random_pareto_front.png)
 
 ---
 
@@ -1010,32 +964,27 @@ Individual charts:
 
 ##### Summary Table (Final Values)
 
-| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time    |
-| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :------------------------- |
-| Proximal Policy Optimization        |  3511 |                349 |                              |            45649.9 |        4417.33 |            26.3333 |             3520 |        17.117 | 11h 56min (for 3511 Steps) |
-| Proximal Policy Optimization Random |  4347 |                590 |                              |            15676.6 |        4562.45 |            26.1556 |             4357 |       14.0817 | 10h 1min (for 4347 Steps)  |
-| Simulated Annealing                 |  7152 |                311 |                            0 |        1.02421e+07 |    9.80554e+06 |            5.39037 |              468 |      0.367432 | 0h 45min (for 7152 Steps)  |
-| Simulated Annealing Random          |  2600 |               1339 |                          655 |             172392 |        4876.96 |            7.15138 |              868 |       3.11103 | 1h 47min (for 2600 Steps)  |
-| Tabu Search                         |   103 |                  4 |                            0 |        1.02259e+07 |    1.02259e+07 |            3.53407 |                9 |       2.63266 | 0h 0min (for 103 Steps)    |
-| Tabu Search Random                  |    47 |                 16 |                            0 |        1.98113e+07 |    1.10522e+07 |            3.45809 |               18 |       2.05723 | 0h 1min (for 47 Steps)     |
+| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time     |
+| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :-------------------------- |
+| Proximal Policy Optimization        |  3511 |                349 |                              |            45649.9 |        4417.33 |            26.3333 |             3520 |        17.117 | 716min<br/>(for 3511 Steps) |
+| Proximal Policy Optimization Random |  4347 |                590 |                              |            15676.6 |        4562.45 |            26.1556 |             4357 |       14.0817 | 601min<br/>(for 4347 Steps) |
+| Simulated Annealing                 |  7152 |                311 |                            0 |        1.02421e+07 |    9.80554e+06 |            5.39037 |              468 |      0.367432 | 45min<br/>(for 7152 Steps)  |
+| Simulated Annealing Random          |  2600 |               1339 |                          655 |             172392 |        4876.96 |            7.15138 |              868 |       3.11103 | 107min<br/>(for 2600 Steps) |
+| Tabu Search                         |   103 |                  4 |                            0 |        1.02259e+07 |    1.02259e+07 |            3.53407 |                9 |       2.63266 | 0min<br/>(for 103 Steps)    |
+| Tabu Search Random                  |    47 |                 16 |                            0 |        1.98113e+07 |    1.10522e+07 |            3.45809 |               18 |       2.05723 | 1min<br/>(for 47 Steps)     |
 
 ##### Pareto Front Images
 
-<table><tr>
-<th>Simulated Annealing</th>
-<th>Simulated Annealing Random</th>
-<th>Tabu Search Random</th>
-<th>Proximal Policy Optimization Random</th>
-<th>Tabu Search</th>
-<th>Proximal Policy Optimization</th>
-</tr><tr>
-<td><img src='report_images/Callcentre_Hard_Simulated_Annealing_pareto_front.png' alt='Pareto Front for Simulated Annealing' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Callcentre_Hard_Simulated_Annealing_Random_pareto_front.png' alt='Pareto Front for Simulated Annealing Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Callcentre_Hard_Tabu_Search_Random_pareto_front.png' alt='Pareto Front for Tabu Search Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Callcentre_Hard_Proximal_Policy_Optimization_Random_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Callcentre_Hard_Tabu_Search_pareto_front.png' alt='Pareto Front for Tabu Search' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Callcentre_Hard_Proximal_Policy_Optimization_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization' style='width:300px;height:200px;'/></td>
-</tr></table>
+![](composite_plots/Callcentre_Hard_pareto_composite.png)
+
+Individual Pareto images:
+
+- [Proximal Policy Optimization](report_images/Callcentre_Hard_Proximal_Policy_Optimization_pareto_front.png)
+- [Proximal Policy Optimization Random](report_images/Callcentre_Hard_Proximal_Policy_Optimization_Random_pareto_front.png)
+- [Simulated Annealing](report_images/Callcentre_Hard_Simulated_Annealing_pareto_front.png)
+- [Simulated Annealing Random](report_images/Callcentre_Hard_Simulated_Annealing_Random_pareto_front.png)
+- [Tabu Search](report_images/Callcentre_Hard_Tabu_Search_pareto_front.png)
+- [Tabu Search Random](report_images/Callcentre_Hard_Tabu_Search_Random_pareto_front.png)
 
 ---
 
@@ -1058,32 +1007,27 @@ Individual charts:
 
 ##### Summary Table (Final Values)
 
-| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time    |
-| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :------------------------- |
-| Proximal Policy Optimization        |  2106 |                 84 |                              |            6096.85 |        5758.89 |            2.72419 |             2116 |       3.47716 | 2h 20min (for 2106 Steps)  |
-| Proximal Policy Optimization Random |  8994 |                494 |                              |            80850.5 |        34311.6 |            8.81466 |             9004 |       4.83608 | 11h 39min (for 8994 Steps) |
-| Simulated Annealing                 | 10011 |                389 |                           52 |        7.95649e+06 |    7.09316e+06 |            2.88614 |              668 |   0.000984311 | 1h 18min (for 10011 Steps) |
-| Simulated Annealing Random          |  2600 |               1290 |                          671 |             191474 |        4281.56 |            10.7397 |              868 |       2.08443 | 1h 38min (for 2600 Steps)  |
-| Tabu Search                         |  3393 |                129 |                          323 |         9.4731e+06 |    8.71964e+06 |            3.07424 |              221 |      0.338917 | 0h 31min (for 3393 Steps)  |
-| Tabu Search Random                  |    35 |                 11 |                            0 |        9.01121e+06 |    8.77325e+06 |            2.24764 |               14 |       1.19283 | 0h 1min (for 35 Steps)     |
+| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time     |
+| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :-------------------------- |
+| Proximal Policy Optimization        |  2106 |                 84 |                              |            6096.85 |        5758.89 |            2.72419 |             2116 |       3.47716 | 140min<br/>(for 2106 Steps) |
+| Proximal Policy Optimization Random |  8994 |                494 |                              |            80850.5 |        34311.6 |            8.81466 |             9004 |       4.83608 | 699min<br/>(for 8994 Steps) |
+| Simulated Annealing                 | 10011 |                389 |                           52 |        7.95649e+06 |    7.09316e+06 |            2.88614 |              668 |   0.000984311 | 78min<br/>(for 10011 Steps) |
+| Simulated Annealing Random          |  2600 |               1290 |                          671 |             191474 |        4281.56 |            10.7397 |              868 |       2.08443 | 98min<br/>(for 2600 Steps)  |
+| Tabu Search                         |  3393 |                129 |                          323 |         9.4731e+06 |    8.71964e+06 |            3.07424 |              221 |      0.338917 | 31min<br/>(for 3393 Steps)  |
+| Tabu Search Random                  |    35 |                 11 |                            0 |        9.01121e+06 |    8.77325e+06 |            2.24764 |               14 |       1.19283 | 1min<br/>(for 35 Steps)     |
 
 ##### Pareto Front Images
 
-<table><tr>
-<th>Tabu Search</th>
-<th>Tabu Search Random</th>
-<th>Proximal Policy Optimization Random</th>
-<th>Simulated Annealing Random</th>
-<th>Simulated Annealing</th>
-<th>Proximal Policy Optimization</th>
-</tr><tr>
-<td><img src='report_images/Callcentre_Mid_Tabu_Search_pareto_front.png' alt='Pareto Front for Tabu Search' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Callcentre_Mid_Tabu_Search_Random_pareto_front.png' alt='Pareto Front for Tabu Search Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Callcentre_Mid_Proximal_Policy_Optimization_Random_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Callcentre_Mid_Simulated_Annealing_Random_pareto_front.png' alt='Pareto Front for Simulated Annealing Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Callcentre_Mid_Simulated_Annealing_pareto_front.png' alt='Pareto Front for Simulated Annealing' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Callcentre_Mid_Proximal_Policy_Optimization_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization' style='width:300px;height:200px;'/></td>
-</tr></table>
+![](composite_plots/Callcentre_Mid_pareto_composite.png)
+
+Individual Pareto images:
+
+- [Proximal Policy Optimization](report_images/Callcentre_Mid_Proximal_Policy_Optimization_pareto_front.png)
+- [Proximal Policy Optimization Random](report_images/Callcentre_Mid_Proximal_Policy_Optimization_Random_pareto_front.png)
+- [Simulated Annealing](report_images/Callcentre_Mid_Simulated_Annealing_pareto_front.png)
+- [Simulated Annealing Random](report_images/Callcentre_Mid_Simulated_Annealing_Random_pareto_front.png)
+- [Tabu Search](report_images/Callcentre_Mid_Tabu_Search_pareto_front.png)
+- [Tabu Search Random](report_images/Callcentre_Mid_Tabu_Search_Random_pareto_front.png)
 
 ---
 
@@ -1222,32 +1166,27 @@ Individual charts:
 
 ##### Summary Table (Final Values)
 
-| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time    |
-| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :------------------------- |
-| Proximal Policy Optimization        |  6611 |               1806 |                              |        1.15599e+07 |    1.05594e+07 |            2.38727 |             6620 |       5.96561 | 11h 57min (for 6611 Steps) |
-| Proximal Policy Optimization Random |  6951 |               1536 |                              |        1.16295e+07 |    1.07297e+07 |            2.25017 |             6960 |       6.38168 | 11h 58min (for 6951 Steps) |
-| Simulated Annealing                 | 10012 |                897 |                         2623 |        1.15301e+07 |    1.08998e+07 |            2.65326 |              505 |       1.82837 | 1h 52min (for 10012 Steps) |
-| Simulated Annealing Random          |  1976 |                953 |                            0 |        1.15087e+07 |     1.0908e+07 |            2.86636 |              656 |       2.43394 | 1h 32min (for 1976 Steps)  |
-| Tabu Search                         | 10009 |               3770 |                         1811 |        1.14301e+07 |    1.06536e+07 |             3.1152 |              497 |        1.9764 | 2h 15min (for 10009 Steps) |
-| Tabu Search Random                  |   611 |                292 |                            0 |        1.19551e+07 |    1.10942e+07 |            2.72866 |              200 |       2.85947 | 0h 30min (for 611 Steps)   |
+| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time      |
+| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :--------------------------- |
+| Proximal Policy Optimization        |  6611 |               1806 |                              |        1.15599e+07 |    1.05594e+07 |            2.38727 |             6620 |       5.96561 | 717min<br/>(for 6611 Steps)  |
+| Proximal Policy Optimization Random |  6951 |               1536 |                              |        1.16295e+07 |    1.07297e+07 |            2.25017 |             6960 |       6.38168 | 718min<br/>(for 6951 Steps)  |
+| Simulated Annealing                 | 10012 |                897 |                         2623 |        1.15301e+07 |    1.08998e+07 |            2.65326 |              505 |       1.82837 | 112min<br/>(for 10012 Steps) |
+| Simulated Annealing Random          |  1976 |                953 |                            0 |        1.15087e+07 |     1.0908e+07 |            2.86636 |              656 |       2.43394 | 92min<br/>(for 1976 Steps)   |
+| Tabu Search                         | 10009 |               3770 |                         1811 |        1.14301e+07 |    1.06536e+07 |             3.1152 |              497 |        1.9764 | 135min<br/>(for 10009 Steps) |
+| Tabu Search Random                  |   611 |                292 |                            0 |        1.19551e+07 |    1.10942e+07 |            2.72866 |              200 |       2.85947 | 30min<br/>(for 611 Steps)    |
 
 ##### Pareto Front Images
 
-<table><tr>
-<th>Tabu Search</th>
-<th>Simulated Annealing</th>
-<th>Simulated Annealing Random</th>
-<th>Tabu Search Random</th>
-<th>Proximal Policy Optimization</th>
-<th>Proximal Policy Optimization Random</th>
-</tr><tr>
-<td><img src='report_images/Consulta_Data_Mining_Easy_Tabu_Search_pareto_front.png' alt='Pareto Front for Tabu Search' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Consulta_Data_Mining_Easy_Simulated_Annealing_pareto_front.png' alt='Pareto Front for Simulated Annealing' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Consulta_Data_Mining_Easy_Simulated_Annealing_Random_pareto_front.png' alt='Pareto Front for Simulated Annealing Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Consulta_Data_Mining_Easy_Tabu_Search_Random_pareto_front.png' alt='Pareto Front for Tabu Search Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Consulta_Data_Mining_Easy_Proximal_Policy_Optimization_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Consulta_Data_Mining_Easy_Proximal_Policy_Optimization_Random_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization Random' style='width:300px;height:200px;'/></td>
-</tr></table>
+![](composite_plots/Consulta_Data_Mining_Easy_pareto_composite.png)
+
+Individual Pareto images:
+
+- [Proximal Policy Optimization](report_images/Consulta_Data_Mining_Easy_Proximal_Policy_Optimization_pareto_front.png)
+- [Proximal Policy Optimization Random](report_images/Consulta_Data_Mining_Easy_Proximal_Policy_Optimization_Random_pareto_front.png)
+- [Simulated Annealing](report_images/Consulta_Data_Mining_Easy_Simulated_Annealing_pareto_front.png)
+- [Simulated Annealing Random](report_images/Consulta_Data_Mining_Easy_Simulated_Annealing_Random_pareto_front.png)
+- [Tabu Search](report_images/Consulta_Data_Mining_Easy_Tabu_Search_pareto_front.png)
+- [Tabu Search Random](report_images/Consulta_Data_Mining_Easy_Tabu_Search_Random_pareto_front.png)
 
 ---
 
@@ -1270,32 +1209,27 @@ Individual charts:
 
 ##### Summary Table (Final Values)
 
-| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time    |
-| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :------------------------- |
-| Proximal Policy Optimization        |  8191 |               1536 |                              |        1.25242e+07 |    1.12337e+07 |            4.74331 |             8200 |        5.6872 | 11h 58min (for 8191 Steps) |
-| Proximal Policy Optimization Random |  9831 |                595 |                              |        1.18351e+07 |    1.08675e+07 |            3.41973 |             9840 |       3.92619 | 11h 57min (for 9831 Steps) |
-| Simulated Annealing                 | 10011 |               1039 |                           61 |        1.13937e+07 |    1.11507e+07 |            3.20584 |              536 |     0.0011173 | 2h 22min (for 10011 Steps) |
-| Simulated Annealing Random          |  1084 |                480 |                            0 |        1.18439e+07 |    1.13304e+07 |            4.63462 |              357 |       2.51622 | 0h 47min (for 1084 Steps)  |
-| Tabu Search                         |  3893 |                156 |                          407 |        1.53945e+07 |    1.09086e+07 |            4.27273 |              210 |      0.696202 | 0h 47min (for 3893 Steps)  |
-| Tabu Search Random                  |    83 |                 26 |                            0 |        1.19013e+07 |    1.12509e+07 |            2.58917 |               25 |     0.0934325 | 0h 3min (for 83 Steps)     |
+| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time      |
+| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :--------------------------- |
+| Proximal Policy Optimization        |  8191 |               1536 |                              |        1.25242e+07 |    1.12337e+07 |            4.74331 |             8200 |        5.6872 | 718min<br/>(for 8191 Steps)  |
+| Proximal Policy Optimization Random |  9831 |                595 |                              |        1.18351e+07 |    1.08675e+07 |            3.41973 |             9840 |       3.92619 | 717min<br/>(for 9831 Steps)  |
+| Simulated Annealing                 | 10011 |               1039 |                           61 |        1.13937e+07 |    1.11507e+07 |            3.20584 |              536 |     0.0011173 | 142min<br/>(for 10011 Steps) |
+| Simulated Annealing Random          |  1084 |                480 |                            0 |        1.18439e+07 |    1.13304e+07 |            4.63462 |              357 |       2.51622 | 47min<br/>(for 1084 Steps)   |
+| Tabu Search                         |  3893 |                156 |                          407 |        1.53945e+07 |    1.09086e+07 |            4.27273 |              210 |      0.696202 | 47min<br/>(for 3893 Steps)   |
+| Tabu Search Random                  |    83 |                 26 |                            0 |        1.19013e+07 |    1.12509e+07 |            2.58917 |               25 |     0.0934325 | 3min<br/>(for 83 Steps)      |
 
 ##### Pareto Front Images
 
-<table><tr>
-<th>Simulated Annealing Random</th>
-<th>Proximal Policy Optimization</th>
-<th>Tabu Search</th>
-<th>Proximal Policy Optimization Random</th>
-<th>Simulated Annealing</th>
-<th>Tabu Search Random</th>
-</tr><tr>
-<td><img src='report_images/Consulta_Data_Mining_Hard_Simulated_Annealing_Random_pareto_front.png' alt='Pareto Front for Simulated Annealing Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Consulta_Data_Mining_Hard_Proximal_Policy_Optimization_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Consulta_Data_Mining_Hard_Tabu_Search_pareto_front.png' alt='Pareto Front for Tabu Search' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Consulta_Data_Mining_Hard_Proximal_Policy_Optimization_Random_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Consulta_Data_Mining_Hard_Simulated_Annealing_pareto_front.png' alt='Pareto Front for Simulated Annealing' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Consulta_Data_Mining_Hard_Tabu_Search_Random_pareto_front.png' alt='Pareto Front for Tabu Search Random' style='width:300px;height:200px;'/></td>
-</tr></table>
+![](composite_plots/Consulta_Data_Mining_Hard_pareto_composite.png)
+
+Individual Pareto images:
+
+- [Proximal Policy Optimization](report_images/Consulta_Data_Mining_Hard_Proximal_Policy_Optimization_pareto_front.png)
+- [Proximal Policy Optimization Random](report_images/Consulta_Data_Mining_Hard_Proximal_Policy_Optimization_Random_pareto_front.png)
+- [Simulated Annealing](report_images/Consulta_Data_Mining_Hard_Simulated_Annealing_pareto_front.png)
+- [Simulated Annealing Random](report_images/Consulta_Data_Mining_Hard_Simulated_Annealing_Random_pareto_front.png)
+- [Tabu Search](report_images/Consulta_Data_Mining_Hard_Tabu_Search_pareto_front.png)
+- [Tabu Search Random](report_images/Consulta_Data_Mining_Hard_Tabu_Search_Random_pareto_front.png)
 
 ---
 
@@ -1318,32 +1252,27 @@ Individual charts:
 
 ##### Summary Table (Final Values)
 
-| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time    |
-| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :------------------------- |
-| Proximal Policy Optimization        |  8401 |               2371 |                              |        1.18794e+07 |    1.12483e+07 |            4.20479 |             8410 |       4.76213 | 11h 57min (for 8401 Steps) |
-| Proximal Policy Optimization Random |  8621 |               2491 |                              |        1.15323e+07 |    1.08673e+07 |             2.2739 |             8630 |        5.6891 | 11h 57min (for 8621 Steps) |
-| Simulated Annealing                 |  9993 |               1028 |                         1435 |        1.17937e+07 |    1.13394e+07 |            3.71206 |              538 |       1.57184 | 2h 1min (for 9993 Steps)   |
-| Simulated Annealing Random          |  1433 |                755 |                            0 |        1.14658e+07 |    1.10758e+07 |            3.30315 |              475 |      0.267463 | 1h 3min (for 1433 Steps)   |
-| Tabu Search                         |  9994 |               1443 |                         1374 |        1.14417e+07 |    1.09137e+07 |            2.24465 |              508 |       3.14961 | 1h 55min (for 9994 Steps)  |
-| Tabu Search Random                  |    95 |                 29 |                            0 |        1.16251e+07 |    1.12549e+07 |            3.58079 |               29 |       1.82635 | 0h 3min (for 95 Steps)     |
+| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time     |
+| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :-------------------------- |
+| Proximal Policy Optimization        |  8401 |               2371 |                              |        1.18794e+07 |    1.12483e+07 |            4.20479 |             8410 |       4.76213 | 717min<br/>(for 8401 Steps) |
+| Proximal Policy Optimization Random |  8621 |               2491 |                              |        1.15323e+07 |    1.08673e+07 |             2.2739 |             8630 |        5.6891 | 717min<br/>(for 8621 Steps) |
+| Simulated Annealing                 |  9993 |               1028 |                         1435 |        1.17937e+07 |    1.13394e+07 |            3.71206 |              538 |       1.57184 | 121min<br/>(for 9993 Steps) |
+| Simulated Annealing Random          |  1433 |                755 |                            0 |        1.14658e+07 |    1.10758e+07 |            3.30315 |              475 |      0.267463 | 63min<br/>(for 1433 Steps)  |
+| Tabu Search                         |  9994 |               1443 |                         1374 |        1.14417e+07 |    1.09137e+07 |            2.24465 |              508 |       3.14961 | 115min<br/>(for 9994 Steps) |
+| Tabu Search Random                  |    95 |                 29 |                            0 |        1.16251e+07 |    1.12549e+07 |            3.58079 |               29 |       1.82635 | 3min<br/>(for 95 Steps)     |
 
 ##### Pareto Front Images
 
-<table><tr>
-<th>Proximal Policy Optimization Random</th>
-<th>Tabu Search</th>
-<th>Tabu Search Random</th>
-<th>Simulated Annealing</th>
-<th>Simulated Annealing Random</th>
-<th>Proximal Policy Optimization</th>
-</tr><tr>
-<td><img src='report_images/Consulta_Data_Mining_Mid_Proximal_Policy_Optimization_Random_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Consulta_Data_Mining_Mid_Tabu_Search_pareto_front.png' alt='Pareto Front for Tabu Search' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Consulta_Data_Mining_Mid_Tabu_Search_Random_pareto_front.png' alt='Pareto Front for Tabu Search Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Consulta_Data_Mining_Mid_Simulated_Annealing_pareto_front.png' alt='Pareto Front for Simulated Annealing' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Consulta_Data_Mining_Mid_Simulated_Annealing_Random_pareto_front.png' alt='Pareto Front for Simulated Annealing Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Consulta_Data_Mining_Mid_Proximal_Policy_Optimization_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization' style='width:300px;height:200px;'/></td>
-</tr></table>
+![](composite_plots/Consulta_Data_Mining_Mid_pareto_composite.png)
+
+Individual Pareto images:
+
+- [Proximal Policy Optimization](report_images/Consulta_Data_Mining_Mid_Proximal_Policy_Optimization_pareto_front.png)
+- [Proximal Policy Optimization Random](report_images/Consulta_Data_Mining_Mid_Proximal_Policy_Optimization_Random_pareto_front.png)
+- [Simulated Annealing](report_images/Consulta_Data_Mining_Mid_Simulated_Annealing_pareto_front.png)
+- [Simulated Annealing Random](report_images/Consulta_Data_Mining_Mid_Simulated_Annealing_Random_pareto_front.png)
+- [Tabu Search](report_images/Consulta_Data_Mining_Mid_Tabu_Search_pareto_front.png)
+- [Tabu Search Random](report_images/Consulta_Data_Mining_Mid_Tabu_Search_Random_pareto_front.png)
 
 ---
 
@@ -1482,32 +1411,27 @@ Individual charts:
 
 ##### Summary Table (Final Values)
 
-| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time    |
-| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :------------------------- |
-| Proximal Policy Optimization        |  2951 |               1513 |                              |        2.29747e+07 |    1.65511e+07 |            3.71509 |             2960 |       27.4838 | 23h 51min (for 2951 Steps) |
-| Proximal Policy Optimization Random |    40 |               1292 |                              |        1.97086e+07 |    1.66394e+07 |            3.69476 |             2141 |       6664.29 | 16h 56min (for 40 Steps)   |
-| Simulated Annealing                 |  9996 |                380 |                         5397 |        1.98933e+07 |    1.57884e+07 |            2.13291 |              436 |       1.81164 | 8h 33min (for 9996 Steps)  |
-| Simulated Annealing Random          |   680 |                283 |                            0 |        1.77299e+07 |    1.48118e+07 |            2.02718 |              224 |       16.4456 | 2h 58min (for 680 Steps)   |
-| Tabu Search                         |  2105 |                279 |                            0 |        1.96246e+07 |    1.66557e+07 |            2.11111 |              107 |       1.12742 | 1h 29min (for 2105 Steps)  |
-| Tabu Search Random                  |    35 |                  9 |                            0 |        1.63184e+07 |    1.44806e+07 |            2.11628 |                9 |       13.3734 | 0h 4min (for 35 Steps)     |
+| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time       |
+| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :---------------------------- |
+| Proximal Policy Optimization        |  2951 |               1513 |                              |        2.29747e+07 |    1.65511e+07 |            3.71509 |             2960 |       27.4838 | 1,431min<br/>(for 2951 Steps) |
+| Proximal Policy Optimization Random |    40 |               1292 |                              |        1.97086e+07 |    1.66394e+07 |            3.69476 |             2141 |       6664.29 | 1,016min<br/>(for 40 Steps)   |
+| Simulated Annealing                 |  9996 |                380 |                         5397 |        1.98933e+07 |    1.57884e+07 |            2.13291 |              436 |       1.81164 | 513min<br/>(for 9996 Steps)   |
+| Simulated Annealing Random          |   680 |                283 |                            0 |        1.77299e+07 |    1.48118e+07 |            2.02718 |              224 |       16.4456 | 178min<br/>(for 680 Steps)    |
+| Tabu Search                         |  2105 |                279 |                            0 |        1.96246e+07 |    1.66557e+07 |            2.11111 |              107 |       1.12742 | 89min<br/>(for 2105 Steps)    |
+| Tabu Search Random                  |    35 |                  9 |                            0 |        1.63184e+07 |    1.44806e+07 |            2.11628 |                9 |       13.3734 | 4min<br/>(for 35 Steps)       |
 
 ##### Pareto Front Images
 
-<table><tr>
-<th>Simulated Annealing Random</th>
-<th>Proximal Policy Optimization</th>
-<th>Proximal Policy Optimization Random</th>
-<th>Simulated Annealing</th>
-<th>Tabu Search</th>
-<th>Tabu Search Random</th>
-</tr><tr>
-<td><img src='report_images/Gov_Easy_Simulated_Annealing_Random_pareto_front.png' alt='Pareto Front for Simulated Annealing Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Gov_Easy_Proximal_Policy_Optimization_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Gov_Easy_Proximal_Policy_Optimization_Random_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Gov_Easy_Simulated_Annealing_pareto_front.png' alt='Pareto Front for Simulated Annealing' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Gov_Easy_Tabu_Search_pareto_front.png' alt='Pareto Front for Tabu Search' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Gov_Easy_Tabu_Search_Random_pareto_front.png' alt='Pareto Front for Tabu Search Random' style='width:300px;height:200px;'/></td>
-</tr></table>
+![](composite_plots/Gov_Easy_pareto_composite.png)
+
+Individual Pareto images:
+
+- [Proximal Policy Optimization](report_images/Gov_Easy_Proximal_Policy_Optimization_pareto_front.png)
+- [Proximal Policy Optimization Random](report_images/Gov_Easy_Proximal_Policy_Optimization_Random_pareto_front.png)
+- [Simulated Annealing](report_images/Gov_Easy_Simulated_Annealing_pareto_front.png)
+- [Simulated Annealing Random](report_images/Gov_Easy_Simulated_Annealing_Random_pareto_front.png)
+- [Tabu Search](report_images/Gov_Easy_Tabu_Search_pareto_front.png)
+- [Tabu Search Random](report_images/Gov_Easy_Tabu_Search_Random_pareto_front.png)
 
 ---
 
@@ -1530,30 +1454,26 @@ Individual charts:
 
 ##### Summary Table (Final Values)
 
-| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time   |
-| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :------------------------ |
-| Proximal Policy Optimization        |   995 |               1002 |                              |        1.70208e+07 |    1.58872e+07 |                2.4 |             1005 |       8.21465 | 1h 13min (for 995 Steps)  |
-| Proximal Policy Optimization Random |  1114 |                955 |                              |        2.02035e+07 |    1.72073e+07 |            2.05263 |             1124 |       8.24061 | 2h 21min (for 1114 Steps) |
-| Simulated Annealing                 |    81 |                  2 |                           57 |         2.2491e+07 |    1.57653e+07 |            2.10574 |                4 |      0.001033 | 0h 5min (for 81 Steps)    |
-| Simulated Annealing Random          |   648 |                260 |                            0 |        1.68972e+07 |     1.4582e+07 |            2.10256 |              208 |        12.569 | 3h 18min (for 648 Steps)  |
-| Tabu Search                         |   978 |                 21 |                            0 |         1.8935e+07 |    1.49147e+07 |            2.12903 |               47 |      0.361706 | 2h 47min (for 978 Steps)  |
-| Tabu Search Random                  |    44 |                 10 |                            0 |        1.86589e+07 |    1.57566e+07 |            2.09605 |               12 |       12.8511 | 0h 12min (for 44 Steps)   |
+| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time     |
+| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :-------------------------- |
+| Proximal Policy Optimization        |   995 |               1002 |                              |        1.70208e+07 |    1.58872e+07 |                2.4 |             1005 |       8.21465 | 73min<br/>(for 995 Steps)   |
+| Proximal Policy Optimization Random |  1114 |                955 |                              |        2.02035e+07 |    1.72073e+07 |            2.05263 |             1124 |       8.24061 | 141min<br/>(for 1114 Steps) |
+| Simulated Annealing                 |    81 |                  2 |                           57 |         2.2491e+07 |    1.57653e+07 |            2.10574 |                4 |      0.001033 | 5min<br/>(for 81 Steps)     |
+| Simulated Annealing Random          |   648 |                260 |                            0 |        1.68972e+07 |     1.4582e+07 |            2.10256 |              208 |        12.569 | 198min<br/>(for 648 Steps)  |
+| Tabu Search                         |   978 |                 21 |                            0 |         1.8935e+07 |    1.49147e+07 |            2.12903 |               47 |      0.361706 | 167min<br/>(for 978 Steps)  |
+| Tabu Search Random                  |    44 |                 10 |                            0 |        1.86589e+07 |    1.57566e+07 |            2.09605 |               12 |       12.8511 | 12min<br/>(for 44 Steps)    |
 
 ##### Pareto Front Images
 
-<table><tr>
-<th>Simulated Annealing Random</th>
-<th>Tabu Search</th>
-<th>Proximal Policy Optimization</th>
-<th>Tabu Search Random</th>
-<th>Proximal Policy Optimization Random</th>
-</tr><tr>
-<td><img src='report_images/Gov_Hard_Simulated_Annealing_Random_pareto_front.png' alt='Pareto Front for Simulated Annealing Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Gov_Hard_Tabu_Search_pareto_front.png' alt='Pareto Front for Tabu Search' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Gov_Hard_Proximal_Policy_Optimization_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Gov_Hard_Tabu_Search_Random_pareto_front.png' alt='Pareto Front for Tabu Search Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Gov_Hard_Proximal_Policy_Optimization_Random_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization Random' style='width:300px;height:200px;'/></td>
-</tr></table>
+![](composite_plots/Gov_Hard_pareto_composite.png)
+
+Individual Pareto images:
+
+- [Proximal Policy Optimization](report_images/Gov_Hard_Proximal_Policy_Optimization_pareto_front.png)
+- [Proximal Policy Optimization Random](report_images/Gov_Hard_Proximal_Policy_Optimization_Random_pareto_front.png)
+- [Simulated Annealing Random](report_images/Gov_Hard_Simulated_Annealing_Random_pareto_front.png)
+- [Tabu Search](report_images/Gov_Hard_Tabu_Search_pareto_front.png)
+- [Tabu Search Random](report_images/Gov_Hard_Tabu_Search_Random_pareto_front.png)
 
 ---
 
@@ -1576,28 +1496,25 @@ Individual charts:
 
 ##### Summary Table (Final Values)
 
-| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time    |
-| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :------------------------- |
-| Proximal Policy Optimization        |  1731 |                311 |                              |        5.06741e+07 |    1.63572e+07 |            4.92711 |             1740 |       57.1054 | 23h 44min (for 1731 Steps) |
-| Proximal Policy Optimization Random |    31 |                  2 |                              |        2.06983e+07 |    1.87449e+07 |            2.46479 |               40 |       28.9958 | 0h 14min (for 31 Steps)    |
-| Simulated Annealing                 |  9996 |                261 |                         5965 |        2.84575e+07 |    1.37349e+07 |            4.65205 |              436 |       1.25878 | 12h 16min (for 9996 Steps) |
-| Simulated Annealing Random          |   760 |                329 |                            0 |        2.25602e+07 |    1.55232e+07 |            2.03125 |              245 |       13.5362 | 3h 40min (for 760 Steps)   |
-| Tabu Search                         |  5119 |                251 |                            0 |        1.33973e+07 |    1.05218e+07 |            2.53326 |              263 |       5.93512 | 4h 57min (for 5119 Steps)  |
-| Tabu Search Random                  |   125 |                 35 |                            0 |        3.18784e+07 |    1.67235e+07 |             2.0061 |               39 |       10.9127 | 0h 35min (for 125 Steps)   |
+| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time       |
+| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :---------------------------- |
+| Proximal Policy Optimization        |  1731 |                311 |                              |        5.06741e+07 |    1.63572e+07 |            4.92711 |             1740 |       57.1054 | 1,424min<br/>(for 1731 Steps) |
+| Proximal Policy Optimization Random |    31 |                  2 |                              |        2.06983e+07 |    1.87449e+07 |            2.46479 |               40 |       28.9958 | 14min<br/>(for 31 Steps)      |
+| Simulated Annealing                 |  9996 |                261 |                         5965 |        2.84575e+07 |    1.37349e+07 |            4.65205 |              436 |       1.25878 | 736min<br/>(for 9996 Steps)   |
+| Simulated Annealing Random          |   760 |                329 |                            0 |        2.25602e+07 |    1.55232e+07 |            2.03125 |              245 |       13.5362 | 220min<br/>(for 760 Steps)    |
+| Tabu Search                         |  5119 |                251 |                            0 |        1.33973e+07 |    1.05218e+07 |            2.53326 |              263 |       5.93512 | 297min<br/>(for 5119 Steps)   |
+| Tabu Search Random                  |   125 |                 35 |                            0 |        3.18784e+07 |    1.67235e+07 |             2.0061 |               39 |       10.9127 | 35min<br/>(for 125 Steps)     |
 
 ##### Pareto Front Images
 
-<table><tr>
-<th>Simulated Annealing</th>
-<th>Tabu Search</th>
-<th>Tabu Search Random</th>
-<th>Simulated Annealing Random</th>
-</tr><tr>
-<td><img src='report_images/Gov_Mid_Simulated_Annealing_pareto_front.png' alt='Pareto Front for Simulated Annealing' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Gov_Mid_Tabu_Search_pareto_front.png' alt='Pareto Front for Tabu Search' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Gov_Mid_Tabu_Search_Random_pareto_front.png' alt='Pareto Front for Tabu Search Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Gov_Mid_Simulated_Annealing_Random_pareto_front.png' alt='Pareto Front for Simulated Annealing Random' style='width:300px;height:200px;'/></td>
-</tr></table>
+![](composite_plots/Gov_Mid_pareto_composite.png)
+
+Individual Pareto images:
+
+- [Simulated Annealing](report_images/Gov_Mid_Simulated_Annealing_pareto_front.png)
+- [Simulated Annealing Random](report_images/Gov_Mid_Simulated_Annealing_Random_pareto_front.png)
+- [Tabu Search](report_images/Gov_Mid_Tabu_Search_pareto_front.png)
+- [Tabu Search Random](report_images/Gov_Mid_Tabu_Search_Random_pareto_front.png)
 
 ---
 
@@ -1736,32 +1653,27 @@ Individual charts:
 
 ##### Summary Table (Final Values)
 
-| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time    |
-| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :------------------------- |
-| Proximal Policy Optimization        |  7031 |               2074 |                              |        2.18687e+07 |    2.07091e+07 |             2.2981 |             7040 |       5.88667 | 11h 58min (for 7031 Steps) |
-| Proximal Policy Optimization Random |  6371 |                576 |                              |        2.18484e+07 |    2.11148e+07 |             2.0819 |             6380 |       7.42354 | 11h 58min (for 6371 Steps) |
-| Simulated Annealing                 |  9996 |                331 |                          531 |        2.20013e+07 |    2.09449e+07 |                  2 |              675 |       1.37837 | 2h 27min (for 9996 Steps)  |
-| Simulated Annealing Random          |  1592 |                609 |                            0 |        2.26663e+07 |    2.12654e+07 |            5.37885 |              532 |       2.87519 | 1h 39min (for 1592 Steps)  |
-| Tabu Search                         |  9992 |                261 |                          539 |        2.19604e+07 |    2.10721e+07 |                  2 |              582 |       25.6315 | 2h 39min (for 9992 Steps)  |
-| Tabu Search Random                  |   266 |                 96 |                            0 |        2.20979e+07 |    2.15495e+07 |                  2 |               90 |       2.74988 | 0h 16min (for 266 Steps)   |
+| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time     |
+| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :-------------------------- |
+| Proximal Policy Optimization        |  7031 |               2074 |                              |        2.18687e+07 |    2.07091e+07 |             2.2981 |             7040 |       5.88667 | 718min<br/>(for 7031 Steps) |
+| Proximal Policy Optimization Random |  6371 |                576 |                              |        2.18484e+07 |    2.11148e+07 |             2.0819 |             6380 |       7.42354 | 718min<br/>(for 6371 Steps) |
+| Simulated Annealing                 |  9996 |                331 |                          531 |        2.20013e+07 |    2.09449e+07 |                  2 |              675 |       1.37837 | 147min<br/>(for 9996 Steps) |
+| Simulated Annealing Random          |  1592 |                609 |                            0 |        2.26663e+07 |    2.12654e+07 |            5.37885 |              532 |       2.87519 | 99min<br/>(for 1592 Steps)  |
+| Tabu Search                         |  9992 |                261 |                          539 |        2.19604e+07 |    2.10721e+07 |                  2 |              582 |       25.6315 | 159min<br/>(for 9992 Steps) |
+| Tabu Search Random                  |   266 |                 96 |                            0 |        2.20979e+07 |    2.15495e+07 |                  2 |               90 |       2.74988 | 16min<br/>(for 266 Steps)   |
 
 ##### Pareto Front Images
 
-<table><tr>
-<th>Proximal Policy Optimization Random</th>
-<th>Simulated Annealing Random</th>
-<th>Proximal Policy Optimization</th>
-<th>Simulated Annealing</th>
-<th>Tabu Search Random</th>
-<th>Tabu Search</th>
-</tr><tr>
-<td><img src='report_images/Insurance_Easy_Proximal_Policy_Optimization_Random_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Insurance_Easy_Simulated_Annealing_Random_pareto_front.png' alt='Pareto Front for Simulated Annealing Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Insurance_Easy_Proximal_Policy_Optimization_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Insurance_Easy_Simulated_Annealing_pareto_front.png' alt='Pareto Front for Simulated Annealing' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Insurance_Easy_Tabu_Search_Random_pareto_front.png' alt='Pareto Front for Tabu Search Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Insurance_Easy_Tabu_Search_pareto_front.png' alt='Pareto Front for Tabu Search' style='width:300px;height:200px;'/></td>
-</tr></table>
+![](composite_plots/Insurance_Easy_pareto_composite.png)
+
+Individual Pareto images:
+
+- [Proximal Policy Optimization](report_images/Insurance_Easy_Proximal_Policy_Optimization_pareto_front.png)
+- [Proximal Policy Optimization Random](report_images/Insurance_Easy_Proximal_Policy_Optimization_Random_pareto_front.png)
+- [Simulated Annealing](report_images/Insurance_Easy_Simulated_Annealing_pareto_front.png)
+- [Simulated Annealing Random](report_images/Insurance_Easy_Simulated_Annealing_Random_pareto_front.png)
+- [Tabu Search](report_images/Insurance_Easy_Tabu_Search_pareto_front.png)
+- [Tabu Search Random](report_images/Insurance_Easy_Tabu_Search_Random_pareto_front.png)
 
 ---
 
@@ -1784,32 +1696,27 @@ Individual charts:
 
 ##### Summary Table (Final Values)
 
-| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time    |
-| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :------------------------- |
-| Proximal Policy Optimization        |  3259 |                388 |                              |        2.23003e+07 |    2.15172e+07 |                  2 |             3269 |       6.66236 | 4h 47min (for 3259 Steps)  |
-| Proximal Policy Optimization Random |  7361 |                650 |                              |        2.22657e+07 |    2.18403e+07 |                  2 |             7370 |       6.16649 | 11h 58min (for 7361 Steps) |
-| Simulated Annealing                 | 10008 |                385 |                           33 |         2.1984e+07 |    2.12211e+07 |                  2 |              693 |     0.0935161 | 2h 42min (for 10008 Steps) |
-| Simulated Annealing Random          |   704 |                355 |                            0 |        2.21125e+07 |     2.1791e+07 |            2.99432 |              236 |       3.75098 | 0h 44min (for 704 Steps)   |
-| Tabu Search                         |  3862 |                117 |                         1117 |        2.21161e+07 |    2.17764e+07 |                  2 |              257 |       0.96359 | 1h 0min (for 3862 Steps)   |
-| Tabu Search Random                  |     8 |                  2 |                            0 |         2.2355e+07 |    2.20561e+07 |                  0 |                4 |       3.28029 | 0h 0min (for 8 Steps)      |
+| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time      |
+| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :--------------------------- |
+| Proximal Policy Optimization        |  3259 |                388 |                              |        2.23003e+07 |    2.15172e+07 |                  2 |             3269 |       6.66236 | 287min<br/>(for 3259 Steps)  |
+| Proximal Policy Optimization Random |  7361 |                650 |                              |        2.22657e+07 |    2.18403e+07 |                  2 |             7370 |       6.16649 | 718min<br/>(for 7361 Steps)  |
+| Simulated Annealing                 | 10008 |                385 |                           33 |         2.1984e+07 |    2.12211e+07 |                  2 |              693 |     0.0935161 | 162min<br/>(for 10008 Steps) |
+| Simulated Annealing Random          |   704 |                355 |                            0 |        2.21125e+07 |     2.1791e+07 |            2.99432 |              236 |       3.75098 | 44min<br/>(for 704 Steps)    |
+| Tabu Search                         |  3862 |                117 |                         1117 |        2.21161e+07 |    2.17764e+07 |                  2 |              257 |       0.96359 | 60min<br/>(for 3862 Steps)   |
+| Tabu Search Random                  |     8 |                  2 |                            0 |         2.2355e+07 |    2.20561e+07 |                  0 |                4 |       3.28029 | 0min<br/>(for 8 Steps)       |
 
 ##### Pareto Front Images
 
-<table><tr>
-<th>Proximal Policy Optimization</th>
-<th>Tabu Search Random</th>
-<th>Proximal Policy Optimization Random</th>
-<th>Simulated Annealing</th>
-<th>Simulated Annealing Random</th>
-<th>Tabu Search</th>
-</tr><tr>
-<td><img src='report_images/Insurance_Hard_Proximal_Policy_Optimization_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Insurance_Hard_Tabu_Search_Random_pareto_front.png' alt='Pareto Front for Tabu Search Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Insurance_Hard_Proximal_Policy_Optimization_Random_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Insurance_Hard_Simulated_Annealing_pareto_front.png' alt='Pareto Front for Simulated Annealing' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Insurance_Hard_Simulated_Annealing_Random_pareto_front.png' alt='Pareto Front for Simulated Annealing Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Insurance_Hard_Tabu_Search_pareto_front.png' alt='Pareto Front for Tabu Search' style='width:300px;height:200px;'/></td>
-</tr></table>
+![](composite_plots/Insurance_Hard_pareto_composite.png)
+
+Individual Pareto images:
+
+- [Proximal Policy Optimization](report_images/Insurance_Hard_Proximal_Policy_Optimization_pareto_front.png)
+- [Proximal Policy Optimization Random](report_images/Insurance_Hard_Proximal_Policy_Optimization_Random_pareto_front.png)
+- [Simulated Annealing](report_images/Insurance_Hard_Simulated_Annealing_pareto_front.png)
+- [Simulated Annealing Random](report_images/Insurance_Hard_Simulated_Annealing_Random_pareto_front.png)
+- [Tabu Search](report_images/Insurance_Hard_Tabu_Search_pareto_front.png)
+- [Tabu Search Random](report_images/Insurance_Hard_Tabu_Search_Random_pareto_front.png)
 
 ---
 
@@ -1832,32 +1739,27 @@ Individual charts:
 
 ##### Summary Table (Final Values)
 
-| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time    |
-| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :------------------------- |
-| Proximal Policy Optimization        |  5891 |                213 |                              |        2.25286e+07 |    2.12507e+07 |            2.27108 |             5900 |       5.97208 | 11h 58min (for 5891 Steps) |
-| Proximal Policy Optimization Random |  2741 |                 81 |                              |        2.24371e+07 |    2.12094e+07 |            2.11444 |             2750 |       18.2748 | 11h 56min (for 2741 Steps) |
-| Simulated Annealing                 | 10006 |                372 |                          135 |        2.19224e+07 |    2.14326e+07 |                  2 |              691 |      0.402094 | 2h 25min (for 10006 Steps) |
-| Simulated Annealing Random          |   821 |                389 |                            0 |        2.30258e+07 |    2.19076e+07 |            2.95062 |              274 |       3.65792 | 0h 51min (for 821 Steps)   |
-| Tabu Search                         |  7908 |                250 |                          973 |        2.21005e+07 |    2.12882e+07 |                  2 |              521 |       2.20827 | 2h 5min (for 7908 Steps)   |
-| Tabu Search Random                  |   173 |                 56 |                            0 |         2.2328e+07 |    2.15111e+07 |                  2 |               59 |      0.200568 | 0h 10min (for 173 Steps)   |
+| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time      |
+| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :--------------------------- |
+| Proximal Policy Optimization        |  5891 |                213 |                              |        2.25286e+07 |    2.12507e+07 |            2.27108 |             5900 |       5.97208 | 718min<br/>(for 5891 Steps)  |
+| Proximal Policy Optimization Random |  2741 |                 81 |                              |        2.24371e+07 |    2.12094e+07 |            2.11444 |             2750 |       18.2748 | 716min<br/>(for 2741 Steps)  |
+| Simulated Annealing                 | 10006 |                372 |                          135 |        2.19224e+07 |    2.14326e+07 |                  2 |              691 |      0.402094 | 145min<br/>(for 10006 Steps) |
+| Simulated Annealing Random          |   821 |                389 |                            0 |        2.30258e+07 |    2.19076e+07 |            2.95062 |              274 |       3.65792 | 51min<br/>(for 821 Steps)    |
+| Tabu Search                         |  7908 |                250 |                          973 |        2.21005e+07 |    2.12882e+07 |                  2 |              521 |       2.20827 | 125min<br/>(for 7908 Steps)  |
+| Tabu Search Random                  |   173 |                 56 |                            0 |         2.2328e+07 |    2.15111e+07 |                  2 |               59 |      0.200568 | 10min<br/>(for 173 Steps)    |
 
 ##### Pareto Front Images
 
-<table><tr>
-<th>Proximal Policy Optimization</th>
-<th>Proximal Policy Optimization Random</th>
-<th>Tabu Search</th>
-<th>Tabu Search Random</th>
-<th>Simulated Annealing</th>
-<th>Simulated Annealing Random</th>
-</tr><tr>
-<td><img src='report_images/Insurance_Mid_Proximal_Policy_Optimization_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Insurance_Mid_Proximal_Policy_Optimization_Random_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Insurance_Mid_Tabu_Search_pareto_front.png' alt='Pareto Front for Tabu Search' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Insurance_Mid_Tabu_Search_Random_pareto_front.png' alt='Pareto Front for Tabu Search Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Insurance_Mid_Simulated_Annealing_pareto_front.png' alt='Pareto Front for Simulated Annealing' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Insurance_Mid_Simulated_Annealing_Random_pareto_front.png' alt='Pareto Front for Simulated Annealing Random' style='width:300px;height:200px;'/></td>
-</tr></table>
+![](composite_plots/Insurance_Mid_pareto_composite.png)
+
+Individual Pareto images:
+
+- [Proximal Policy Optimization](report_images/Insurance_Mid_Proximal_Policy_Optimization_pareto_front.png)
+- [Proximal Policy Optimization Random](report_images/Insurance_Mid_Proximal_Policy_Optimization_Random_pareto_front.png)
+- [Simulated Annealing](report_images/Insurance_Mid_Simulated_Annealing_pareto_front.png)
+- [Simulated Annealing Random](report_images/Insurance_Mid_Simulated_Annealing_Random_pareto_front.png)
+- [Tabu Search](report_images/Insurance_Mid_Tabu_Search_pareto_front.png)
+- [Tabu Search Random](report_images/Insurance_Mid_Tabu_Search_Random_pareto_front.png)
 
 ---
 
@@ -1996,32 +1898,27 @@ Individual charts:
 
 ##### Summary Table (Final Values)
 
-| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time    |
-| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :------------------------- |
-| Proximal Policy Optimization        |  5181 |                433 |                              |        4.22143e+07 |     4.0297e+07 |            2.51078 |             5190 |       8.38344 | 11h 58min (for 5181 Steps) |
-| Proximal Policy Optimization Random |  5407 |                715 |                              |        4.25095e+07 |    4.10983e+07 |            2.15238 |             5417 |       6.30004 | 8h 58min (for 5407 Steps)  |
-| Simulated Annealing                 | 10001 |                909 |                         4850 |        4.24021e+07 |    4.12154e+07 |                  2 |              510 |       0.18976 | 1h 25min (for 10001 Steps) |
-| Simulated Annealing Random          |  2626 |               1076 |                           22 |        4.23852e+07 |      4.115e+07 |            3.20748 |              868 |       1.39887 | 1h 34min (for 2626 Steps)  |
-| Tabu Search                         |  9991 |               1613 |                         1150 |        4.21807e+07 |    4.08895e+07 |            2.91931 |              470 |     0.0067332 | 1h 32min (for 9991 Steps)  |
-| Tabu Search Random                  |  2378 |                967 |                            0 |        4.22467e+07 |    4.05114e+07 |            2.42581 |              790 |       1.83766 | 1h 22min (for 2378 Steps)  |
+| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time     |
+| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :-------------------------- |
+| Proximal Policy Optimization        |  5181 |                433 |                              |        4.22143e+07 |     4.0297e+07 |            2.51078 |             5190 |       8.38344 | 718min<br/>(for 5181 Steps) |
+| Proximal Policy Optimization Random |  5407 |                715 |                              |        4.25095e+07 |    4.10983e+07 |            2.15238 |             5417 |       6.30004 | 538min<br/>(for 5407 Steps) |
+| Simulated Annealing                 | 10001 |                909 |                         4850 |        4.24021e+07 |    4.12154e+07 |                  2 |              510 |       0.18976 | 85min<br/>(for 10001 Steps) |
+| Simulated Annealing Random          |  2626 |               1076 |                           22 |        4.23852e+07 |      4.115e+07 |            3.20748 |              868 |       1.39887 | 94min<br/>(for 2626 Steps)  |
+| Tabu Search                         |  9991 |               1613 |                         1150 |        4.21807e+07 |    4.08895e+07 |            2.91931 |              470 |     0.0067332 | 92min<br/>(for 9991 Steps)  |
+| Tabu Search Random                  |  2378 |                967 |                            0 |        4.22467e+07 |    4.05114e+07 |            2.42581 |              790 |       1.83766 | 82min<br/>(for 2378 Steps)  |
 
 ##### Pareto Front Images
 
-<table><tr>
-<th>Tabu Search</th>
-<th>Tabu Search Random</th>
-<th>Proximal Policy Optimization Random</th>
-<th>Proximal Policy Optimization</th>
-<th>Simulated Annealing</th>
-<th>Simulated Annealing Random</th>
-</tr><tr>
-<td><img src='report_images/Production_Easy_Tabu_Search_pareto_front.png' alt='Pareto Front for Tabu Search' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Production_Easy_Tabu_Search_Random_pareto_front.png' alt='Pareto Front for Tabu Search Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Production_Easy_Proximal_Policy_Optimization_Random_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Production_Easy_Proximal_Policy_Optimization_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Production_Easy_Simulated_Annealing_pareto_front.png' alt='Pareto Front for Simulated Annealing' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Production_Easy_Simulated_Annealing_Random_pareto_front.png' alt='Pareto Front for Simulated Annealing Random' style='width:300px;height:200px;'/></td>
-</tr></table>
+![](composite_plots/Production_Easy_pareto_composite.png)
+
+Individual Pareto images:
+
+- [Proximal Policy Optimization](report_images/Production_Easy_Proximal_Policy_Optimization_pareto_front.png)
+- [Proximal Policy Optimization Random](report_images/Production_Easy_Proximal_Policy_Optimization_Random_pareto_front.png)
+- [Simulated Annealing](report_images/Production_Easy_Simulated_Annealing_pareto_front.png)
+- [Simulated Annealing Random](report_images/Production_Easy_Simulated_Annealing_Random_pareto_front.png)
+- [Tabu Search](report_images/Production_Easy_Tabu_Search_pareto_front.png)
+- [Tabu Search Random](report_images/Production_Easy_Tabu_Search_Random_pareto_front.png)
 
 ---
 
@@ -2044,32 +1941,27 @@ Individual charts:
 
 ##### Summary Table (Final Values)
 
-| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time    |
-| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :------------------------- |
-| Proximal Policy Optimization        |  5999 |                198 |                              |        4.26699e+07 |    4.14482e+07 |            2.69663 |             6009 |        4.8629 | 8h 21min (for 5999 Steps)  |
-| Proximal Policy Optimization Random |  9991 |                454 |                              |        4.27135e+07 |    4.15109e+07 |            2.83544 |            10000 |       4.04198 | 11h 23min (for 9991 Steps) |
-| Simulated Annealing                 | 10006 |               1142 |                          478 |          4.275e+07 |    4.14388e+07 |            13.5676 |              478 |      0.131001 | 1h 17min (for 10006 Steps) |
-| Simulated Annealing Random          |   839 |                363 |                            0 |        4.25681e+07 |    4.18752e+07 |            16.7407 |              274 |       1.79834 | 0h 30min (for 839 Steps)   |
-| Tabu Search                         |  6988 |                421 |                         1607 |        4.27518e+07 |    4.12227e+07 |                2.6 |              349 |      0.196693 | 0h 51min (for 6988 Steps)  |
-| Tabu Search Random                  |   128 |                 38 |                            0 |        4.20802e+07 |    4.10975e+07 |            2.61017 |               40 |       1.43653 | 0h 3min (for 128 Steps)    |
+| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time     |
+| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :-------------------------- |
+| Proximal Policy Optimization        |  5999 |                198 |                              |        4.26699e+07 |    4.14482e+07 |            2.69663 |             6009 |        4.8629 | 501min<br/>(for 5999 Steps) |
+| Proximal Policy Optimization Random |  9991 |                454 |                              |        4.27135e+07 |    4.15109e+07 |            2.83544 |            10000 |       4.04198 | 683min<br/>(for 9991 Steps) |
+| Simulated Annealing                 | 10006 |               1142 |                          478 |          4.275e+07 |    4.14388e+07 |            13.5676 |              478 |      0.131001 | 77min<br/>(for 10006 Steps) |
+| Simulated Annealing Random          |   839 |                363 |                            0 |        4.25681e+07 |    4.18752e+07 |            16.7407 |              274 |       1.79834 | 30min<br/>(for 839 Steps)   |
+| Tabu Search                         |  6988 |                421 |                         1607 |        4.27518e+07 |    4.12227e+07 |                2.6 |              349 |      0.196693 | 51min<br/>(for 6988 Steps)  |
+| Tabu Search Random                  |   128 |                 38 |                            0 |        4.20802e+07 |    4.10975e+07 |            2.61017 |               40 |       1.43653 | 3min<br/>(for 128 Steps)    |
 
 ##### Pareto Front Images
 
-<table><tr>
-<th>Tabu Search</th>
-<th>Simulated Annealing Random</th>
-<th>Proximal Policy Optimization</th>
-<th>Proximal Policy Optimization Random</th>
-<th>Tabu Search Random</th>
-<th>Simulated Annealing</th>
-</tr><tr>
-<td><img src='report_images/Production_Hard_Tabu_Search_pareto_front.png' alt='Pareto Front for Tabu Search' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Production_Hard_Simulated_Annealing_Random_pareto_front.png' alt='Pareto Front for Simulated Annealing Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Production_Hard_Proximal_Policy_Optimization_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Production_Hard_Proximal_Policy_Optimization_Random_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Production_Hard_Tabu_Search_Random_pareto_front.png' alt='Pareto Front for Tabu Search Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Production_Hard_Simulated_Annealing_pareto_front.png' alt='Pareto Front for Simulated Annealing' style='width:300px;height:200px;'/></td>
-</tr></table>
+![](composite_plots/Production_Hard_pareto_composite.png)
+
+Individual Pareto images:
+
+- [Proximal Policy Optimization](report_images/Production_Hard_Proximal_Policy_Optimization_pareto_front.png)
+- [Proximal Policy Optimization Random](report_images/Production_Hard_Proximal_Policy_Optimization_Random_pareto_front.png)
+- [Simulated Annealing](report_images/Production_Hard_Simulated_Annealing_pareto_front.png)
+- [Simulated Annealing Random](report_images/Production_Hard_Simulated_Annealing_Random_pareto_front.png)
+- [Tabu Search](report_images/Production_Hard_Tabu_Search_pareto_front.png)
+- [Tabu Search Random](report_images/Production_Hard_Tabu_Search_Random_pareto_front.png)
 
 ---
 
@@ -2092,32 +1984,27 @@ Individual charts:
 
 ##### Summary Table (Final Values)
 
-| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time    |
-| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :------------------------- |
-| Proximal Policy Optimization        |  8051 |               2676 |                              |        4.27068e+07 |    4.09376e+07 |            3.06264 |             8060 |       5.65617 | 11h 58min (for 8051 Steps) |
-| Proximal Policy Optimization Random |  8751 |               1528 |                              |        4.25273e+07 |     4.0404e+07 |             2.1759 |             8760 |       4.94335 | 11h 58min (for 8751 Steps) |
-| Simulated Annealing                 | 10008 |               1185 |                         4965 |        4.21387e+07 |    4.06497e+07 |            3.35955 |              533 |      0.151647 | 1h 24min (for 10008 Steps) |
-| Simulated Annealing Random          |  1067 |                494 |                            0 |        4.25709e+07 |     4.1036e+07 |            2.73571 |              353 |       2.06465 | 0h 35min (for 1067 Steps)  |
-| Tabu Search                         |  9996 |               2104 |                         1121 |        4.27049e+07 |    4.08916e+07 |            2.44721 |              528 |       1.03266 | 1h 23min (for 9996 Steps)  |
-| Tabu Search Random                  |   272 |                107 |                            0 |        4.21376e+07 |    4.09571e+07 |            2.53165 |               88 |      0.154355 | 0h 8min (for 272 Steps)    |
+| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time     |
+| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :-------------------------- |
+| Proximal Policy Optimization        |  8051 |               2676 |                              |        4.27068e+07 |    4.09376e+07 |            3.06264 |             8060 |       5.65617 | 718min<br/>(for 8051 Steps) |
+| Proximal Policy Optimization Random |  8751 |               1528 |                              |        4.25273e+07 |     4.0404e+07 |             2.1759 |             8760 |       4.94335 | 718min<br/>(for 8751 Steps) |
+| Simulated Annealing                 | 10008 |               1185 |                         4965 |        4.21387e+07 |    4.06497e+07 |            3.35955 |              533 |      0.151647 | 84min<br/>(for 10008 Steps) |
+| Simulated Annealing Random          |  1067 |                494 |                            0 |        4.25709e+07 |     4.1036e+07 |            2.73571 |              353 |       2.06465 | 35min<br/>(for 1067 Steps)  |
+| Tabu Search                         |  9996 |               2104 |                         1121 |        4.27049e+07 |    4.08916e+07 |            2.44721 |              528 |       1.03266 | 83min<br/>(for 9996 Steps)  |
+| Tabu Search Random                  |   272 |                107 |                            0 |        4.21376e+07 |    4.09571e+07 |            2.53165 |               88 |      0.154355 | 8min<br/>(for 272 Steps)    |
 
 ##### Pareto Front Images
 
-<table><tr>
-<th>Proximal Policy Optimization</th>
-<th>Tabu Search Random</th>
-<th>Proximal Policy Optimization Random</th>
-<th>Simulated Annealing</th>
-<th>Simulated Annealing Random</th>
-<th>Tabu Search</th>
-</tr><tr>
-<td><img src='report_images/Production_Mid_Proximal_Policy_Optimization_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Production_Mid_Tabu_Search_Random_pareto_front.png' alt='Pareto Front for Tabu Search Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Production_Mid_Proximal_Policy_Optimization_Random_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Production_Mid_Simulated_Annealing_pareto_front.png' alt='Pareto Front for Simulated Annealing' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Production_Mid_Simulated_Annealing_Random_pareto_front.png' alt='Pareto Front for Simulated Annealing Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Production_Mid_Tabu_Search_pareto_front.png' alt='Pareto Front for Tabu Search' style='width:300px;height:200px;'/></td>
-</tr></table>
+![](composite_plots/Production_Mid_pareto_composite.png)
+
+Individual Pareto images:
+
+- [Proximal Policy Optimization](report_images/Production_Mid_Proximal_Policy_Optimization_pareto_front.png)
+- [Proximal Policy Optimization Random](report_images/Production_Mid_Proximal_Policy_Optimization_Random_pareto_front.png)
+- [Simulated Annealing](report_images/Production_Mid_Simulated_Annealing_pareto_front.png)
+- [Simulated Annealing Random](report_images/Production_Mid_Simulated_Annealing_Random_pareto_front.png)
+- [Tabu Search](report_images/Production_Mid_Tabu_Search_pareto_front.png)
+- [Tabu Search Random](report_images/Production_Mid_Tabu_Search_Random_pareto_front.png)
 
 ---
 
@@ -2256,30 +2143,26 @@ Individual charts:
 
 ##### Summary Table (Final Values)
 
-| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time    |
-| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :------------------------- |
-| Proximal Policy Optimization        |  2421 |                  8 |                              |        3.58564e+07 |    3.34401e+07 |            2.11585 |             2430 |        19.487 | 11h 54min (for 2421 Steps) |
-| Proximal Policy Optimization Random |  2321 |                  6 |                              |        3.54005e+07 |    3.37608e+07 |            2.35095 |             2330 |       18.1589 | 11h 56min (for 2321 Steps) |
-| Simulated Annealing                 | 10008 |                231 |                          791 |        3.54894e+07 |     3.4329e+07 |            2.01172 |              493 |      0.226194 | 4h 57min (for 10008 Steps) |
-| Simulated Annealing Random          |  1421 |                555 |                          106 |        3.55237e+07 |    3.36685e+07 |            3.26184 |              468 |       9.54707 | 4h 51min (for 1421 Steps)  |
-| Tabu Search                         |  9201 |                100 |                         6024 |        3.49465e+07 |    3.32426e+07 |            2.00156 |              460 |     0.0010273 | 4h 57min (for 9201 Steps)  |
-| Tabu Search Random                  |  2111 |                868 |                          395 |        3.54891e+07 |     3.4227e+07 |            2.11141 |              700 |       7.96246 | 4h 58min (for 2111 Steps)  |
+| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time      |
+| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :--------------------------- |
+| Proximal Policy Optimization        |  2421 |                  8 |                              |        3.58564e+07 |    3.34401e+07 |            2.11585 |             2430 |        19.487 | 714min<br/>(for 2421 Steps)  |
+| Proximal Policy Optimization Random |  2321 |                  6 |                              |        3.54005e+07 |    3.37608e+07 |            2.35095 |             2330 |       18.1589 | 716min<br/>(for 2321 Steps)  |
+| Simulated Annealing                 | 10008 |                231 |                          791 |        3.54894e+07 |     3.4329e+07 |            2.01172 |              493 |      0.226194 | 297min<br/>(for 10008 Steps) |
+| Simulated Annealing Random          |  1421 |                555 |                          106 |        3.55237e+07 |    3.36685e+07 |            3.26184 |              468 |       9.54707 | 291min<br/>(for 1421 Steps)  |
+| Tabu Search                         |  9201 |                100 |                         6024 |        3.49465e+07 |    3.32426e+07 |            2.00156 |              460 |     0.0010273 | 297min<br/>(for 9201 Steps)  |
+| Tabu Search Random                  |  2111 |                868 |                          395 |        3.54891e+07 |     3.4227e+07 |            2.11141 |              700 |       7.96246 | 298min<br/>(for 2111 Steps)  |
 
 ##### Pareto Front Images
 
-<table><tr>
-<th>Tabu Search</th>
-<th>Simulated Annealing</th>
-<th>Tabu Search Random</th>
-<th>Proximal Policy Optimization Random</th>
-<th>Proximal Policy Optimization</th>
-</tr><tr>
-<td><img src='report_images/Purchasing_Example_Easy_Tabu_Search_pareto_front.png' alt='Pareto Front for Tabu Search' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Purchasing_Example_Easy_Simulated_Annealing_pareto_front.png' alt='Pareto Front for Simulated Annealing' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Purchasing_Example_Easy_Tabu_Search_Random_pareto_front.png' alt='Pareto Front for Tabu Search Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Purchasing_Example_Easy_Proximal_Policy_Optimization_Random_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Purchasing_Example_Easy_Proximal_Policy_Optimization_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization' style='width:300px;height:200px;'/></td>
-</tr></table>
+![](composite_plots/Purchasing_Example_Easy_pareto_composite.png)
+
+Individual Pareto images:
+
+- [Proximal Policy Optimization](report_images/Purchasing_Example_Easy_Proximal_Policy_Optimization_pareto_front.png)
+- [Proximal Policy Optimization Random](report_images/Purchasing_Example_Easy_Proximal_Policy_Optimization_Random_pareto_front.png)
+- [Simulated Annealing](report_images/Purchasing_Example_Easy_Simulated_Annealing_pareto_front.png)
+- [Tabu Search](report_images/Purchasing_Example_Easy_Tabu_Search_pareto_front.png)
+- [Tabu Search Random](report_images/Purchasing_Example_Easy_Tabu_Search_Random_pareto_front.png)
 
 ---
 
@@ -2302,30 +2185,26 @@ Individual charts:
 
 ##### Summary Table (Final Values)
 
-| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time    |
-| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :------------------------- |
-| Proximal Policy Optimization        |  2657 |                 19 |                              |         3.5661e+07 |    3.48879e+07 |            2.14517 |             2667 |        11.759 | 10h 20min (for 2657 Steps) |
-| Proximal Policy Optimization Random |  3091 |                 18 |                              |        3.55581e+07 |    3.47432e+07 |            2.31857 |             3100 |       10.7695 | 11h 56min (for 3091 Steps) |
-| Simulated Annealing                 |  6901 |                162 |                         1696 |        3.60005e+07 |    3.39881e+07 |            2.10809 |              338 |       3.16321 | 4h 58min (for 6901 Steps)  |
-| Simulated Annealing Random          |  1258 |                541 |                            0 |        3.69597e+07 |    3.48729e+07 |            2.23595 |              414 |       6.03285 | 4h 53min (for 1258 Steps)  |
-| Tabu Search                         |  1451 |                 19 |                          110 |         3.6573e+07 |    3.49784e+07 |            3.11605 |               73 |   0.000914311 | 4h 57min (for 1451 Steps)  |
-| Tabu Search Random                  |   164 |                 50 |                            0 |        3.65412e+07 |    3.47237e+07 |            2.41566 |               52 |       7.24261 | 0h 37min (for 164 Steps)   |
+| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time     |
+| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :-------------------------- |
+| Proximal Policy Optimization        |  2657 |                 19 |                              |         3.5661e+07 |    3.48879e+07 |            2.14517 |             2667 |        11.759 | 620min<br/>(for 2657 Steps) |
+| Proximal Policy Optimization Random |  3091 |                 18 |                              |        3.55581e+07 |    3.47432e+07 |            2.31857 |             3100 |       10.7695 | 716min<br/>(for 3091 Steps) |
+| Simulated Annealing                 |  6901 |                162 |                         1696 |        3.60005e+07 |    3.39881e+07 |            2.10809 |              338 |       3.16321 | 298min<br/>(for 6901 Steps) |
+| Simulated Annealing Random          |  1258 |                541 |                            0 |        3.69597e+07 |    3.48729e+07 |            2.23595 |              414 |       6.03285 | 293min<br/>(for 1258 Steps) |
+| Tabu Search                         |  1451 |                 19 |                          110 |         3.6573e+07 |    3.49784e+07 |            3.11605 |               73 |   0.000914311 | 297min<br/>(for 1451 Steps) |
+| Tabu Search Random                  |   164 |                 50 |                            0 |        3.65412e+07 |    3.47237e+07 |            2.41566 |               52 |       7.24261 | 37min<br/>(for 164 Steps)   |
 
 ##### Pareto Front Images
 
-<table><tr>
-<th>Proximal Policy Optimization Random</th>
-<th>Tabu Search Random</th>
-<th>Simulated Annealing</th>
-<th>Proximal Policy Optimization</th>
-<th>Simulated Annealing Random</th>
-</tr><tr>
-<td><img src='report_images/Purchasing_Example_Hard_Proximal_Policy_Optimization_Random_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Purchasing_Example_Hard_Tabu_Search_Random_pareto_front.png' alt='Pareto Front for Tabu Search Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Purchasing_Example_Hard_Simulated_Annealing_pareto_front.png' alt='Pareto Front for Simulated Annealing' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Purchasing_Example_Hard_Proximal_Policy_Optimization_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Purchasing_Example_Hard_Simulated_Annealing_Random_pareto_front.png' alt='Pareto Front for Simulated Annealing Random' style='width:300px;height:200px;'/></td>
-</tr></table>
+![](composite_plots/Purchasing_Example_Hard_pareto_composite.png)
+
+Individual Pareto images:
+
+- [Proximal Policy Optimization](report_images/Purchasing_Example_Hard_Proximal_Policy_Optimization_pareto_front.png)
+- [Proximal Policy Optimization Random](report_images/Purchasing_Example_Hard_Proximal_Policy_Optimization_Random_pareto_front.png)
+- [Simulated Annealing](report_images/Purchasing_Example_Hard_Simulated_Annealing_pareto_front.png)
+- [Simulated Annealing Random](report_images/Purchasing_Example_Hard_Simulated_Annealing_Random_pareto_front.png)
+- [Tabu Search Random](report_images/Purchasing_Example_Hard_Tabu_Search_Random_pareto_front.png)
 
 ---
 
@@ -2348,32 +2227,27 @@ Individual charts:
 
 ##### Summary Table (Final Values)
 
-| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time    |
-| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :------------------------- |
-| Proximal Policy Optimization        |  3121 |                 17 |                              |        3.57782e+07 |    3.45443e+07 |            2.02787 |             3130 |       13.5479 | 11h 56min (for 3121 Steps) |
-| Proximal Policy Optimization Random |  3121 |                 65 |                              |        3.66452e+07 |    3.46787e+07 |            2.11246 |             3130 |       10.9197 | 11h 56min (for 3121 Steps) |
-| Simulated Annealing                 |  9998 |                217 |                         5387 |         3.5673e+07 |    3.37916e+07 |            2.00307 |              480 |      0.819206 | 4h 15min (for 9998 Steps)  |
-| Simulated Annealing Random          |  2231 |                983 |                           74 |        3.55964e+07 |    3.42911e+07 |             2.3916 |              738 |       10.7407 | 4h 57min (for 2231 Steps)  |
-| Tabu Search                         |  9621 |                124 |                         4583 |        3.52817e+07 |    3.39773e+07 |            2.01115 |              498 |      0.001052 | 4h 58min (for 9621 Steps)  |
-| Tabu Search Random                  |   197 |                 75 |                            0 |        3.54491e+07 |    3.45946e+07 |             2.0785 |               63 |       8.48498 | 0h 25min (for 197 Steps)   |
+| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time     |
+| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :-------------------------- |
+| Proximal Policy Optimization        |  3121 |                 17 |                              |        3.57782e+07 |    3.45443e+07 |            2.02787 |             3130 |       13.5479 | 716min<br/>(for 3121 Steps) |
+| Proximal Policy Optimization Random |  3121 |                 65 |                              |        3.66452e+07 |    3.46787e+07 |            2.11246 |             3130 |       10.9197 | 716min<br/>(for 3121 Steps) |
+| Simulated Annealing                 |  9998 |                217 |                         5387 |         3.5673e+07 |    3.37916e+07 |            2.00307 |              480 |      0.819206 | 255min<br/>(for 9998 Steps) |
+| Simulated Annealing Random          |  2231 |                983 |                           74 |        3.55964e+07 |    3.42911e+07 |             2.3916 |              738 |       10.7407 | 297min<br/>(for 2231 Steps) |
+| Tabu Search                         |  9621 |                124 |                         4583 |        3.52817e+07 |    3.39773e+07 |            2.01115 |              498 |      0.001052 | 298min<br/>(for 9621 Steps) |
+| Tabu Search Random                  |   197 |                 75 |                            0 |        3.54491e+07 |    3.45946e+07 |             2.0785 |               63 |       8.48498 | 25min<br/>(for 197 Steps)   |
 
 ##### Pareto Front Images
 
-<table><tr>
-<th>Proximal Policy Optimization Random</th>
-<th>Simulated Annealing Random</th>
-<th>Proximal Policy Optimization</th>
-<th>Simulated Annealing</th>
-<th>Tabu Search Random</th>
-<th>Tabu Search</th>
-</tr><tr>
-<td><img src='report_images/Purchasing_Example_Mid_Proximal_Policy_Optimization_Random_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Purchasing_Example_Mid_Simulated_Annealing_Random_pareto_front.png' alt='Pareto Front for Simulated Annealing Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Purchasing_Example_Mid_Proximal_Policy_Optimization_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Purchasing_Example_Mid_Simulated_Annealing_pareto_front.png' alt='Pareto Front for Simulated Annealing' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Purchasing_Example_Mid_Tabu_Search_Random_pareto_front.png' alt='Pareto Front for Tabu Search Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Purchasing_Example_Mid_Tabu_Search_pareto_front.png' alt='Pareto Front for Tabu Search' style='width:300px;height:200px;'/></td>
-</tr></table>
+![](composite_plots/Purchasing_Example_Mid_pareto_composite.png)
+
+Individual Pareto images:
+
+- [Proximal Policy Optimization](report_images/Purchasing_Example_Mid_Proximal_Policy_Optimization_pareto_front.png)
+- [Proximal Policy Optimization Random](report_images/Purchasing_Example_Mid_Proximal_Policy_Optimization_Random_pareto_front.png)
+- [Simulated Annealing](report_images/Purchasing_Example_Mid_Simulated_Annealing_pareto_front.png)
+- [Simulated Annealing Random](report_images/Purchasing_Example_Mid_Simulated_Annealing_Random_pareto_front.png)
+- [Tabu Search](report_images/Purchasing_Example_Mid_Tabu_Search_pareto_front.png)
+- [Tabu Search Random](report_images/Purchasing_Example_Mid_Tabu_Search_Random_pareto_front.png)
 
 ---
 
@@ -2512,28 +2386,25 @@ Individual charts:
 
 ##### Summary Table (Final Values)
 
-| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time    |
-| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :------------------------- |
-| Proximal Policy Optimization        |  4821 |                  7 |                              |        4.88522e+07 |    4.54373e+07 |            2.65374 |             4830 |        8.7928 | 11h 56min (for 4821 Steps) |
-| Proximal Policy Optimization Random |  2839 |                 18 |                              |        4.88577e+07 |    4.68795e+07 |            2.28247 |             2849 |       10.2445 | 7h 25min (for 2839 Steps)  |
-| Simulated Annealing                 |    81 |                  1 |                           69 |        4.98798e+07 |    4.98798e+07 |             2.1224 |                4 |     0.0010123 | 0h 1min (for 81 Steps)     |
-| Simulated Annealing Random          |  2622 |               1180 |                         1008 |         5.0022e+07 |    4.72417e+07 |            3.66416 |              868 |      0.631759 | 4h 40min (for 2622 Steps)  |
-| Tabu Search                         |   101 |                  1 |                           30 |        4.93868e+07 |    4.81111e+07 |            2.46034 |                5 |    0.00157211 | 0h 1min (for 101 Steps)    |
-| Tabu Search Random                  |  2501 |               1126 |                         1136 |        4.91912e+07 |    4.70545e+07 |            2.37901 |              830 |       6.26755 | 4h 58min (for 2501 Steps)  |
+| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time     |
+| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :-------------------------- |
+| Proximal Policy Optimization        |  4821 |                  7 |                              |        4.88522e+07 |    4.54373e+07 |            2.65374 |             4830 |        8.7928 | 716min<br/>(for 4821 Steps) |
+| Proximal Policy Optimization Random |  2839 |                 18 |                              |        4.88577e+07 |    4.68795e+07 |            2.28247 |             2849 |       10.2445 | 445min<br/>(for 2839 Steps) |
+| Simulated Annealing                 |    81 |                  1 |                           69 |        4.98798e+07 |    4.98798e+07 |             2.1224 |                4 |     0.0010123 | 1min<br/>(for 81 Steps)     |
+| Simulated Annealing Random          |  2622 |               1180 |                         1008 |         5.0022e+07 |    4.72417e+07 |            3.66416 |              868 |      0.631759 | 280min<br/>(for 2622 Steps) |
+| Tabu Search                         |   101 |                  1 |                           30 |        4.93868e+07 |    4.81111e+07 |            2.46034 |                5 |    0.00157211 | 1min<br/>(for 101 Steps)    |
+| Tabu Search Random                  |  2501 |               1126 |                         1136 |        4.91912e+07 |    4.70545e+07 |            2.37901 |              830 |       6.26755 | 298min<br/>(for 2501 Steps) |
 
 ##### Pareto Front Images
 
-<table><tr>
-<th>Proximal Policy Optimization Random</th>
-<th>Proximal Policy Optimization</th>
-<th>Tabu Search Random</th>
-<th>Simulated Annealing Random</th>
-</tr><tr>
-<td><img src='report_images/Sepsis_Das_Easy_Proximal_Policy_Optimization_Random_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Sepsis_Das_Easy_Proximal_Policy_Optimization_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Sepsis_Das_Easy_Tabu_Search_Random_pareto_front.png' alt='Pareto Front for Tabu Search Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Sepsis_Das_Easy_Simulated_Annealing_Random_pareto_front.png' alt='Pareto Front for Simulated Annealing Random' style='width:300px;height:200px;'/></td>
-</tr></table>
+![](composite_plots/Sepsis_Das_Easy_pareto_composite.png)
+
+Individual Pareto images:
+
+- [Proximal Policy Optimization](report_images/Sepsis_Das_Easy_Proximal_Policy_Optimization_pareto_front.png)
+- [Proximal Policy Optimization Random](report_images/Sepsis_Das_Easy_Proximal_Policy_Optimization_Random_pareto_front.png)
+- [Simulated Annealing Random](report_images/Sepsis_Das_Easy_Simulated_Annealing_Random_pareto_front.png)
+- [Tabu Search Random](report_images/Sepsis_Das_Easy_Tabu_Search_Random_pareto_front.png)
 
 ---
 
@@ -2556,28 +2427,25 @@ Individual charts:
 
 ##### Summary Table (Final Values)
 
-| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time   |
-| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :------------------------ |
-| Proximal Policy Optimization        |  2945 |                  9 |                              |        8.00567e+07 |    7.97912e+07 |            2.32697 |             2955 |       7.66747 | 6h 43min (for 2945 Steps) |
-| Proximal Policy Optimization Random |  3855 |                 15 |                              |        7.93788e+07 |    7.79051e+07 |            2.81407 |             3865 |       9.76478 | 8h 30min (for 3855 Steps) |
-| Simulated Annealing                 |   131 |                  2 |                          114 |        7.80104e+07 |    7.74798e+07 |            2.10698 |                7 |     0.0012939 | 0h 2min (for 131 Steps)   |
-| Simulated Annealing Random          |  2231 |                926 |                           36 |        1.16187e+08 |    9.51691e+07 |            3.42619 |              740 |       6.37437 | 4h 57min (for 2231 Steps) |
-| Tabu Search                         |   121 |                  1 |                           20 |        8.00764e+07 |    7.80771e+07 |             2.1309 |                6 |    0.00122361 | 0h 2min (for 121 Steps)   |
-| Tabu Search Random                  |    17 |                  1 |                            0 |        7.79835e+07 |    7.79835e+07 |            2.11549 |                3 |       3.10532 | 0h 0min (for 17 Steps)    |
+| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time     |
+| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :-------------------------- |
+| Proximal Policy Optimization        |  2945 |                  9 |                              |        8.00567e+07 |    7.97912e+07 |            2.32697 |             2955 |       7.66747 | 403min<br/>(for 2945 Steps) |
+| Proximal Policy Optimization Random |  3855 |                 15 |                              |        7.93788e+07 |    7.79051e+07 |            2.81407 |             3865 |       9.76478 | 510min<br/>(for 3855 Steps) |
+| Simulated Annealing                 |   131 |                  2 |                          114 |        7.80104e+07 |    7.74798e+07 |            2.10698 |                7 |     0.0012939 | 2min<br/>(for 131 Steps)    |
+| Simulated Annealing Random          |  2231 |                926 |                           36 |        1.16187e+08 |    9.51691e+07 |            3.42619 |              740 |       6.37437 | 297min<br/>(for 2231 Steps) |
+| Tabu Search                         |   121 |                  1 |                           20 |        8.00764e+07 |    7.80771e+07 |             2.1309 |                6 |    0.00122361 | 2min<br/>(for 121 Steps)    |
+| Tabu Search Random                  |    17 |                  1 |                            0 |        7.79835e+07 |    7.79835e+07 |            2.11549 |                3 |       3.10532 | 0min<br/>(for 17 Steps)     |
 
 ##### Pareto Front Images
 
-<table><tr>
-<th>Tabu Search Random</th>
-<th>Simulated Annealing Random</th>
-<th>Proximal Policy Optimization Random</th>
-<th>Proximal Policy Optimization</th>
-</tr><tr>
-<td><img src='report_images/Sepsis_Das_Hard_Tabu_Search_Random_pareto_front.png' alt='Pareto Front for Tabu Search Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Sepsis_Das_Hard_Simulated_Annealing_Random_pareto_front.png' alt='Pareto Front for Simulated Annealing Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Sepsis_Das_Hard_Proximal_Policy_Optimization_Random_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Sepsis_Das_Hard_Proximal_Policy_Optimization_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization' style='width:300px;height:200px;'/></td>
-</tr></table>
+![](composite_plots/Sepsis_Das_Hard_pareto_composite.png)
+
+Individual Pareto images:
+
+- [Proximal Policy Optimization](report_images/Sepsis_Das_Hard_Proximal_Policy_Optimization_pareto_front.png)
+- [Proximal Policy Optimization Random](report_images/Sepsis_Das_Hard_Proximal_Policy_Optimization_Random_pareto_front.png)
+- [Simulated Annealing Random](report_images/Sepsis_Das_Hard_Simulated_Annealing_Random_pareto_front.png)
+- [Tabu Search Random](report_images/Sepsis_Das_Hard_Tabu_Search_Random_pareto_front.png)
 
 ---
 
@@ -2600,28 +2468,25 @@ Individual charts:
 
 ##### Summary Table (Final Values)
 
-| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time    |
-| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :------------------------- |
-| Proximal Policy Optimization        |  5207 |                 20 |                              |        9.44429e+07 |     8.5317e+07 |            2.51837 |             5217 |        8.0266 | 11h 45min (for 5207 Steps) |
-| Proximal Policy Optimization Random |  5231 |                 47 |                              |        7.47033e+07 |    7.14556e+07 |            2.55251 |             5240 |       8.67956 | 11h 57min (for 5231 Steps) |
-| Simulated Annealing                 |   141 |                  2 |                          152 |         7.4814e+07 |     7.4814e+07 |             2.7255 |                8 |       2.00736 | 0h 2min (for 141 Steps)    |
-| Simulated Annealing Random          |  2402 |               1045 |                            0 |        1.00127e+08 |    9.36153e+07 |            3.30269 |              798 |      0.234691 | 4h 53min (for 2402 Steps)  |
-| Tabu Search                         |   121 |                  1 |                           18 |        7.27851e+07 |    7.11963e+07 |            2.30249 |                6 |     0.0011708 | 0h 2min (for 121 Steps)    |
-| Tabu Search Random                  |    29 |                  4 |                            0 |        7.50737e+07 |    7.50737e+07 |            3.06194 |                7 |       5.81616 | 0h 1min (for 29 Steps)     |
+| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time     |
+| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :-------------------------- |
+| Proximal Policy Optimization        |  5207 |                 20 |                              |        9.44429e+07 |     8.5317e+07 |            2.51837 |             5217 |        8.0266 | 705min<br/>(for 5207 Steps) |
+| Proximal Policy Optimization Random |  5231 |                 47 |                              |        7.47033e+07 |    7.14556e+07 |            2.55251 |             5240 |       8.67956 | 717min<br/>(for 5231 Steps) |
+| Simulated Annealing                 |   141 |                  2 |                          152 |         7.4814e+07 |     7.4814e+07 |             2.7255 |                8 |       2.00736 | 2min<br/>(for 141 Steps)    |
+| Simulated Annealing Random          |  2402 |               1045 |                            0 |        1.00127e+08 |    9.36153e+07 |            3.30269 |              798 |      0.234691 | 293min<br/>(for 2402 Steps) |
+| Tabu Search                         |   121 |                  1 |                           18 |        7.27851e+07 |    7.11963e+07 |            2.30249 |                6 |     0.0011708 | 2min<br/>(for 121 Steps)    |
+| Tabu Search Random                  |    29 |                  4 |                            0 |        7.50737e+07 |    7.50737e+07 |            3.06194 |                7 |       5.81616 | 1min<br/>(for 29 Steps)     |
 
 ##### Pareto Front Images
 
-<table><tr>
-<th>Simulated Annealing Random</th>
-<th>Tabu Search Random</th>
-<th>Proximal Policy Optimization</th>
-<th>Proximal Policy Optimization Random</th>
-</tr><tr>
-<td><img src='report_images/Sepsis_Das_Mid_Simulated_Annealing_Random_pareto_front.png' alt='Pareto Front for Simulated Annealing Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Sepsis_Das_Mid_Tabu_Search_Random_pareto_front.png' alt='Pareto Front for Tabu Search Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Sepsis_Das_Mid_Proximal_Policy_Optimization_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Sepsis_Das_Mid_Proximal_Policy_Optimization_Random_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization Random' style='width:300px;height:200px;'/></td>
-</tr></table>
+![](composite_plots/Sepsis_Das_Mid_pareto_composite.png)
+
+Individual Pareto images:
+
+- [Proximal Policy Optimization](report_images/Sepsis_Das_Mid_Proximal_Policy_Optimization_pareto_front.png)
+- [Proximal Policy Optimization Random](report_images/Sepsis_Das_Mid_Proximal_Policy_Optimization_Random_pareto_front.png)
+- [Simulated Annealing Random](report_images/Sepsis_Das_Mid_Simulated_Annealing_Random_pareto_front.png)
+- [Tabu Search Random](report_images/Sepsis_Das_Mid_Tabu_Search_Random_pareto_front.png)
 
 ---
 
@@ -2760,32 +2625,27 @@ Individual charts:
 
 ##### Summary Table (Final Values)
 
-| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time   |
-| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :------------------------ |
-| Proximal Policy Optimization        |  4808 |                136 |                              |        2.55899e+06 |         607541 |            21.3091 |             4818 |       5.81425 | 6h 55min (for 4808 Steps) |
-| Proximal Policy Optimization Random |  6224 |                414 |                              |             832854 |        89304.5 |            6.77143 |             6234 |       5.06246 | 7h 7min (for 6224 Steps)  |
-| Simulated Annealing                 |  9992 |                427 |                         2248 |        2.33455e+06 |    1.46994e+06 |            2.56383 |              577 |       4.71075 | 1h 59min (for 9992 Steps) |
-| Simulated Annealing Random          |  2614 |               1327 |                          243 |        2.59429e+06 |    1.73049e+06 |            3.97904 |              868 |       4.64431 | 3h 6min (for 2614 Steps)  |
-| Tabu Search                         |  7057 |                216 |                         3412 |        2.31422e+06 |    1.90354e+06 |            3.61417 |              485 |       2.00739 | 1h 41min (for 7057 Steps) |
-| Tabu Search Random                  |  2615 |               1405 |                          383 |        1.78164e+06 |         866616 |            4.03289 |              868 |       2.71143 | 2h 33min (for 2615 Steps) |
+| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time     |
+| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :-------------------------- |
+| Proximal Policy Optimization        |  4808 |                136 |                              |        2.55899e+06 |         607541 |            21.3091 |             4818 |       5.81425 | 415min<br/>(for 4808 Steps) |
+| Proximal Policy Optimization Random |  6224 |                414 |                              |             832854 |        89304.5 |            6.77143 |             6234 |       5.06246 | 427min<br/>(for 6224 Steps) |
+| Simulated Annealing                 |  9992 |                427 |                         2248 |        2.33455e+06 |    1.46994e+06 |            2.56383 |              577 |       4.71075 | 119min<br/>(for 9992 Steps) |
+| Simulated Annealing Random          |  2614 |               1327 |                          243 |        2.59429e+06 |    1.73049e+06 |            3.97904 |              868 |       4.64431 | 186min<br/>(for 2614 Steps) |
+| Tabu Search                         |  7057 |                216 |                         3412 |        2.31422e+06 |    1.90354e+06 |            3.61417 |              485 |       2.00739 | 101min<br/>(for 7057 Steps) |
+| Tabu Search Random                  |  2615 |               1405 |                          383 |        1.78164e+06 |         866616 |            4.03289 |              868 |       2.71143 | 153min<br/>(for 2615 Steps) |
 
 ##### Pareto Front Images
 
-<table><tr>
-<th>Simulated Annealing</th>
-<th>Tabu Search</th>
-<th>Proximal Policy Optimization Random</th>
-<th>Proximal Policy Optimization</th>
-<th>Tabu Search Random</th>
-<th>Simulated Annealing Random</th>
-</tr><tr>
-<td><img src='report_images/Trafic_Das_Easy_Simulated_Annealing_pareto_front.png' alt='Pareto Front for Simulated Annealing' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Trafic_Das_Easy_Tabu_Search_pareto_front.png' alt='Pareto Front for Tabu Search' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Trafic_Das_Easy_Proximal_Policy_Optimization_Random_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Trafic_Das_Easy_Proximal_Policy_Optimization_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Trafic_Das_Easy_Tabu_Search_Random_pareto_front.png' alt='Pareto Front for Tabu Search Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Trafic_Das_Easy_Simulated_Annealing_Random_pareto_front.png' alt='Pareto Front for Simulated Annealing Random' style='width:300px;height:200px;'/></td>
-</tr></table>
+![](composite_plots/Trafic_Das_Easy_pareto_composite.png)
+
+Individual Pareto images:
+
+- [Proximal Policy Optimization](report_images/Trafic_Das_Easy_Proximal_Policy_Optimization_pareto_front.png)
+- [Proximal Policy Optimization Random](report_images/Trafic_Das_Easy_Proximal_Policy_Optimization_Random_pareto_front.png)
+- [Simulated Annealing](report_images/Trafic_Das_Easy_Simulated_Annealing_pareto_front.png)
+- [Simulated Annealing Random](report_images/Trafic_Das_Easy_Simulated_Annealing_Random_pareto_front.png)
+- [Tabu Search](report_images/Trafic_Das_Easy_Tabu_Search_pareto_front.png)
+- [Tabu Search Random](report_images/Trafic_Das_Easy_Tabu_Search_Random_pareto_front.png)
 
 ---
 
@@ -2808,30 +2668,26 @@ Individual charts:
 
 ##### Summary Table (Final Values)
 
-| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time    |
-| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :------------------------- |
-| Proximal Policy Optimization        |  1581 |                 44 |                              |        1.23984e+07 |    3.63188e+06 |            7.29797 |             1590 |         46.16 | 11h 52min (for 1581 Steps) |
-| Proximal Policy Optimization Random |  3811 |                280 |                              |        1.14576e+07 |    8.03874e+06 |            9.57933 |             3820 |       12.2776 | 11h 56min (for 3811 Steps) |
-| Simulated Annealing                 |  9997 |                573 |                          773 |        6.02035e+07 |    3.89093e+06 |            2.17771 |              598 |      0.238621 | 2h 22min (for 9997 Steps)  |
-| Simulated Annealing Random          |  2581 |               1185 |                          165 |        3.05005e+07 |    2.59431e+06 |            2.08344 |              857 |       5.73251 | 4h 58min (for 2581 Steps)  |
-| Tabu Search                         |  2977 |                181 |                         1214 |        4.54628e+06 |    4.14764e+06 |            2.01762 |              186 |     0.0343043 | 0h 47min (for 2977 Steps)  |
-| Tabu Search Random                  |  1286 |                600 |                            0 |        5.49233e+07 |    2.94059e+06 |                2.5 |              426 |       3.56618 | 3h 4min (for 1286 Steps)   |
+| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time     |
+| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :-------------------------- |
+| Proximal Policy Optimization        |  1581 |                 44 |                              |        1.23984e+07 |    3.63188e+06 |            7.29797 |             1590 |         46.16 | 712min<br/>(for 1581 Steps) |
+| Proximal Policy Optimization Random |  3811 |                280 |                              |        1.14576e+07 |    8.03874e+06 |            9.57933 |             3820 |       12.2776 | 716min<br/>(for 3811 Steps) |
+| Simulated Annealing                 |  9997 |                573 |                          773 |        6.02035e+07 |    3.89093e+06 |            2.17771 |              598 |      0.238621 | 142min<br/>(for 9997 Steps) |
+| Simulated Annealing Random          |  2581 |               1185 |                          165 |        3.05005e+07 |    2.59431e+06 |            2.08344 |              857 |       5.73251 | 298min<br/>(for 2581 Steps) |
+| Tabu Search                         |  2977 |                181 |                         1214 |        4.54628e+06 |    4.14764e+06 |            2.01762 |              186 |     0.0343043 | 47min<br/>(for 2977 Steps)  |
+| Tabu Search Random                  |  1286 |                600 |                            0 |        5.49233e+07 |    2.94059e+06 |                2.5 |              426 |       3.56618 | 184min<br/>(for 1286 Steps) |
 
 ##### Pareto Front Images
 
-<table><tr>
-<th>Simulated Annealing</th>
-<th>Tabu Search</th>
-<th>Simulated Annealing Random</th>
-<th>Proximal Policy Optimization Random</th>
-<th>Tabu Search Random</th>
-</tr><tr>
-<td><img src='report_images/Trafic_Das_Hard_Simulated_Annealing_pareto_front.png' alt='Pareto Front for Simulated Annealing' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Trafic_Das_Hard_Tabu_Search_pareto_front.png' alt='Pareto Front for Tabu Search' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Trafic_Das_Hard_Simulated_Annealing_Random_pareto_front.png' alt='Pareto Front for Simulated Annealing Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Trafic_Das_Hard_Proximal_Policy_Optimization_Random_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Trafic_Das_Hard_Tabu_Search_Random_pareto_front.png' alt='Pareto Front for Tabu Search Random' style='width:300px;height:200px;'/></td>
-</tr></table>
+![](composite_plots/Trafic_Das_Hard_pareto_composite.png)
+
+Individual Pareto images:
+
+- [Proximal Policy Optimization Random](report_images/Trafic_Das_Hard_Proximal_Policy_Optimization_Random_pareto_front.png)
+- [Simulated Annealing](report_images/Trafic_Das_Hard_Simulated_Annealing_pareto_front.png)
+- [Simulated Annealing Random](report_images/Trafic_Das_Hard_Simulated_Annealing_Random_pareto_front.png)
+- [Tabu Search](report_images/Trafic_Das_Hard_Tabu_Search_pareto_front.png)
+- [Tabu Search Random](report_images/Trafic_Das_Hard_Tabu_Search_Random_pareto_front.png)
 
 ---
 
@@ -2854,32 +2710,27 @@ Individual charts:
 
 ##### Summary Table (Final Values)
 
-| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time    |
-| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :------------------------- |
-| Proximal Policy Optimization        |  8001 |                170 |                              |        1.15895e+07 |    1.47119e+06 |            3.97139 |             8010 |       5.28506 | 11h 57min (for 8001 Steps) |
-| Proximal Policy Optimization Random |  7171 |                146 |                              |        3.52303e+06 |    1.29862e+06 |            49.9739 |             7180 |       5.20373 | 11h 57min (for 7171 Steps) |
-| Simulated Annealing                 |  9998 |                522 |                         1045 |        4.66844e+06 |    4.15021e+06 |            2.02184 |              573 |      0.437328 | 3h 17min (for 9998 Steps)  |
-| Simulated Annealing Random          |  2614 |               1160 |                          119 |        6.54016e+06 |         520078 |              2.102 |              868 |       6.59526 | 4h 18min (for 2614 Steps)  |
-| Tabu Search                         |  5098 |                229 |                         2118 |        1.15793e+07 |    5.70311e+06 |            2.95782 |              276 |      0.121986 | 1h 1min (for 5098 Steps)   |
-| Tabu Search Random                  |  2615 |               1306 |                          723 |        1.55542e+07 |    1.47197e+06 |            3.90977 |              868 |       4.81121 | 3h 8min (for 2615 Steps)   |
+| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time     |
+| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :-------------------------- |
+| Proximal Policy Optimization        |  8001 |                170 |                              |        1.15895e+07 |    1.47119e+06 |            3.97139 |             8010 |       5.28506 | 717min<br/>(for 8001 Steps) |
+| Proximal Policy Optimization Random |  7171 |                146 |                              |        3.52303e+06 |    1.29862e+06 |            49.9739 |             7180 |       5.20373 | 717min<br/>(for 7171 Steps) |
+| Simulated Annealing                 |  9998 |                522 |                         1045 |        4.66844e+06 |    4.15021e+06 |            2.02184 |              573 |      0.437328 | 197min<br/>(for 9998 Steps) |
+| Simulated Annealing Random          |  2614 |               1160 |                          119 |        6.54016e+06 |         520078 |              2.102 |              868 |       6.59526 | 258min<br/>(for 2614 Steps) |
+| Tabu Search                         |  5098 |                229 |                         2118 |        1.15793e+07 |    5.70311e+06 |            2.95782 |              276 |      0.121986 | 61min<br/>(for 5098 Steps)  |
+| Tabu Search Random                  |  2615 |               1306 |                          723 |        1.55542e+07 |    1.47197e+06 |            3.90977 |              868 |       4.81121 | 188min<br/>(for 2615 Steps) |
 
 ##### Pareto Front Images
 
-<table><tr>
-<th>Simulated Annealing</th>
-<th>Tabu Search</th>
-<th>Simulated Annealing Random</th>
-<th>Proximal Policy Optimization</th>
-<th>Proximal Policy Optimization Random</th>
-<th>Tabu Search Random</th>
-</tr><tr>
-<td><img src='report_images/Trafic_Das_Mid_Simulated_Annealing_pareto_front.png' alt='Pareto Front for Simulated Annealing' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Trafic_Das_Mid_Tabu_Search_pareto_front.png' alt='Pareto Front for Tabu Search' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Trafic_Das_Mid_Simulated_Annealing_Random_pareto_front.png' alt='Pareto Front for Simulated Annealing Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Trafic_Das_Mid_Proximal_Policy_Optimization_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Trafic_Das_Mid_Proximal_Policy_Optimization_Random_pareto_front.png' alt='Pareto Front for Proximal Policy Optimization Random' style='width:300px;height:200px;'/></td>
-<td><img src='report_images/Trafic_Das_Mid_Tabu_Search_Random_pareto_front.png' alt='Pareto Front for Tabu Search Random' style='width:300px;height:200px;'/></td>
-</tr></table>
+![](composite_plots/Trafic_Das_Mid_pareto_composite.png)
+
+Individual Pareto images:
+
+- [Proximal Policy Optimization](report_images/Trafic_Das_Mid_Proximal_Policy_Optimization_pareto_front.png)
+- [Proximal Policy Optimization Random](report_images/Trafic_Das_Mid_Proximal_Policy_Optimization_Random_pareto_front.png)
+- [Simulated Annealing](report_images/Trafic_Das_Mid_Simulated_Annealing_pareto_front.png)
+- [Simulated Annealing Random](report_images/Trafic_Das_Mid_Simulated_Annealing_Random_pareto_front.png)
+- [Tabu Search](report_images/Trafic_Das_Mid_Tabu_Search_pareto_front.png)
+- [Tabu Search Random](report_images/Trafic_Das_Mid_Tabu_Search_Random_pareto_front.png)
 
 ---
 
@@ -2908,7 +2759,7 @@ _For now there is no CLI interface for the optimizer, so you have to modify the 
 ### Usage within PIX (docker)
 
 1. Install Docker and Docker-Compose, refer to the [official website](https://docs.docker.com/get-docker/) for installation instructions
-2. Clone the [pix-portal](https://github.com/AutomatedProcessImprovement/pix-portal) repository (`git clone https://github.com/AutomatedProcessImprovement/pix-portal.git`)
+2. Clone the pix-portal repository (`git clone https://github.com/AutomatedProcessImprovement/pix-portal.git`)
 3. Checkout the `integrate-optimos-v2` branch (`git checkout integrate-optimos-v2`)
 4. Create the following secrets:
    - `frontend/pix-web-ui/.session.secret`
