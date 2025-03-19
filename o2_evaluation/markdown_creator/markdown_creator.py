@@ -225,7 +225,6 @@ report_metrics = [
 ]
 
 # For summary tables, drop "front/size" (it comes from the analyzer stats) but include the new metric.
-# "Total Optimization Time" is computed separately.
 summary_metrics = [
     "global/solutions_tried",
     "base_solutions",
@@ -363,7 +362,7 @@ def save_pareto_front_images(df: pd.DataFrame, output_dir: str) -> dict:
 
 
 # -----------------------------------------------------------------------------
-# 5. Summary Table Generation (Excluding Pareto Front Size and adding Avg. Time per 1000 Steps)
+# 5. Summary Table Generation (Excluding Pareto Front Size, with Steps & Total Time)
 # -----------------------------------------------------------------------------
 def generate_summary_tables(df: pd.DataFrame) -> dict:
     """
@@ -535,22 +534,127 @@ def format_markdown_table(header, rows):
 
 
 # -----------------------------------------------------------------------------
+# New Function: Create Composite Plot for Metrics
+# -----------------------------------------------------------------------------
+def create_composite_plot(model, mode, plot_files, composite_dir):
+    """
+    Combine all individual metric plots (for metrics in report_metrics) for a given model and mode
+    into one composite image (stacked vertically). Returns the composite image path and the list of metrics included.
+    """
+    images = []
+    metrics_present = []
+    for metric in report_metrics:
+        key = (model, mode, metric)
+        if key in plot_files:
+            img_path = plot_files[key]
+            try:
+                img = Image.open(img_path)
+                images.append(img)
+                metrics_present.append(metric)
+            except Exception as e:
+                print(f"Error loading image for {model}, {mode}, {metric}: {e}")
+    if not images:
+        return None, []
+    widths, heights = zip(*(im.size for im in images))
+    max_width = max(widths)
+    total_height = sum(heights)
+    composite = Image.new("RGB", (max_width, total_height), (255, 255, 255))
+    y_offset = 0
+    for im in images:
+        composite.paste(im, (0, y_offset))
+        y_offset += im.size[1]
+    os.makedirs(composite_dir, exist_ok=True)
+    composite_path = os.path.join(composite_dir, f"{model}_{mode}_composite.png".replace(" ", "_"))
+    composite.save(composite_path)
+    return composite_path, metrics_present
+
+
+def create_composite_plot_grid(model, mode, plot_files, composite_dir, cell_default_size=(600, 400)):
+    """
+    Combine individual metric plots for a given model and mode into one composite image arranged in a 3x3 grid.
+    For any metric not available, a blank image (of default size) is used.
+    Since report_metrics contains 8 items, the bottom-right cell (9th cell) remains blank.
+
+    Returns:
+      composite_path: The file path of the saved composite image.
+      metrics_used: The list of metric keys in the order of the grid.
+    """
+    # Use the defined order in report_metrics.
+    metrics = report_metrics[:]  # Copy of the list.
+    images = []
+    for metric in metrics:
+        key = (model, mode, metric)
+        if key in plot_files:
+            try:
+                img = Image.open(plot_files[key])
+                images.append(img)
+            except Exception as e:
+                print(f"Error loading image for {model}, {mode}, {metric}: {e}")
+                blank = Image.new("RGB", cell_default_size, (255, 255, 255))
+                images.append(blank)
+        else:
+            # Use a blank image for missing metric.
+            blank = Image.new("RGB", cell_default_size, (255, 255, 255))
+            images.append(blank)
+    # We need exactly 9 cells; if we have only 8 images, append one blank.
+    while len(images) < 9:
+        blank = Image.new("RGB", cell_default_size, (255, 255, 255))
+        images.append(blank)
+    # If more than 9 (shouldn't happen), take only the first 9.
+    images = images[:9]
+
+    # Determine each cell's dimensions from the maximum image sizes.
+    cell_width = max(img.width for img in images)
+    cell_height = max(img.height for img in images)
+    composite_width = 3 * cell_width
+    composite_height = 3 * cell_height
+    composite = Image.new("RGB", (composite_width, composite_height), (255, 255, 255))
+
+    for i, img in enumerate(images):
+        row = i // 3
+        col = i % 3
+        x = col * cell_width
+        y = row * cell_height
+        # Center the image in its cell.
+        offset_x = (cell_width - img.width) // 2
+        offset_y = (cell_height - img.height) // 2
+        composite.paste(img, (x + offset_x, y + offset_y))
+
+    os.makedirs(composite_dir, exist_ok=True)
+    composite_path = os.path.join(composite_dir, f"{model}_{mode}_composite.png".replace(" ", "_"))
+    composite.save(composite_path)
+    return composite_path, metrics
+
+
+# -----------------------------------------------------------------------------
+# 8. Updated Markdown Report Generation (Using ##, ###, etc.)
+# -----------------------------------------------------------------------------
+
+
+# -----------------------------------------------------------------------------
 # 8. Updated Markdown Report Generation (Using ##, ###, etc.)
 # -----------------------------------------------------------------------------
 def generate_markdown_report(
-    plot_files: dict, summary_tables: dict, pareto_images: dict, analyzer_stats: dict, output_md: str
+    plot_files: dict,
+    summary_tables: dict,
+    pareto_images: dict,
+    analyzer_stats: dict,
+    composite_dir: str,
+    output_md: str,
 ):
+    """Generate a compact Markdown report.
+
+    With the following sections:
+    - An Overview section (## Overview) listing agents, models, and modes.
+    - A Metrics Explanation section (## Metrics Explanation).
+    - For each Model (### Model):
+        - An Analyzer Overview (#### Analyzer Overview) with groups (##### Group Title).
+        - For each Mode (#### Mode):
+            - A Metric Plots section (##### Metric Plots) with an HTML table.
+            - A Summary Table (##### Summary Table (Final Values)).
+            - A Pareto Front Images section (##### Pareto Front Images) with an HTML table.
     """
-    Generate a compact Markdown report with:
-      - An Overview section (## Overview) listing agents, models, and modes.
-      - A Metrics Explanation section (## Metrics Explanation).
-      - For each Model (### Model):
-          - An Analyzer Overview (#### Analyzer Overview) with groups (##### Group Title).
-          - For each Mode (#### Mode):
-              - A Metric Plots section (##### Metric Plots) with an HTML table.
-              - A Summary Table (##### Summary Table (Final Values)).
-              - A Pareto Front Images section (##### Pareto Front Images) with an HTML table.
-    """
+
     import os
 
     md_lines = []
@@ -626,37 +730,30 @@ def generate_markdown_report(
         for mode in modes:
             md_lines.append(f"#### {mode}\n")
 
+            # Composite Metric Plots Section (3x3 grid)
             md_lines.append("##### Metric Plots\n")
-            md_lines.append("<table>")
-            num_columns = 3
-            row_cells = []
-            for idx, metric in enumerate(report_metrics):
-                key = (model, mode, metric)
-                human_name = human_metric_names.get(metric, metric)
-                if key in plot_files:
-                    relative_plot_path = os.path.relpath(plot_files[key], os.path.dirname(output_md))
-                    cell = (
-                        f"<strong>{human_name}</strong><br>"
-                        f"<img src='{relative_plot_path}' alt='{human_name}' style='width:300px;height:200px;'/>"
-                    )
-                else:
-                    cell = f"<strong>{human_name}</strong><br>No data"
-                row_cells.append(f"<td>{cell}</td>")
-                if (idx + 1) % num_columns == 0:
-                    md_lines.append("<tr>" + "".join(row_cells) + "</tr>")
-                    row_cells = []
-            if row_cells:
-                while len(row_cells) < num_columns:
-                    row_cells.append("<td></td>")
-                md_lines.append("<tr>" + "".join(row_cells) + "</tr>")
-            md_lines.append("</table>\n")
+            composite_path, metrics_used = create_composite_plot_grid(model, mode, plot_files, composite_dir)
+            if composite_path:
+                relative_composite_path = os.path.relpath(composite_path, os.path.dirname(output_md))
+                md_lines.append(f"![]({relative_composite_path})")
+                md_lines.append("")
+                md_lines.append("Individual charts:")
+                for metric in metrics_used:
+                    key = (model, mode, metric)
+                    if key in plot_files:
+                        relative_individual = os.path.relpath(plot_files[key], os.path.dirname(output_md))
+                        human_name = human_metric_names.get(metric, metric)
+                        md_lines.append(f"- [{human_name}]({relative_individual})")
+            else:
+                md_lines.append("No metric plots available.")
 
+            md_lines.append("")
             md_lines.append("##### Summary Table (Final Values)\n")
             table_df = summary_tables.get((model, mode))
             if table_df is not None:
                 table_df = table_df.copy()
                 table_df.rename(
-                    columns={k: human_metric_names.get(k, k) for k in table_df.columns if k not in ["Agent"]},
+                    columns={k: human_metric_names.get(k, k) for k in table_df.columns if k != "Agent"},
                     inplace=True,
                 )
                 md_lines.append(table_df.to_markdown(index=False))
@@ -701,9 +798,11 @@ def main():
     output_dir = "report_outputs"
     image_dir = os.path.join(output_dir, "report_images")
     plots_dir = os.path.join(output_dir, "report_plots")
+    composite_dir = os.path.join(output_dir, "composite_plots")
     os.makedirs(output_dir, exist_ok=True)
     os.makedirs(image_dir, exist_ok=True)
     os.makedirs(plots_dir, exist_ok=True)
+    os.makedirs(composite_dir, exist_ok=True)
 
     df = load_all_event_data(root_dir)
     if df.empty:
@@ -730,7 +829,9 @@ def main():
 
     print("Generating Markdown report...")
     output_md = os.path.join(output_dir, "report.md")
-    generate_markdown_report(plot_files, summary_tables, pareto_images, analyzer_stats, output_md)
+    generate_markdown_report(
+        plot_files, summary_tables, pareto_images, analyzer_stats, composite_dir, output_md
+    )
     print("Report generated:", output_md)
 
 
