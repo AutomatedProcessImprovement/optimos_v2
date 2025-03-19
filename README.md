@@ -1,6 +1,6 @@
 # Optimos V2
 
-The next generation of [Optimos](https://github.com/AutomatedProcessImprovement/roptimus-prime). A Resource, Roster and Batching optimizer using Prosimos simulator.
+The next generation of Optimos. A Resource, Roster and Batching optimizer using Prosimos simulator.
 
 # Evaluation
 
