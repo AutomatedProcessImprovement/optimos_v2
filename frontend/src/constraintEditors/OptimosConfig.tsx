@@ -8,6 +8,7 @@ import {
   Switch,
   SegmentedControl,
   Center,
+  Spoiler,
 } from "@mantine/core";
 
 import {
@@ -19,11 +20,43 @@ import { MasterFormData } from "../hooks/useMasterFormData";
 import React from "react";
 import { useMasterForm, useMasterFormContext } from "../hooks/useFormContext";
 import {
+  ActionVariationSelection,
   AgentType,
+  CostType,
   LegacyApproachAbbreviation,
   Mode,
 } from "../redux/slices/optimosApi";
 import { IconCalendarWeek, IconCategoryPlus } from "@tabler/icons-react";
+import { unsnakecase } from "../helpers";
+
+const ACTION_VARIATION_DESCRIPTIONS = {
+  [ActionVariationSelection.SingleRandom]: "Try a single random variation",
+  [ActionVariationSelection.FirstInOrder]: "Try the first variation generated",
+  [ActionVariationSelection.FirstMaxVariantsPerActionInOrder]:
+    "Try the first n variations as configured in 'Max. number of variations per action'",
+  [ActionVariationSelection.RandomMaxVariantsPerAction]:
+    "Try n random variations, as configured in 'Max. number of variations per action'",
+  [ActionVariationSelection.AllRandom]: "Try all variations randomly",
+  [ActionVariationSelection.AllInOrder]: "Try all variations in order",
+};
+
+const COST_TYPE_LABEL = {
+  [CostType.TotalCost]: "Resource + Fixed Cost",
+  [CostType.ResourceCost]: "Resource Cost",
+  [CostType.FixedCost]: "Fixed Cost",
+  [CostType.WtPt]: "Waiting Time + Processing Time",
+  [CostType.AvgWtPtPerTaskInstance]:
+    "Avg. Waiting Time + Processing Time per Task Instance",
+};
+
+const COST_TYPE_DESCRIPTIONS = {
+  [CostType.TotalCost]: "Resource cost + Fixed cost",
+  [CostType.ResourceCost]: "Resource cost",
+  [CostType.FixedCost]: "Fixed cost",
+  [CostType.WtPt]: "Total Waiting time + Processing time",
+  [CostType.AvgWtPtPerTaskInstance]:
+    "Average Waiting time + Processing time per task instance",
+};
 
 interface OptimosConfigProps {}
 
@@ -128,6 +161,29 @@ const OptimosConfig = (props: OptimosConfigProps) => {
             {...form.getInputProps("optimosConfig.agent")}
           />
         </Grid.Col>
+
+        <Grid.Col span={{ sm: 12, md: 6 }}>
+          <Select
+            w="100%"
+            label="Cost Function"
+            data={Object.values(CostType).map((value) => ({
+              value,
+              label: COST_TYPE_LABEL[value],
+            }))}
+            renderOption={({ option }) => (
+              <div>
+                <Text fz="sm" fw={500}>
+                  {option.label}
+                </Text>
+                <Text fz="xs" c="dimmed">
+                  {COST_TYPE_DESCRIPTIONS[option.value]}
+                </Text>
+              </div>
+            )}
+            {...form.getInputProps("optimosConfig.cost_type")}
+          />
+        </Grid.Col>
+
         <Grid.Col span={{ sm: 12, md: 6 }}>
           <NumberInput
             label="Cases per simulation"
@@ -147,6 +203,28 @@ const OptimosConfig = (props: OptimosConfigProps) => {
             step={1}
             w="100%"
             {...form.getInputProps("optimosConfig.max_actions_per_iteration")}
+          />
+        </Grid.Col>
+
+        <Grid.Col span={{ sm: 12, md: 6 }}>
+          <Select
+            w="100%"
+            label="Action variation selection"
+            data={Object.values(ActionVariationSelection).map((value) => ({
+              value,
+              label: unsnakecase(value),
+            }))}
+            renderOption={({ option }) => (
+              <div>
+                <Text fz="sm" fw={500}>
+                  {option.label}
+                </Text>
+                <Text fz="xs" c="dimmed">
+                  {ACTION_VARIATION_DESCRIPTIONS[option.value]}
+                </Text>
+              </div>
+            )}
+            {...form.getInputProps("optimosConfig.action_variation_selection")}
           />
         </Grid.Col>
 

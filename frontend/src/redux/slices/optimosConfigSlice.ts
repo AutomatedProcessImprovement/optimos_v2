@@ -1,7 +1,9 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
+  ActionVariationSelection,
   AgentType,
   ConfigType,
+  CostType,
   LegacyApproachAbbreviation,
   Mode,
 } from "./optimosApi";
@@ -11,7 +13,7 @@ import { updateByMasterForm } from "./assetsSlice";
 const initialState: ConfigType = {
   scenario_name: "My first scenario",
   num_cases: 100,
-  approach: LegacyApproachAbbreviation.Ba,
+  approach: LegacyApproachAbbreviation.Ca,
   max_non_improving_actions: 1000,
   max_iterations: 1000,
   max_actions_per_iteration: null,
@@ -23,6 +25,9 @@ const initialState: ConfigType = {
   sa_solution_order: "random",
   sa_temperature: null,
   sa_cooling_rate: null,
+  action_variation_selection:
+    ActionVariationSelection.RandomMaxVariantsPerAction,
+  cost_type: CostType.AvgWtPtPerTaskInstance,
 };
 
 export const optimosConfigSlice = createSlice({

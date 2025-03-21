@@ -91,12 +91,14 @@ export type ConfigType = {
   iterations_per_solution: number | null;
   max_actions_per_iteration: number | null;
   max_number_of_variations_per_action: number | null;
+  action_variation_selection: ActionVariationSelection;
   sa_temperature: number | null;
   sa_cooling_rate: number | null;
   sa_solution_order: ("random" | "greedy") | null;
   approach: LegacyApproachAbbreviation | null;
   agent: AgentType;
   mode: Mode;
+  cost_type: CostType;
 };
 export type Resource = {
   id: string;
@@ -170,10 +172,10 @@ export type ParallelTaskProbability = {
   probability: number;
 };
 export type TimePeriodWithParallelTaskProbability = {
-  from_: DAY;
+  from: DAY;
   to: DAY;
-  begin_time: string;
-  end_time: string;
+  beginTime: string;
+  endTime: string;
   multitask_info?: ParallelTaskProbability[] | null;
 };
 export type MultitaskResourceInfo = {
@@ -370,6 +372,14 @@ export type JsonReport = {
 export type CancelResponse = {
   message: string;
 };
+export enum ActionVariationSelection {
+  SingleRandom = "single_random",
+  FirstInOrder = "first_in_order",
+  FirstMaxVariantsPerActionInOrder = "first_max_variants_per_action_in_order",
+  RandomMaxVariantsPerAction = "random_max_variants_per_action",
+  AllRandom = "all_random",
+  AllInOrder = "all_in_order",
+}
 export enum LegacyApproachAbbreviation {
   Co = "CO",
   Ca = "CA",
@@ -388,6 +398,13 @@ export enum AgentType {
 export enum Mode {
   Batching = "batching",
   Calendar = "calendar",
+}
+export enum CostType {
+  TotalCost = "total_cost",
+  ResourceCost = "resource_cost",
+  FixedCost = "fixed_cost",
+  WtPt = "wt_pt",
+  AvgWtPtPerTaskInstance = "avg_wt_pt_per_task_instance",
 }
 export enum DISTRIBUTION_TYPE {
   Fix = "fix",
@@ -421,11 +438,11 @@ export enum RULE_TYPE {
   Size = "size",
 }
 export enum COMPARATOR {
-  $ = "<",
-  $ = "<=",
-  $ = ">",
-  $ = ">=",
-  $ = "=",
+  "<",
+  "<=",
+  ">",
+  ">=",
+  "=",
 }
 export const {
   useStartOptimizationStartOptimizationPostMutation,
