@@ -1,6 +1,8 @@
 import io
 import os
+import sys
 import traceback
+from typing import Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -14,13 +16,68 @@ from tensorboard.backend.event_processing.event_accumulator import (
 )
 from tensorflow.python.framework import tensor_util
 
+human_metric_names = {
+    "front/size": "Pareto Front Size",
+    "global/solutions_tried": "Explored Solutions",
+    "base_solutions": "Potential New Base Solutions",  # Combined metric for Tabu and SA.
+    "front/avg_cycle_time": "Average Cycle Time",
+    "front/min_cycle_time": "Min Cycle Time",
+    "current_base/average_batch_size": "Average Batch Size",
+    "global/iteration": "Iteration Number",
+    "time per step": "Time per Step",  # NEW metric
+    "Total Optimization Time": "Total Optimization Time",  # NEW column in summary table
+}
 
-# -----------------------------------------------------------------------------
-# 1. Data Extraction and Augmentation
-# -----------------------------------------------------------------------------
+metric_explanations = {
+    "Pareto Front Size": "Number of solutions in the current Pareto Front.",
+    "Steps": "Number of steps. Each step is a single mutation and simulation of a solution.",
+    "Explored Solutions": "Total number of solutions for which all neighbors have been explored.",
+    "Potential New Base Solutions": (
+        "Potential new base solution within a small error radius for Tabu Search "
+        "or within the temperature radius for Simulated Annealing."
+    ),
+    "Average Cycle Time": (
+        "Average cycle time (from first enablement to the end of last activity) "
+        "of all solutions in the current Pareto Front."
+    ),
+    "Min Cycle Time": "Minimum cycle time among all solutions in the current Pareto Front.",
+    "Iteration Number": (
+        "In one iteration, multiple mutations are performed. Depending on the agent, the solutions "
+        "will be treated differently. Note that the number of solutions per iteration is not the same for all agents."
+    ),
+    "Average Batch Size": "Average number of tasks per batch (with a non batched task having a batch size of 1).",
+    "Time per Step": "Average wall time per simulation step computed from differences between consecutive steps.",
+    "Total Optimization Time": "Total wall clock time from the first to the last iteration (in minutes) ",
+}
+
+# Update the lists of metrics for plotting and summary.
+report_metrics = [
+    "front/size",
+    "global/solutions_tried",
+    "base_solutions",  # Combined metric for Tabu and SA.
+    "front/avg_cycle_time",
+    "front/min_cycle_time",
+    "current_base/average_batch_size",
+    "global/iteration",
+    "time per step",  # NEW metric to be plotted
+]
+
+# For summary tables, drop "front/size" (it comes from the analyzer stats) but include the new metric.
+summary_metrics = [
+    "global/solutions_tried",
+    "base_solutions",
+    "front/avg_cycle_time",
+    "front/min_cycle_time",
+    "current_base/average_batch_size",
+    "global/iteration",
+    "time per step",  # NEW metric to be included in the summary table
+]
+
+
 def tflog2pandas(path: str) -> pd.DataFrame:
-    """Convert a single TensorBoard log file to a pandas DataFrame,
-    adding a 'time per step' metric computed from global/iteration events.
+    """Convert a single TensorBoard log file to a pandas DataFrame.
+
+    Adding a 'time per step' metric computed from global/iteration events.
 
     The function loads each tensor event (including its wall_time), and then
     computes the per-step time (using differences) for the 'global/iteration' metric.
@@ -64,9 +121,10 @@ def tflog2pandas(path: str) -> pd.DataFrame:
     return runlog_data
 
 
-def parse_folder_name(folder_name: str):
-    """
-    Parse a folder name such as:
+def parse_folder_name(folder_name: str) -> tuple[str, str, str, Optional[str]]:
+    """Parse a folder name.
+
+    Such as
       proximal_policy_optimization_bpi_challenge_2012_hard_2025-03-12T16:41:59.084145
     into:
       Agent  = "Proximal Policy Optimization" or "Proximal Policy Optimization Random"
@@ -167,82 +225,10 @@ def load_all_event_data(root_dir: str) -> pd.DataFrame:
         return pd.DataFrame()
 
 
-import os
-import traceback
-import pandas as pd
-import matplotlib.pyplot as plt
-import numpy as np
-import io
-from PIL import Image
+def custom_format_number(cell: str) -> str:
+    """Try to convert a string to a float and format it.
 
-# -----------------------------------------------------------------------------
-# 1. Human Readable Metric Names and Explanations
-# -----------------------------------------------------------------------------
-human_metric_names = {
-    "front/size": "Pareto Front Size",
-    "global/solutions_tried": "Explored Solutions",
-    "base_solutions": "Potential New Base Solutions",  # Combined metric for Tabu and SA.
-    "front/avg_cycle_time": "Average Cycle Time",
-    "front/min_cycle_time": "Min Cycle Time",
-    "current_base/average_batch_size": "Average Batch Size",
-    "global/iteration": "Iteration Number",
-    "time per step": "Time per Step",  # NEW metric
-    "Total Optimization Time": "Total Optimization Time",  # NEW column in summary table
-}
-
-metric_explanations = {
-    "Pareto Front Size": "Number of solutions in the current Pareto Front.",
-    "Steps": "Number of steps. Each step is a single mutation and simulation of a solution.",
-    "Explored Solutions": "Total number of solutions for which all neighbors have been explored.",
-    "Potential New Base Solutions": (
-        "Potential new base solution within a small error radius for Tabu Search "
-        "or within the temperature radius for Simulated Annealing."
-    ),
-    "Average Cycle Time": (
-        "Average cycle time (from first enablement to the end of last activity) "
-        "of all solutions in the current Pareto Front."
-    ),
-    "Min Cycle Time": "Minimum cycle time among all solutions in the current Pareto Front.",
-    "Iteration Number": (
-        "In one iteration, multiple mutations are performed. Depending on the agent, the solutions "
-        "will be treated differently. Note that the number of solutions per iteration is not the same for all agents."
-    ),
-    "Average Batch Size": "Average number of tasks per batch (with a non batched task having a batch size of 1).",
-    "Time per Step": "Average wall time per simulation step computed from differences between consecutive steps.",
-    "Total Optimization Time": "Total wall clock time from the first to the last iteration (in minutes) ",
-}
-
-# Update the lists of metrics for plotting and summary.
-report_metrics = [
-    "front/size",
-    "global/solutions_tried",
-    "base_solutions",  # Combined metric for Tabu and SA.
-    "front/avg_cycle_time",
-    "front/min_cycle_time",
-    "current_base/average_batch_size",
-    "global/iteration",
-    "time per step",  # NEW metric to be plotted
-]
-
-# For summary tables, drop "front/size" (it comes from the analyzer stats) but include the new metric.
-summary_metrics = [
-    "global/solutions_tried",
-    "base_solutions",
-    "front/avg_cycle_time",
-    "front/min_cycle_time",
-    "current_base/average_batch_size",
-    "global/iteration",
-    "time per step",  # NEW metric to be included in the summary table
-]
-
-
-# -----------------------------------------------------------------------------
-# 2. Custom Number Formatting
-# -----------------------------------------------------------------------------
-def custom_format_number(cell):
-    """
-    Try to convert a string to a float and format it with two decimals,
-    using '.' as thousands separator and ',' as decimal separator.
+    Using two decimals, using '.' as thousands separator and ',' as decimal separator.
     If conversion fails, return the original string.
     """
     try:
@@ -263,10 +249,11 @@ def custom_format_number(cell):
 log_scale_metrics = ["base_solutions", "current_base/average_batch_size"]
 
 
-# -----------------------------------------------------------------------------
-# 3. Plot Generation with Fixed Figure Size (with caching, smoothing, and log scale)
-# -----------------------------------------------------------------------------
-def generate_plots(df: pd.DataFrame, output_dir: str, agent_colors: dict):
+def generate_plots(df: pd.DataFrame, output_dir: str, agent_colors: dict) -> dict:
+    """Generate plots for each (Model, Mode) and each metric.
+
+    Returns a dictionary mapping (model, mode, metric) to the file path of the plot.
+    """
     plot_files = {}
     models = df["Model"].unique()
     for model in models:
@@ -324,13 +311,10 @@ def generate_plots(df: pd.DataFrame, output_dir: str, agent_colors: dict):
     return plot_files
 
 
-# -----------------------------------------------------------------------------
-# 4. Save Pareto Front Images (with caching and progress prints)
-# -----------------------------------------------------------------------------
 def save_pareto_front_images(df: pd.DataFrame, output_dir: str) -> dict:
-    """
-    For each (Model, Mode) and each agent, find the last 'pareto_front' event,
-    extract the PNG image bytes (skipping the first two entries),
+    """For each (Model, Mode) and each agent, find the last 'pareto_front' event.
+
+    Extract the PNG image bytes (skipping the first two entries),
     and save the image as a PNG file if it doesn't already exist.
     """
     images = {}
@@ -361,13 +345,10 @@ def save_pareto_front_images(df: pd.DataFrame, output_dir: str) -> dict:
     return images
 
 
-# -----------------------------------------------------------------------------
-# 5. Summary Table Generation (Excluding Pareto Front Size, with Steps & Total Time)
-# -----------------------------------------------------------------------------
 def generate_summary_tables(df: pd.DataFrame) -> dict:
-    """
-    For each (Model, Mode) group, compute a summary table (rows: agents, columns: metrics)
-    with the last (highest step) value for each metric (excluding Pareto Front Size).
+    """For each (Model, Mode) group, compute a summary table (rows: agents, columns: metrics).
+
+    With the last (highest step) value for each metric (excluding Pareto Front Size).
     For the combined metric "base_solutions", data from both underlying metrics is concatenated.
     Also adds a column "Steps" (number of steps from the first to last iteration) and
     "Total Optimization Time" (formatted in hours and minutes with total step count).
@@ -425,8 +406,8 @@ def generate_summary_tables(df: pd.DataFrame) -> dict:
 # 6. Parsing the Analyzer Report (.ssv)
 # -----------------------------------------------------------------------------
 def parse_analyzer_report(file_path: str) -> dict:
-    """
-    Parses an analyzer report file (semicolon-separated) that contains advanced stats.
+    """Parse an analyzer report file (semicolon-separated) that contains advanced stats.
+
     The file is divided into sections per model (denoted by lines starting with "Sheet:").
     Returns a dictionary mapping model names to a list of groups.
     Each group is a tuple: (group_title, header_row, data_rows)
@@ -499,8 +480,9 @@ def parse_analyzer_report(file_path: str) -> dict:
 # -----------------------------------------------------------------------------
 # 7. Table Formatter with Header Override
 # -----------------------------------------------------------------------------
-def format_markdown_table(header, rows):
-    """
+def format_markdown_table(header: Optional[list[str]], rows: list[list[str]]) -> str:
+    """Get a string representing a Markdown table.
+
     Given an optional header (list of strings) and rows (list of lists of strings),
     returns a string representing a Markdown table.
     It removes an empty first column (if present) from both header and rows,
@@ -536,10 +518,14 @@ def format_markdown_table(header, rows):
 # -----------------------------------------------------------------------------
 # New Function: Create Composite Plot for Metrics
 # -----------------------------------------------------------------------------
-def create_composite_plot(model, mode, plot_files, composite_dir):
-    """
-    Combine all individual metric plots (for metrics in report_metrics) for a given model and mode
-    into one composite image (stacked vertically). Returns the composite image path and the list of metrics included.
+def create_composite_plot(
+    model: str, mode: str, plot_files: dict, composite_dir: str
+) -> tuple[Optional[str], list[str]]:
+    """Combine all individual metric plots.
+
+    For metrics in report_metrics for a given model and mode,
+    into one composite image (stacked vertically).
+    Returns the composite image path and the list of metrics included.
     """
     images = []
     metrics_present = []
@@ -569,13 +555,15 @@ def create_composite_plot(model, mode, plot_files, composite_dir):
     return composite_path, metrics_present
 
 
-def create_composite_plot_grid(model, mode, plot_files, composite_dir, cell_default_size=(600, 400)):
-    """
-    Combine individual metric plots for a given model and mode into one composite image arranged in a 3x3 grid.
+def create_composite_plot_grid(
+    model: str, mode: str, plot_files: dict, composite_dir: str, cell_default_size=(600, 400)
+) -> tuple[Optional[str], list[str]]:
+    """Combine individual metric plots for a given model and mode into one composite image arranged in a 3x3 grid.
+
     For any metric not available, a blank image (of default size) is used.
     Since report_metrics contains 8 items, the bottom-right cell (9th cell) remains blank.
 
-    Returns:
+    Returns,
       composite_path: The file path of the saved composite image.
       metrics_used: The list of metric keys in the order of the grid.
     """
@@ -627,16 +615,22 @@ def create_composite_plot_grid(model, mode, plot_files, composite_dir, cell_defa
 
 
 def create_composite_pareto_grid(
-    model, mode, pareto_images, composite_dir, grid_size=(3, 2), cell_default_size=(600, 400), title_height=40
-):
-    """
-    Combine Pareto Front images for a given model and mode into one composite image arranged in a grid.
+    model: str,
+    mode: str,
+    pareto_images: dict,
+    composite_dir: str,
+    grid_size: tuple[int, int] = (3, 2),
+    cell_default_size: tuple[int, int] = (600, 400),
+    title_height: int = 40,
+) -> tuple[Optional[str], list[str]]:
+    """Combine Pareto Front images for a given model and mode into one composite image arranged in a grid.
+
     Each cell will display a title (the agent name) at the top, then the corresponding Pareto image.
     The grid size is fixed (default 3 columns x 2 rows = 6 cells).
 
     If an agent's image is missing, a blank cell with the title "No image" is used.
 
-    Returns:
+    Returns,
       composite_path: The file path of the saved composite image.
       agents_in_grid: A list (of length equal to grid cells) of agent names (or None for blank cells).
     """
@@ -712,7 +706,7 @@ def generate_markdown_report(
     analyzer_stats: dict,
     composite_dir: str,
     output_md: str,
-):
+) -> None:
     """Generate a compact Markdown report.
 
     With the following sections:
@@ -725,9 +719,6 @@ def generate_markdown_report(
             - A Summary Table (##### Summary Table (Final Values)).
             - A Pareto Front Images section (##### Pareto Front Images) with an HTML table.
     """
-
-    import os
-
     md_lines = []
 
     models = sorted({key[0] for key in plot_files.keys()})
@@ -766,7 +757,7 @@ def generate_markdown_report(
         "Note that one simulation (or 'Solution') corresponds to one step on the x-axis.\n"
     )
     md_lines.append("<ul>")
-    for orig_metric, human_name in human_metric_names.items():
+    for _, human_name in human_metric_names.items():
         explanation = metric_explanations[human_name]
         md_lines.append(f"<li><strong>{human_name}:</strong> {explanation}</li>")
     md_lines.append("</ul>\n")
@@ -857,10 +848,7 @@ def generate_markdown_report(
         f.write("\n".join(md_lines))
 
 
-# -----------------------------------------------------------------------------
-# 9. Main Routine (with progress prints)
-# -----------------------------------------------------------------------------
-def main():
+if __name__ == "__main__":
     print("Loading event data...")
     root_dir = "events/"
     output_dir = "report_outputs"
@@ -875,7 +863,7 @@ def main():
     df = load_all_event_data(root_dir)
     if df.empty:
         print("No event data found. Check your root_dir!")
-        return
+        sys.exit(1)
 
     print("Defining color mapping for agents...")
     agents = sorted(df["Agent"].unique())
@@ -901,7 +889,3 @@ def main():
         plot_files, summary_tables, pareto_images, analyzer_stats, composite_dir, output_md
     )
     print("Report generated:", output_md)
-
-
-if __name__ == "__main__":
-    main()
