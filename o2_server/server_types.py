@@ -4,7 +4,7 @@ from typing_extensions import TypedDict
 
 from o2.models.constraints import ConstraintsType
 from o2.models.legacy_approach import LegacyApproachAbbreviation
-from o2.models.settings import AgentType
+from o2.models.settings import ActionVariationSelection, AgentType, CostType
 from o2.models.timetable import TimetableType
 
 
@@ -19,12 +19,14 @@ class ConfigType(TypedDict):
     iterations_per_solution: Optional[int]
     max_actions_per_iteration: Optional[int]
     max_number_of_variations_per_action: Optional[int]
+    action_variation_selection: ActionVariationSelection
     sa_temperature: Optional[float]
     sa_cooling_rate: Optional[float]
     sa_solution_order: Optional[Literal["random", "greedy"]]
     approach: Optional[LegacyApproachAbbreviation]
     agent: AgentType
     mode: Literal["batching", "calendar"]
+    cost_type: CostType
 
 
 class ProcessingRequest(TypedDict):

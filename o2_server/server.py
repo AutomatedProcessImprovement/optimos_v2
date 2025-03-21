@@ -189,8 +189,11 @@ def save_mapping(id: str, path: str) -> None:
         json.dump(current, f)
 
 
-def get_mapping(id: str) -> str:
+def get_mapping(id: str) -> str | None:
     """Retrieve the path from the mappings."""
+    if not os.path.exists(MAPPING_FILE):
+        return None
+
     with file_lock, open(MAPPING_FILE) as f:
         current = json.load(f)
         return current.get(id, None)
