@@ -87,10 +87,13 @@ export type ConfigType = {
   num_cases: number;
   max_non_improving_actions: number;
   max_iterations: number;
+  max_solutions: number | null;
+  iterations_per_solution: number | null;
   max_actions_per_iteration: number | null;
+  max_number_of_variations_per_action: number | null;
   approach: string;
   agent: AgentType;
-  disable_batch_optimization: boolean;
+  mode: Mode;
 };
 export type Resource = {
   id: string;
@@ -104,6 +107,7 @@ export type ResourcePool = {
   id: string;
   name: string;
   resource_list: Resource[];
+  fixed_cost_fn?: string;
 };
 export type DistributionParameter = {
   value: number | number;
@@ -113,10 +117,11 @@ export type ArrivalTimeDistribution = {
   distribution_params: DistributionParameter[];
 };
 export type TimePeriod = {
-  from: DAY;
+  from_: DAY;
   to: DAY;
-  beginTime: string;
-  endTime: string;
+  begin_time: string;
+  end_time: string;
+  probability?: number | null;
 };
 export type Probability = {
   path_id: string;
@@ -139,8 +144,8 @@ export type ResourceCalendar = {
   id: string;
   name: string;
   time_periods: TimePeriod[];
+  workload_ratio?: TimePeriod[] | null;
 };
-export type EventDistribution = {};
 export type Distribution = {
   key: string | number;
   value: number;
@@ -157,6 +162,31 @@ export type BatchingRule = {
   duration_distrib: Distribution[];
   firing_rules: FiringRule[][];
 };
+export type ParallelTaskProbability = {
+  parallel_tasks: number;
+  probability: number;
+};
+export type TimePeriodWithParallelTaskProbability = {
+  from_: DAY;
+  to: DAY;
+  begin_time: string;
+  end_time: string;
+  multitask_info?: ParallelTaskProbability[] | null;
+};
+export type MultitaskResourceInfo = {
+  resource_id: string;
+  r_workload: number;
+  multitask_info?: ParallelTaskProbability[] | null;
+  weekly_probability?: TimePeriodWithParallelTaskProbability[][] | null;
+};
+export type Multitask = {
+  type: string;
+  values: MultitaskResourceInfo[];
+};
+export type GranuleSize = {
+  value?: number;
+  time_unit?: "MINUTES";
+};
 export type TimetableType = {
   resource_profiles: ResourcePool[];
   arrival_time_distribution: ArrivalTimeDistribution;
@@ -164,10 +194,17 @@ export type TimetableType = {
   gateway_branching_probabilities: GatewayBranchingProbability[];
   task_resource_distribution: TaskResourceDistributions[];
   resource_calendars: ResourceCalendar[];
-  event_distribution: EventDistribution;
   batch_processing?: BatchingRule[];
   start_time?: string;
   total_cases?: number;
+  multitask?: Multitask | null;
+  model_type?: ("FUZZY" | "CRISP") | null;
+  granule_size?: GranuleSize | null;
+  event_distribution?: object[] | null;
+  global_attributes?: object[] | null;
+  case_attributes?: object[] | null;
+  event_attributes?: object[] | null;
+  branch_rules?: object[] | null;
 };
 export type SizeRuleConstraints = {
   id: string;
@@ -175,8 +212,9 @@ export type SizeRuleConstraints = {
   batch_type: BATCH_TYPE;
   rule_type: RULE_TYPE;
   duration_fn: string;
-  min_size: number;
-  max_size: number;
+  cost_fn: string;
+  min_size: number | null;
+  max_size: number | null;
 };
 export type ReadyWtRuleConstraints = {
   id: string;
@@ -191,8 +229,8 @@ export type LargeWtRuleConstraints = {
   tasks: string[];
   batch_type: BATCH_TYPE;
   rule_type: RULE_TYPE;
-  min_wt: number;
-  max_wt: number;
+  min_wt: number | null;
+  max_wt: number | null;
 };
 export type WeekDayRuleConstraints = {
   id: string;
@@ -206,7 +244,9 @@ export type DailyHourRuleConstraints = {
   tasks: string[];
   batch_type: BATCH_TYPE;
   rule_type: RULE_TYPE;
-  allowed_hours: number[];
+  allowed_hours: {
+    [key: string]: number[];
+  };
 };
 export type GlobalConstraints = {
   max_weekly_cap: number;
@@ -331,10 +371,17 @@ export enum AgentType {
   TabuSearch = "tabu_search",
   SimulatedAnnealing = "simulated_annealing",
   ProximalPolicyOptimization = "proximal_policy_optimization",
+  TabuSearchRandom = "tabu_search_random",
+  SimulatedAnnealingRandom = "simulated_annealing_random",
+  ProximalPolicyOptimizationRandom = "proximal_policy_optimization_random",
+}
+export enum Mode {
+  Batching = "batching",
+  Calendar = "calendar",
 }
 export enum DISTRIBUTION_TYPE {
   Fix = "fix",
-  Default = "default",
+  Uniform = "uniform",
   Norm = "norm",
   Expon = "expon",
   Exponnorm = "exponnorm",
