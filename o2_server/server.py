@@ -12,7 +12,7 @@ from typing_extensions import TypedDict
 
 from o2.models.json_report import JSONReport
 from o2_server.optimos_service import OptimosService
-from o2_server.types import ProcessingRequest
+from o2_server.server_types import ProcessingRequest
 
 tags_metadata = [
     {

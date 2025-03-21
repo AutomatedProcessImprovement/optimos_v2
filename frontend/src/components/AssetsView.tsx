@@ -10,7 +10,7 @@ import {
   Text,
 } from "@mantine/core";
 import { Dropzone, DropzoneProps, IMAGE_MIME_TYPE } from "@mantine/dropzone";
-import { Description } from "@mui/icons-material";
+
 import {
   IconUpload,
   IconX,

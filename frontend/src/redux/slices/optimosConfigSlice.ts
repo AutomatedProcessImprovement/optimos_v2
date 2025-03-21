@@ -1,17 +1,28 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { AgentType, ConfigType } from "./optimosApi";
+import {
+  AgentType,
+  ConfigType,
+  LegacyApproachAbbreviation,
+  Mode,
+} from "./optimosApi";
 import { PURGE } from "redux-persist";
 import { updateByMasterForm } from "./assetsSlice";
 
 const initialState: ConfigType = {
   scenario_name: "My first scenario",
   num_cases: 100,
-  approach: "CAAR",
+  approach: LegacyApproachAbbreviation.Ba,
   max_non_improving_actions: 1000,
   max_iterations: 1000,
   max_actions_per_iteration: null,
-  agent: AgentType.TabuSearch,
-  disable_batch_optimization: true,
+  agent: AgentType.SimulatedAnnealing,
+  mode: Mode.Batching,
+  max_solutions: null,
+  iterations_per_solution: null,
+  max_number_of_variations_per_action: null,
+  sa_solution_order: "random",
+  sa_temperature: null,
+  sa_cooling_rate: null,
 };
 
 export const optimosConfigSlice = createSlice({

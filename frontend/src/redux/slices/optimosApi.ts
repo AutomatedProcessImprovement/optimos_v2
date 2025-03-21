@@ -91,7 +91,10 @@ export type ConfigType = {
   iterations_per_solution: number | null;
   max_actions_per_iteration: number | null;
   max_number_of_variations_per_action: number | null;
-  approach: string;
+  sa_temperature: number | null;
+  sa_cooling_rate: number | null;
+  sa_solution_order: ("random" | "greedy") | null;
+  approach: LegacyApproachAbbreviation | null;
   agent: AgentType;
   mode: Mode;
 };
@@ -367,6 +370,13 @@ export type JsonReport = {
 export type CancelResponse = {
   message: string;
 };
+export enum LegacyApproachAbbreviation {
+  Co = "CO",
+  Ca = "CA",
+  Ar = "AR",
+  Caar = "CAAR",
+  Arca = "ARCA",
+}
 export enum AgentType {
   TabuSearch = "tabu_search",
   SimulatedAnnealing = "simulated_annealing",
@@ -411,11 +421,11 @@ export enum RULE_TYPE {
   Size = "size",
 }
 export enum COMPARATOR {
-  "<",
-  "<=",
-  ">",
-  ">=",
-  "=",
+  $ = "<",
+  $ = "<=",
+  $ = ">",
+  $ = ">=",
+  $ = "=",
 }
 export const {
   useStartOptimizationStartOptimizationPostMutation,

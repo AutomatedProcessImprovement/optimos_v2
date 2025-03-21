@@ -6,6 +6,8 @@ import {
   NumberInput,
   Select,
   Switch,
+  SegmentedControl,
+  Center,
 } from "@mantine/core";
 
 import {
@@ -16,7 +18,12 @@ import {
 import { MasterFormData } from "../hooks/useMasterFormData";
 import React from "react";
 import { useMasterForm, useMasterFormContext } from "../hooks/useFormContext";
-import { AgentType } from "../redux/slices/optimosApi";
+import {
+  AgentType,
+  LegacyApproachAbbreviation,
+  Mode,
+} from "../redux/slices/optimosApi";
+import { IconCalendarWeek, IconCategoryPlus } from "@tabler/icons-react";
 
 interface OptimosConfigProps {}
 
@@ -39,21 +46,60 @@ const OptimosConfig = (props: OptimosConfigProps) => {
             {...form.getInputProps("optimosConfig.scenario_name")}
           />
         </Grid.Col>
+        <Grid.Col span={12}>
+          <SegmentedControl
+            fullWidth
+            data={[
+              {
+                value: "batching",
+                label: (
+                  <Center style={{ gap: 10 }}>
+                    <IconCategoryPlus size={16} />
+                    <span>Batching Optimization</span>
+                  </Center>
+                ),
+              },
+              {
+                value: "calendar",
+                label: (
+                  <Center style={{ gap: 10 }}>
+                    <IconCalendarWeek size={16} />
+                    <span>Calendar Optimization</span>
+                  </Center>
+                ),
+              },
+            ]}
+            {...form.getInputProps("optimosConfig.mode")}
+          />
+        </Grid.Col>
+
         <Grid.Col span={{ sm: 12, md: 6 }}>
           <Select
             w="100%"
             label="Approach"
-            data={[
-              { value: "CA", label: "CA | Calendar Only" },
-              { value: "AR", label: "AR | Add/Remove Only" },
-              { value: "CO", label: "CO | CA/AR combined" },
-              { value: "CAAR", label: "CAAR | First CA then AR" },
-              { value: "ARCA", label: "ARCA | First AR then CA" },
-            ]}
+            placeholder="No approach for batch optimization"
+            data={
+              form.values?.optimosConfig?.mode === "calendar"
+                ? [
+                    { value: "CA", label: "CA | Calendar Only" },
+                    { value: "AR", label: "AR | Add/Remove Only" },
+                    { value: "CO", label: "CO | CA/AR combined" },
+                    { value: "CAAR", label: "CAAR | First CA then AR" },
+                    { value: "ARCA", label: "ARCA | First AR then CA" },
+                  ]
+                : []
+            }
+            disabled={form.values?.optimosConfig?.mode === Mode.Batching}
             withAsterisk
             {...form.getInputProps("optimosConfig.approach")}
+            value={
+              form.values?.optimosConfig?.mode === Mode.Batching
+                ? null
+                : form.values?.optimosConfig?.approach
+            }
           />
         </Grid.Col>
+
         <Grid.Col span={{ sm: 12, md: 6 }}>
           <Select
             w="100%"
@@ -65,6 +111,18 @@ const OptimosConfig = (props: OptimosConfigProps) => {
                 label: "Simulated Annealing",
               },
               { value: AgentType.ProximalPolicyOptimization, label: "PPO" },
+              {
+                value: AgentType.TabuSearchRandom,
+                label: "Tabu Search Random",
+              },
+              {
+                value: AgentType.SimulatedAnnealingRandom,
+                label: "Simulated Annealing Random",
+              },
+              {
+                value: AgentType.ProximalPolicyOptimizationRandom,
+                label: "PPO Random",
+              },
             ]}
             withAsterisk
             {...form.getInputProps("optimosConfig.agent")}
@@ -80,6 +138,7 @@ const OptimosConfig = (props: OptimosConfigProps) => {
             {...form.getInputProps("optimosConfig.num_cases")}
           />
         </Grid.Col>
+
         <Grid.Col span={{ sm: 12, md: 6 }}>
           <NumberInput
             label="Max. actions per iteration"
@@ -88,6 +147,72 @@ const OptimosConfig = (props: OptimosConfigProps) => {
             step={1}
             w="100%"
             {...form.getInputProps("optimosConfig.max_actions_per_iteration")}
+          />
+        </Grid.Col>
+
+        <Grid.Col span={{ sm: 12, md: 6 }}>
+          <NumberInput
+            label="Max. number of variations per action"
+            placeholder="auto"
+            min={1}
+            step={1}
+            w="100%"
+            {...form.getInputProps(
+              "optimosConfig.max_number_of_variations_per_action"
+            )}
+          />
+        </Grid.Col>
+
+        {form.values?.optimosConfig?.agent === AgentType.SimulatedAnnealing && (
+          <Grid.Col span={{ sm: 12, md: 6 }}>
+            <Text fw={500} size="sm">
+              Simulated Annealing: Solution Order
+            </Text>
+            <SegmentedControl
+              data={[
+                { value: "random", label: "Random" },
+                { value: "greedy", label: "Greedy" },
+              ]}
+              fullWidth
+              {...form.getInputProps("optimosConfig.sa_solution_order")}
+            />
+          </Grid.Col>
+        )}
+
+        {form.values?.optimosConfig?.agent === AgentType.SimulatedAnnealing && (
+          <Grid.Col span={{ sm: 12, md: 6 }}>
+            <NumberInput
+              label="Simulated Annealing: Initial Temperature"
+              placeholder="auto"
+              min={1}
+              step={1}
+              w="100%"
+              {...form.getInputProps("optimosConfig.sa_temperature")}
+            />
+          </Grid.Col>
+        )}
+
+        {form.values?.optimosConfig?.agent === AgentType.SimulatedAnnealing && (
+          <Grid.Col span={{ sm: 12, md: 6 }}>
+            <NumberInput
+              label="Simulated Annealing: Cooling rate"
+              placeholder="auto"
+              min={1}
+              step={1}
+              w="100%"
+              {...form.getInputProps("optimosConfig.sa_cooling_rate")}
+            />
+          </Grid.Col>
+        )}
+
+        <Grid.Col span={{ sm: 12, md: 6 }}>
+          <NumberInput
+            label="Max. number of solutions"
+            placeholder="auto"
+            min={1}
+            step={1}
+            w="100%"
+            {...form.getInputProps("optimosConfig.max_solutions")}
           />
         </Grid.Col>
 
@@ -109,18 +234,6 @@ const OptimosConfig = (props: OptimosConfigProps) => {
             withAsterisk
             w="100%"
             {...form.getInputProps("optimosConfig.max_iterations")}
-          />
-        </Grid.Col>
-
-        <Grid.Col span={{ sm: 12, md: 12 }}>
-          <Switch
-            size="md"
-            onLabel="OFF"
-            offLabel="ON"
-            label="Disable batching optimization"
-            {...form.getInputProps("optimosConfig.disable_batch_optimization", {
-              type: "checkbox",
-            })}
           />
         </Grid.Col>
       </Grid>

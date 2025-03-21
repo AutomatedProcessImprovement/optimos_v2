@@ -5,6 +5,16 @@ if TYPE_CHECKING:
     from o2.actions.base_actions.base_action import BaseAction
 
 
+class LegacyApproachAbbreviation(str, Enum):
+    """The abbreviations of the legacy combined mode."""
+
+    COMBINED = "CO"
+    CALENDAR_ONLY = "CA"
+    RESOURCES_ONLY = "AR"
+    CALENDAR_FIRST = "CAAR"
+    RESOURCES_FIRST = "ARCA"
+
+
 class LegacyApproach(str, Enum):
     """The status of the legacy combined mode.
 
@@ -30,7 +40,7 @@ class LegacyApproach(str, Enum):
         return self == LegacyApproach.CALENDAR_ONLY
 
     @staticmethod
-    def from_abbreviation(abbreviation: str) -> "LegacyApproach":
+    def from_abbreviation(abbreviation: str | LegacyApproachAbbreviation) -> "LegacyApproach":
         """Get the LegacyApproach from its abbreviation."""
         if abbreviation == "CAAR":
             return LegacyApproach.CALENDAR_FIRST
@@ -42,4 +52,5 @@ class LegacyApproach(str, Enum):
             return LegacyApproach.CALENDAR_ONLY
         if abbreviation == "AR":
             return LegacyApproach.RESOURCES_ONLY
+
         raise ValueError(f"Unknown abbreviation: {abbreviation}")

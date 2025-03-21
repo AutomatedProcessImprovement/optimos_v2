@@ -30,8 +30,6 @@ const getIcon = (type: AssetType) => {
   switch (type) {
     case AssetType.BPMN:
       return <IconFileDescription size={24} />;
-    case AssetType.OPTIMOS_CONFIG:
-      return <IconSettings size={24} />;
     case AssetType.OPTIMOS_CONSTRAINTS:
       return <IconTools size={24} />;
     case AssetType.TIMETABLE:
@@ -45,8 +43,6 @@ const getName = (type: AssetType) => {
   switch (type) {
     case AssetType.BPMN:
       return "BPMN";
-    case AssetType.OPTIMOS_CONFIG:
-      return "Optimos Config";
     case AssetType.OPTIMOS_CONSTRAINTS:
       return "Optimos Constraints";
     case AssetType.TIMETABLE:

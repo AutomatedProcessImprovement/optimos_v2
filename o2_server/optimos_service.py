@@ -12,7 +12,7 @@ from o2.models.settings import Settings
 from o2.models.state import State
 from o2.optimizer import Optimizer
 from o2.store import Store
-from o2_server.types import ProcessingRequest
+from o2_server.server_types import ProcessingRequest
 
 
 class OptimosService:
@@ -56,7 +56,7 @@ class OptimosService:
         # Keep one cpu core free for other processes (e.g. web request handling)
         Settings.MAX_THREADS_ACTION_EVALUATION = max(1, (os.cpu_count() or 1) - 1)
 
-        store.settings.optimos_legacy_mode = config["disable_batch_optimization"]
+        store.settings.optimos_legacy_mode = config["mode"] == "timetable"
 
         # We limit the number of actions to select to the number of threads
         store.settings.max_number_of_actions_per_iteration = min(

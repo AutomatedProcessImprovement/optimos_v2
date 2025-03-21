@@ -1,9 +1,9 @@
-from enum import Enum
-from typing import Optional
+from typing import Callable, Literal, Optional
 
 from typing_extensions import TypedDict
 
 from o2.models.constraints import ConstraintsType
+from o2.models.legacy_approach import LegacyApproachAbbreviation
 from o2.models.settings import AgentType
 from o2.models.timetable import TimetableType
 
@@ -15,10 +15,16 @@ class ConfigType(TypedDict):
     num_cases: int
     max_non_improving_actions: int
     max_iterations: int
+    max_solutions: Optional[int]
+    iterations_per_solution: Optional[int]
     max_actions_per_iteration: Optional[int]
-    approach: str
+    max_number_of_variations_per_action: Optional[int]
+    sa_temperature: Optional[float]
+    sa_cooling_rate: Optional[float]
+    sa_solution_order: Optional[Literal["random", "greedy"]]
+    approach: Optional[LegacyApproachAbbreviation]
     agent: AgentType
-    disable_batch_optimization: bool
+    mode: Literal["batching", "calendar"]
 
 
 class ProcessingRequest(TypedDict):
