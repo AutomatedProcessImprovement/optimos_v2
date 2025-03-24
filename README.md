@@ -10,32 +10,37 @@ This report includes data for the following **agents**, **models**, and **modes*
 
 ### Agents
 
-- Proximal Policy Optimization
-- Proximal Policy Optimization Random
-- Simulated Annealing
-- Simulated Annealing Random
-- Tabu Search
-- Tabu Search Random
+- **Proximal Policy Optimization (PPO):** Heurisic-Guided Reinforce Learning using Proximal Policy Optimization (Acronym in paper: RL+).
+- **Proximal Policy Optimization Random (PPO Random):** NON-Heuristic-Guided Reinforce Learning using standard Proximal Policy Optimization approach (Acronym in paper: RL-).
+- **Simulated Annealing (SA):** Heuristic-Guided Simulated Annealing (Acronym in paper: SA+).
+- **Simulated Annealing Random (SA Random):** NON-Heuristic-Guided Simulated Annealing (Acronym in paper: SA-).
+- **Tabu Search:** Heuristic-guided Hill-Climbing approach, accepting non-optimal solutions in a given radius (Acronym in paper: HC+).
+- **Tabu Search Random (Tabu Random):** NON-Heuristic-Guided Hill-Climbing, accepting non-optimal solutions in a given radius (Acronym in paper: HC-).
+
+### Reference Pareto Fronts
+
+- **Reference:** Corresponds to the reference Pareto front, built considering all the Pareto-optimal solutions among all the batching policies produced by any of the six agents described before (i.e., RL+, SA+, HC+, RL-, SA-, and HC-).
+- **Reference Optimos:** Corresponds to the reference Pareto front, built considering only the Pareto-optimal solutions among all the batching policies produced by any heuristic-guided approaches (i.e., RL+, SA+, and HC+). (Acronym in the paper ++).
+- **Reference Random:** Corresponds to the reference Pareto front, built considering only the Pareto-optimal solutions among all the batching policies produced by any non-heuristic-guided approach (i.e., RL-, SA-, and HC-). (Acronym in the paper --).
 
 ### Models
 
 - [Bpi Challenge 2012](#bpi-challenge-2012)
 - [Bpi Challenge 2017](#bpi-challenge-2017)
-- [Bpic2019 Das](#bpic2019-das)
+- [Bpi Challenge 2019](#bpic2019-das)
 - [Callcentre](#callcentre)
 - [Consulta Data Mining](#consulta-data-mining)
 - [Gov](#gov)
 - [Insurance](#insurance)
 - [Production](#production)
-- [Purchasing Example](#purchasing-example)
 - [Sepsis Das](#sepsis-das)
 - [Trafic Das](#trafic-das)
 
 ### Modes
 
-- Easy
-- Hard
-- Mid
+- Easy -> (i.e., Parallel batching execution) Activities in the batch are executed concurrently. Processing time is amortized across instances so that batch execution time equals the time of the longest individual activity duration in the batch.
+- Hard -> (i.e., Sequential batching execution) Activities in the batch are executed sequentially, i.e., each activity starts after the previous one is completed. The processing time of the batch is the cumulative sum of all the independent activities included.
+- Mid -> (i.e., Hybrdid batching execution) Balances parallel and sequential execution by scaling processing time under sequential execution by a 0.5 factor.
 
 ---
 
@@ -56,6 +61,8 @@ Below is an explanation of the metrics used in this report. Note that one simula
 </ul>
 
 ### Bpi Challenge 2012
+
+BP12 (Acronym in the paper) - It is a loan application process from a Dutch financial institution. This fragment contains only activities with defined start and end timestamps. Access Link: [BPI Challenge 2012](https://data.4tu.nl/articles/_/12689204/1).
 
 #### Analyzer Overview
 
@@ -302,6 +309,8 @@ Individual Pareto images:
 
 ### Bpi Challenge 2017
 
+BP17 (Acronym in the paper) - It is an updated iteration of the BPI-2012 log, but extracted in 2017. Access Link: [BPI 2017](https://data.4tu.nl/articles/_/12696884/1)
+
 #### Analyzer Overview
 
 ##### Pareto Size
@@ -547,6 +556,8 @@ Individual Pareto images:
 
 ### Bpic2019 Das
 
+BP19 (Acronym in the paper) - It comes from a Netherlands multinational coatings and paints company, describing the purchase order handling process for its 60 subsidiaries. Access Link: [BPI Challenge 2019](https://data.4tu.nl/articles/_/12715853/1)
+
 #### Analyzer Overview
 
 ##### Pareto Size
@@ -789,6 +800,8 @@ Individual Pareto images:
 ---
 
 ### Callcentre
+
+CALL (Acronym in the paper) - It comes from a call center process. This event log includes a high volume of cases with short duration (on average, two activities per case).
 
 #### Analyzer Overview
 
@@ -1035,6 +1048,8 @@ Individual Pareto images:
 
 ### Consulta Data Mining
 
+ACC (Acronym in the paper) - This business process, also known as academic credentials, is an anonymized log of an academic recognition process at a university. In this process, a worker performs one task at a time, but occasionally, a worker may take on a second or a third activity instance concurrently. This event log contains many resources with low participation in the process, meaning each resource performs only a handful of activity instances across the entire period covered by the event log.
+
 #### Analyzer Overview
 
 ##### Pareto Size
@@ -1280,6 +1295,8 @@ Individual Pareto images:
 
 ### Gov
 
+GOV (Acronym in the paper) corresponds to an application-to-approval process in a government agency. In this process, each worker handles multiple applications concurrently.
+
 #### Analyzer Overview
 
 ##### Pareto Size
@@ -1521,6 +1538,8 @@ Individual Pareto images:
 ---
 
 ### Insurance
+
+INS (Acronym in the paper) - It originates from an insurance claims process, holding a high number of traces.
 
 #### Analyzer Overview
 
@@ -1767,6 +1786,8 @@ Individual Pareto images:
 
 ### Production
 
+PRD (Acronym in the paper) corresponds to a manufacturing process extracted by an Enterprise Resource Planning (ERP) system, where tasks are individual steps or ‘‘stations’’ in the manufacturing workflow. [Access Link](https://data.4tu.nl/articles/_/12697997/1)
+
 #### Analyzer Overview
 
 ##### Pareto Size
@@ -2010,250 +2031,9 @@ Individual Pareto images:
 
 ---
 
-### Purchasing Example
-
-#### Analyzer Overview
-
-##### Pareto Size
-
-| Agent / Reference | Easy  | Mid   | Hard  |
-| ----------------- | ----- | ----- | ----- |
-| Reference         | 84,00 | 67,00 | 21,00 |
-| Reference Random  | 63,00 | 36,00 | 11,00 |
-| Reference Optimos | 84,00 | 61,00 | 30,00 |
-| SA                | 21,00 | 34,00 | 17,00 |
-| Tabu Search       | 62,00 | 60,00 | 23,00 |
-| PPO               | 41,00 | 31,00 | 9,00  |
-| Tabu Random       | 21,00 | 15,00 | 7,00  |
-| SA Random         | 19,00 | 21,00 | 5,00  |
-| PPO Random        | 55,00 | 33,00 | 11,00 |
-
-<br>
-
-##### Hyperarea Ratio
-
-| Agent / Reference | Easy | Mid  | Hard |
-| ----------------- | ---- | ---- | ---- |
-| Reference Random  | 0,95 | 0,98 | 1,00 |
-| Reference Optimos | 1,00 | 0,98 | 1,00 |
-| SA                | 0,82 | 0,98 | 1,00 |
-| Tabu Search       | 0,88 | 0,94 | 1,00 |
-| PPO               | 0,97 | 0,80 | 0,99 |
-| Tabu Random       | 0,81 | 0,80 | 1,00 |
-| SA Random         | 0,85 | 0,91 | 1,00 |
-| PPO Random        | 0,93 | 0,97 | 0,99 |
-
-<br>
-
-##### Hausdorff
-
-| Agent / Reference | Easy      | Mid       | Hard      |
-| ----------------- | --------- | --------- | --------- |
-| Reference Random  | 8.623,00  | 8.140,31  | 38.482,71 |
-| Reference Optimos | 1.182,97  | 8.972,15  | 1.701,43  |
-| SA                | 11.506,75 | 9.414,85  | 5.687,71  |
-| Tabu Search       | 16.494,34 | 10.951,91 | 2.928,72  |
-| PPO               | 3.640,81  | 9.523,58  | 32.184,80 |
-| Tabu Random       | 7.035,61  | 9.284,33  | 5.852,66  |
-| SA Random         | 6.729,42  | 10.447,49 | 70.349,14 |
-| PPO Random        | 8.762,85  | 9.982,97  | 22.409,18 |
-
-<br>
-
-##### Delta
-
-| Agent / Reference | Easy | Mid  | Hard |
-| ----------------- | ---- | ---- | ---- |
-| Reference Random  | 0,93 | 1,18 | 1,14 |
-| Reference Optimos | 1,40 | 1,00 | 0,82 |
-| SA                | 1,07 | 1,00 | 1,29 |
-| Tabu Search       | 0,99 | 0,97 | 0,85 |
-| PPO               | 1,06 | 0,97 | 0,98 |
-| Tabu Random       | 1,16 | 1,05 | 0,73 |
-| SA Random         | 1,08 | 1,11 | 0,98 |
-| PPO Random        | 0,94 | 1,05 | 1,06 |
-
-<br>
-
-##### Purity
-
-| Agent / Reference | Easy | Mid  | Hard |
-| ----------------- | ---- | ---- | ---- |
-| Reference Random  | 0,32 | 0,12 | 0,38 |
-| Reference Optimos | 0,68 | 0,88 | 0,62 |
-| SA                | 0,08 | 0,09 | 0,14 |
-| Tabu Search       | 0,42 | 0,81 | 0,48 |
-| PPO               | 0,19 | 0,01 | 0,00 |
-| Tabu Random       | 0,05 | 0,01 | 0,24 |
-| SA Random         | 0,04 | 0,10 | 0,10 |
-| PPO Random        | 0,26 | 0,04 | 0,05 |
-
-<br>
-
-##### Avg Cycle Time
-
-| Agent / Reference | Easy          | Mid           | Hard          |
-| ----------------- | ------------- | ------------- | ------------- |
-| Base              | 34.307.437,68 | 34.273.851,12 | 33.988.137,01 |
-| Reference         | 35.625.578,32 | 35.418.563,14 | 36.667.798,11 |
-| Reference Random  | 35.365.017,14 | 35.964.278,76 | 36.736.667,40 |
-| Reference Optimos | 35.408.186,90 | 35.325.624,35 | 36.352.271,30 |
-| SA                | 35.380.553,77 | 35.672.985,33 | 35.860.683,28 |
-| Tabu Search       | 34.868.499,42 | 35.263.349,91 | 36.583.744,60 |
-| PPO               | 36.007.578,64 | 35.828.438,13 | 35.644.030,25 |
-| Tabu Random       | 35.209.070,54 | 35.211.262,66 | 36.323.646,62 |
-| SA Random         | 35.666.977,63 | 35.342.877,92 | 37.434.647,90 |
-| PPO Random        | 35.369.977,71 | 36.650.868,87 | 35.462.892,97 |
-
-<br>
-
-##### Best Cycle Time
-
-| Agent / Reference | Easy          | Mid           | Hard          |
-| ----------------- | ------------- | ------------- | ------------- |
-| Base              | 34.307.437,68 | 34.273.851,12 | 33.988.137,01 |
-| Reference         | 33.668.470,79 | 33.819.249,21 | 34.723.728,97 |
-| Reference Random  | 34.226.981,05 | 34.291.066,42 | 34.723.728,97 |
-| Reference Optimos | 33.242.624,60 | 33.819.249,21 | 34.261.631,04 |
-| SA                | 33.668.470,79 | 33.791.557,40 | 33.988.137,01 |
-| Tabu Search       | 33.242.624,60 | 33.819.249,21 | 35.142.270,91 |
-| PPO               | 34.288.824,13 | 34.273.851,12 | 34.887.923,36 |
-| Tabu Random       | 33.668.470,79 | 34.076.614,29 | 33.988.137,01 |
-| SA Random         | 33.668.470,79 | 34.273.851,12 | 34.872.935,94 |
-| PPO Random        | 33.760.787,04 | 34.273.851,12 | 33.988.137,01 |
-
-<br>
-
-#### Easy
-
-##### Metric Plots
-
-![](composite_plots/Purchasing_Example_Easy_composite.png)
-
-Individual charts:
-
-- [Pareto Front Size](report_plots/Purchasing_Example_Easy_front_size.png)
-- [Explored Solutions](report_plots/Purchasing_Example_Easy_global_solutions_tried.png)
-- [Potential New Base Solutions](report_plots/Purchasing_Example_Easy_base_solutions.png)
-- [Average Cycle Time](report_plots/Purchasing_Example_Easy_front_avg_cycle_time.png)
-- [Min Cycle Time](report_plots/Purchasing_Example_Easy_front_min_cycle_time.png)
-- [Average Batch Size](report_plots/Purchasing_Example_Easy_current_base_average_batch_size.png)
-- [Iteration Number](report_plots/Purchasing_Example_Easy_global_iteration.png)
-- [Time per Step](report_plots/Purchasing_Example_Easy_time_per_step.png)
-
-##### Summary Table (Final Values)
-
-| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time      |
-| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :--------------------------- |
-| Proximal Policy Optimization        |  2421 |                  8 |                              |        3.58564e+07 |    3.34401e+07 |            2.11585 |             2430 |        19.487 | 714min<br/>(for 2421 Steps)  |
-| Proximal Policy Optimization Random |  2321 |                  6 |                              |        3.54005e+07 |    3.37608e+07 |            2.35095 |             2330 |       18.1589 | 716min<br/>(for 2321 Steps)  |
-| Simulated Annealing                 | 10008 |                231 |                          791 |        3.54894e+07 |     3.4329e+07 |            2.01172 |              493 |      0.226194 | 297min<br/>(for 10008 Steps) |
-| Simulated Annealing Random          |  1421 |                555 |                          106 |        3.55237e+07 |    3.36685e+07 |            3.26184 |              468 |       9.54707 | 291min<br/>(for 1421 Steps)  |
-| Tabu Search                         |  9201 |                100 |                         6024 |        3.49465e+07 |    3.32426e+07 |            2.00156 |              460 |     0.0010273 | 297min<br/>(for 9201 Steps)  |
-| Tabu Search Random                  |  2111 |                868 |                          395 |        3.54891e+07 |     3.4227e+07 |            2.11141 |              700 |       7.96246 | 298min<br/>(for 2111 Steps)  |
-
-##### Pareto Front Images
-
-![](composite_plots/Purchasing_Example_Easy_pareto_composite.png)
-
-Individual Pareto images:
-
-- [Proximal Policy Optimization](report_images/Purchasing_Example_Easy_Proximal_Policy_Optimization_pareto_front.png)
-- [Proximal Policy Optimization Random](report_images/Purchasing_Example_Easy_Proximal_Policy_Optimization_Random_pareto_front.png)
-- [Simulated Annealing](report_images/Purchasing_Example_Easy_Simulated_Annealing_pareto_front.png)
-- [Tabu Search](report_images/Purchasing_Example_Easy_Tabu_Search_pareto_front.png)
-- [Tabu Search Random](report_images/Purchasing_Example_Easy_Tabu_Search_Random_pareto_front.png)
-
----
-
-#### Hard
-
-##### Metric Plots
-
-![](composite_plots/Purchasing_Example_Hard_composite.png)
-
-Individual charts:
-
-- [Pareto Front Size](report_plots/Purchasing_Example_Hard_front_size.png)
-- [Explored Solutions](report_plots/Purchasing_Example_Hard_global_solutions_tried.png)
-- [Potential New Base Solutions](report_plots/Purchasing_Example_Hard_base_solutions.png)
-- [Average Cycle Time](report_plots/Purchasing_Example_Hard_front_avg_cycle_time.png)
-- [Min Cycle Time](report_plots/Purchasing_Example_Hard_front_min_cycle_time.png)
-- [Average Batch Size](report_plots/Purchasing_Example_Hard_current_base_average_batch_size.png)
-- [Iteration Number](report_plots/Purchasing_Example_Hard_global_iteration.png)
-- [Time per Step](report_plots/Purchasing_Example_Hard_time_per_step.png)
-
-##### Summary Table (Final Values)
-
-| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time     |
-| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :-------------------------- |
-| Proximal Policy Optimization        |  2657 |                 19 |                              |         3.5661e+07 |    3.48879e+07 |            2.14517 |             2667 |        11.759 | 620min<br/>(for 2657 Steps) |
-| Proximal Policy Optimization Random |  3091 |                 18 |                              |        3.55581e+07 |    3.47432e+07 |            2.31857 |             3100 |       10.7695 | 716min<br/>(for 3091 Steps) |
-| Simulated Annealing                 |  6901 |                162 |                         1696 |        3.60005e+07 |    3.39881e+07 |            2.10809 |              338 |       3.16321 | 298min<br/>(for 6901 Steps) |
-| Simulated Annealing Random          |  1258 |                541 |                            0 |        3.69597e+07 |    3.48729e+07 |            2.23595 |              414 |       6.03285 | 293min<br/>(for 1258 Steps) |
-| Tabu Search                         |  1451 |                 19 |                          110 |         3.6573e+07 |    3.49784e+07 |            3.11605 |               73 |   0.000914311 | 297min<br/>(for 1451 Steps) |
-| Tabu Search Random                  |   164 |                 50 |                            0 |        3.65412e+07 |    3.47237e+07 |            2.41566 |               52 |       7.24261 | 37min<br/>(for 164 Steps)   |
-
-##### Pareto Front Images
-
-![](composite_plots/Purchasing_Example_Hard_pareto_composite.png)
-
-Individual Pareto images:
-
-- [Proximal Policy Optimization](report_images/Purchasing_Example_Hard_Proximal_Policy_Optimization_pareto_front.png)
-- [Proximal Policy Optimization Random](report_images/Purchasing_Example_Hard_Proximal_Policy_Optimization_Random_pareto_front.png)
-- [Simulated Annealing](report_images/Purchasing_Example_Hard_Simulated_Annealing_pareto_front.png)
-- [Simulated Annealing Random](report_images/Purchasing_Example_Hard_Simulated_Annealing_Random_pareto_front.png)
-- [Tabu Search Random](report_images/Purchasing_Example_Hard_Tabu_Search_Random_pareto_front.png)
-
----
-
-#### Mid
-
-##### Metric Plots
-
-![](composite_plots/Purchasing_Example_Mid_composite.png)
-
-Individual charts:
-
-- [Pareto Front Size](report_plots/Purchasing_Example_Mid_front_size.png)
-- [Explored Solutions](report_plots/Purchasing_Example_Mid_global_solutions_tried.png)
-- [Potential New Base Solutions](report_plots/Purchasing_Example_Mid_base_solutions.png)
-- [Average Cycle Time](report_plots/Purchasing_Example_Mid_front_avg_cycle_time.png)
-- [Min Cycle Time](report_plots/Purchasing_Example_Mid_front_min_cycle_time.png)
-- [Average Batch Size](report_plots/Purchasing_Example_Mid_current_base_average_batch_size.png)
-- [Iteration Number](report_plots/Purchasing_Example_Mid_global_iteration.png)
-- [Time per Step](report_plots/Purchasing_Example_Mid_time_per_step.png)
-
-##### Summary Table (Final Values)
-
-| Agent                               | Steps | Explored Solutions | Potential New Base Solutions | Average Cycle Time | Min Cycle Time | Average Batch Size | Iteration Number | Time per Step | Total Optimization Time     |
-| :---------------------------------- | ----: | -----------------: | ---------------------------: | -----------------: | -------------: | -----------------: | ---------------: | ------------: | :-------------------------- |
-| Proximal Policy Optimization        |  3121 |                 17 |                              |        3.57782e+07 |    3.45443e+07 |            2.02787 |             3130 |       13.5479 | 716min<br/>(for 3121 Steps) |
-| Proximal Policy Optimization Random |  3121 |                 65 |                              |        3.66452e+07 |    3.46787e+07 |            2.11246 |             3130 |       10.9197 | 716min<br/>(for 3121 Steps) |
-| Simulated Annealing                 |  9998 |                217 |                         5387 |         3.5673e+07 |    3.37916e+07 |            2.00307 |              480 |      0.819206 | 255min<br/>(for 9998 Steps) |
-| Simulated Annealing Random          |  2231 |                983 |                           74 |        3.55964e+07 |    3.42911e+07 |             2.3916 |              738 |       10.7407 | 297min<br/>(for 2231 Steps) |
-| Tabu Search                         |  9621 |                124 |                         4583 |        3.52817e+07 |    3.39773e+07 |            2.01115 |              498 |      0.001052 | 298min<br/>(for 9621 Steps) |
-| Tabu Search Random                  |   197 |                 75 |                            0 |        3.54491e+07 |    3.45946e+07 |             2.0785 |               63 |       8.48498 | 25min<br/>(for 197 Steps)   |
-
-##### Pareto Front Images
-
-![](composite_plots/Purchasing_Example_Mid_pareto_composite.png)
-
-Individual Pareto images:
-
-- [Proximal Policy Optimization](report_images/Purchasing_Example_Mid_Proximal_Policy_Optimization_pareto_front.png)
-- [Proximal Policy Optimization Random](report_images/Purchasing_Example_Mid_Proximal_Policy_Optimization_Random_pareto_front.png)
-- [Simulated Annealing](report_images/Purchasing_Example_Mid_Simulated_Annealing_pareto_front.png)
-- [Simulated Annealing Random](report_images/Purchasing_Example_Mid_Simulated_Annealing_Random_pareto_front.png)
-- [Tabu Search](report_images/Purchasing_Example_Mid_Tabu_Search_pareto_front.png)
-- [Tabu Search Random](report_images/Purchasing_Example_Mid_Tabu_Search_Random_pareto_front.png)
-
----
-
----
-
 ### Sepsis Das
+
+SEP (Acronym in the paper) records patient pathways with suspected sepsis, a life-threatening infection, over one year in a hospital.
 
 #### Analyzer Overview
 
@@ -2493,6 +2273,8 @@ Individual Pareto images:
 ---
 
 ### Trafic Das
+
+TRF (Acronym in the paper) - A road fines (Traffic) log that comes from an Italian local police information system handling traffic fines.
 
 #### Analyzer Overview
 
