@@ -6,7 +6,7 @@ The next generation of Optimos. A Resource, Roster and Batching optimizer using 
 
 ## Overview
 
-This report includes data for the following **agents**, **models**, and **modes**. Click on a model to jump to its section.
+This report includes data for the following **agents**, **models**, and **modes**. Click on a model to jump to its section. Refer to the [Re-running the evaluation & getting the results](#re-running-the-evaluation--getting-the-results) section to see how to re-run the evaluation and get the results.
 
 ### Agents
 
@@ -2559,6 +2559,9 @@ python ./o2_evaluation/data_collector.py \
 ```bash
 python ./o2_evaluation/data_collector.py -h
 ```
+
+- The Results will be saved in the `stores/run_<timestamp>` folder. There you find a pickled `Store` object, that contains all the application state for the whole optimization run.
+- Refer to the following sections to see on how to parse that to a human readable format.
 
 ### Analyze the results
 
