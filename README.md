@@ -58,7 +58,13 @@ Below is an explanation of the metrics used in this report. Note that one simula
 <li><strong>Iteration Number:</strong> In one iteration, multiple mutations are performed. Depending on the agent, the solutions will be treated differently. Note that the number of solutions per iteration is not the same for all agents.</li>
 <li><strong>Time per Step:</strong> Average wall time per simulation step computed from differences between consecutive steps.</li>
 <li><strong>Total Optimization Time:</strong> Total wall clock time from the first to the last iteration (in minutes) </li>
+<li><strong>Hyperarea (HA):</strong> Measures convergence and distribution. Hyperarea is the area in the objective space dominated by a Pareto front delimited by a point, which we set as the maximum cost and time among all the solutions explored. If PRef is available, the hyperarea ratio is a real number, between 0 and 1, given by HA(ParetoAprox)/HA(ParetoRef). A higher hyperarea ratio means a better PAprox, being 1 the maximum possible ratio indicating that PAprox dominates the same solution space as PRef.</li>
+<li><strong>Averaged Hausdorff Distance:</strong> Measures convergence as the mean root mean squared (RMS) distance between ParetoAprox and ParetoRef. A lower value means a better convergence.</li>
+<li><strong>Purity:</strong> Measures the proportion of ParetoAprox solutions included in ParetoRef. A higher purity indicates a better ParetoAprox, with a maximum value of 1.</li>
+<li><strong>Delta:</strong> Measures how well the solutions are spread and evenly distributed. It checks whether the solutions cover the full extent of the objective space (spread) and whether the spacing between them is uniform (distribution). A lower value of Delta means a better ParetoAprox.</li>
 </ul>
+
+## Results
 
 ### Bpi Challenge 2012
 
@@ -2517,6 +2523,51 @@ Individual Pareto images:
 ---
 
 ---
+
+## Re-running the evaluation & getting the results
+
+### Running the evaluation
+
+- After following the steps in [Installation](#installation), you can just run the scripts in the `o2_evaluation/scripts`-folder.
+- The scripts are designed to be run in a conda enviorment named `opti2`, please modify the scripts if you want to use a different environment.
+- You may of course also run the optimizer with the current python version, for that you may modify the script files. E.g. change
+
+```bash
+export LD_LIBRARY_PATH="$HOME/lib"
+module load any/python/3.8.3-conda
+conda activate opti2
+
+conda run -n opti2 --no-capture-output python ./o2_evaluation/data_collector.py \
+    --name "insurance_hard" \
+    --active-scenarios "insurance" \
+    --agents "Proximal Policy Optimization" \
+    ....
+```
+
+to
+
+```
+python ./o2_evaluation/data_collector.py \
+    --name "insurance_hard" \
+    --active-scenarios "insurance" \
+    --agents "Proximal Policy Optimization" \
+    ....
+```
+
+- You can use the data_collector cli tool to create any other scenario you want to evaluate. You may use the `-h` flag to see the available options. E.g.
+
+```bash
+python ./o2_evaluation/data_collector.py -h
+```
+
+### Analyze the results
+
+- After running the evaluation, you can analyze the results by running the `o2_evaluation/data_analyzer.py` script.
+- This Script will look at all the data in the `o2_evaluation/redumped_stores` folder and create a summary of the results.
+  - Before running the script, you may want to copy over the `stores_*` and `solutions_*` files from your `stores` folder to the `redumped_stores` folder.
+  - Also you should copy the `evaluations` and `states` folders to the root of the repository.
+- After running the analyzer, the results will be printed to the console and saved to the `o2_evaluation/analyzer_report.ssv` file.
+- Finally you can create a markdown report with the results by running the `o2_evaluation/markdown_creator.py` script.
 
 # Installation & Basic Usage
 
