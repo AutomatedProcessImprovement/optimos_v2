@@ -2529,6 +2529,7 @@ Individual Pareto images:
 ### Running the evaluation
 
 - After following the steps in [Installation](#installation), you can just run the scripts in the `o2_evaluation/scripts`-folder.
+- The names of the scripts are self-explanatory, e.g. `insurance_proximal_policy_optimization_hard.sh` will run the proximal policy optimization agent on the insurance scenario with the hard mode.
 - The scripts are designed to be run in a conda enviorment named `opti2`, please modify the scripts if you want to use a different environment.
 - You may of course also run the optimizer with the current python version, for that you may modify the script files. E.g. change
 
