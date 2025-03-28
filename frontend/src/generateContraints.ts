@@ -1,4 +1,5 @@
 import {
+  BATCH_TYPE,
   ConstraintsResourcesItem,
   ConstraintsType,
   GlobalConstraints,
@@ -6,9 +7,15 @@ import {
   ResourceCalendar,
   ResourceConstraints,
   ResourcePool,
+  RULE_TYPE,
+  SizeRuleConstraints,
   TimetableType,
   WorkMasks,
 } from "./redux/slices/optimosApi";
+
+const BASE_DURATION_FN = "1 / (1 + (log(size) / log(100)))";
+const BASE_COST_FN = "1";
+const MAX_BATCH_SIZE = 50;
 
 const int_week_days = {
   "0": "MONDAY",
@@ -117,6 +124,26 @@ export const generateConstraints = (
     });
   }
 
+  const batchingConstraints: ConstraintsType["batching_constraints"] = [];
+
+  const taskIds = simParams["task_resource_distribution"].map(
+    (task) => task.task_id
+  );
+
+  for (const taskId of taskIds) {
+    const constraint: SizeRuleConstraints = {
+      id: `size_rule_${taskId}`,
+      tasks: [taskId],
+      batch_type: BATCH_TYPE.Parallel,
+      rule_type: RULE_TYPE.Size,
+      duration_fn: BASE_DURATION_FN,
+      cost_fn: BASE_COST_FN,
+      min_size: 1,
+      max_size: MAX_BATCH_SIZE,
+    };
+    batchingConstraints.push(constraint);
+  }
+
   const jsonStruct: ConstraintsType = {
     time_var: 60,
     max_cap: 9999999999,
@@ -124,6 +151,7 @@ export const generateConstraints = (
     max_shift_blocks: 24,
     hours_in_day: 24,
     resources: localConstraints,
+    batching_constraints: batchingConstraints,
   };
 
   return jsonStruct;
