@@ -21,7 +21,7 @@ const initialState: ConfigType = {
   mode: Mode.Batching,
   max_solutions: null,
   iterations_per_solution: null,
-  max_number_of_variations_per_action: null,
+  max_number_of_variations_per_action: 3,
   sa_solution_order: "random",
   sa_temperature: null,
   sa_cooling_rate: null,
