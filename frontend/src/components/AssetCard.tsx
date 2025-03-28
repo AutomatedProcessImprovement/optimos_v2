@@ -78,25 +78,31 @@ const AssetCard: React.FC<AssetCardProps> = ({ asset }) => {
         backgroundColor: isSelected ? theme.colors.blue[0] : theme.white,
       }}
     >
-      <Group justify="space-between" align="center">
-        <Group>
+      <Group justify="space-between" align="center" wrap="nowrap">
+        <Group flex={1} miw={0}>
           {getIcon(asset.type)}
-          <Stack gap={0}>
-            <Text size="sm">{asset.name}</Text>
+        </Group>
+        <Group miw={0} flex={3}>
+          <Stack gap={0} style={{ overflow: "hidden" }}>
+            <Text size="sm" truncate>
+              {asset.name}
+            </Text>
             <Badge color="gray" size="xs">
               {getName(asset.type)}
             </Badge>
           </Stack>
         </Group>
-        <ActionIcon
-          color="red"
-          onClick={(e) => {
-            e.stopPropagation(); // Prevent the click from triggering the selection
-            dispatch(removeAsset(asset.id));
-          }}
-        >
-          <IconTrash size={18} />
-        </ActionIcon>
+        <Group flex={1} miw={0}>
+          <ActionIcon
+            color="red"
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent the click from triggering the selection
+              dispatch(removeAsset(asset.id));
+            }}
+          >
+            <IconTrash size={18} />
+          </ActionIcon>
+        </Group>
       </Group>
     </Card>
   );

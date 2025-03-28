@@ -255,6 +255,7 @@ export const ParameterEditor = () => {
           >
             You have only selected a Simulation Model, please select an Optimos
             Configuration file or click "Generate Constraints" below.
+            <br />
             <Button onClick={createConstraintsFromSimParams} mt="md">
               Generate Constraints
             </Button>

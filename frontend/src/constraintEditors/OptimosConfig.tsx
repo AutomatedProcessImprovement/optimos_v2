@@ -231,7 +231,7 @@ const OptimosConfig = (props: OptimosConfigProps) => {
         <Grid.Col span={{ sm: 12, md: 6 }}>
           <NumberInput
             label="Max. number of variations per action"
-            placeholder="auto"
+            placeholder="Infinite"
             min={1}
             step={1}
             w="100%"

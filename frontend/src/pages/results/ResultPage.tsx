@@ -8,6 +8,8 @@ import {
   Accordion,
   Box,
   Title,
+  Center,
+  Stack,
 } from "@mantine/core";
 import { IconDownload, IconX } from "@tabler/icons-react";
 import React, { FC, useCallback, useEffect, useRef, useState } from "react";
@@ -51,16 +53,12 @@ const ResultPage: FC = () => {
 
   if (!report || !report.pareto_fronts) {
     return (
-      <Grid
-        justify="center"
-        ta="center"
-        style={{ height: "100vh", flexDirection: "column" }}
-      >
-        <Grid.Col span={12}>
+      <Center h="80vh">
+        <Stack>
           <Loader size={75} p="lg " />
           <Text size="lg">Loading...</Text>
-        </Grid.Col>
-      </Grid>
+        </Stack>
+      </Center>
     );
   }
 
