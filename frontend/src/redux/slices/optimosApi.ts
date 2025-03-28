@@ -205,7 +205,7 @@ export type TimetableType = {
   multitask?: Multitask | null;
   model_type?: ("FUZZY" | "CRISP") | null;
   granule_size?: GranuleSize | null;
-  event_distribution?: object[] | null;
+  event_distribution?: object[] | object | null;
   global_attributes?: object[] | null;
   case_attributes?: object[] | null;
   event_attributes?: object[] | null;

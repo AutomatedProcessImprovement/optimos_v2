@@ -224,3 +224,10 @@ export const isTimePeriodInHour = (timePeriod: TimePeriod, hour: number) => {
 export const isTimePeriodInDay = (timePeriod: TimePeriod, day: string) => {
   return timePeriod.from.toLocaleLowerCase() === day.toLocaleLowerCase();
 };
+
+export const unsnakecase = (str: string) => {
+  return str
+    .replace(/_([a-z])/g, (_, letter) => ` ${letter}`)
+    .trim()
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+};

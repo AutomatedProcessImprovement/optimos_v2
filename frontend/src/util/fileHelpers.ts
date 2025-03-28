@@ -54,7 +54,7 @@ export const fileToAsset = async (
   } else if (filename.endsWith(".json")) {
     var parsedJson;
     try {
-      parsedJson = JSON.parse(content);
+      parsedJson = parseJson(content);
     } catch (e) {
       throw Error(`Error parsing ${filename}: ${e}`);
     }
@@ -73,7 +73,13 @@ export const fileToAsset = async (
         value: parsedJson as ConstraintsType,
       };
     } else {
+      console.log(timetableSchema.validateSync(parsedJson));
       throw new Error(`Unknown JSON file: ${filename}`);
     }
   }
+};
+export const parseJson = (content: string) => {
+  content = content.replace(/(?!")Infinity(?!")/g, '"Infinity"');
+  content = content.replace(/(?!")NaN(?!")/g, '"NaN"');
+  return JSON.parse(content);
 };

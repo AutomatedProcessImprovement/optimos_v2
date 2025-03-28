@@ -1,5 +1,7 @@
 from typing import Callable, Literal, Optional
 
+from pydantic import ConfigDict
+from pydantic.alias_generators import to_camel
 from typing_extensions import TypedDict
 
 from o2.models.constraints import ConstraintsType
@@ -36,3 +38,9 @@ class ProcessingRequest(TypedDict):
     bpmn_model: str
     timetable: TimetableType
     constraints: ConstraintsType
+
+    __pydantic_config__ = ConfigDict(
+        alias_generator=to_camel,
+        populate_by_name=True,
+        from_attributes=True,
+    )  # type: ignore

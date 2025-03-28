@@ -32,11 +32,16 @@ export const useMasterFormData = () => {
   const optimosConfig = useSelector(selectOptimosConfig);
 
   const masterFormData = useMemo<MasterFormData>(
-    () => ({
-      constraints: constraintsAsset?.value,
-      simulationParameters: simParamsAsset?.value,
-      optimosConfig: optimosConfig,
-    }),
+    () =>
+      // We need to deep copy the constraints asset value because it is a
+      // immer/redux object and is frozen.
+      JSON.parse(
+        JSON.stringify({
+          constraints: constraintsAsset?.value,
+          simulationParameters: simParamsAsset?.value,
+          optimosConfig: optimosConfig,
+        })
+      ),
     [constraintsAsset?.value, simParamsAsset?.value]
   );
 

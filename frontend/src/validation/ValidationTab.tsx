@@ -19,6 +19,7 @@ import { convertError } from "./validationHelper";
 import React from "react";
 import { useMasterFormContext } from "../hooks/useFormContext";
 import jsonpath from "jsonpath";
+import { useNavigate } from "react-router-dom";
 
 type ValidationTabProps = {};
 export const ValidationTab: FC<ValidationTabProps> = (props) => {
@@ -30,6 +31,7 @@ export const ValidationTab: FC<ValidationTabProps> = (props) => {
       value: Parameters<typeof setFieldValue>[1]
     ) => {
       setFieldValue(key, value);
+      validate();
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
@@ -44,6 +46,8 @@ export const ValidationTab: FC<ValidationTabProps> = (props) => {
     () => convertError(errors, getTransformedValues()),
     [errors, getTransformedValues]
   );
+
+  const navigate = useNavigate();
 
   return (
     <>
@@ -77,7 +81,7 @@ export const ValidationTab: FC<ValidationTabProps> = (props) => {
               <ThemeIcon variant="light" color="yellow" size="lg">
                 <IconAlertCircle size={24} />
               </ThemeIcon>
-              <Text size="md" weight={500}>
+              <Text size="md" fw={500}>
                 Issue in {error.humanReadableFieldName}
               </Text>
               <Text size="sm" color="dimmed">

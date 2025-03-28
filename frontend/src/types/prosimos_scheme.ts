@@ -71,7 +71,7 @@ export const prosimosConfigurationSchema = yup.object({
               cost_per_hour: yup.number().required(),
               amount: yup.number().positive().integer().required(),
               calendar: yup.string().required(),
-              assignedTasks: yup.array(),
+              assigned_tasks: yup.array(),
             })
           )
           .min(1, "At least one resource is required")

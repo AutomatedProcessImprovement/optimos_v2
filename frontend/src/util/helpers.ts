@@ -24,7 +24,7 @@ export function makeTitleCase(str: string) {
 export const showError = (message: string) =>
   notifications.show({
     title: "An Error Occurred",
-    message,
+    message: message.toString(),
     color: "red",
     icon: ErrorIcon({}),
   });
@@ -32,6 +32,6 @@ export const showError = (message: string) =>
 export const showSuccess = (message: string) =>
   notifications.show({
     title: "Success",
-    message,
+    message: message.toString(),
     color: "green",
   });

@@ -2,8 +2,10 @@ import {
   ConstraintsResourcesItem,
   ConstraintsType,
   GlobalConstraints,
+  Resource,
   ResourceCalendar,
   ResourceConstraints,
+  ResourcePool,
   TimetableType,
   WorkMasks,
 } from "./redux/slices/optimosApi";
@@ -39,10 +41,13 @@ export const generateConstraints = (
     simParams["resource_calendars"]
   );
 
+  const resources = parseResourceProfiles(simParams["resource_profiles"]);
+
   const localConstraints: ConstraintsResourcesItem[] = [];
 
-  for (const cId of Object.keys(calendarsMap)) {
-    const cInfo = calendarsMap[cId];
+  for (const resourceId of Object.keys(resources)) {
+    const resource = resources[resourceId];
+    const cInfo = calendarsMap[resource.calendar];
     let maxDailyWork = 0;
     let maxConsecutiveCap = 0;
     let minDate: Date | null = null;
@@ -67,7 +72,7 @@ export const generateConstraints = (
       max_consecutive_cap: maxConsecutiveCap / 3600,
       max_shifts_day: 24,
       max_shifts_week: cInfo.total_weekly_work / 3600,
-      is_human: !cId.toLowerCase().includes("system"),
+      is_human: !resourceId.toLowerCase().includes("system"),
     };
 
     const neverWorkMasks: WorkMasks = {
@@ -102,7 +107,7 @@ export const generateConstraints = (
     }
 
     localConstraints.push({
-      id: cId,
+      id: resourceId,
       constraints: {
         global_constraints: globalConstraints,
 
@@ -246,4 +251,16 @@ const parseResourceCalendars = (
   }
 
   return calendars_info;
+};
+
+export const parseResourceProfiles = (
+  resourceProfiles: ResourcePool[]
+): Record<string, Resource> => {
+  const resources: Record<string, Resource> = {};
+  for (const pool of resourceProfiles) {
+    for (const resource of pool.resource_list) {
+      resources[resource.id] = resource;
+    }
+  }
+  return resources;
 };

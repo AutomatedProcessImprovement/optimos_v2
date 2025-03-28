@@ -1074,7 +1074,7 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
     multitask: Optional[Multitask] = None
     model_type: Optional[Literal["FUZZY", "CRISP"]] = None
     granule_size: Optional[GranuleSize] = None
-    event_distribution: Optional[list[dict]] = None
+    event_distribution: Optional[list[dict] | dict] = None
     global_attributes: Optional[list[dict]] = None
     case_attributes: Optional[list[dict]] = None
     event_attributes: Optional[list[dict]] = None

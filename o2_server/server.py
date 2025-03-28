@@ -11,8 +11,13 @@ from fastapi.responses import FileResponse
 from typing_extensions import TypedDict
 
 from o2.models.json_report import JSONReport
+from o2.models.settings import Settings
+from o2.util.logger import setup_logging
 from o2_server.optimos_service import OptimosService
 from o2_server.server_types import ProcessingRequest
+
+Settings.LOG_FILE = "o2_server.log"
+setup_logging()
 
 tags_metadata = [
     {

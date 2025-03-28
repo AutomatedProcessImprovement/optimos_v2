@@ -155,7 +155,7 @@ export const timetableSchema = yup.object({
       })
     )
     .required(),
-  event_distribution: yup.object().required(),
+  event_distribution: yup.mixed().required(),
   batch_processing: yup.array().of(
     yup.object({
       task_id: yup.string().required(),
