@@ -1322,7 +1322,7 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
             return None
         return self.get_calendar(calendar_id)
 
-    def get_calendar_for_base_resource(self, resource_name: str) -> Optional[ResourceCalendar]:
+    def get_calendar_for_base_resource(self, resource_id: str) -> Optional[ResourceCalendar]:
         """Get a resource calendar by resource clone/original name.
 
         If the resource is a clone, get the calendar of the base resource.
@@ -1332,7 +1332,7 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
                 self.get_calendar(resource.calendar)
                 for resource in self.resource_profiles
                 for resource in resource.resource_list
-                if resource.name == resource_name or name_is_clone_of(resource_name, resource.name)
+                if resource.id == resource_id or name_is_clone_of(resource_id, resource.id)
             ),
             None,
         )

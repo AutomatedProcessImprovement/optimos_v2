@@ -2,22 +2,17 @@ import asyncio
 import json
 import os
 import zipfile
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ProcessPoolExecutor
 from threading import Lock
 
 from fastapi import FastAPI, HTTPException, Path
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, ORJSONResponse
 from typing_extensions import TypedDict
 
 from o2.models.json_report import JSONReport
-from o2.models.settings import Settings
-from o2.util.logger import setup_logging
 from o2_server.optimos_service import OptimosService
 from o2_server.server_types import ProcessingRequest
-
-Settings.LOG_FILE = "o2_server.log"
-setup_logging()
 
 tags_metadata = [
     {
@@ -36,6 +31,7 @@ app = FastAPI(
     description="A simple API for process optimization",
     tags_metadata=tags_metadata,
     separate_input_output_schemas=False,
+    default_response_class=ORJSONResponse,
 )
 
 origins = [
@@ -76,7 +72,7 @@ class CancelResponse(TypedDict):
 
 services: dict[str, OptimosService] = {}
 
-executor = ThreadPoolExecutor(max_workers=5)
+executor = ProcessPoolExecutor(max_workers=5)
 
 
 @app.post("/start_optimization", status_code=202, tags=["optimization"])
@@ -89,8 +85,9 @@ async def start_optimization(data: "ProcessingRequest") -> OptimizationResponse:
         optimos_service = OptimosService()
         save_mapping(optimos_service.id, optimos_service.output_path)
         services[optimos_service.id] = optimos_service
+        optimos_service.running = True
 
-        executor.submit(asyncio.run, optimos_service.process(data))
+        executor.submit(optimos_service.process, data)
 
         # Wait a bit for the optimization to start
         await asyncio.sleep(1)
@@ -134,6 +131,7 @@ async def get_report_zip_file(
         404: {"description": "File not found"},
     },
     tags=["reports"],
+    response_model=JSONReport,
 )
 async def get_report_file(
     id: str = Path(..., description="The identifier of the zip file"),
@@ -146,11 +144,18 @@ async def get_report_file(
     if not os.path.exists(zip):
         raise HTTPException(status_code=404, detail="File not found")
 
+    # Get file size, and throw error if empty
+    file_size = os.path.getsize(zip)
+    if file_size == 0:
+        raise HTTPException(status_code=404, detail="File is empty (no results yet)")
+
     # Unzip into memory, return first (only) file content
     with zipfile.ZipFile(zip) as z, z.open(z.namelist()[0]) as f:
-        report = JSONReport.from_json(f.read())
+        data = f.read()
+        report = JSONReport.model_validate_json(data)
         if not isinstance(report, JSONReport):
             raise HTTPException(status_code=500, detail="Invalid JSON file")
+
         return report
 
 

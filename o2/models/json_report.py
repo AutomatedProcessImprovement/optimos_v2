@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from typing import Any, Optional
 
 from dataclass_wizard import JSONWizard
+from pydantic import BaseModel, ConfigDict
 
 from o2.actions.base_actions.base_action import BaseAction
 from o2.actions.base_actions.modify_calendar_base_action import ModifyCalendarBaseAction
@@ -16,8 +17,7 @@ from o2.store import Store
 from o2.util.helper import CLONE_REGEX
 
 
-@dataclass(frozen=True)
-class JSONReport(JSONWizard):
+class JSONReport(BaseModel):
     """Class to represent report in JSON format."""
 
     name: str
@@ -49,6 +49,11 @@ class JSONReport(JSONWizard):
             approach=str(store.settings.legacy_approach),
             created_at=datetime.datetime.now().isoformat(),
         )
+
+    class Config:
+        frozen = True
+        ser_json_inf_nan = "strings"
+        allow_inf_nan = True
 
 
 @dataclass(frozen=True)
@@ -109,8 +114,8 @@ class _JSONResourceInfo(JSONWizard):
         solution: Solution,
         store: Store,
     ) -> "_JSONResourceInfo":
-        timetable = solution.state.timetable.get_calendar_for_resource(
-            resource.id
+        timetable = solution.state.timetable.get_calendar(
+            resource.calendar
         ) or store.base_state.timetable.get_calendar_for_base_resource(resource.id)
         resource_constraints = store.constraints.get_legacy_constraints_for_resource(resource.id)
         if solution.is_base_solution:

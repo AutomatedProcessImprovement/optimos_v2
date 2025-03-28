@@ -52,7 +52,7 @@ class ModifyBatchSizeIfNoDurationImprovementAction(ModifySizeRuleBaseAction):
                 continue
 
             size_constraints = constraints.get_batching_size_rule_constraints(task_id)
-            if size_constraints is None:
+            if not size_constraints:
                 continue
             size_constraint = size_constraints[0]
             for firing_rule_selector in firing_rule_selectors:
@@ -115,7 +115,7 @@ class ModifySizeRuleByDurationFnCostImpactAction(ModifySizeRuleBaseAction):
 
         for task_id in task_ids:
             size_constraints = constraints.get_batching_size_rule_constraints(task_id)
-            if size_constraints is None:
+            if not size_constraints:
                 continue
             size_constraint = size_constraints[0]
 

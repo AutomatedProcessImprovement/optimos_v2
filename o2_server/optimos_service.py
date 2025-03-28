@@ -1,17 +1,18 @@
 import datetime
 import os
+import traceback
 import uuid
 from pprint import pprint
 from tempfile import mkstemp
-from xml.etree import ElementTree as ET
 from zipfile import ZIP_DEFLATED, ZipFile
 
 from o2.models.json_report import JSONReport
 from o2.models.legacy_approach import LegacyApproach
-from o2.models.settings import CostType, Settings
+from o2.models.settings import Settings
 from o2.models.state import State
 from o2.optimizer import Optimizer
 from o2.store import Store
+from o2.util.logger import setup_logging
 from o2_server.server_types import ProcessingRequest
 
 
@@ -24,9 +25,14 @@ class OptimosService:
         output_file, self.output_path = mkstemp(suffix=".zip", prefix="optimos_output_")
         os.fdopen(output_file).close()
 
-    async def process(self, request: ProcessingRequest):
+    def process(self, request: ProcessingRequest):
         """Process the optimization request."""
         self.running = True
+
+        log_file_name = f"optimos_server_{self.id}.log"
+        Settings.LOG_FILE = log_file_name
+        setup_logging()
+
         config = request["config"]
 
         print("New Request!")
@@ -60,13 +66,25 @@ class OptimosService:
 
         store.settings.log_to_tensor_board = False
         store.settings.iterations_per_solution = None
-        store.settings.max_variants_per_action = None
+        store.settings.max_variants_per_action = (
+            # We set it to -1, because later we'll set action_variation_selection to
+            # ActionVariationSelection.ALL_RANDOM
+            -1
+            if config["max_number_of_variations_per_action"] is None
+            else config["max_number_of_variations_per_action"]
+        )
+
         store.settings.sa_strict_ordered = config["sa_solution_order"] == "greedy"
-        store.settings.action_variation_selection = config["action_variation_selection"]
+        store.settings.action_variation_selection = (
+            config["action_variation_selection"]
+            if store.settings.max_variants_per_action != -1
+            else config["action_variation_selection"].infinite_max_variants
+        )
         Settings.SHOW_SIMULATION_ERRORS = False
         Settings.RAISE_SIMULATION_ERRORS = False
         Settings.COST_TYPE = config["cost_type"]
-        Settings.DUMP_DISCARDED_SOLUTIONS = True
+        # We don't want to deal with the hastle of the global singleton solution dumper
+        Settings.DUMP_DISCARDED_SOLUTIONS = False
         Settings.NUMBER_OF_CASES = config["num_cases"]
         Settings.ARCHIVE_TENSORBOARD_LOGS = False
         Settings.ARCHIVE_SOLUTIONS = False
@@ -97,13 +115,12 @@ class OptimosService:
 
         optimizer = Optimizer(store)
         generator = optimizer.get_iteration_generator()
-        print("Created Store")
+
         for _ in generator:
             if self.cancelled:
                 print("Optimization Cancelled!")
                 break
 
-            print("Finished Iteration")
             self.iteration_callback(store)
         self.iteration_callback(
             store,
@@ -113,8 +130,14 @@ class OptimosService:
 
     def iteration_callback(self, store: Store, last_iteration=False):
         """Write Iteration to file."""
-        json_solutions = JSONReport.from_store(store, is_final=last_iteration)
-        json_content = json_solutions.to_json()
+        try:
+            json_solutions = JSONReport.from_store(store, is_final=last_iteration)
+            json_content = json_solutions.model_dump_json()
+            # Replace Infinity and NaN with their String representation
 
-        with ZipFile(self.output_path, "w", compression=ZIP_DEFLATED) as zipf:
-            zipf.writestr("result.json", json_content)
+            with ZipFile(self.output_path, "w", compression=ZIP_DEFLATED) as zipf:
+                zipf.writestr("result.json", json_content)
+        except Exception as e:
+            print(f"Error writing iteration callback: {e}")
+            print(traceback.format_exc())
+            raise e

@@ -23,7 +23,7 @@ def random_string(length: int = 8) -> str:
 
 
 def name_is_clone_of(potential_clone_name: str, resource_id: str) -> bool:
-    """Check if the name is a clone of a resource id."""
+    """Check if the name or id is a clone of a resource id."""
     match = CLONE_REGEX.match(potential_clone_name)
     return match is not None and (
         match.group(1) == resource_id

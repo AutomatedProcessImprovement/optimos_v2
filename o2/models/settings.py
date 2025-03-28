@@ -103,6 +103,16 @@ class ActionVariationSelection(Enum):
         else:
             return self
 
+    @property
+    def infinite_max_variants(self) -> "ActionVariationSelection":
+        """Choice if the max variants is infinite."""
+        if self == ActionVariationSelection.FIRST_MAX_VARIANTS_PER_ACTION_IN_ORDER:
+            return ActionVariationSelection.ALL_IN_ORDER
+        elif self == ActionVariationSelection.RANDOM_MAX_VARIANTS_PER_ACTION:
+            return ActionVariationSelection.ALL_RANDOM
+        else:
+            return self
+
 
 @dataclass()
 class Settings:

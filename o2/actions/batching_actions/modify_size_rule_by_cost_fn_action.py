@@ -45,7 +45,7 @@ def rate_self_helper_by_metric_dict(
                 task_id, rule_type=RULE_TYPE.SIZE
             )
             size_constraints = constraints.get_batching_size_rule_constraints(task_id)
-            if size_constraints is None:
+            if not size_constraints:
                 continue
             size_constraint = size_constraints[0]
 
@@ -169,7 +169,7 @@ class ModifyBatchSizeIfNoCostImprovementAction(ModifySizeRuleBaseAction):
 
         for task_id in task_ids:
             size_constraints = constraints.get_batching_size_rule_constraints(task_id)
-            if size_constraints is None:
+            if not size_constraints:
                 continue
             size_constraint = size_constraints[0]
 
@@ -234,7 +234,7 @@ class ModifySizeRuleByCostFnLowCycleTimeImpactAction(ModifySizeRuleBaseAction):
 
         for task_id in task_ids:
             size_constraints = constraints.get_batching_size_rule_constraints(task_id)
-            if size_constraints is None:
+            if not size_constraints:
                 continue
             size_constraint = size_constraints[0]
 
