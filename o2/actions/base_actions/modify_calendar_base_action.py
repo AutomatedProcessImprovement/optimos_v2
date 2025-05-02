@@ -25,7 +25,7 @@ class ModifyCalendarBaseActionParamsType(BaseActionParamsType):
     """Parameter for `ModifyCalendarBaseAction`."""
 
     calendar_id: str
-    period_id: int
+    period_id: str
     day: "DAY"
     shift_hours: NotRequired[int]
     add_hours_before: NotRequired[int]

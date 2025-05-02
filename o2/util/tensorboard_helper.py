@@ -300,6 +300,7 @@ class TensorBoardHelper:
 
                 # Get min/max points and add temperature margin
                 temp = self.agent.temperature
+                assert isinstance(temp, float)
                 x_min, y_min = (
                     self.store.current_pareto_front.min_x,
                     self.store.current_pareto_front.min_y,

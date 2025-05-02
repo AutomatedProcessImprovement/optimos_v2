@@ -410,7 +410,7 @@ class ResourceCalendar(JSONWizard, CustomLoader, CustomDumper):
         }
         return WorkMasks(**days)
 
-    def get_period_index_by_id(self, period_id: int) -> Optional[int]:
+    def get_period_index_by_id(self, period_id: str) -> Optional[int]:
         """Get the index of a period by period id."""
         for i, tp in enumerate(self.time_periods):
             if tp.id == period_id:
