@@ -1,13 +1,69 @@
 import React from "react";
-import { Grid, Text } from "@mantine/core";
+import { Grid, Text, Accordion, Box } from "@mantine/core";
 import { useInitialSolution } from "../../hooks/useInitialSolution";
-
+import { Tree } from "react-d3-tree";
 import { formatSeconds } from "../../util/num_helper";
-import { JsonSolution } from "../../redux/slices/optimosApi";
+import {
+  JsonSolution,
+  BatchingRule,
+  COMPARATOR,
+  RULE_TYPE,
+} from "../../redux/slices/optimosApi";
 import { DiffInfo } from "./ResourceTable/DiffInfo";
+
+const getReadableLabel = (
+  attribute: RULE_TYPE,
+  comparison: COMPARATOR,
+  value: string | number
+) => {
+  const attributeMap: Record<RULE_TYPE, string> = {
+    [RULE_TYPE.ReadyWt]: "Ready Waiting Time",
+    [RULE_TYPE.LargeWt]: "Large Waiting Time",
+    [RULE_TYPE.Size]: "Batch Size",
+    [RULE_TYPE.WeekDay]: "Week Day",
+    [RULE_TYPE.DailyHour]: "Daily Hour",
+  };
+
+  const comparisonMap: Record<string, string> = {
+    "<=": "≤",
+    ">=": "≥",
+    ">": ">",
+    "<": "<",
+    "=": "=",
+  };
+
+  const readableAttribute = attributeMap[attribute];
+  const readableComparison = comparisonMap[comparison];
+
+  // Format the value based on the attribute type
+  let formattedValue = value;
+  if (attribute === RULE_TYPE.ReadyWt || attribute === RULE_TYPE.LargeWt) {
+    formattedValue = formatSeconds(Number(value));
+  }
+
+  return `${readableAttribute} ${readableComparison} ${formattedValue}`;
+};
+
+const transformBatchingRulesToTree = (rule: BatchingRule) => {
+  const root = {
+    name: `Task: ${rule.task_id}`,
+    children: rule.firing_rules.map((orRule, index) => ({
+      name: `OR Rule ${index + 1}`,
+      children: orRule.map((andRule) => ({
+        name: getReadableLabel(
+          andRule.attribute,
+          andRule.comparison,
+          andRule.value
+        ),
+      })),
+    })),
+  };
+  return root;
+};
 
 export const BatchingOverview = ({ solution }: { solution: JsonSolution }) => {
   const initialSolution = useInitialSolution();
+  const batchingRules = solution.timetable.batch_processing || [];
 
   return (
     <Grid>
@@ -32,6 +88,33 @@ export const BatchingOverview = ({ solution }: { solution: JsonSolution }) => {
             margin={0.0}
           />
         </Text>
+      </Grid.Col>
+      <Grid.Col span={12}>
+        <Text fw={700} ta="left" mb="md">
+          Batching Rules
+        </Text>
+        <Accordion>
+          {batchingRules.map((rule, index) => (
+            <Accordion.Item key={index} value={`rule-${index}`}>
+              <Accordion.Control>
+                <Text fw={500}>Task: {rule.task_id}</Text>
+              </Accordion.Control>
+              <Accordion.Panel>
+                <Box style={{ height: "300px", width: "100%" }}>
+                  <Tree
+                    data={transformBatchingRulesToTree(rule)}
+                    orientation="vertical"
+                    pathFunc="step"
+                    translate={{ x: 200, y: 50 }}
+                    separation={{ siblings: 2, nonSiblings: 2 }}
+                    nodeSize={{ x: 200, y: 100 }}
+                    zoom={0.8}
+                  />
+                </Box>
+              </Accordion.Panel>
+            </Accordion.Item>
+          ))}
+        </Accordion>
       </Grid.Col>
     </Grid>
   );
