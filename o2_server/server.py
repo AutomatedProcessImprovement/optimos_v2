@@ -1,5 +1,6 @@
 import asyncio
 import json
+import multiprocessing
 import os
 import zipfile
 from concurrent.futures import ProcessPoolExecutor
@@ -72,6 +73,7 @@ class CancelResponse(TypedDict):
 
 services: dict[str, OptimosService] = {}
 
+manager = multiprocessing.Manager()
 executor = ProcessPoolExecutor(max_workers=5)
 
 
@@ -82,10 +84,12 @@ async def start_optimization(data: "ProcessingRequest") -> OptimizationResponse:
     Return a JSON file containing the optimization results.
     """
     try:
-        optimos_service = OptimosService()
+        cancelled = manager.Event()
+        running = manager.Event()
+        stopped = manager.Event()
+        optimos_service = OptimosService(cancelled, running, stopped)
         save_mapping(optimos_service.id, optimos_service.output_path)
         services[optimos_service.id] = optimos_service
-        optimos_service.running = True
 
         executor.submit(optimos_service.process, data)
 
@@ -165,7 +169,7 @@ async def cancel_optimization(id: str) -> CancelResponse:
     if id not in services:
         raise HTTPException(status_code=404, detail="Optimization not found")
 
-    services[id].cancelled = True
+    services[id].cancelled.set()
 
     return {"message": "Optimization cancelled"}
 
@@ -180,11 +184,13 @@ async def get_status(id: str) -> str:
         else:
             return "completed"
 
-    if services[id].running:
+    if services[id].stopped.is_set():
+        return "completed"
+    if services[id].running.is_set():
         return "running"
-    elif services[id].cancelled:
+    elif services[id].cancelled.is_set():
         return "cancelled"
-    return "completed"
+    return "pending"
 
 
 def save_mapping(id: str, path: str) -> None:

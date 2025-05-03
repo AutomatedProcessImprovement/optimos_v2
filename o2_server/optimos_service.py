@@ -4,6 +4,7 @@ import traceback
 import uuid
 from pprint import pprint
 from tempfile import mkstemp
+from threading import Event
 from zipfile import ZIP_DEFLATED, ZipFile
 
 from o2.models.json_report import JSONReport
@@ -17,9 +18,11 @@ from o2_server.server_types import ProcessingRequest
 
 
 class OptimosService:
-    def __init__(self):
-        self.cancelled = False
-        self.running = False
+    def __init__(self, cancelled: Event, running: Event, stopped: Event):
+        self.cancelled = cancelled
+        self.running = running
+        self.stopped = stopped
+
         self.id = str(uuid.uuid4())
         self.last_update = datetime.datetime.now()
         output_file, self.output_path = mkstemp(suffix=".zip", prefix="optimos_output_")
@@ -27,7 +30,7 @@ class OptimosService:
 
     def process(self, request: ProcessingRequest):
         """Process the optimization request."""
-        self.running = True
+        self.running.set()
 
         log_file_name = f"optimos_server_{self.id}.log"
         Settings.LOG_FILE = log_file_name
@@ -117,16 +120,19 @@ class OptimosService:
         generator = optimizer.get_iteration_generator()
 
         for _ in generator:
-            if self.cancelled:
+            if self.cancelled.is_set():
                 print("Optimization Cancelled!")
                 break
 
             self.iteration_callback(store)
+        print("Final iteration reached, writing to file")
         self.iteration_callback(
             store,
             last_iteration=True,
         )
-        self.running = False
+        print("Setting stopped to True")
+        self.stopped.set()
+        self.running.clear()
 
     def iteration_callback(self, store: Store, last_iteration=False):
         """Write Iteration to file."""
