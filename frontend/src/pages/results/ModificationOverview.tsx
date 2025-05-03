@@ -173,11 +173,27 @@ const ActionCard = ({ action }: { action: JsonAction }) => {
       );
       break;
     case "AddDateTimeRuleAction":
+    case "AddDateTimeRuleByAvailabilityAction":
+    case "AddDateTimeRuleByStartAction":
+    case "AddDateTimeRuleByEnablementAction":
       icon = <IconCirclePlus size={16} />;
-      title = "Add Date Time Rule";
+      const ruleType =
+        action.type === "AddDateTimeRuleAction"
+          ? ""
+          : action.type === "AddDateTimeRuleByAvailabilityAction"
+          ? "based on availability"
+          : action.type === "AddDateTimeRuleByStartAction"
+          ? "based on start time"
+          : "based on enablement";
+      title = `Add Date Time Rule${
+        ruleType ? ` by ${ruleType.split(" ")[2]}` : ""
+      }`;
       description = (
         <span>
-          Added date time rule for <b>{action.params["rule"]}.</b>
+          Added date time rule {ruleType} for <b>{action.params["task_id"]}</b>{" "}
+          on <b>{action.params["time_period"]["from_"]}</b> from{" "}
+          <b>{action.params["time_period"]["begin_time"]}</b> to{" "}
+          <b>{action.params["time_period"]["end_time"]}</b>.
         </span>
       );
       break;
@@ -313,42 +329,15 @@ const ActionCard = ({ action }: { action: JsonAction }) => {
         </span>
       );
       break;
-    case "AddDateTimeRuleByAvailabilityAction":
-      icon = <IconCirclePlus size={16} />;
-      title = "Add Date Time Rule by Availability";
-      description = (
-        <span>
-          Added date time rule based on availability for{" "}
-          <b>{action.params["rule"]}.</b>
-        </span>
-      );
-      break;
-    case "AddDateTimeRuleByStartAction":
-      icon = <IconCirclePlus size={16} />;
-      title = "Add Date Time Rule by Start";
-      description = (
-        <span>
-          Added date time rule based on start time for{" "}
-          <b>{action.params["rule"]}.</b>
-        </span>
-      );
-      break;
-    case "AddDateTimeRuleByEnablementAction":
-      icon = <IconCirclePlus size={16} />;
-      title = "Add Date Time Rule by Enablement";
-      description = (
-        <span>
-          Added date time rule based on enablement for{" "}
-          <b>{action.params["rule"]}.</b>
-        </span>
-      );
-      break;
     case "ShiftDateTimeRuleAction":
       icon = <IconArrowRight size={16} />;
       title = "Shift Date Time Rule";
       description = (
         <span>
-          Shifted date time rule for <b>{action.params["rule"]}.</b>
+          Shifted date time rule for <b>{action.params["task_id"]}</b> on{" "}
+          <b>{action.params["day"]}</b> by{" "}
+          <b>{action.params["add_to_start"]}</b> hours at start and{" "}
+          <b>{action.params["add_to_end"]}</b> hours at end.
         </span>
       );
       break;
@@ -357,7 +346,8 @@ const ActionCard = ({ action }: { action: JsonAction }) => {
       title = "Remove Date Time Rule";
       description = (
         <span>
-          Removed date time rule <b>{action.params["rule"]}.</b>
+          Removed date time rule for <b>{action.params["task_id"]}</b> on{" "}
+          <b>{action.params["day"]}</b>.
         </span>
       );
       break;
