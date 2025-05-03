@@ -20,6 +20,11 @@ export const ModificationOverview: FC<ModificationOverviewProps> = (props) => {
 
   return (
     <Grid>
+      {actions.length == 0 && (
+        <Text size="lg" fw={500}>
+          No modifications so far.
+        </Text>
+      )}
       {actions.map((action, index) => {
         return (
           <Grid.Col span={{ md: 6, lg: 4, xl: 3 }} key={index}>
@@ -167,6 +172,214 @@ const ActionCard = ({ action }: { action: JsonAction }) => {
         </span>
       );
       break;
+    case "AddDateTimeRuleAction":
+      icon = <IconCirclePlus size={16} />;
+      title = "Add Date Time Rule";
+      description = (
+        <span>
+          Added date time rule for <b>{action.params["rule"]}.</b>
+        </span>
+      );
+      break;
+    case "AddReadyLargeWTRuleAction":
+      icon = <IconCirclePlus size={16} />;
+      title = "Add Ready Large WT Rule";
+      description = (
+        <span>
+          Added ready large WT rule for <b>{action.params["rule"]}.</b>
+        </span>
+      );
+      break;
+    case "AddSizeRuleAction":
+      icon = <IconCirclePlus size={16} />;
+      title = "Add Size Rule";
+      description = (
+        <span>
+          Added size rule with size <b>{action.params["size"]}</b> for task{" "}
+          <b>{action.params["task_id"]}.</b>
+        </span>
+      );
+      break;
+    case "ModifyDailyHourRuleAction":
+      icon = <IconArrowRight size={16} />;
+      title = "Modify Daily Hour Rule";
+      description = (
+        <span>
+          Modified daily hour rule for{" "}
+          <b>{getRuleDisplayText(action.params["rule"])}.</b>
+        </span>
+      );
+      break;
+    case "ModifySizeRuleAction":
+    case "ModifySizeRuleByCostAction":
+    case "ModifySizeRuleByUtilizationAction":
+    case "ModifySizeRuleByDurationFnCostImpactAction":
+    case "ModifyBatchSizeIfNoDurationImprovementAction":
+    case "ModifySizeRuleByLowAllocationAction":
+    case "ModifySizeRuleByHighAllocationAction":
+    case "ModifySizeRuleByWTAction":
+    case "ModifySizeRuleByCostFnRepetitiveTasksAction":
+    case "ModifySizeRuleByCostFnHighCostsAction":
+    case "ModifySizeRuleByCostFnLowProcessingTimeAction":
+    case "ModifyBatchSizeIfNoCostImprovementAction":
+    case "ModifySizeRuleByCostFnLowCycleTimeImpactAction":
+    case "ModifySizeRuleByManySimilarEnablementsAction":
+      icon = <IconArrowRight size={16} />;
+      title =
+        action.params["size_increment"] > 0
+          ? "Increase Size Rule"
+          : "Decrease Size Rule";
+      description = (
+        <span>
+          {action.params["size_increment"] > 0 ? "Increased" : "Decreased"} size
+          rule by <b>{Math.abs(action.params["size_increment"])}</b> for task{" "}
+          <b>{getRuleDisplayText(action.params["rule"])}</b>.
+        </span>
+      );
+      break;
+    case "RemoveRuleAction":
+      icon = <IconTrash size={16} />;
+      title = "Remove Rule";
+      description = (
+        <span>
+          Removed rule <b>{getRuleDisplayText(action.params["rule"])}.</b>
+        </span>
+      );
+      break;
+    case "ModifyReadyWtRuleAction":
+      icon = <IconArrowRight size={16} />;
+      title =
+        action.params["wt_increment"] > 0
+          ? "Increase Ready WT Rule"
+          : "Decrease Ready WT Rule";
+      description = (
+        <span>
+          {action.params["wt_increment"] > 0 ? "Increased" : "Decreased"} ready
+          WT rule by <b>{Math.abs(action.params["wt_increment"])}</b> for task{" "}
+          <b>{getRuleDisplayText(action.params["rule"])}</b>.
+        </span>
+      );
+      break;
+    case "ModifyLargeWtRuleAction":
+      icon = <IconArrowRight size={16} />;
+      title =
+        action.params["wt_increment"] > 0
+          ? "Increase Large WT Rule"
+          : "Decrease Large WT Rule";
+      description = (
+        <span>
+          {action.params["wt_increment"] > 0 ? "Increased" : "Decreased"} large
+          WT rule by <b>{Math.abs(action.params["wt_increment"])}</b> for task{" "}
+          <b>{getRuleDisplayText(action.params["rule"])}</b>.
+        </span>
+      );
+      break;
+    case "ModifySizeOfSignificantRuleAction":
+      icon = <IconArrowRight size={16} />;
+      title =
+        action.params["size_increment"] > 0
+          ? "Increase Size of Significant Rule"
+          : "Decrease Size of Significant Rule";
+      description = (
+        <span>
+          {action.params["size_increment"] > 0 ? "Increased" : "Decreased"} size
+          of significant rule by{" "}
+          <b>{Math.abs(action.params["size_increment"])}</b> for task{" "}
+          <b>{getRuleDisplayText(action.params["rule"])}</b>.
+        </span>
+      );
+      break;
+    case "ModifyLargeReadyWtOfSignificantRuleAction":
+      icon = <IconArrowRight size={16} />;
+      title =
+        action.params["wt_increment"] > 0
+          ? "Increase Large Ready WT of Significant Rule"
+          : "Decrease Large Ready WT of Significant Rule";
+      description = (
+        <span>
+          {action.params["wt_increment"] > 0 ? "Increased" : "Decreased"} large
+          ready WT of significant rule by{" "}
+          <b>{Math.abs(action.params["wt_increment"])}</b> for task{" "}
+          <b>{getRuleDisplayText(action.params["rule"])}</b>.
+        </span>
+      );
+      break;
+    case "RemoveResourceByCostAction":
+      icon = <IconTrash size={16} />;
+      title = "Remove Resource by Cost";
+      description = (
+        <span>
+          Removed resource <b>{action.params["resource_id"]}</b> based on cost.
+        </span>
+      );
+      break;
+    case "AddDateTimeRuleByAvailabilityAction":
+      icon = <IconCirclePlus size={16} />;
+      title = "Add Date Time Rule by Availability";
+      description = (
+        <span>
+          Added date time rule based on availability for{" "}
+          <b>{action.params["rule"]}.</b>
+        </span>
+      );
+      break;
+    case "AddDateTimeRuleByStartAction":
+      icon = <IconCirclePlus size={16} />;
+      title = "Add Date Time Rule by Start";
+      description = (
+        <span>
+          Added date time rule based on start time for{" "}
+          <b>{action.params["rule"]}.</b>
+        </span>
+      );
+      break;
+    case "AddDateTimeRuleByEnablementAction":
+      icon = <IconCirclePlus size={16} />;
+      title = "Add Date Time Rule by Enablement";
+      description = (
+        <span>
+          Added date time rule based on enablement for{" "}
+          <b>{action.params["rule"]}.</b>
+        </span>
+      );
+      break;
+    case "ShiftDateTimeRuleAction":
+      icon = <IconArrowRight size={16} />;
+      title = "Shift Date Time Rule";
+      description = (
+        <span>
+          Shifted date time rule for <b>{action.params["rule"]}.</b>
+        </span>
+      );
+      break;
+    case "RemoveDateTimeRuleAction":
+      icon = <IconTrash size={16} />;
+      title = "Remove Date Time Rule";
+      description = (
+        <span>
+          Removed date time rule <b>{action.params["rule"]}.</b>
+        </span>
+      );
+      break;
+    case "AddReadyWTRuleByWTAction":
+    case "AddLargeWTRuleByWTAction":
+    case "AddLargeWTRuleByIdleAction":
+      icon = <IconCirclePlus size={16} />;
+      title =
+        action.type === "AddReadyWTRuleByWTAction"
+          ? "Add Ready WT Rule"
+          : "Add Large WT Rule";
+      description = (
+        <span>
+          Added {action.type === "AddReadyWTRuleByWTAction" ? "ready" : "large"}{" "}
+          WT rule with waiting time <b>{action.params["wt"]}</b>{" "}
+          {action.type === "AddLargeWTRuleByIdleAction"
+            ? "based on idle time"
+            : ""}{" "}
+          for task <b>{action.params["task_id"]}</b>.
+        </span>
+      );
+      break;
     default:
       console.warn("Unknown action type", action);
       title = "Unknown action";
@@ -186,4 +399,16 @@ const ActionCard = ({ action }: { action: JsonAction }) => {
       </Text>
     </Card>
   );
+};
+
+const getRuleDisplayText = (rule: any): string => {
+  if (!rule) return "Unknown";
+  if (typeof rule === "string") return rule;
+  if (typeof rule === "object") {
+    if (rule.batching_rule_task_id) return rule.batching_rule_task_id;
+    if (rule.task_id) return rule.task_id;
+    if (rule.id) return rule.id;
+    return "Unknown Rule";
+  }
+  return "Unknown";
 };
