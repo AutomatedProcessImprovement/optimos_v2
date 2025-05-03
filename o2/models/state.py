@@ -83,6 +83,12 @@ class State:
         assert node is not None
         return node.attrib["name"]
 
+    def get_task_names(self) -> dict[str, str]:
+        """Get a mapping of task IDs to task names."""
+        bpmn_tree = ET.fromstring(self.bpmn_definition)
+        task_nodes = bpmn_tree.findall(".//*[@id]")
+        return {node.attrib["id"]: node.attrib.get("name", node.attrib["id"]) for node in task_nodes}
+
     def is_valid(self) -> bool:
         """Check if the state is valid."""
         return self.timetable.is_valid()
