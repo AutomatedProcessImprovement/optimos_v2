@@ -1,15 +1,18 @@
 import React from "react";
 import { Grid, Text, Accordion, Box } from "@mantine/core";
-import { useInitialSolution } from "../../hooks/useInitialSolution";
 import { Tree } from "react-d3-tree";
-import { formatSeconds } from "../../util/num_helper";
+import { FC } from "react";
 import {
-  JsonSolution,
   BatchingRule,
-  COMPARATOR,
+  JsonSolution,
   RULE_TYPE,
+  COMPARATOR,
 } from "../../redux/slices/optimosApi";
+import { useInitialSolution } from "../../hooks/useInitialSolution";
+import { formatSeconds } from "../../util/num_helper";
 import { DiffInfo } from "./ResourceTable/DiffInfo";
+import { TaskNameDisplay } from "../../components/TaskNameDisplay";
+import { useTaskNames } from "../../hooks/useTaskNames";
 
 const getReadableLabel = (
   attribute: RULE_TYPE,
@@ -45,8 +48,10 @@ const getReadableLabel = (
 };
 
 const transformBatchingRulesToTree = (rule: BatchingRule) => {
+  const taskNames = useTaskNames();
+  const taskName = taskNames[rule.task_id] ?? rule.task_id;
   const root = {
-    name: `Task: ${rule.task_id}`,
+    name: `Task: ${taskName}`,
     children: rule.firing_rules.map((orRule, index) => ({
       name: `OR Rule ${index + 1}`,
       children: orRule.map((andRule) => ({
@@ -90,14 +95,13 @@ export const BatchingOverview = ({ solution }: { solution: JsonSolution }) => {
         </Text>
       </Grid.Col>
       <Grid.Col span={12}>
-        <Text fw={700} ta="left" mb="md">
-          Batching Rules
-        </Text>
         <Accordion>
           {batchingRules.map((rule, index) => (
             <Accordion.Item key={index} value={`rule-${index}`}>
               <Accordion.Control>
-                <Text fw={500}>Task: {rule.task_id}</Text>
+                <Text fw={500}>
+                  Task: <TaskNameDisplay taskId={rule.task_id} />
+                </Text>
               </Accordion.Control>
               <Accordion.Panel>
                 <Box style={{ height: "300px", width: "100%" }}>

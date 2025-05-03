@@ -129,6 +129,7 @@ const ResultPage: FC = () => {
                 otherSolutions={all_but_last_pareto_front
                   .flatMap((front) => front.solutions)
                   .filter((sol) => !sol.is_base_solution)}
+                costType={report.cost_type}
               />
             </Grid>
           </Paper>

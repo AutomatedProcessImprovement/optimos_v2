@@ -29,6 +29,7 @@ import { ResourcesTableCell } from "./ResourcesTableCell";
 import React from "react";
 import { JsonResourceInfo, WorkMasks } from "../../../redux/slices/optimosApi";
 import { WeekView } from "./WeekView";
+import { TaskNameDisplay } from "../../../components/TaskNameDisplay";
 
 type ResourceRowProps = {
   resource: JsonResourceInfo;
@@ -175,7 +176,7 @@ export const ResourceTableRow: FC<ResourceRowProps> = ({ resource }) => {
                       icon={<IconChecklist size={13} />}
                       color="black"
                     >
-                      {name}
+                      <TaskNameDisplay taskId={name} />
                     </Chip>
                   </Grid.Col>
                 ))}
@@ -187,7 +188,7 @@ export const ResourceTableRow: FC<ResourceRowProps> = ({ resource }) => {
                     checked
                     icon={<IconCirclePlus size={13} />}
                   >
-                    {name}
+                    <TaskNameDisplay taskId={name} />
                   </Chip>
                 </Grid.Col>
               ))}
@@ -199,7 +200,7 @@ export const ResourceTableRow: FC<ResourceRowProps> = ({ resource }) => {
                     checked
                     icon={<IconCircleMinus size={13} />}
                   >
-                    {name}
+                    <TaskNameDisplay taskId={name} />
                   </Chip>
                 </Grid.Col>
               ))}

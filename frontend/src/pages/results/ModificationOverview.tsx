@@ -9,6 +9,7 @@ import {
 } from "@tabler/icons-react";
 import React from "react";
 import { JsonAction, JsonSolution } from "../../redux/slices/optimosApi";
+import { TaskNameDisplay } from "../../components/TaskNameDisplay";
 
 type ModificationOverviewProps = {
   solution: JsonSolution;
@@ -190,7 +191,10 @@ const ActionCard = ({ action }: { action: JsonAction }) => {
       }`;
       description = (
         <span>
-          Added date time rule {ruleType} for <b>{action.params["task_id"]}</b>{" "}
+          Added date time rule {ruleType} for{" "}
+          <b>
+            <TaskNameDisplay taskId={action.params["task_id"]} />
+          </b>{" "}
           on <b>{action.params["time_period"]["from_"]}</b> from{" "}
           <b>{action.params["time_period"]["begin_time"]}</b> to{" "}
           <b>{action.params["time_period"]["end_time"]}</b>.
@@ -212,7 +216,10 @@ const ActionCard = ({ action }: { action: JsonAction }) => {
       description = (
         <span>
           Added size rule with size <b>{action.params["size"]}</b> for task{" "}
-          <b>{action.params["task_id"]}.</b>
+          <b>
+            <TaskNameDisplay taskId={action.params["task_id"]} />
+          </b>
+          .
         </span>
       );
       break;
@@ -222,7 +229,7 @@ const ActionCard = ({ action }: { action: JsonAction }) => {
       description = (
         <span>
           Modified daily hour rule for{" "}
-          <b>{getRuleDisplayText(action.params["rule"])}.</b>
+          <b>{getRuleDisplayText(action.params["rule"])}</b>.
         </span>
       );
       break;
@@ -258,7 +265,7 @@ const ActionCard = ({ action }: { action: JsonAction }) => {
       title = "Remove Rule";
       description = (
         <span>
-          Removed rule <b>{getRuleDisplayText(action.params["rule"])}.</b>
+          Removed rule <b>{getRuleDisplayText(action.params["rule"])}</b>.
         </span>
       );
       break;
@@ -334,8 +341,11 @@ const ActionCard = ({ action }: { action: JsonAction }) => {
       title = "Shift Date Time Rule";
       description = (
         <span>
-          Shifted date time rule for <b>{action.params["task_id"]}</b> on{" "}
-          <b>{action.params["day"]}</b> by{" "}
+          Shifted date time rule for{" "}
+          <b>
+            <TaskNameDisplay taskId={action.params["task_id"]} />
+          </b>{" "}
+          on <b>{action.params["day"]}</b> by{" "}
           <b>{action.params["add_to_start"]}</b> hours at start and{" "}
           <b>{action.params["add_to_end"]}</b> hours at end.
         </span>
@@ -346,8 +356,11 @@ const ActionCard = ({ action }: { action: JsonAction }) => {
       title = "Remove Date Time Rule";
       description = (
         <span>
-          Removed date time rule for <b>{action.params["task_id"]}</b> on{" "}
-          <b>{action.params["day"]}</b>.
+          Removed date time rule for{" "}
+          <b>
+            <TaskNameDisplay taskId={action.params["task_id"]} />
+          </b>{" "}
+          on <b>{action.params["day"]}</b>.
         </span>
       );
       break;
@@ -366,7 +379,11 @@ const ActionCard = ({ action }: { action: JsonAction }) => {
           {action.type === "AddLargeWTRuleByIdleAction"
             ? "based on idle time"
             : ""}{" "}
-          for task <b>{action.params["task_id"]}</b>.
+          for task{" "}
+          <b>
+            <TaskNameDisplay taskId={action.params["task_id"]} />
+          </b>
+          .
         </span>
       );
       break;
@@ -391,13 +408,14 @@ const ActionCard = ({ action }: { action: JsonAction }) => {
   );
 };
 
-const getRuleDisplayText = (rule: any): string => {
+const getRuleDisplayText = (rule: any): React.ReactNode => {
   if (!rule) return "Unknown";
   if (typeof rule === "string") return rule;
   if (typeof rule === "object") {
-    if (rule.batching_rule_task_id) return rule.batching_rule_task_id;
-    if (rule.task_id) return rule.task_id;
-    if (rule.id) return rule.id;
+    if (rule.batching_rule_task_id)
+      return <TaskNameDisplay taskId={rule.batching_rule_task_id} />;
+    if (rule.task_id) return <TaskNameDisplay taskId={rule.task_id} />;
+    if (rule.id) return <TaskNameDisplay taskId={rule.id} />;
     return "Unknown Rule";
   }
   return "Unknown";
