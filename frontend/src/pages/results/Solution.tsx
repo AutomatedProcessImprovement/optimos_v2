@@ -253,14 +253,14 @@ export const OptimosSolution: FC<OptimosSolutionProps> = memo(
             </Accordion.Panel>
           </Accordion.Item>
 
-          {/* <Accordion.Item value="batching">
+          <Accordion.Item value="batching">
             <Accordion.Control>Batching</Accordion.Control>
             <Accordion.Panel>
               {expanded == "batching" && (
                 <BatchingOverview solution={solution} />
               )}
             </Accordion.Panel>
-          </Accordion.Item> */}
+          </Accordion.Item>
 
           <Accordion.Item value="actions">
             <Accordion.Control>All Modifications</Accordion.Control>
