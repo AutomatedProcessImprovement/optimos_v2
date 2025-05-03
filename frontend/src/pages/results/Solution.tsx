@@ -18,6 +18,7 @@ import {
   formatCurrency,
   formatSeconds,
   formatPercentage,
+  formatMilliseconds,
 } from "../../util/num_helper";
 import { ResourcesTable } from "./ResourceTable/ResourcesTable";
 import { ConstraintsType, JsonSolution } from "../../redux/slices/optimosApi";
@@ -164,6 +165,24 @@ export const OptimosSolution: FC<OptimosSolutionProps> = memo(
                     <Text size="sm" fw="bold">
                       Mean resource utilization
                     </Text>
+                    <Text size="sm" fw="bold">
+                      Mean batching waiting time (per case)
+                    </Text>
+                    <Text size="sm" fw="bold">
+                      Total processing time
+                    </Text>
+                    <Text size="sm" fw="bold">
+                      Total waiting time
+                    </Text>
+                    <Text size="sm" fw="bold">
+                      Total task idle time
+                    </Text>
+                    <Text size="sm" fw="bold">
+                      Average idle WT per task instance
+                    </Text>
+                    <Text size="sm" fw="bold">
+                      Average batch processing time per task instance
+                    </Text>
                   </Grid.Col>
                   <Grid.Col span={7}>
                     <Text size="sm">
@@ -236,6 +255,97 @@ export const OptimosSolution: FC<OptimosSolutionProps> = memo(
                         suffix="initial solution"
                         onlyShowDiff
                         margin={0.01}
+                      />
+                    </Text>
+                    <Text size="sm">
+                      {formatMilliseconds(
+                        solution.global_info.average_batching_waiting_time
+                      )}{" "}
+                      <DiffInfo
+                        a={
+                          initialSolution?.global_info
+                            .average_batching_waiting_time
+                        }
+                        b={solution.global_info.average_batching_waiting_time}
+                        formatFn={formatMilliseconds}
+                        lowerIsBetter
+                        suffix="initial solution"
+                        onlyShowDiff
+                      />
+                    </Text>
+                    <Text size="sm">
+                      {formatMilliseconds(
+                        solution.global_info.total_processing_time
+                      )}{" "}
+                      <DiffInfo
+                        a={initialSolution?.global_info.total_processing_time}
+                        b={solution.global_info.total_processing_time}
+                        formatFn={formatMilliseconds}
+                        lowerIsBetter
+                        suffix="initial solution"
+                        onlyShowDiff
+                      />
+                    </Text>
+                    <Text size="sm">
+                      {formatMilliseconds(
+                        solution.global_info.total_waiting_time
+                      )}{" "}
+                      <DiffInfo
+                        a={initialSolution?.global_info.total_waiting_time}
+                        b={solution.global_info.total_waiting_time}
+                        formatFn={formatMilliseconds}
+                        lowerIsBetter
+                        suffix="initial solution"
+                        onlyShowDiff
+                      />
+                    </Text>
+                    <Text size="sm">
+                      {formatMilliseconds(
+                        solution.global_info.total_task_idle_time
+                      )}{" "}
+                      <DiffInfo
+                        a={initialSolution?.global_info.total_task_idle_time}
+                        b={solution.global_info.total_task_idle_time}
+                        formatFn={formatMilliseconds}
+                        lowerIsBetter
+                        suffix="initial solution"
+                        onlyShowDiff
+                      />
+                    </Text>
+                    <Text size="sm">
+                      {formatMilliseconds(
+                        solution.global_info.avg_idle_wt_per_task_instance
+                      )}{" "}
+                      <DiffInfo
+                        a={
+                          initialSolution?.global_info
+                            .avg_idle_wt_per_task_instance
+                        }
+                        b={solution.global_info.avg_idle_wt_per_task_instance}
+                        formatFn={formatMilliseconds}
+                        lowerIsBetter
+                        suffix="initial solution"
+                        onlyShowDiff
+                      />
+                    </Text>
+                    <Text size="sm">
+                      {formatMilliseconds(
+                        solution.global_info
+                          .avg_batch_processing_time_per_task_instance
+                      )}{" "}
+                      <DiffInfo
+                        a={
+                          initialSolution?.global_info
+                            .avg_batch_processing_time_per_task_instance
+                        }
+                        b={
+                          solution.global_info
+                            .avg_batch_processing_time_per_task_instance
+                        }
+                        formatFn={formatMilliseconds}
+                        lowerIsBetter
+                        suffix="initial solution"
+                        onlyShowDiff
                       />
                     </Text>
                   </Grid.Col>

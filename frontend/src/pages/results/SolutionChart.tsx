@@ -108,11 +108,14 @@ export const SolutionChart: React.FC<SolutionChartProps> = ({
     },
     tooltip: {
       formatter: function () {
+        const xLabel = getXAxisTitle(costType);
+        const yLabel = getYAxisTitle(costType);
         return `<span style="text-transform: capitalize;text-decoration: underline;">${
           this.point.name
-        }</span><br><b>Time:</b> ${formatSeconds(
-          this.x as number
-        )}<br><b>Cost:</b> ${formatCurrency(this.y ?? 0)}`;
+        }</span><br><b>${xLabel}:</b> ${formatValue(
+          this.x as number,
+          costType
+        )}<br><b>${yLabel}:</b> ${formatValue(this.y as number, costType)}`;
       },
     },
     xAxis: {
@@ -175,8 +178,8 @@ export const SolutionChart: React.FC<SolutionChartProps> = ({
         name: "Initial Solution",
         data: [
           {
-            x: initialSolution?.global_info.total_time,
-            y: initialSolution?.global_info.total_cost,
+            x: getXValue(initialSolution, costType),
+            y: getYValue(initialSolution, costType),
             id: `execution_${0}`,
             name: `Solution #${initialSolution?.solution_no}`,
           },

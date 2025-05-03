@@ -76,9 +76,6 @@ export const BatchingOverview = ({ solution }: { solution: JsonSolution }) => {
         <Text fw={700} ta="left">
           Waiting time due to batching
         </Text>
-        <Text fw={700} ta="left">
-          Batching Changes
-        </Text>
       </Grid.Col>
       <Grid.Col span={7}>
         <Text ta="left">
