@@ -308,6 +308,14 @@ export type JsonGlobalInfo = {
   total_time: number;
   average_batching_waiting_time: number;
   average_waiting_time: number;
+  total_fixed_cost: number;
+  total_cost_for_available_time: number;
+  total_cost_for_worked_time: number;
+  total_processing_time: number;
+  avg_batch_processing_time_per_task_instance: number;
+  total_waiting_time: number;
+  total_task_idle_time: number;
+  avg_idle_wt_per_task_instance: number;
 };
 export type JsonResourceModifiers = {
   deleted: boolean | null;
@@ -368,6 +376,7 @@ export type JsonReport = {
   pareto_fronts: JsonParetoFront[];
   is_final: boolean;
   approach?: string | null;
+  cost_type: CostType;
 };
 export type CancelResponse = {
   message: string;

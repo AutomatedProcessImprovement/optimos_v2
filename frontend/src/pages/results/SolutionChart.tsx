@@ -5,20 +5,98 @@ import { HighchartsReact } from "highcharts-react-official";
 
 import { Grid } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
-import { formatSeconds, formatCurrency } from "../../util/num_helper";
+import {
+  formatSeconds,
+  formatCurrency,
+  formatMilliseconds,
+} from "../../util/num_helper";
 import { useInitialSolution } from "../../hooks/useInitialSolution";
-import { JsonSolution } from "../../redux/slices/optimosApi";
+import { JsonSolution, CostType } from "../../redux/slices/optimosApi";
 
 interface SolutionChartProps {
   optimalSolutions: JsonSolution[];
   otherSolutions: JsonSolution[];
+  costType: CostType;
 }
 
-export const SolutionChart: FC<SolutionChartProps> = ({
+const getXValue = (solution: JsonSolution, costType: CostType): number => {
+  switch (costType) {
+    case CostType.FixedCost:
+      return solution.global_info.total_fixed_cost;
+    case CostType.ResourceCost:
+      return solution.global_info.total_cost_for_available_time;
+    case CostType.TotalCost:
+      return solution.global_info.total_cost_for_worked_time;
+    case CostType.WtPt:
+      return solution.global_info.total_processing_time;
+    case CostType.AvgWtPtPerTaskInstance:
+      return solution.global_info.avg_batch_processing_time_per_task_instance;
+    default:
+      return solution.global_info.total_cost_for_worked_time;
+  }
+};
+
+const getYValue = (solution: JsonSolution, costType: CostType): number => {
+  switch (costType) {
+    case CostType.WtPt:
+      return (
+        solution.global_info.total_waiting_time +
+        solution.global_info.total_task_idle_time
+      );
+    case CostType.AvgWtPtPerTaskInstance:
+      return solution.global_info.avg_idle_wt_per_task_instance;
+    default:
+      return solution.global_info.total_time;
+  }
+};
+
+const getXAxisTitle = (costType: CostType): string => {
+  switch (costType) {
+    case CostType.WtPt:
+      return "Processing Time";
+    case CostType.FixedCost:
+      return "Fixed Cost";
+    case CostType.ResourceCost:
+      return "Resource Cost";
+    case CostType.TotalCost:
+      return "Total Cost";
+    case CostType.AvgWtPtPerTaskInstance:
+      return "Batch Processing per Task";
+    default:
+      return "Total Cost";
+  }
+};
+
+const getYAxisTitle = (costType: CostType): string => {
+  switch (costType) {
+    case CostType.WtPt:
+      return "Waiting Time";
+    case CostType.AvgWtPtPerTaskInstance:
+      return "WT-Idle per Task";
+    default:
+      return "Total Duration";
+  }
+};
+
+const formatValue = (value: number, costType: CostType): string => {
+  switch (costType) {
+    case CostType.FixedCost:
+    case CostType.ResourceCost:
+    case CostType.TotalCost:
+      return formatCurrency(value);
+    case CostType.WtPt:
+    case CostType.AvgWtPtPerTaskInstance:
+      return formatMilliseconds(value);
+    default:
+      return formatCurrency(value);
+  }
+};
+
+export const SolutionChart: React.FC<SolutionChartProps> = ({
   optimalSolutions,
   otherSolutions,
+  costType,
 }) => {
-  const navigate = useNavigate();
   const initialSolution = useInitialSolution();
   const options: Highcharts.Options = {
     chart: {
@@ -39,21 +117,21 @@ export const SolutionChart: FC<SolutionChartProps> = ({
     },
     xAxis: {
       title: {
-        text: "Time",
+        text: getXAxisTitle(costType),
       },
       labels: {
         formatter: function () {
-          return formatSeconds(this.value as number);
+          return formatValue(Number(this.value), costType);
         },
       },
     },
     yAxis: {
       title: {
-        text: "Cost",
+        text: getYAxisTitle(costType),
       },
       labels: {
         formatter: function () {
-          return formatCurrency(this.value as number);
+          return formatValue(Number(this.value), costType);
         },
       },
     },
@@ -84,9 +162,9 @@ export const SolutionChart: FC<SolutionChartProps> = ({
     series: [
       {
         name: "Other Solutions",
-        data: otherSolutions.map((solution, index) => ({
-          x: solution.global_info.total_time,
-          y: solution.global_info.total_cost,
+        data: (otherSolutions || []).map((solution, index) => ({
+          x: getXValue(solution, costType),
+          y: getYValue(solution, costType),
           id: `execution_${optimalSolutions.length + index}`,
           name: `Solution #${solution.solution_no}`,
         })),
@@ -108,9 +186,9 @@ export const SolutionChart: FC<SolutionChartProps> = ({
       },
       {
         name: "Optimal Solutions",
-        data: optimalSolutions.map((solution, index) => ({
-          x: solution.global_info.total_time,
-          y: solution.global_info.total_cost,
+        data: (optimalSolutions || []).map((solution, index) => ({
+          x: getXValue(solution, costType),
+          y: getYValue(solution, costType),
           id: `execution_${index}`,
           name: `Solution #${solution.solution_no}`,
         })),

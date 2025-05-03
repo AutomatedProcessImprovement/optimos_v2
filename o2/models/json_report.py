@@ -10,6 +10,7 @@ from o2.actions.base_actions.modify_calendar_base_action import ModifyCalendarBa
 from o2.actions.base_actions.modify_resource_base_action import ModifyResourceBaseAction
 from o2.models.constraints import ConstraintsType
 from o2.models.legacy_constraints import WorkMasks
+from o2.models.settings import CostType
 from o2.models.solution import Solution
 from o2.models.timetable import Resource, TimetableType
 from o2.pareto_front import ParetoFront
@@ -26,6 +27,8 @@ class JSONReport(BaseModel):
 
     constraints: ConstraintsType
     bpmn_definition: str
+    task_names: dict[str, str]
+    """Mapping of task IDs to task names."""
 
     base_solution: "_JSONSolution"
     pareto_fronts: list["_JSONParetoFront"]
@@ -33,6 +36,8 @@ class JSONReport(BaseModel):
     is_final: bool
 
     approach: Optional[str] = None
+    cost_type: CostType
+    """The cost type used for optimization."""
 
     @staticmethod
     def from_store(store: Store, is_final: bool = False) -> "JSONReport":
@@ -40,6 +45,7 @@ class JSONReport(BaseModel):
             name=store.name,
             constraints=store.constraints,
             bpmn_definition=store.base_state.bpmn_definition,
+            task_names=store.base_state.get_task_names(),
             base_solution=_JSONSolution.from_state_evaluation(store.base_solution, store),
             pareto_fronts=[
                 _JSONParetoFront.from_pareto_front(pareto_front, store)
@@ -47,6 +53,7 @@ class JSONReport(BaseModel):
             ],
             is_final=is_final,
             approach=str(store.settings.legacy_approach),
+            cost_type=store.settings.COST_TYPE,
             created_at=datetime.datetime.now().isoformat(),
         )
 
@@ -197,6 +204,14 @@ class _JSONGlobalInfo(JSONWizard):
     total_time: float
     average_batching_waiting_time: float
     average_waiting_time: float
+    total_fixed_cost: float
+    total_cost_for_available_time: float
+    total_cost_for_worked_time: float
+    total_processing_time: float
+    avg_batch_processing_time_per_task_instance: float
+    total_waiting_time: float
+    total_task_idle_time: float
+    avg_idle_wt_per_task_instance: float
 
 
 @dataclass(frozen=True)
@@ -238,6 +253,14 @@ class _JSONSolution(JSONWizard):
                 total_time=evaluation.total_duration,
                 average_batching_waiting_time=evaluation.avg_batching_waiting_time_by_case,
                 average_waiting_time=evaluation.avg_waiting_time_by_case,
+                total_fixed_cost=evaluation.total_fixed_cost,
+                total_cost_for_available_time=evaluation.total_cost_for_available_time,
+                total_cost_for_worked_time=evaluation.total_cost_for_worked_time,
+                total_processing_time=evaluation.total_processing_time,
+                avg_batch_processing_time_per_task_instance=evaluation.avg_batch_processing_time_per_task_instance,
+                total_waiting_time=evaluation.total_waiting_time,
+                total_task_idle_time=evaluation.total_task_idle_time,
+                avg_idle_wt_per_task_instance=evaluation.avg_idle_wt_per_task_instance,
             ),
             resource_info={
                 resource.id: _JSONResourceInfo.from_resource(resource, solution, store)
