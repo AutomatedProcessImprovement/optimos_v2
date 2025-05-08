@@ -49,13 +49,6 @@ from o2.actions.batching_actions.modify_size_rule_by_wt_action import (
 )
 from o2.actions.batching_actions.random_action import RandomAction
 from o2.actions.batching_actions.remove_rule_action import RemoveRuleAction
-from o2.actions.deprecated_actions.add_week_day_rule_action import AddWeekDayRuleAction
-from o2.actions.deprecated_actions.modify_large_wt_rule_action import (
-    ModifyLargeWtRuleAction,
-)
-from o2.actions.deprecated_actions.modify_ready_wt_rule_action import (
-    ModifyReadyWtRuleAction,
-)
 from o2.actions.legacy_optimos_actions.add_resource_action import AddResourceAction
 from o2.actions.legacy_optimos_actions.modify_calendar_by_cost_action import (
     ModifyCalendarByCostAction,
@@ -79,13 +72,10 @@ from o2.util.indented_printer import print_l1, print_l2, print_l3
 
 ACTION_CATALOG: list[type[BaseAction]] = [
     AddResourceAction,
-    AddWeekDayRuleAction,
     ModifyCalendarByCostAction,
     ModifyCalendarByITAction,
     ModifyCalendarByWTAction,
     ModifyDailyHourRuleAction,
-    ModifyLargeWtRuleAction,
-    ModifyReadyWtRuleAction,
     RemoveResourceByCostAction,
     RemoveResourceByUtilizationAction,
     RemoveRuleAction,
