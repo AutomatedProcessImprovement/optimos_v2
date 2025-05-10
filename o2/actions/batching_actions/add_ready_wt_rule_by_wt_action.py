@@ -10,6 +10,7 @@ from o2.actions.base_actions.base_action import (
     RateSelfReturnType,
 )
 from o2.models.self_rating import RATING
+from o2.models.solution import Solution
 from o2.models.timetable import RULE_TYPE
 from o2.store import Store
 

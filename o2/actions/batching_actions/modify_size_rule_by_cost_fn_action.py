@@ -140,7 +140,7 @@ class ModifySizeRuleByCostFnLowProcessingTimeAction(ModifySizeRuleBaseAction):
         store: "Store", input: "Solution"
     ) -> RateSelfReturnType["ModifySizeRuleByCostFnLowProcessingTimeAction"]:
         """Generate a best set of parameters & self-evaluates this action."""
-        evaluation = input.
+        evaluation = input.evaluation
 
         task_processing_times = evaluation.get_average_processing_time_per_task()
         yield from rate_self_helper_by_metric_dict(

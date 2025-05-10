@@ -1,4 +1,3 @@
-import random
 from unittest import mock
 
 import pytest
@@ -9,15 +8,13 @@ from o2.actions.base_actions.add_size_rule_base_action import AddSizeRuleAction
 from o2.actions.base_actions.modify_size_rule_base_action import ModifySizeRuleAction
 from o2.actions.batching_actions.modify_daily_hour_rule_action import ModifyDailyHourRuleAction
 from o2.actions.batching_actions.random_action import (
-    ACTIONS,
     RandomAction,
-    RandomActionParamsType,
 )
 from o2.actions.batching_actions.remove_rule_action import RemoveRuleAction
 from o2.models.days import DAY
 from o2.models.rule_selector import RuleSelector
-from o2.models.solution import Solution
 from o2.models.settings import Settings
+from o2.models.solution import Solution
 from o2.models.timetable import RULE_TYPE, BatchingRule
 from o2.store import Store
 from tests.fixtures.test_helpers import replace_timetable
@@ -27,7 +24,7 @@ from tests.fixtures.timetable_generator import TimetableGenerator
 @pytest.fixture
 def self_rating_input():
     # Create a mock SelfRatingInput
-    return mock.MagicMock(spec=SelfRatingInput)
+    return mock.MagicMock(spec=Solution)
 
 
 @pytest.fixture
