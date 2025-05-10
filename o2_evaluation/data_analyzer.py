@@ -8,9 +8,8 @@ from typing import Optional, TypedDict
 from o2.models.evaluation import Evaluation
 from o2.models.settings import CostType, Settings
 from o2.models.solution import Solution
-from o2.models.state import State
 from o2.store import Store
-from o2.util.logger import IO_LOG_LEVEL, debug, info, log_io, setup_logging, stats, warn
+from o2.util.logger import debug, info, setup_logging, stats, warn
 from o2.util.solution_dumper import SolutionDumper
 from o2.util.stat_calculation_helper import (
     calculate_averaged_hausdorff_distance,

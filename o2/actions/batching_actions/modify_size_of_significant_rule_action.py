@@ -11,6 +11,7 @@ from o2.actions.base_actions.modify_size_rule_base_action import (
 )
 from o2.models.evaluation import Evaluation
 from o2.models.rule_selector import RuleSelector
+from o2.models.solution import Solution
 from o2.models.state import State
 from o2.models.timetable import (
     RULE_TYPE,
@@ -89,5 +90,5 @@ class ModifySizeOfSignificantRuleAction(BaseAction):
 
     @override
     @staticmethod
-    def rate_self(store: Store, input: Evaluation) -> RateSelfReturnType:
+    def rate_self(store: Store, input: Solution) -> RateSelfReturnType:
         raise NotImplementedError("Not implemented")

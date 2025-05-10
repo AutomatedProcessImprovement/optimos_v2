@@ -13,6 +13,7 @@ from o2.actions.base_actions.batching_rule_base_action import (
 from o2.models.evaluation import Evaluation
 from o2.models.self_rating import RATING
 from o2.models.settings import Settings
+from o2.models.solution import Solution
 from o2.models.state import State
 from o2.store import Store
 from o2.util.logger import warn
@@ -59,7 +60,7 @@ class RemoveRuleAction(BatchingRuleBaseAction, str=False):
 
     @override
     @staticmethod
-    def rate_self(store: Store, input: Evaluation) -> RateSelfReturnType:
+    def rate_self(store: Store, input: Solution) -> RateSelfReturnType:
         if Settings.DISABLE_REMOVE_ACTION_RULE:
             return (
                 RATING.NOT_APPLICABLE,

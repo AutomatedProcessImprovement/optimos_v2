@@ -15,6 +15,7 @@ from o2.models.constraints import RULE_TYPE
 from o2.models.evaluation import Evaluation
 from o2.models.rule_selector import RuleSelector
 from o2.models.self_rating import RATING
+from o2.models.solution import Solution
 from o2.models.state import State
 from o2.models.timetable import (
     COMPARATOR,
@@ -130,5 +131,5 @@ class AddReadyLargeWTRuleAction(AddReadyLargeWTRuleBaseAction):
 
     @override
     @staticmethod
-    def rate_self(store: Store, input: Evaluation) -> RateSelfReturnType:
+    def rate_self(store: Store, input: Solution) -> RateSelfReturnType:
         raise NotImplementedError("rate_self is not implemented")

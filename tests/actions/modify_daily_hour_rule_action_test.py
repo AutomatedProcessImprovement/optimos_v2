@@ -2,9 +2,8 @@ from o2.actions.batching_actions.modify_daily_hour_rule_action import (
     ModifyDailyHourRuleAction,
     ModifyDailyHourRuleActionParamsType,
 )
-from o2.agents.tabu_agent import TabuAgent
 from o2.models.rule_selector import RuleSelector
-from o2.models.self_rating import RATING, SelfRatingInput
+from o2.models.self_rating import RATING
 from o2.store import Store
 from tests.fixtures.constraints_generator import ConstraintsGenerator
 from tests.fixtures.test_helpers import (
@@ -71,10 +70,8 @@ def test_self_rate_simple(one_task_store: Store):
 
     first_rule = store.base_timetable.batch_processing[0]
 
-    evaluations = TabuAgent.evaluate_rules(store, skip_size_rules=True)
-    rating_input = SelfRatingInput.from_rule_solutions(store, evaluations)
-    assert rating_input is not None
-    rating, action = first_valid(store, ModifyDailyHourRuleAction.rate_self(store, rating_input))
+    # Use solution directly for the test
+    rating, action = first_valid(store, ModifyDailyHourRuleAction.rate_self(store, store.solution))
 
     # It's easy to see why the second rule is more impactful: If we remove <= 12:00,
     # than we can work from 9:00-23:59 (which is even more than needed, because we only
@@ -118,10 +115,8 @@ def test_self_rate_simple2(one_task_store: Store):
 
     first_rule = store.base_timetable.batch_processing[0]
 
-    evaluations = TabuAgent.evaluate_rules(store, skip_size_rules=True)
-    rating_input = SelfRatingInput.from_rule_solutions(store, evaluations)
-    assert rating_input is not None
-    rating, action = first_valid(store, ModifyDailyHourRuleAction.rate_self(store, rating_input))
+    # Use solution directly for the test
+    rating, action = first_valid(store, ModifyDailyHourRuleAction.rate_self(store, store.solution))
 
     # Because events are coming only until 12:00, we can't work significantly
     # past that time. Therefore the first rule is more impactful.

@@ -1,12 +1,12 @@
-import glob
 import os
 import pickle
 from datetime import datetime
-from io import BufferedWriter, TextIOWrapper
+from io import BufferedWriter
 from typing import TYPE_CHECKING, Optional
 
 from o2.models.evaluation import Evaluation
 from o2.models.settings import Settings
+from o2.models.solution import Solution
 from o2.models.state import State
 from o2.util.logger import log_io
 

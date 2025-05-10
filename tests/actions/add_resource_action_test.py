@@ -1,5 +1,4 @@
 from o2.actions.legacy_optimos_actions.add_resource_action import AddResourceAction
-from o2.models.self_rating import SelfRatingInput
 from o2.store import Store
 from o2.util.helper import name_is_clone_of
 from tests.fixtures.test_helpers import first_valid, replace_state
@@ -7,7 +6,7 @@ from tests.fixtures.timetable_generator import TimetableGenerator
 
 
 def test_action_creation_one_resource_one_task(one_task_store: Store):
-    input = SelfRatingInput.from_base_solution(one_task_store.solution)
+    input = one_task_store.solution
 
     rating, action = first_valid(one_task_store, AddResourceAction.rate_self(one_task_store, input))
 
@@ -22,7 +21,7 @@ def test_action_creation_one_resource_one_task(one_task_store: Store):
 
 def test_action_creation_one_resource_two_tasks(two_tasks_store: Store):
     store = two_tasks_store
-    input = SelfRatingInput.from_base_solution(store.solution)
+    input = store.solution
 
     _, action = first_valid(store, AddResourceAction.rate_self(store, input))
 
@@ -45,7 +44,7 @@ def test_action_creation_two_resources_one_task(one_task_store: Store):
         ),
     )
 
-    input = SelfRatingInput.from_base_solution(store.solution)
+    input = store.solution
 
     _, action = first_valid(store, AddResourceAction.rate_self(store, input))
 
@@ -68,7 +67,7 @@ def test_action_creation_two_resources_two_tasks(two_tasks_store: Store):
         ).replace_resource_calendar(TimetableGenerator.resource_calendars(10, 12)[0]),
     )
 
-    input = SelfRatingInput.from_base_solution(store.solution)
+    input = store.solution
 
     _, action = first_valid(store, AddResourceAction.rate_self(store, input))
 

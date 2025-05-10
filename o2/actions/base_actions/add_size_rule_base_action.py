@@ -13,6 +13,7 @@ from o2.models.constraints import RULE_TYPE
 from o2.models.evaluation import Evaluation
 from o2.models.rule_selector import RuleSelector
 from o2.models.self_rating import RATING
+from o2.models.solution import Solution
 from o2.models.state import State
 from o2.models.timetable import (
     COMPARATOR,
@@ -104,7 +105,7 @@ class AddSizeRuleBaseAction(BaseAction, ABC, str=False):
     @override
     @staticmethod
     @abstractmethod
-    def rate_self(store: Store, input: Evaluation) -> RateSelfReturnType:
+    def rate_self(store: Store, input: Solution) -> RateSelfReturnType:
         pass
 
     @staticmethod
@@ -119,7 +120,7 @@ class AddSizeRuleAction(AddSizeRuleBaseAction):
     @override
     @override
     @staticmethod
-    def rate_self(store: Store, input: Evaluation) -> RateSelfReturnType:
+    def rate_self(store: Store, input: Solution) -> RateSelfReturnType:
         task_ids = store.current_timetable.get_task_ids()
 
         for task_id in select_variants(store, task_ids):

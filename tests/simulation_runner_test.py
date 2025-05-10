@@ -1,9 +1,6 @@
 # Basic Test Suite to test that the fixture is working correctly
 from dataclasses import replace
-from datetime import datetime
 
-import pytest
-import pytz
 
 from o2.models.days import DAY
 from o2.models.evaluation import Evaluation

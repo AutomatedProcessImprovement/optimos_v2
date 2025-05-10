@@ -61,7 +61,7 @@ def test_action_creation_shrink_start(one_task_store: Store):
     store = replace_constraints(
         store,
         resources=ConstraintsGenerator.resource_constraints(
-            always_work_masks=ConstraintsGenerator.work_mask(start_time=12, end_time=16)
+            never_work_masks=ConstraintsGenerator.work_mask(start_time=16, end_time=18)
         ),
     )
 

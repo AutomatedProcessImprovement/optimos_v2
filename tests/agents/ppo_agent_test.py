@@ -5,12 +5,11 @@ import pytest
 import torch as th
 
 from o2.actions.base_actions.base_action import BaseAction
-from o2.agents.agent import NoActionsLeftError, NoNewBaseSolutionFoundError
+from o2.agents.agent import NoActionsLeftError
 from o2.agents.ppo_agent import PPOAgent
 from o2.agents.tabu_agent import TabuAgent
 from o2.models.solution import Solution
 from o2.pareto_front import FRONT_STATUS
-from o2.store import SolutionTry
 
 # These fixtures are now available from conftest.py automatically
 # No need to explicitly import them

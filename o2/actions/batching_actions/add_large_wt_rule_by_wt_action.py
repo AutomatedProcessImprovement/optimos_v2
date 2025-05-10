@@ -2,10 +2,6 @@ from math import ceil
 
 from typing_extensions import override
 
-from o2.actions.base_actions.add_datetime_rule_base_action import (
-    AddDateTimeRuleBaseAction,
-    AddDateTimeRuleBaseActionParamsType,
-)
 from o2.actions.base_actions.add_ready_large_wt_rule_base_action import (
     AddReadyLargeWTRuleBaseAction,
     AddReadyLargeWTRuleBaseActionParamsType,
@@ -13,8 +9,8 @@ from o2.actions.base_actions.add_ready_large_wt_rule_base_action import (
 from o2.actions.base_actions.base_action import (
     RateSelfReturnType,
 )
-from o2.models.evaluation import Evaluation
 from o2.models.self_rating import RATING
+from o2.models.solution import Solution
 from o2.models.timetable import RULE_TYPE
 from o2.store import Store
 
@@ -38,14 +34,14 @@ class AddLargeWTRuleByWTAction(AddReadyLargeWTRuleBaseAction):
 
     @override
     @staticmethod
-    def rate_self(store: "Store", input: Evaluation) -> RateSelfReturnType["AddLargeWTRuleByWTAction"]:
+    def rate_self(store: "Store", input: Solution) -> RateSelfReturnType["AddLargeWTRuleByWTAction"]:
         sorted_tasks = sorted(
-            input.total_batching_waiting_time_per_task.items(),
+            input.evaluation.total_batching_waiting_time_per_task.items(),
             key=lambda x: x[1],
             reverse=True,
         )
         for task_id, _ in sorted_tasks:
-            waiting_time = input.avg_batching_waiting_time_per_task[task_id]
+            waiting_time = input.evaluation.avg_batching_waiting_time_per_task[task_id]
             if waiting_time == 0:
                 continue
             # Cap the waiting time to 24 hours

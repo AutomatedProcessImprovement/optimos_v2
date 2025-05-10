@@ -12,6 +12,7 @@ from o2.actions.base_actions.batching_rule_base_action import (
 )
 from o2.models.days import DAY
 from o2.models.evaluation import Evaluation
+from o2.models.solution import Solution
 from o2.models.state import State, TabuState
 from o2.models.timetable import (
     BatchingRule,
@@ -97,5 +98,5 @@ class ShiftDateTimeRuleAction(ShiftDateTimeRuleBaseAction):
 
     @override
     @staticmethod
-    def rate_self(store: Store, input: Evaluation) -> RateSelfReturnType[ShiftDateTimeRuleBaseAction]:
+    def rate_self(store: Store, input: Solution) -> RateSelfReturnType[ShiftDateTimeRuleBaseAction]:
         raise NotImplementedError("Not implemented")

@@ -16,8 +16,8 @@ from o2.util.helper import hash_string
 from o2.util.logger import warn
 
 if TYPE_CHECKING:
-    from o2.models.evaluation import Evaluation
     from o2.models.self_rating import RATING
+    from o2.models.solution import Solution
     from o2.store import State, Store
 
 
@@ -45,7 +45,7 @@ class BaseAction(JSONSerializable, ABC, str=False):
 
     @staticmethod
     @abstractmethod
-    def rate_self(store: "Store", input: "Evaluation") -> RateSelfReturnType[ActionT]:
+    def rate_self(store: "Store", input: "Solution") -> RateSelfReturnType[ActionT]:
         """Generate a best set of parameters & self-evaluates this action."""
         pass
 

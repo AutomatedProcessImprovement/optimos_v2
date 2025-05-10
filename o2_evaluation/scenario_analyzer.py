@@ -5,13 +5,9 @@ import time
 from typing import TypedDict
 from xml.etree import ElementTree
 
-from o2.models.evaluation import Evaluation
 from o2.models.state import State
 from o2.models.timetable import TimetableType
 from o2.simulation_runner import SimulationRunner
-from o2_evaluation.data_collector import (
-    store_with_baseline_constraints,
-)
 
 
 class ScenarioStats(TypedDict):

@@ -7,7 +7,9 @@ from typing import Optional
 from o2.actions.base_actions.base_action import BaseAction
 from o2.models.evaluation import Evaluation
 from o2.models.settings import Settings
+from o2.models.solution import Solution
 from o2.models.state import State
+from o2.models.timetable import TimetableType
 from o2.util.helper import hash_string, hex_id
 from o2.util.solution_dumper import SolutionDumper
 
@@ -59,9 +61,13 @@ class Solution:
     _state: Optional[State] = field(init=False, repr=False, default=None)
 
     @property
+    def timetable(self) -> TimetableType:
+        """Return the timetable of the solution."""
+        return self.state.timetable
+
+    @property
     def state(self) -> State:
         """Return the state of the solution."""
-
         # In case this is a pre-archived solution (e.g. from a previous run),
         # we can take the state from __dict__['state']
         if self._state is None and "state" in self.__dict__ and self.__dict__["state"] is not None:

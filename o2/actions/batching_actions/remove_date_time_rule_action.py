@@ -5,6 +5,7 @@ from typing_extensions import Required, override
 from o2.actions.base_actions.base_action import BaseAction, BaseActionParamsType, RateSelfReturnType
 from o2.models.days import DAY
 from o2.models.evaluation import Evaluation
+from o2.models.solution import Solution
 from o2.models.state import State, TabuState
 from o2.store import Store
 
@@ -88,5 +89,5 @@ class RemoveDateTimeRuleAction(BaseAction):
 
     @override
     @staticmethod
-    def rate_self(store: Store, input: Evaluation) -> RateSelfReturnType:
+    def rate_self(store: Store, input: Solution) -> RateSelfReturnType:
         raise NotImplementedError("Not implemented")
