@@ -4,7 +4,7 @@ from o2.actions.legacy_optimos_actions.modify_calendar_by_cost_action import (
     ModifyCalendarByCostAction,
 )
 from o2.models.days import DAY
-from o2.models.self_rating import SelfRatingInput
+from o2.models.solution import Solution
 from o2.models.timetable import TimePeriod
 from o2.store import Store
 from tests.fixtures.constraints_generator import ConstraintsGenerator
@@ -19,7 +19,7 @@ from tests.fixtures.timetable_generator import TimetableGenerator
 
 def test_action_creation_simple_shrink(one_task_store: Store):
     store = one_task_store
-    input = SelfRatingInput.from_base_solution(store.solution)
+    input = store.solution
 
     _, action = first_valid(store, ModifyCalendarByCostAction.rate_self(store, input))
 
@@ -42,7 +42,7 @@ def test_action_creation_simple_removal(one_task_store: Store):
     )
     store = replace_timetable(one_task_store, resource_calendars=[resource_calendar])
 
-    input = SelfRatingInput.from_base_solution(store.solution)
+    input = store.solution
 
     _, action = first_valid(store, ModifyCalendarByCostAction.rate_self(store, input))
 
@@ -65,7 +65,7 @@ def test_action_creation_shrink_start(one_task_store: Store):
         ),
     )
 
-    input = SelfRatingInput.from_base_solution(store.solution)
+    input = store.solution
 
     _, action = first_valid(store, ModifyCalendarByCostAction.rate_self(store, input))
 
@@ -89,7 +89,7 @@ def test_action_creation_shrink_end(one_task_store: Store):
         ),
     )
 
-    input = SelfRatingInput.from_base_solution(store.solution)
+    input = store.solution
 
     _, action = first_valid(store, ModifyCalendarByCostAction.rate_self(store, input))
 

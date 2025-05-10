@@ -5,7 +5,7 @@ from o2.actions.base_actions.modify_resource_base_action import (
     ModifyResourceBaseAction,
     ModifyResourceBaseActionParamsType,
 )
-from o2.models.self_rating import SelfRatingInput
+from o2.models.solution import Solution
 from o2.store import Store
 
 
@@ -26,7 +26,7 @@ class RemoveResourceByCostAction(ModifyResourceBaseAction, str=False):
     """
 
     @staticmethod
-    def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
+    def rate_self(store: Store, input: "Solution") -> RateSelfReturnType:
         """Generate a best set of parameters & self-evaluates this action."""
         resources = store.solution.state.timetable.get_resources_with_cost()
         for resource, _cost in resources:

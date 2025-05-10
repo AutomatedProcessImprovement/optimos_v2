@@ -65,7 +65,7 @@ from o2.actions.legacy_optimos_actions.remove_resource_by_cost_action import (
 from o2.actions.legacy_optimos_actions.remove_resource_by_utilization_action import (
     RemoveResourceByUtilizationAction,
 )
-from o2.models.self_rating import RATING, SelfRatingInput
+from o2.models.self_rating import RATING
 from o2.models.solution import Solution
 from o2.store import SolutionTry, Store
 from o2.util.indented_printer import print_l1, print_l2, print_l3
@@ -278,7 +278,7 @@ class Agent(ABC):
 
         NOTE: This function **must** be called when setting a new base solution.
         """
-        rating_input = SelfRatingInput.from_base_solution(solution)
+        rating_input = solution
         self.action_generator_tabu_ids = set()
         self.action_generator_counter = defaultdict(int)
         self.action_generators = [Action.rate_self(self.store, rating_input) for Action in self.catalog]

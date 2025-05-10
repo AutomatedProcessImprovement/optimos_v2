@@ -6,7 +6,6 @@ from o2.actions.batching_actions.add_large_wt_rule_by_idle_action import (
     AddLargeWTRuleByIdleAction,
 )
 from o2.models.constraints import BatchingConstraints, LargeWtRuleConstraints
-from o2.models.self_rating import SelfRatingInput
 from o2.models.timetable import BATCH_TYPE, RULE_TYPE
 from o2.store import Store
 from tests.fixtures.test_helpers import first_valid
@@ -59,7 +58,7 @@ def large_wt_rule_store(one_task_store: Store) -> Store:
 
 
 def test_add_large_wt_rule_by_idle_basic(large_wt_rule_store: Store):
-    input = SelfRatingInput.from_base_solution(large_wt_rule_store.solution)
+    input = large_wt_rule_store.solution
 
     _, action = first_valid(
         large_wt_rule_store, AddLargeWTRuleByIdleAction.rate_self(large_wt_rule_store, input)
@@ -92,7 +91,7 @@ def test_add_large_wt_rule_by_idle_with_constraints(large_wt_rule_store: Store):
         ],
     )
 
-    input = SelfRatingInput.from_base_solution(large_wt_rule_store.solution)
+    input = large_wt_rule_store.solution
 
     # Check if action is still valid
     _, action = first_valid(

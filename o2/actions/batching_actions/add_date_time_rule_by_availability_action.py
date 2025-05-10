@@ -7,7 +7,8 @@ from o2.actions.base_actions.add_datetime_rule_base_action import (
 from o2.actions.base_actions.base_action import (
     RateSelfReturnType,
 )
-from o2.models.self_rating import RATING, SelfRatingInput
+from o2.models.self_rating import RATING
+from o2.models.solution import Solution
 from o2.store import Store
 
 
@@ -32,12 +33,12 @@ class AddDateTimeRuleByAvailabilityAction(AddDateTimeRuleBaseAction):
 
     @staticmethod
     def rate_self(
-        store: "Store", input: SelfRatingInput
+        store: "Store", input: "Solution"
     ) -> RateSelfReturnType["AddDateTimeRuleByAvailabilityAction"]:
         """Generate a best set of parameters & self-evaluates this action."""
-        timetable = store.current_timetable
+        timetable = input.state.timetable
 
-        avg_processing_times = store.current_evaluation.get_average_processing_time_per_task()
+        avg_processing_times = input.evaluation.get_average_processing_time_per_task()
 
         sorted_tasks = sorted(
             store.current_evaluation.get_total_duration_time_per_task().items(),

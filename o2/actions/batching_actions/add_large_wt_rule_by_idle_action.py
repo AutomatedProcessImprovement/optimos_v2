@@ -10,7 +10,7 @@ from o2.actions.base_actions.base_action import (
     RateSelfReturnType,
 )
 from o2.models.days import DAY
-from o2.models.self_rating import SelfRatingInput
+from o2.models.solution import Solution
 from o2.models.timetable import RULE_TYPE
 from o2.store import Store
 from o2.util.helper import select_variants
@@ -44,11 +44,11 @@ class AddLargeWTRuleByIdleAction(AddReadyLargeWTRuleBaseAction):
 
     @override
     @staticmethod
-    def rate_self(store: "Store", input: SelfRatingInput) -> RateSelfReturnType["AddLargeWTRuleByIdleAction"]:
-        timetable = store.current_timetable
+    def rate_self(store: "Store", input: "Solution") -> RateSelfReturnType["AddLargeWTRuleByIdleAction"]:
+        timetable = input.state.timetable
 
         # Group all batches by activity, only include those with idle time
-        batches_by_activity = store.current_evaluation.batches_by_activity_with_idle
+        batches_by_activity = input.evaluation.batches_by_activity_with_idle
 
         # Sort the activities by the highest idle time
         sorted_activities = sorted(

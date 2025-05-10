@@ -14,7 +14,8 @@ from o2.actions.base_actions.modify_size_rule_base_action import (
     ModifySizeRuleBaseActionParamsType,
 )
 from o2.models.rule_selector import RuleSelector
-from o2.models.self_rating import RATING, SelfRatingInput
+from o2.models.self_rating import RATING
+from o2.models.solution import Solution
 from o2.models.timetable import RULE_TYPE
 from o2.store import Store
 from o2.util.helper import select_variants
@@ -94,10 +95,10 @@ class ModifySizeRuleByCostFnRepetitiveTasksAction(ModifySizeRuleBaseAction):
 
     @staticmethod
     def rate_self(
-        store: "Store", input: SelfRatingInput
+        store: "Store", input: "Solution"
     ) -> RateSelfReturnType["ModifySizeRuleByCostFnRepetitiveTasksAction"]:
         """Generate a best set of parameters & self-evaluates this action."""
-        evaluation = store.current_evaluation
+        evaluation = input.evaluation
 
         task_frequencies = evaluation.task_execution_counts
         yield from rate_self_helper_by_metric_dict(
@@ -116,10 +117,10 @@ class ModifySizeRuleByCostFnHighCostsAction(ModifySizeRuleBaseAction):
 
     @staticmethod
     def rate_self(
-        store: "Store", input: SelfRatingInput
+        store: "Store", input: "Solution"
     ) -> RateSelfReturnType["ModifySizeRuleByCostFnHighCostsAction"]:
         """Generate a best set of parameters & self-evaluates this action."""
-        evaluation = store.current_evaluation
+        evaluation = input.evaluation
 
         task_costs = evaluation.get_total_cost_per_task()
         yield from rate_self_helper_by_metric_dict(store, task_costs, ModifySizeRuleByCostFnHighCostsAction)
@@ -136,10 +137,10 @@ class ModifySizeRuleByCostFnLowProcessingTimeAction(ModifySizeRuleBaseAction):
 
     @staticmethod
     def rate_self(
-        store: "Store", input: SelfRatingInput
+        store: "Store", input: "Solution"
     ) -> RateSelfReturnType["ModifySizeRuleByCostFnLowProcessingTimeAction"]:
         """Generate a best set of parameters & self-evaluates this action."""
-        evaluation = store.current_evaluation
+        evaluation = input.
 
         task_processing_times = evaluation.get_average_processing_time_per_task()
         yield from rate_self_helper_by_metric_dict(
@@ -157,12 +158,12 @@ class ModifyBatchSizeIfNoCostImprovementAction(ModifySizeRuleBaseAction):
 
     @staticmethod
     def rate_self(
-        store: "Store", input: SelfRatingInput
+        store: "Store", input: "Solution"
     ) -> RateSelfReturnType["ModifyBatchSizeIfNoCostImprovementAction | AddSizeRuleAction"]:
         """Generate a best set of parameters & self-evaluates this action."""
-        timetable = store.current_timetable
         constraints = store.constraints
-        state = store.current_state
+        timetable = input.state.timetable
+        state = input.state
 
         task_ids = timetable.get_task_ids()
         rule_selectors_by_cost: dict[float, list[RuleSelector]] = defaultdict(list)
@@ -222,12 +223,12 @@ class ModifySizeRuleByCostFnLowCycleTimeImpactAction(ModifySizeRuleBaseAction):
 
     @staticmethod
     def rate_self(
-        store: "Store", input: SelfRatingInput
+        store: "Store", input: "Solution"
     ) -> RateSelfReturnType["ModifySizeRuleByCostFnLowCycleTimeImpactAction | AddSizeRuleAction"]:
         """Generate a best set of parameters & self-evaluates this action."""
-        timetable = store.current_timetable
+        timetable = input.state.timetable
         constraints = store.constraints
-        state = store.current_state
+        state = input.state
 
         task_ids = timetable.get_task_ids()
         rule_selectors_by_cycle_time_impact: dict[float, list[RuleSelector]] = defaultdict(list)
@@ -312,10 +313,10 @@ class ModifySizeRuleByManySimilarEnablementsAction(ModifySizeRuleBaseAction):
 
     @staticmethod
     def rate_self(
-        store: "Store", input: SelfRatingInput
+        store: "Store", input: "Solution"
     ) -> RateSelfReturnType["ModifySizeRuleByManySimilarEnablementsAction"]:
         """Generate a best set of parameters & self-evaluates this action."""
-        evaluation = store.current_evaluation
+        evaluation = input.evaluation
 
         tasks_by_number_of_duplicate_enablement_dates = (
             evaluation.tasks_by_number_of_duplicate_enablement_dates

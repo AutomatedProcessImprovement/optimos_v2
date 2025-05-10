@@ -13,7 +13,6 @@ from o2.agents.agent import (
     NoNewBaseSolutionFoundError,
 )
 from o2.agents.tabu_agent import TabuAgent
-from o2.models.self_rating import SelfRatingInput
 from o2.models.solution import Solution
 from o2.pareto_front import FRONT_STATUS
 from o2.store import SolutionTry, Store

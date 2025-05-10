@@ -9,7 +9,7 @@ from o2.actions.base_actions.modify_size_rule_base_action import (
     ModifySizeRuleBaseAction,
     ModifySizeRuleBaseActionParamsType,
 )
-from o2.models.self_rating import RATING, SelfRatingInput
+from o2.models.self_rating import RATING
 from o2.models.timetable import RULE_TYPE
 from o2.store import Store
 from o2.util.helper import select_variants
@@ -35,11 +35,11 @@ class ModifySizeRuleByLowAllocationAction(ModifySizeRuleBaseAction):
 
     @staticmethod
     def rate_self(
-        store: "Store", input: SelfRatingInput
+        store: "Store", input: "Solution"
     ) -> RateSelfReturnType["ModifySizeRuleByLowAllocationAction | AddSizeRuleAction"]:
         """Generate a best set of parameters & self-evaluates this action."""
-        timetable = store.current_timetable
-        evaluation = store.current_evaluation
+        timetable = input.state.timetable
+        evaluation = input.evaluation
 
         resource_allocations = evaluation.resource_allocation_ratio_task
         tasks_by_allocation = sorted(resource_allocations.items(), key=lambda x: x[1], reverse=True)
@@ -82,7 +82,7 @@ class ModifySizeRuleByHighAllocationAction(ModifySizeRuleBaseAction):
 
     @staticmethod
     def rate_self(
-        store: "Store", input: SelfRatingInput
+        store: "Store", input: "Solution"
     ) -> RateSelfReturnType["ModifySizeRuleByHighAllocationAction | AddSizeRuleAction"]:
         """Generate a best set of parameters & self-evaluates this action."""
         timetable = store.current_timetable

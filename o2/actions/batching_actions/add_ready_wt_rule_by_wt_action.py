@@ -9,7 +9,7 @@ from o2.actions.base_actions.add_ready_large_wt_rule_base_action import (
 from o2.actions.base_actions.base_action import (
     RateSelfReturnType,
 )
-from o2.models.self_rating import RATING, SelfRatingInput
+from o2.models.self_rating import RATING
 from o2.models.timetable import RULE_TYPE
 from o2.store import Store
 
@@ -33,14 +33,14 @@ class AddReadyWTRuleByWTAction(AddReadyLargeWTRuleBaseAction):
 
     @override
     @staticmethod
-    def rate_self(store: "Store", input: SelfRatingInput) -> RateSelfReturnType["AddReadyWTRuleByWTAction"]:
+    def rate_self(store: "Store", input: "Solution") -> RateSelfReturnType["AddReadyWTRuleByWTAction"]:
         sorted_tasks = sorted(
-            store.current_evaluation.total_batching_waiting_time_per_task.items(),
+            input.evaluation.total_batching_waiting_time_per_task.items(),
             key=lambda x: x[1],
             reverse=True,
         )
         for task_id, _ in sorted_tasks:
-            waiting_time = store.current_evaluation.avg_batching_waiting_time_per_task[task_id]
+            waiting_time = input.evaluation.avg_batching_waiting_time_per_task[task_id]
             if waiting_time == 0:
                 continue
             new_large_wt = min(ceil(waiting_time * 0.9), 24 * 60 * 60)

@@ -9,7 +9,8 @@ from o2.actions.base_actions.modify_size_rule_base_action import (
     ModifySizeRuleBaseAction,
     ModifySizeRuleBaseActionParamsType,
 )
-from o2.models.self_rating import RATING, SelfRatingInput
+from o2.models.self_rating import RATING
+from o2.models.solution import Solution
 from o2.models.timetable import RULE_TYPE
 from o2.store import Store
 from o2.util.helper import select_variants
@@ -34,11 +35,11 @@ class ModifySizeRuleByLowUtilizationAction(ModifySizeRuleBaseAction):
 
     @staticmethod
     def rate_self(
-        store: "Store", input: SelfRatingInput
+        store: "Store", input: "Solution"
     ) -> RateSelfReturnType["ModifySizeRuleByLowUtilizationAction | AddSizeRuleAction"]:
         """Generate a best set of parameters & self-evaluates this action."""
-        timetable = store.current_timetable
-        evaluation = store.current_evaluation
+        timetable = input.state.timetable
+        evaluation = input.evaluation
 
         resource_utilizations = evaluation.resource_utilizations
         resources_by_utilization = sorted(resource_utilizations.items(), key=lambda x: x[1])
@@ -90,11 +91,11 @@ class ModifySizeRuleByHighUtilizationAction(ModifySizeRuleBaseAction):
 
     @staticmethod
     def rate_self(
-        store: "Store", input: SelfRatingInput
+        store: "Store", input: "Solution"
     ) -> RateSelfReturnType["ModifySizeRuleByHighUtilizationAction"]:
         """Generate a best set of parameters & self-evaluates this action."""
-        timetable = store.current_timetable
-        evaluation = store.current_evaluation
+        timetable = input.state.timetable
+        evaluation = input.evaluation
 
         resource_utilizations = evaluation.resource_utilizations
         resources_by_utilization = sorted(resource_utilizations.items(), key=lambda x: x[1], reverse=True)

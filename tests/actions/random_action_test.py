@@ -16,7 +16,7 @@ from o2.actions.batching_actions.random_action import (
 from o2.actions.batching_actions.remove_rule_action import RemoveRuleAction
 from o2.models.days import DAY
 from o2.models.rule_selector import RuleSelector
-from o2.models.self_rating import SelfRatingInput
+from o2.models.solution import Solution
 from o2.models.settings import Settings
 from o2.models.timetable import RULE_TYPE, BatchingRule
 from o2.store import Store
@@ -58,7 +58,7 @@ def get_next_action(store, self_rating_input, mock_choice_vals, mock_randint_val
             return next(generator)
 
 
-def test_rate_self_add_datetime_rule(store: Store, self_rating_input: SelfRatingInput):
+def test_rate_self_add_datetime_rule(store: Store, self_rating_input: Solution):
     """Test that RandomAction can generate an AddDateTimeRuleAction correctly."""
     mock_choice_vals = [
         AddDateTimeRuleAction,  # First choose the action type
@@ -78,7 +78,7 @@ def test_rate_self_add_datetime_rule(store: Store, self_rating_input: SelfRating
     assert action.params["time_period"].end_time == "09:00:00"
 
 
-def test_rate_self_add_ready_large_wt_rule(store: Store, self_rating_input: SelfRatingInput):
+def test_rate_self_add_ready_large_wt_rule(store: Store, self_rating_input: Solution):
     """Test that RandomAction can generate an AddReadyLargeWTRuleAction correctly."""
     mock_choice_vals = [
         AddReadyLargeWTRuleAction,  # Action type
@@ -96,7 +96,7 @@ def test_rate_self_add_ready_large_wt_rule(store: Store, self_rating_input: Self
     assert action.params["type"] == RULE_TYPE.LARGE_WT
 
 
-def test_rate_self_add_size_rule(store: Store, self_rating_input: SelfRatingInput):
+def test_rate_self_add_size_rule(store: Store, self_rating_input: Solution):
     """Test that RandomAction can generate an AddSizeRuleAction correctly."""
     mock_choice_vals = [
         AddSizeRuleAction,  # Action type
@@ -111,7 +111,7 @@ def test_rate_self_add_size_rule(store: Store, self_rating_input: SelfRatingInpu
     assert action.params["size"] == 2  # Default size in random_action.py
 
 
-def test_rate_self_modify_daily_hour_rule(store: Store, self_rating_input: SelfRatingInput, mock_rule):
+def test_rate_self_modify_daily_hour_rule(store: Store, self_rating_input: Solution, mock_rule):
     """Test that RandomAction can generate a ModifyDailyHourRuleAction correctly."""
     rule, rule_selector = mock_rule
     store = replace_timetable(store, batch_processing=[rule])
@@ -130,7 +130,7 @@ def test_rate_self_modify_daily_hour_rule(store: Store, self_rating_input: SelfR
     assert action.params["hour_increment"] == 1
 
 
-def test_rate_self_modify_size_rule(store: Store, self_rating_input: SelfRatingInput, mock_rule):
+def test_rate_self_modify_size_rule(store: Store, self_rating_input: Solution, mock_rule):
     """Test that RandomAction can generate a ModifySizeRuleAction correctly."""
     rule, rule_selector = mock_rule
     store = replace_timetable(store, batch_processing=[rule])
@@ -158,7 +158,7 @@ def test_rate_self_modify_size_rule(store: Store, self_rating_input: SelfRatingI
     ],
 )
 def test_rate_self_remove_rule(
-    store: Store, self_rating_input: SelfRatingInput, mock_rule, disable_remove, expected_action_type
+    store: Store, self_rating_input: Solution, mock_rule, disable_remove, expected_action_type
 ):
     """Test RemoveRuleAction with enabled/disabled settings."""
     rule, rule_selector = mock_rule
@@ -193,7 +193,7 @@ def test_rate_self_remove_rule(
         Settings.DISABLE_REMOVE_ACTION_RULE = old_setting
 
 
-def test_rate_self_skip_action_with_no_rules(store: Store, self_rating_input: SelfRatingInput):
+def test_rate_self_skip_action_with_no_rules(store: Store, self_rating_input: Solution):
     """Test that RandomAction skips actions that require rules when none exist."""
     # Create an empty timetable with no rules
     store = replace_timetable(store, batch_processing=[])
@@ -212,7 +212,7 @@ def test_rate_self_skip_action_with_no_rules(store: Store, self_rating_input: Se
     assert isinstance(action, AddSizeRuleAction)
 
 
-def test_rate_self_unknown_action(store: Store, self_rating_input: SelfRatingInput):
+def test_rate_self_unknown_action(store: Store, self_rating_input: Solution):
     """Test that RandomAction raises ValueError for unknown action types."""
 
     # Define a custom action class not in ACTIONS

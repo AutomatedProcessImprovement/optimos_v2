@@ -11,7 +11,8 @@ from o2.actions.base_actions.modify_size_rule_base_action import (
     ModifySizeRuleBaseAction,
     ModifySizeRuleBaseActionParamsType,
 )
-from o2.models.self_rating import RATING, SelfRatingInput
+from o2.models.self_rating import RATING
+from o2.models.solution import Solution
 from o2.models.timetable import RULE_TYPE
 from o2.store import Store
 from o2.util.helper import select_variants
@@ -36,10 +37,10 @@ class ModifySizeRuleByWTAction(ModifySizeRuleBaseAction):
     @override
     @staticmethod
     def rate_self(
-        store: "Store", input: SelfRatingInput
+        store: "Store", input: "Solution"
     ) -> RateSelfReturnType["ModifySizeRuleByWTAction | AddSizeRuleAction"]:
-        timetable = store.current_timetable
-        avg_batching_waiting_time_per_task = store.current_evaluation.avg_batching_waiting_time_per_task
+        timetable = input.state.timetable
+        avg_batching_waiting_time_per_task = input.evaluation.avg_batching_waiting_time_per_task
         sorted_tasks = sorted(
             avg_batching_waiting_time_per_task.items(),
             key=lambda x: x[1],

@@ -2,7 +2,7 @@ from o2.actions.legacy_optimos_actions.modify_calendar_by_wt_action import (
     ModifyCalendarByWTAction,
 )
 from o2.models.days import DAY
-from o2.models.self_rating import SelfRatingInput
+from o2.models.solution import Solution
 from o2.models.timetable import TimePeriod
 from o2.store import Store
 from tests.fixtures.constraints_generator import ConstraintsGenerator
@@ -21,7 +21,7 @@ def test_action_creation_simple_addition(one_task_store: Store):
         resource_calendars=TimetableGenerator.resource_calendars(8, 16, False),
     )
 
-    input = SelfRatingInput.from_base_solution(store.solution)
+    input = store.solution
     _, action = first_valid(store, ModifyCalendarByWTAction.rate_self(store, input))
 
     assert action is not None
@@ -46,7 +46,7 @@ def test_action_creation_simple_shift(one_task_store: Store):
         ),
     )
 
-    input = SelfRatingInput.from_base_solution(store.solution)
+    input = store.solution
 
     _, action = first_valid(store, ModifyCalendarByWTAction.rate_self(store, input))
 

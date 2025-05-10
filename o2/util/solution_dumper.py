@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING, Optional
 
 from o2.models.evaluation import Evaluation
 from o2.models.settings import Settings
-from o2.models.solution import Solution
 from o2.models.state import State
 from o2.util.logger import log_io
 

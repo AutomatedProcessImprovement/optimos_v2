@@ -10,7 +10,8 @@ from o2.actions.base_actions.base_action import (
     RateSelfReturnType,
 )
 from o2.models.legacy_approach import LegacyApproach
-from o2.models.self_rating import RATING, SelfRatingInput
+from o2.models.self_rating import RATING
+from o2.models.solution import Solution
 from o2.models.state import State
 
 if TYPE_CHECKING:
@@ -62,7 +63,7 @@ class ModifyResourceBaseAction(BaseAction, ABC):
     @override
     @staticmethod
     @abstractmethod
-    def rate_self(store: "Store", input: SelfRatingInput) -> RateSelfReturnType["ModifyResourceBaseAction"]:
+    def rate_self(store: "Store", input: "Solution") -> RateSelfReturnType["ModifyResourceBaseAction"]:
         pass
 
     def __str__(self) -> str:

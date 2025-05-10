@@ -6,7 +6,7 @@ from o2.actions.base_actions.modify_resource_base_action import (
     ModifyResourceBaseAction,
     ModifyResourceBaseActionParamsType,
 )
-from o2.models.self_rating import SelfRatingInput
+from o2.models.solution import Solution
 from o2.store import Store
 
 
@@ -39,9 +39,9 @@ class AddResourceAction(ModifyResourceBaseAction, str=False):
     """
 
     @staticmethod
-    def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
+    def rate_self(store: Store, input: "Solution") -> RateSelfReturnType:
         """Generate a best set of parameters & self-evaluates this action."""
-        parent_evaluation = input.parent_evaluation
+        parent_evaluation = input.evaluation
         timetable = store.solution.state.timetable
         tasks = parent_evaluation.get_tasks_sorted_by_occurrences_of_wt_and_it()
         for task in tasks:
@@ -118,7 +118,7 @@ class AddResourceAction(ModifyResourceBaseAction, str=False):
     @staticmethod
     def _find_least_done_task_to_remove(
         store: Store,
-        input: SelfRatingInput,
+        input: "Solution",
         resource_id: str,
         protected_task: str,
     ) -> Optional[str]:
@@ -129,7 +129,7 @@ class AddResourceAction(ModifyResourceBaseAction, str=False):
         Of course the task must differ from the protected task.
         """
         timetable = store.solution.state.timetable
-        evaluation = input.parent_evaluation
+        evaluation = input.evaluation
         resource = timetable.get_resource(resource_id)
 
         if resource is None:

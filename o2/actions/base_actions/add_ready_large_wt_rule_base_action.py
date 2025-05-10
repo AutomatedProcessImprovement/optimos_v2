@@ -12,7 +12,6 @@ from o2.actions.base_actions.batching_rule_base_action import (
     BatchingRuleBaseAction,
 )
 from o2.models.constraints import RULE_TYPE
-from o2.models.evaluation import Evaluation
 from o2.models.rule_selector import RuleSelector
 from o2.models.self_rating import RATING
 from o2.models.solution import Solution
@@ -113,9 +112,7 @@ class AddReadyLargeWTRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
     @override
     @staticmethod
     @abstractmethod
-    def rate_self(
-        store: Store, input: SelfRatingInput
-    ) -> RateSelfReturnType["AddReadyLargeWTRuleBaseAction"]:
+    def rate_self(store: Store, input: "Solution") -> RateSelfReturnType["AddReadyLargeWTRuleBaseAction"]:
         pass
 
     @staticmethod

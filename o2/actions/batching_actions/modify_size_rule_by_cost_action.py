@@ -9,7 +9,8 @@ from o2.actions.base_actions.modify_size_rule_base_action import (
     ModifySizeRuleBaseAction,
     ModifySizeRuleBaseActionParamsType,
 )
-from o2.models.self_rating import RATING, SelfRatingInput
+from o2.models.self_rating import RATING
+from o2.models.solution import Solution
 from o2.models.timetable import RULE_TYPE
 from o2.store import Store
 from o2.util.helper import select_variants
@@ -33,10 +34,10 @@ class ModifySizeRuleByCostAction(ModifySizeRuleBaseAction):
 
     @staticmethod
     def rate_self(
-        store: "Store", input: SelfRatingInput
+        store: "Store", input: "Solution"
     ) -> RateSelfReturnType["ModifySizeRuleByCostAction | AddSizeRuleAction"]:
         """Generate a best set of parameters & self-evaluates this action."""
-        timetable = store.current_timetable
+        timetable = input.state.timetable
 
         sorted_tasks = sorted(
             store.current_evaluation.get_avg_cost_per_task().items(),

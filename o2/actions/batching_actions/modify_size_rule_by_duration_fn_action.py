@@ -12,7 +12,8 @@ from o2.actions.base_actions.modify_size_rule_base_action import (
     ModifySizeRuleBaseActionParamsType,
 )
 from o2.models.rule_selector import RuleSelector
-from o2.models.self_rating import RATING, SelfRatingInput
+from o2.models.self_rating import RATING
+from o2.models.solution import Solution
 from o2.models.timetable import RULE_TYPE
 from o2.store import Store
 from o2.util.helper import select_variants
@@ -34,7 +35,7 @@ class ModifyBatchSizeIfNoDurationImprovementAction(ModifySizeRuleBaseAction):
 
     @staticmethod
     def rate_self(
-        store: "Store", input: SelfRatingInput
+        store: "Store", input: "Solution"
     ) -> RateSelfReturnType["ModifyBatchSizeIfNoDurationImprovementAction"]:
         """Generate a best set of parameters & self-evaluates this action."""
         timetable = store.current_timetable
@@ -103,12 +104,12 @@ class ModifySizeRuleByDurationFnCostImpactAction(ModifySizeRuleBaseAction):
 
     @staticmethod
     def rate_self(
-        store: "Store", input: SelfRatingInput
+        store: "Store", input: "Solution"
     ) -> RateSelfReturnType["ModifySizeRuleByDurationFnCostImpactAction | AddSizeRuleAction"]:
         """Generate a best set of parameters & self-evaluates this action."""
-        timetable = store.current_timetable
         constraints = store.constraints
-        state = store.current_state
+        timetable = input.state.timetable
+        state = input.state
 
         task_ids = timetable.get_task_ids()
         rule_selectors_by_duration: dict[float, list[RuleSelector]] = defaultdict(list)

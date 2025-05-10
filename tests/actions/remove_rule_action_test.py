@@ -5,7 +5,7 @@ from o2.actions.batching_actions.remove_rule_action import (
 from o2.agents.tabu_agent import TabuAgent
 from o2.models.constraints import BATCH_TYPE, RULE_TYPE
 from o2.models.rule_selector import RuleSelector
-from o2.models.self_rating import RATING, SelfRatingInput
+from o2.models.self_rating import RATING
 from o2.models.timetable import COMPARATOR, BatchingRule, FiringRule
 from o2.store import Store
 from tests.fixtures.test_helpers import (

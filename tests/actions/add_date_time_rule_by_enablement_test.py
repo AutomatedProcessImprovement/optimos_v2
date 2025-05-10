@@ -2,7 +2,6 @@ from o2.actions.batching_actions.add_date_time_rule_by_enablement_action import 
     AddDateTimeRuleByEnablementAction,
 )
 from o2.models.days import DAY
-from o2.models.self_rating import SelfRatingInput
 from o2.models.timetable import TimePeriod
 from o2.store import Store
 from tests.fixtures.test_helpers import (
@@ -28,7 +27,7 @@ def test_add_date_time_rule_by_enablement_rule_simple(one_task_store: Store):
         resource_calendars=TimetableGenerator.resource_calendars(8, 16),
     )
 
-    input = SelfRatingInput.from_base_solution(store.solution)
+    input = store.solution
 
     _, action = first_valid(store, AddDateTimeRuleByEnablementAction.rate_self(store, input))
 
@@ -60,7 +59,7 @@ def test_add_date_time_rule_by_enablement_rule_complex(two_tasks_store):
         resource_calendars=TimetableGenerator.resource_calendars(8, 16, False),
     )
 
-    input = SelfRatingInput.from_base_solution(store.solution)
+    input = store.solution
 
     _, action = first_valid(store, AddDateTimeRuleByEnablementAction.rate_self(store, input))
 
