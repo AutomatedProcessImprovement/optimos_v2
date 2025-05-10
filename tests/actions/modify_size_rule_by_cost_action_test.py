@@ -36,10 +36,7 @@ def test_self_rating_optimal_rule(one_task_store: Store):
         ],
     )
 
-    evaluations = TabuAgent.evaluate_rules(store)
-    rating_input = SelfRatingInput.from_rule_solutions(store, evaluations)
-    assert rating_input is not None
-    rating, action = first_valid(store, ModifySizeRuleByCostAction.rate_self(store, rating_input))
+    rating, action = first_valid(store, ModifySizeRuleByCostAction.rate_self(store, store.solution))
     assert rating == RATING.MEDIUM
     assert action is not None
     assert action.params["size_increment"] == 1  # type: ignore
@@ -79,10 +76,7 @@ def test_self_rating_non_optimal_rule_decrement(two_tasks_store: Store):
         ],
     )
 
-    evaluations = TabuAgent.evaluate_rules(store)
-    rating_input = SelfRatingInput.from_rule_solutions(store, evaluations)
-    assert rating_input is not None
-    rating, action = first_valid(store, ModifySizeRuleByCostAction.rate_self(store, rating_input))
+    rating, action = first_valid(store, ModifySizeRuleByCostAction.rate_self(store, store.solution))
     assert rating == RATING.MEDIUM
     assert action is not None
     assert (

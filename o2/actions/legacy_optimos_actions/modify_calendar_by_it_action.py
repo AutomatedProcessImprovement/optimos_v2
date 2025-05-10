@@ -5,6 +5,7 @@ from o2.actions.base_actions.modify_calendar_base_action import (
     ModifyCalendarBaseAction,
     ModifyCalendarBaseActionParamsType,
 )
+from o2.models.evaluation import Evaluation
 from o2.models.solution import Solution
 from o2.store import Store
 
@@ -32,14 +33,13 @@ class ModifyCalendarByITAction(ModifyCalendarBaseAction, str=False):
     @staticmethod
     def rate_self(store: Store, input: Solution) -> RateSelfReturnType:
         """Generate a best set of parameters & self-evaluates this action."""
-        evaluation = input.evaluation
-        tasks = evaluation.get_task_names_sorted_by_idle_time_desc()
+        tasks = input.evaluation.get_task_names_sorted_by_idle_time_desc()
         for task in tasks:
-            days = evaluation.get_most_frequent_enablement_weekdays(task)
-            resources = evaluation.get_most_frequent_resources(task)
+            days = input.evaluation.get_most_frequent_enablement_weekdays(task)
+            resources = input.evaluation.get_most_frequent_resources(task)
             for day in days:
                 for resource in resources:
-                    calendar = store.current_timetable.get_calendar_for_resource(resource)
+                    calendar = input.timetable.get_calendar_for_resource(resource)
                     if calendar is None:
                         continue
                     periods = calendar.get_periods_containing_day(day)

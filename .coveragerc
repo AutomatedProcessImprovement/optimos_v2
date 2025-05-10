@@ -1,0 +1,10 @@
+[run]
+source = o2
+omit = 
+    */tests/*
+    o2/util/colored_formatter.py
+    o2/util/logger.py
+    o2/util/solution_dumper.py
+    /tmp/*
+    */tmp/*
+    */_remote_module_non_scriptable.py
