@@ -9,6 +9,7 @@ from o2.actions.base_actions.add_datetime_rule_base_action import (
 from o2.actions.base_actions.base_action import (
     RateSelfReturnType,
 )
+from o2.models.evaluation import Evaluation
 from o2.models.self_rating import RATING, SelfRatingInput
 from o2.models.time_period import TimePeriod
 from o2.store import Store
@@ -36,7 +37,7 @@ class AddDateTimeRuleByStartAction(AddDateTimeRuleBaseAction):
 
     @override
     @staticmethod
-    def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
+    def rate_self(store: Store, input: Evaluation) -> RateSelfReturnType:
         evaluation = store.current_evaluation
         timetable = store.current_timetable
 

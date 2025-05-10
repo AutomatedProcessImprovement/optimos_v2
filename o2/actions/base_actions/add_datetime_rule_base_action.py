@@ -11,8 +11,9 @@ from o2.actions.base_actions.batching_rule_base_action import (
     BatchingRuleBaseAction,
 )
 from o2.models.constraints import RULE_TYPE
+from o2.models.evaluation import Evaluation
 from o2.models.rule_selector import RuleSelector
-from o2.models.self_rating import RATING, SelfRatingInput
+from o2.models.self_rating import RATING
 from o2.models.settings import Settings
 from o2.models.state import State
 from o2.models.time_period import TimePeriod
@@ -84,7 +85,7 @@ class AddDateTimeRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
     @override
     @staticmethod
     @abstractmethod
-    def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
+    def rate_self(store: Store, input: Evaluation) -> RateSelfReturnType:
         pass
 
     @staticmethod
@@ -101,5 +102,5 @@ class AddDateTimeRuleAction(AddDateTimeRuleBaseAction):
     @override
     @override
     @staticmethod
-    def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
+    def rate_self(store: Store, input: Evaluation) -> RateSelfReturnType:
         raise NotImplementedError("rate_self is not implemented")

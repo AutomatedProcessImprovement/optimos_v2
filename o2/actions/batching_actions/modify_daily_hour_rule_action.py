@@ -8,8 +8,9 @@ from o2.actions.base_actions.batching_rule_base_action import (
     BatchingRuleBaseAction,
     BatchingRuleBaseActionParamsType,
 )
+from o2.models.evaluation import Evaluation
 from o2.models.rule_selector import RuleSelector
-from o2.models.self_rating import RATING, SelfRatingInput
+from o2.models.self_rating import RATING
 from o2.models.state import State
 from o2.models.timetable import rule_is_daily_hour
 from o2.store import Store
@@ -78,7 +79,7 @@ class ModifyDailyHourRuleAction(BatchingRuleBaseAction, str=False):
 
     @override
     @staticmethod
-    def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
+    def rate_self(store: Store, input: Evaluation) -> RateSelfReturnType:
         selectors = [
             RuleSelector(
                 batching_rule_task_id=batching_rule.task_id,

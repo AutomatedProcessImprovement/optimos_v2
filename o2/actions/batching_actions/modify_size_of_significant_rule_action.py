@@ -9,8 +9,8 @@ from o2.actions.base_actions.modify_size_rule_base_action import (
     ModifySizeRuleAction,
     ModifySizeRuleBaseActionParamsType,
 )
+from o2.models.evaluation import Evaluation
 from o2.models.rule_selector import RuleSelector
-from o2.models.self_rating import SelfRatingInput
 from o2.models.state import State
 from o2.models.timetable import (
     RULE_TYPE,
@@ -89,5 +89,5 @@ class ModifySizeOfSignificantRuleAction(BaseAction):
 
     @override
     @staticmethod
-    def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
+    def rate_self(store: Store, input: Evaluation) -> RateSelfReturnType:
         raise NotImplementedError("Not implemented")
