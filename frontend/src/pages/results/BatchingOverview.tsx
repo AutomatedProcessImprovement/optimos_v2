@@ -72,7 +72,7 @@ export const BatchingOverview = ({ solution }: { solution: JsonSolution }) => {
 
   return (
     <Grid>
-      <Grid.Col span={5}>
+      {/* <Grid.Col span={5}>
         <Text fw={700} ta="left">
           Waiting time due to batching
         </Text>
@@ -90,7 +90,7 @@ export const BatchingOverview = ({ solution }: { solution: JsonSolution }) => {
             margin={0.0}
           />
         </Text>
-      </Grid.Col>
+      </Grid.Col> */}
       <Grid.Col span={12}>
         <Accordion>
           {batchingRules.map((rule, index) => (
