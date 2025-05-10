@@ -115,7 +115,7 @@ def select_variant(
 
     if ordered:
         action_variation_selection = action_variation_selection.ordered
-    if inner:
+    if inner and not store.settings.override_action_variation_selection_for_inner_loop:
         action_variation_selection = action_variation_selection.inner
 
     if action_variation_selection == ActionVariationSelection.SINGLE_RANDOM:

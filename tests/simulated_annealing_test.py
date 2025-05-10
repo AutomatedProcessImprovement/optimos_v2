@@ -35,8 +35,8 @@ def test_auto_cooling_factor(one_task_store: Store):
 
     optimizer = Optimizer(store)
 
-    assert optimizer.store.solution.pareto_x == 100
-    assert optimizer.store.solution.pareto_y == 100
+    assert store.solution.pareto_x == 100
+    assert store.solution.pareto_y == 100
 
     assert isinstance(optimizer.agent, SimulatedAnnealingAgent)
 

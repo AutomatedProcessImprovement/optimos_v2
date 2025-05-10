@@ -293,6 +293,16 @@ class Settings:
     NOTE: This number is _not_ per iteration, but per base_solution.
     """
 
+    override_action_variation_selection_for_inner_loop: bool = False
+    """Should the `inner` parameter of the action variation selection be ignored?
+
+    Only activate if you know what you are doing!
+
+    It's useful if you want to force the optimizer to output EVERY variant.
+    Usually this is not needed, as we can rely on randomness,e.g via `ActionVariationSelection.ALL_RANDOM`,
+    but if you want a deterministic output, you can set this to True (E.g. for testing).
+    """
+
     DISABLE_PARALLEL_EVALUATION: ClassVar[bool] = False
     """Should the parallel evaluation be disabled? This is useful for debugging.
 

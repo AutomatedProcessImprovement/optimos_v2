@@ -4,6 +4,7 @@ from o2.actions.legacy_optimos_actions.modify_calendar_by_wt_action import (
 )
 from o2.models.days import DAY
 from o2.models.solution import Solution
+from o2.models.state import State
 from o2.models.timetable import ResourceCalendar, TimePeriod
 from o2.store import Store
 from tests.fixtures.test_helpers import replace_timetable
@@ -15,12 +16,9 @@ by example of the ModifyCalendarByWTAction class.
 """
 
 
-def test_simple_add_hour(one_task_store: Store):
+def test_simple_add_hour(one_task_state: State):
     resource_calendars = TimetableGenerator.resource_calendars(8, 16, False)
-    store = replace_timetable(
-        one_task_store,
-        resource_calendars=resource_calendars,
-    )
+    state = one_task_state.replace_timetable(resource_calendars=resource_calendars)
     period_id = resource_calendars[0].time_periods[0].id
     action = ModifyCalendarByWTAction(
         ModifyCalendarByWTActionParamsType(
@@ -31,9 +29,9 @@ def test_simple_add_hour(one_task_store: Store):
         )
     )
 
-    store.run_action(action)
+    new_state = action.apply(state)
 
-    calendar = store.current_timetable.get_calendar(TimetableGenerator.CALENDAR_ID)
+    calendar = new_state.timetable.get_calendar(TimetableGenerator.CALENDAR_ID)
     assert calendar is not None
     assert calendar.get_periods_for_day(DAY.MONDAY) == [
         TimePeriod(from_=DAY.MONDAY, to=DAY.MONDAY, begin_time="07:00:00", end_time="16:00:00")
@@ -41,9 +39,9 @@ def test_simple_add_hour(one_task_store: Store):
     assert _ensure_other_days_not_affected(calendar)
 
 
-def test_simple_shift_hour(one_task_store: Store):
+def test_simple_shift_hour(one_task_state: State):
     resource_calendars = TimetableGenerator.resource_calendars(8, 16, False)
-    store = replace_timetable(one_task_store, resource_calendars=resource_calendars)
+    state = one_task_state.replace_timetable(resource_calendars=resource_calendars)
     period_id = resource_calendars[0].time_periods[0].id
     action = ModifyCalendarByWTAction(
         ModifyCalendarByWTActionParamsType(
@@ -54,16 +52,16 @@ def test_simple_shift_hour(one_task_store: Store):
         )
     )
 
-    store.run_action(action)
-    calendar = store.current_timetable.get_calendar(TimetableGenerator.CALENDAR_ID)
+    new_state = action.apply(state)
+    calendar = new_state.timetable.get_calendar(TimetableGenerator.CALENDAR_ID)
     assert calendar is not None
     assert calendar.get_periods_for_day(DAY.MONDAY) == [TimePeriod.from_start_end(7, 15)]
     assert _ensure_other_days_not_affected(calendar)
 
 
-def test_add_hour_before_and_after(one_task_store: Store):
+def test_add_hour_before_and_after(one_task_state: State):
     resource_calendars = TimetableGenerator.resource_calendars(8, 16, False)
-    store = replace_timetable(one_task_store, resource_calendars=resource_calendars)
+    state = one_task_state.replace_timetable(resource_calendars=resource_calendars)
     period_id = resource_calendars[0].time_periods[0].id
     action = ModifyCalendarByWTAction(
         ModifyCalendarByWTActionParamsType(
@@ -75,8 +73,8 @@ def test_add_hour_before_and_after(one_task_store: Store):
         )
     )
 
-    store.run_action(action)
-    calendar = store.current_timetable.get_calendar(TimetableGenerator.CALENDAR_ID)
+    new_state = action.apply(state)
+    calendar = new_state.timetable.get_calendar(TimetableGenerator.CALENDAR_ID)
     assert calendar is not None
     assert calendar.get_periods_for_day(DAY.MONDAY) == [
         TimePeriod(from_=DAY.MONDAY, to=DAY.MONDAY, begin_time="07:00:00", end_time="17:00:00")
@@ -84,9 +82,9 @@ def test_add_hour_before_and_after(one_task_store: Store):
     assert _ensure_other_days_not_affected(calendar)
 
 
-def test_remove_period(one_task_store: Store):
+def test_remove_period(one_task_state: State):
     resource_calendars = TimetableGenerator.resource_calendars(8, 16, False)
-    store = replace_timetable(one_task_store, resource_calendars=resource_calendars)
+    state = one_task_state.replace_timetable(resource_calendars=resource_calendars)
     period_id = resource_calendars[0].time_periods[0].id
 
     action = ModifyCalendarByWTAction(
@@ -98,8 +96,8 @@ def test_remove_period(one_task_store: Store):
         )
     )
 
-    store.run_action(action)
-    calendar = store.current_timetable.get_calendar(TimetableGenerator.CALENDAR_ID)
+    new_state = action.apply(state)
+    calendar = new_state.timetable.get_calendar(TimetableGenerator.CALENDAR_ID)
     assert calendar is not None
     assert calendar.get_periods_for_day(DAY.MONDAY) == []
     assert _ensure_other_days_not_affected(calendar)
