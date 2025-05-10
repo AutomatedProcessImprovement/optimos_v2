@@ -1,5 +1,7 @@
 from dataclasses import replace
 
+import pytest
+
 from o2.actions.batching_actions.add_large_wt_rule_by_idle_action import (
     AddLargeWTRuleByIdleAction,
 )
@@ -11,7 +13,8 @@ from tests.fixtures.test_helpers import first_valid
 from tests.fixtures.timetable_generator import TimetableGenerator
 
 
-def test_add_large_wt_rule_by_idle_simple(one_task_store: Store):
+@pytest.fixture
+def large_wt_rule_store(one_task_store: Store) -> Store:
     state = one_task_store.base_state.replace_timetable(
         # Resource has cost of $10/h
         resource_profiles=TimetableGenerator.resource_pools(
@@ -51,10 +54,16 @@ def test_add_large_wt_rule_by_idle_simple(one_task_store: Store):
     )
 
     store = Store.from_state_and_constraints(state, one_task_store.constraints)
+    store.settings.override_action_variation_selection_for_inner_loop = True
+    return store
 
-    input = SelfRatingInput.from_base_solution(store.solution)
 
-    _, action = first_valid(store, AddLargeWTRuleByIdleAction.rate_self(store, input))
+def test_add_large_wt_rule_by_idle_basic(large_wt_rule_store: Store):
+    input = SelfRatingInput.from_base_solution(large_wt_rule_store.solution)
+
+    _, action = first_valid(
+        large_wt_rule_store, AddLargeWTRuleByIdleAction.rate_self(large_wt_rule_store, input)
+    )
     assert action is not None
 
     assert action.params["task_id"] == TimetableGenerator.FIRST_ACTIVITY
@@ -66,9 +75,11 @@ def test_add_large_wt_rule_by_idle_simple(one_task_store: Store):
     # which results in 1h idle time cutoff
     assert action.params["waiting_time"] == 3600
 
+
+def test_add_large_wt_rule_by_idle_with_constraints(large_wt_rule_store: Store):
     # Add Constraints
-    store.constraints = replace(
-        store.constraints,
+    large_wt_rule_store.constraints = replace(
+        large_wt_rule_store.constraints,
         batching_constraints=[
             LargeWtRuleConstraints(
                 id="test",
@@ -81,8 +92,12 @@ def test_add_large_wt_rule_by_idle_simple(one_task_store: Store):
         ],
     )
 
+    input = SelfRatingInput.from_base_solution(large_wt_rule_store.solution)
+
     # Check if action is still valid
-    _, action = first_valid(store, AddLargeWTRuleByIdleAction.rate_self(store, input))
+    _, action = first_valid(
+        large_wt_rule_store, AddLargeWTRuleByIdleAction.rate_self(large_wt_rule_store, input)
+    )
     assert action is not None
     assert action.params["task_id"] == TimetableGenerator.FIRST_ACTIVITY
     assert action.params["waiting_time"] == 2 * 60 * 60
