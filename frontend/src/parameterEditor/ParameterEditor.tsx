@@ -22,7 +22,7 @@ import ScenarioConstraints from "../constraintEditors/ScenarioConstraints";
 import { ValidationTab } from "../validation/ValidationTab";
 import { MasterFormData, useMasterFormData } from "../hooks/useMasterFormData";
 import { constraintResolver } from "../validation/validationFunctions";
-import { generateConstraints } from "../generateContraints";
+import { generateConstraints } from "../generateConstraints";
 import {
   addAsset,
   AssetType,

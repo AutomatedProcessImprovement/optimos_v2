@@ -21,8 +21,8 @@ class Solution:
     parent state, and the actions that led to this solution. With the last
     action being the one that led to this solution.
 
-    NOTE: There are two evaluations defined in the class, with `evaluation` definiton
-    just beeing there to satisfy type checking. The actual evaluation is stored in
+    NOTE: There are two evaluations defined in the class, with `evaluation` definition
+    just being there to satisfy type checking. The actual evaluation is stored in
     `_evaluation`, which is loaded from the evaluation file when needed.
     """
 
@@ -179,7 +179,7 @@ class Solution:
     def is_valid(self) -> bool:
         """Check if the evaluation is valid."""
         return (
-            # Ensure that there was no error runing the simulation,
+            # Ensure that there was no error running the simulation,
             # that results in a <= 0 value.
             # Or that the solution is empty
             self.pareto_x > 0 and self.pareto_y > 0

@@ -1,0 +1,21 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "dictionaries": ["custom-words"],
+  "dictionaryDefinitions": [
+    {
+      "name": "custom-words",
+      "path": "./.cspell-dictionary.txt",
+      "addWords": true
+    }
+  ],
+  "useGitignore": true,
+  "ignorePaths": [
+    "node_modules/**",
+    "evaluations/**",
+    "states/**",
+    "examples/**",
+    "o2_evaluation/scenarios/**",
+    "dist/**"
+  ]
+}

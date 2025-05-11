@@ -762,7 +762,7 @@ class Evaluation:
         # Calculate the average processing time per task_instance
         # This means that we take sum of processing times per unique batch
         # and divide by the number of task_instances
-        # Which in this case can be achivied by taking the sum of batch sizes
+        # Which in this case can be achieved by taking the sum of batch sizes
         task_instance_count = batch_pd.groupby("batch_id")["batch_size"].first().sum()
 
         if task_instance_count > 0:
@@ -843,3 +843,8 @@ class Evaluation:
                 cases
             ),
         )
+
+    @property
+    def achieved_cycle_time(self) -> float:
+        """Return the achieved cycle time."""
+        return self.total_cycle_time

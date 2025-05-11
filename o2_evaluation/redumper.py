@@ -17,7 +17,7 @@ if __name__ == "__main__":
     Settings.COST_TYPE = CostType.AVG_WT_AND_PT_PER_TASK_INSTANCE
     Settings.ARCHIVE_SOLUTIONS = True
     Settings.DELETE_LOADED_SOLUTION_ARCHIVES = False
-    Settings.OVERWRITE_EXISTING_SOLUTION_ARCHIVES = False  # TDOO
+    Settings.OVERWRITE_EXISTING_SOLUTION_ARCHIVES = False  # TODO
     Settings.CHECK_FOR_TIMETABLE_EQUALITY = True
     setup_logging()
 

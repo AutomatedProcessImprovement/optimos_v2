@@ -56,10 +56,10 @@ def main() -> None:
         verbose=1,
         # tensorboard_log="./logs/progress_tensorboard/",
         clip_range=0.2,
-        # TODO make learning rate smater
+        # TODO make learning rate smarter
         # learning_rate=linear_schedule(3e-4),
         n_steps=1 * STEPS_PER_ITERATION,  #  Multiple of 50
-        batch_size=round(0.5 * STEPS_PER_ITERATION),  # Divsior of 50
+        batch_size=round(0.5 * STEPS_PER_ITERATION),  # Divisor of 50
         gamma=1,
     )  # type: ignore
 

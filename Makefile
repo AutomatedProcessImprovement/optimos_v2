@@ -1,4 +1,4 @@
-.PHONY: test coverage clean docker-build docker-up docker-down docker-build-local docker-up-local docker-down-local lint lint-fix format typecheck
+.PHONY: test coverage clean docker-build docker-up docker-down docker-build-local docker-up-local docker-down-local lint lint-fix format typecheck typecheck-strict spell-check project-stats
 
 # Make the 'docker-up' target the default when just running 'make'
 .DEFAULT_GOAL := docker-up-local
@@ -32,9 +32,17 @@ lint-fix:
 format:
 	python -m ruff format o2 o2_server
 
+spell-check:
+	cspell "**/*.{py,js,ts,jsx,tsx,md,json}" --unique --no-progress
+
+project-stats:
+	scc --exclude-dir o2_evaluation/scenarios,examples --exclude-ext ipynb,txt,csv --sort=lines -f csv -o project_statistics.csv
+
 typecheck:
 	python -m pyright o2 o2_server
 
+typecheck-strict:
+	python -m pyright --ignoreexternal --verifytypes o2 o2_server
 
 # Docker production targets
 docker-build:

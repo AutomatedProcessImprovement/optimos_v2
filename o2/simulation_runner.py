@@ -16,10 +16,10 @@ from o2.util.indented_printer import print_l3
 from o2.util.logger import info
 
 TaskKPIs: TypeAlias = dict[str, KPIMap]
-RessourceKPIs: TypeAlias = dict[str, ResourceKPI]
-SimulationKPIs: TypeAlias = tuple[KPIMap, TaskKPIs, RessourceKPIs, datetime, datetime]
+ResourceKPIs: TypeAlias = dict[str, ResourceKPI]
+SimulationKPIs: TypeAlias = tuple[KPIMap, TaskKPIs, ResourceKPIs, datetime, datetime]
 
-RunSimulationResult: TypeAlias = tuple[KPIMap, TaskKPIs, RessourceKPIs, LogInfo]
+RunSimulationResult: TypeAlias = tuple[KPIMap, TaskKPIs, ResourceKPIs, LogInfo]
 
 
 if TYPE_CHECKING:

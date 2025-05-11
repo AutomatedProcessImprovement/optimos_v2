@@ -13,6 +13,7 @@ import {
 } from "../helpers";
 
 import { getOverlappingHours } from "./validationFunctions";
+import { TimePeriod } from "../redux/slices/optimosApi";
 
 // e.g {a: {b: {c: {message: 'error'}}}} => {'a.b.c': {message: 'error'}}
 export const flattenErrors = (errors: FieldErrors<MasterFormData>) => {
@@ -421,7 +422,7 @@ export const removeManyFromTimetable = (
 };
 
 // Removes a time from the timetable of a resource
-// This means, that we need to split/shorten the time periods that are containg the hour
+// This means, that we need to split/shorten the time periods that are containing the hour
 // (e.g. if we remove 10:00 from 9:00-12:00, we need to split it into 9:00-10:00 and 11:00-12:00,
 // if we remove 10:00 from 10:00-11:00, we need to remove the whole time period
 // if we remove 10:00 from 08:00-10:00;10:00-12:00, we need to shorten the first to 08:00-09:00,

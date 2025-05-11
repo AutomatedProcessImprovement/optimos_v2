@@ -46,7 +46,7 @@ class PPOAgent(Agent):
                 # TODO make learning rate smarter
                 # learning_rate=linear_schedule(3e-4),
                 n_steps=1 * store.settings.ppo_steps_per_iteration,  #  Multiple of 50
-                batch_size=round(0.5 * store.settings.ppo_steps_per_iteration),  # Divsior of 50
+                batch_size=round(0.5 * store.settings.ppo_steps_per_iteration),  # Divisor of 50
                 gamma=1,
             )
 
@@ -117,7 +117,7 @@ class PPOAgent(Agent):
 
         new_obs, reward, done = self.step_info_from_try(result)
         rewards = [reward]
-        dones = np.array([1 if done else 0])
+        done_values = np.array([1 if done else 0])
         actions = self.last_actions.reshape(-1, 1)
         log_probs = self.log_probs
         action_masks = self.last_action_mask
@@ -127,13 +127,13 @@ class PPOAgent(Agent):
             self.model._last_obs,
             actions,
             rewards,
-            self.model._last_episode_starts or dones,
+            self.model._last_episode_starts or done_values,
             self.last_values,
             log_probs,
             action_masks=action_masks,
         )
         self.model._last_obs = new_obs
-        self.model._last_episode_starts = dones  # type: ignore
+        self.model._last_episode_starts = done_values  # type: ignore
 
         # Train if the buffer is full
         if self.model.rollout_buffer.full:
@@ -142,13 +142,13 @@ class PPOAgent(Agent):
                 last_values = self.model.policy.predict_values(obs_as_tensor(new_obs, self.model.device))
             self.model.rollout_buffer.compute_returns_and_advantage(
                 last_values=last_values,
-                dones=dones,  # type: ignore
+                dones=done_values,  # type: ignore
             )
             self.model.train()
             self.model.rollout_buffer.reset()
 
         # If the episode is done, select a new base solution
-        if dones[0]:
+        if done_values[0]:
             tmp_agent = TabuAgent(self.store)
             while True:
                 self.store.solution = tmp_agent._select_new_base_evaluation(reinsert_current_solution=False)

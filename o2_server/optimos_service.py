@@ -18,10 +18,9 @@ from o2_server.server_types import ProcessingRequest
 
 
 class OptimosService:
-    """Service for handling Optiomos optimization requests.
+    """Optimos service implementation.
 
-    This class manages the optimization process for a single request, including
-    configuration setup, optimization execution, and result generation.
+    This service is responsible for running the Optimos optimization.
     """
 
     def __init__(self, cancelled: Event, running: Event, stopped: Event) -> None:

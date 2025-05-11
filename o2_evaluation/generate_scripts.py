@@ -23,7 +23,7 @@ MAX_TIME_HOURS_PPO = 24
 
 MAX_SOLUTIONS = 10_000
 
-# As an upper limit for the itearions, double the amount of "expected" iterations
+# As an upper limit for the iterations, double the amount of "expected" iterations
 # (E.g. solutions divided by actions per iteration (which is +/- 30% the number of solutions per iteration))
 MAX_ITERATIONS = (MAX_SOLUTIONS // MAX_NUMBER_OF_ACTIONS_PER_ITERATION) * 2
 # For PPO, because it's only doing one step per iteration,
@@ -37,7 +37,7 @@ DUMP_INTERVAL_PPO = MAX_SOLUTIONS // 1000
 # Early stopping after 10% of the max iterations without improvement
 MAX_NON_IMPROVING_SOLUTIONS_TABU = ceil(0.05 * MAX_SOLUTIONS)
 MAX_NON_IMPROVING_SOLUTIONS_PPO = ceil(0.05 * MAX_SOLUTIONS)
-# For SA we shoudln't stop super early, because in the random phase at the begining with a very high temperature,
+# For SA we shouldn't stop super early, because in the random phase at the beginning with a very high temperature,
 # it's very normal, that the solutions are not improving.
 MAX_NON_IMPROVING_SOLUTIONS_SA = ceil(0.1 * MAX_SOLUTIONS)
 
@@ -117,7 +117,7 @@ SCENARIOS = [
     "WK-ORD",
     "BPIC2019_DAS",
     "Sepsis_DAS",
-    "Trafic_DAS",
+    "Traffic_DAS",
 ]
 
 MODELS = [

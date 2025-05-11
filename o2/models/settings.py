@@ -178,8 +178,8 @@ class Settings:
 
     To reproduce this in the new Optimos, we have to do the following:
     - We initialize the setting with calendar first,
-    - In this case calendar optimizations will get a higher prio,
-      the resource optimizations will get a "low" prio, that will only(!)
+    - In this case calendar optimizations will get a higher priority,
+      the resource optimizations will get a "low" priority, that will only(!)
       be executed after the calendar optimization
     - Then as soon as one of the calendar optimizations is successful,
       we switch this setting to resources first, so that the resources
@@ -226,7 +226,7 @@ class Settings:
     sa_cooling_iteration_percent = 0.55
     """Percentage of iterations after which the SA should basically be hill climbing.
 
-    This is only relveant if sa_cooling_factor is set to "auto".
+    This is only relevant if sa_cooling_factor is set to "auto".
     NOTE: Reaching this threshold will not stop the cooling process.
     It's only used to calculate the cooling factor.
     """
@@ -362,7 +362,7 @@ class Settings:
     """
 
     NUMBER_OF_CASES: Optional[int] = None
-    """Overrite the number of cases to simulate per run.
+    """Override the number of cases to simulate per run.
 
     Will use information from the model if not set (1000 cases by default)."""
 
@@ -398,7 +398,7 @@ class Settings:
     """If an archived solution is loaded, should it be deleted?
 
     This will save (some) disk space, but will be slower, as a solution might
-    need to be delted & rewritten to disk multiple times.
+    need to be deleted & rewritten to disk multiple times.
     """
 
     OVERWRITE_EXISTING_SOLUTION_ARCHIVES: ClassVar[bool] = True

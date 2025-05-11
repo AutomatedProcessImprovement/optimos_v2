@@ -34,7 +34,7 @@ class Metrics(TypedDict):
     number_of_solutions: int
     invalid_solutions: int
     invalid_solutions_ratio: float
-    patreto_size: int
+    pareto_size: int
     hyperarea: float
     hyperarea_ratio: float
     hausdorff_distance: float
@@ -66,7 +66,7 @@ EMPTY_METRIC: Metrics = {
     "number_of_solutions": -1,
     "invalid_solutions": -1,
     "invalid_solutions_ratio": -1.0,
-    "patreto_size": -1,
+    "pareto_size": -1,
     "hyperarea": -1.0,
     "hyperarea_ratio": -1.0,
     "hausdorff_distance": -1.0,
@@ -313,7 +313,7 @@ def calculate_metrics(
             "number_of_solutions": no_of_solutions,
             "invalid_solutions": no_of_invalid_solutions,
             "invalid_solutions_ratio": no_of_invalid_solutions / no_of_solutions,
-            "patreto_size": len(front),
+            "pareto_size": len(front),
             "hyperarea": pareto_hyperarea,
             "hyperarea_ratio": ratio,
             "hausdorff_distance": hausdorff_distance,
@@ -344,7 +344,7 @@ def calculate_metrics(
             "number_of_solutions": len(all_valid_solutions),
             "invalid_solutions": len(all_invalid_solutions),
             "invalid_solutions_ratio": len(all_invalid_solutions) / len(all_valid_solutions),
-            "patreto_size": len(all_solutions_front),
+            "pareto_size": len(all_solutions_front),
             "hyperarea": global_hyperarea,
             "hyperarea_ratio": -1.0,
             "hausdorff_distance": -1.0,
@@ -430,7 +430,7 @@ def calculate_metrics(
                 "number_of_solutions": number_of_solutions,
                 "invalid_solutions": invalid_solutions,
                 "invalid_solutions_ratio": invalid_solutions_ratio,
-                "patreto_size": store.current_pareto_front.size,
+                "pareto_size": store.current_pareto_front.size,
                 "hyperarea": pareto_hyperarea,
                 "hyperarea_ratio": ratio,
                 "hausdorff_distance": hausdorff_distance,
@@ -632,15 +632,15 @@ def print_metrics_in_google_sheet_format(metrics: list[Metrics]) -> None:
         result += f";PPO Random;{ppo_random_easy['invalid_solutions_ratio']};{ppo_random_mid['invalid_solutions_ratio']};{ppo_random_hard['invalid_solutions_ratio']}\n\n"
 
         result += "Pareto Size\n"
-        result += f";Reference;{reference_easy['patreto_size']};{reference_mid['patreto_size']};{reference_hard['patreto_size']}\n"
-        result += f";Reference Random;{reference_random_easy['patreto_size']};{reference_random_mid['patreto_size']};{reference_random_hard['patreto_size']}\n"
-        result += f";Reference Optimos;{reference_optimos_easy['patreto_size']};{reference_optimos_mid['patreto_size']};{reference_optimos_hard['patreto_size']}\n"
-        result += f";SA;{sa_easy['patreto_size']};{sa_mid['patreto_size']};{sa_hard['patreto_size']}\n"
-        result += f";Tabu Search;{tabu_search_easy['patreto_size']};{tabu_search_mid['patreto_size']};{tabu_search_hard['patreto_size']}\n"
-        result += f";PPO;{ppo_easy['patreto_size']};{ppo_mid['patreto_size']};{ppo_hard['patreto_size']}\n"
-        result += f";Tabu Random;{tabu_search_random_easy['patreto_size']};{tabu_search_random_mid['patreto_size']};{tabu_search_random_hard['patreto_size']}\n"
-        result += f";SA Random;{simulated_annealing_random_easy['patreto_size']};{simulated_annealing_random_mid['patreto_size']};{simulated_annealing_random_hard['patreto_size']}\n"
-        result += f";PPO Random;{ppo_random_easy['patreto_size']};{ppo_random_mid['patreto_size']};{ppo_random_hard['patreto_size']}\n\n"
+        result += f";Reference;{reference_easy['pareto_size']};{reference_mid['pareto_size']};{reference_hard['pareto_size']}\n"
+        result += f";Reference Random;{reference_random_easy['pareto_size']};{reference_random_mid['pareto_size']};{reference_random_hard['pareto_size']}\n"
+        result += f";Reference Optimos;{reference_optimos_easy['pareto_size']};{reference_optimos_mid['pareto_size']};{reference_optimos_hard['pareto_size']}\n"
+        result += f";SA;{sa_easy['pareto_size']};{sa_mid['pareto_size']};{sa_hard['pareto_size']}\n"
+        result += f";Tabu Search;{tabu_search_easy['pareto_size']};{tabu_search_mid['pareto_size']};{tabu_search_hard['pareto_size']}\n"
+        result += f";PPO;{ppo_easy['pareto_size']};{ppo_mid['pareto_size']};{ppo_hard['pareto_size']}\n"
+        result += f";Tabu Random;{tabu_search_random_easy['pareto_size']};{tabu_search_random_mid['pareto_size']};{tabu_search_random_hard['pareto_size']}\n"
+        result += f";SA Random;{simulated_annealing_random_easy['pareto_size']};{simulated_annealing_random_mid['pareto_size']};{simulated_annealing_random_hard['pareto_size']}\n"
+        result += f";PPO Random;{ppo_random_easy['pareto_size']};{ppo_random_mid['pareto_size']};{ppo_random_hard['pareto_size']}\n\n"
 
         result += "Hyperarea Ratio\n"
         result += f";Reference Random;{reference_random_easy['hyperarea_ratio']};{reference_random_mid['hyperarea_ratio']};{reference_random_hard['hyperarea_ratio']}\n"

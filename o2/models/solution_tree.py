@@ -70,22 +70,22 @@ class SolutionTree:
         pareto_points = np.array([s.point for s in pareto_solutions])
         max_distances = np.array([max_distance] * len(pareto_solutions))
 
-        neighbours, _ = self.rtree.nearest_v(  # type: ignore
+        neighbors, _ = self.rtree.nearest_v(  # type: ignore
             mins=pareto_points,
             maxs=pareto_points,
             num_results=1,
             max_dists=max_distances,
         )
-        print_l3(f"Found {len(neighbours)} neighbours in radius {max_distance:_.2f}.")
-        for neighbour in neighbours:
+        print_l3(f"Found {len(neighbors)} neighbors in radius {max_distance:_.2f}.")
+        for neighbor in neighbors:
             if error_count > 20:
                 warn(f"Got too many None items from rtree! Returning None. {error_count} errors so far.")
                 break
-            if neighbour is None:
+            if neighbor is None:
                 warn(f"WARNING: Got None item from rtree. {error_count} errors so far.")
                 error_count += 1
                 continue
-            item_id = hex_id(neighbour)
+            item_id = hex_id(neighbor)
             if item_id not in self.solution_lookup:
                 warn(
                     f"WARNING: Got non-existent solution from rtree ({item_id}). {error_count} errors so far."
@@ -115,7 +115,7 @@ class SolutionTree:
         if nearest_solution is None:
             print_l3(
                 f"NO nearest solution was found in tree. ({error_count} errors, "
-                f"{len(neighbours)} neighbours, {len(pareto_front.solutions)} pareto solutions, "
+                f"{len(neighbors)} neighbors, {len(pareto_front.solutions)} pareto solutions, "
                 f"{self.total_solutions} solutions in tree, {self.solutions_left} solutions unexplored)"
             )
         else:

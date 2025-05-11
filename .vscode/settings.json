@@ -11,15 +11,6 @@
     "**/*.less",
     "node_modules/@mantine/core/styles.css"
   ],
-  "cSpell.words": [
-    "autouse",
-    "distrib",
-    "dynamik",
-    "Fileless",
-    "hyperarea",
-    "ndarray",
-    "pytz"
-  ],
   "python.analysis.exclude": [
     "stores/",
     "evaluations/",

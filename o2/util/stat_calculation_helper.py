@@ -107,7 +107,7 @@ def calculate_averaged_hausdorff_distance(
 def calculate_delta_metric(pareto_front: list, reference_set: list) -> float:
     """Calculate the Delta metric for diversity of the Pareto front.
 
-    Formel Definition:
+    Formula Definition:
         Δ = (d_f + d_l + sum(|d_i - d̄|)) / (d_f + d_l + (N - 1)*d̄)
     where:
       - d_f = distance(first Pareto solution, reference extreme)

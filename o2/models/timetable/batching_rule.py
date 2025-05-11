@@ -64,7 +64,7 @@ class BatchingRule(JSONWizard):
         if not isinstance(other, BatchingRule):
             return NotImplemented
 
-        # TODO: This is due to some timetable objects beeing pickled before the normalization implementation.
+        # TODO: This is due to some timetable objects being pickled before the normalization implementation.
         if "_normalized" not in self.__dict__:
             normalized = tuple(sorted(tuple(sorted(row)) for row in self.firing_rules))  # type: ignore
             object.__setattr__(self, "_normalized", normalized)
@@ -451,7 +451,7 @@ class BatchingRule(JSONWizard):
         """Create a BatchingRule from a task id.
 
         NOTE: Setting `size` to a value will limit the new rule to only
-        this size. You can ommit it, to support batches up to 50.
+        this size. You can omit it, to support batches up to 50.
         TODO: Get limit from constraints
         """
         duration_lambda = lambdify(Symbol("size"), duration_fn if duration_fn else "size")
