@@ -1,6 +1,7 @@
 from dataclasses import replace
 
 import pandas as pd
+import pytest
 
 from o2.models.evaluation import Evaluation
 from o2.models.settings import CostType, Settings
@@ -37,7 +38,7 @@ def test_pareto_front_add(simple_state: State):
 
 
 def test_is_in_front(simple_state: State):
-    Settings.EQUAL_DOMINATION_ALLOWED = False
+    Settings.EQUAL_DOMINATION_ALLOWED = True
     front = ParetoFront()
 
     # Create some evaluations for testing
@@ -68,6 +69,8 @@ def test_is_in_front(simple_state: State):
     assert front.is_in_front(solution2) == FRONT_STATUS.IN_FRONT
 
     assert front.is_in_front(solution3) == FRONT_STATUS.DOMINATES
+
+    Settings.EQUAL_DOMINATION_ALLOWED = False
 
 
 def test_one_dimension_equal(simple_state: State):
@@ -149,6 +152,7 @@ def test_pareto_front_real_numbers_regression(simple_state: State):
 
 
 def test_removal_of_multiple_dominated_solutions(simple_state: State):
+    Settings.EQUAL_DOMINATION_ALLOWED = True
     front = ParetoFront()
 
     dominated_solution1 = create_mock_solution(simple_state, 3, 5)
@@ -177,3 +181,244 @@ def test_removal_of_multiple_dominated_solutions(simple_state: State):
     assert dominated_solution2 not in front.solutions
     assert dominated_solution3 not in front.solutions
     assert dominated_solution4 not in front.solutions
+
+
+def test_pareto_front_size(simple_state: State):
+    """Test the size property of ParetoFront."""
+    front = ParetoFront()
+    assert front.size == 0
+
+    solution1 = create_mock_solution(simple_state, 10, 10)
+    front.add(solution1)
+    assert front.size == 1
+
+    solution2 = create_mock_solution(simple_state, 5, 5)
+    front.add(solution2)
+    # solution1 should be removed as it's dominated
+    assert front.size == 1
+
+    solution3 = create_mock_solution(simple_state, 3, 7)
+    front.add(solution3)
+    # Both solutions are now in the front
+    assert front.size == 2
+
+
+def test_pareto_front_avg_x_avg_y(simple_state: State):
+    """Test the avg_x and avg_y properties of ParetoFront."""
+    front = ParetoFront()
+
+    solution1 = create_mock_solution(simple_state, 10, 20)
+    solution2 = create_mock_solution(simple_state, 20, 10)
+    front.add(solution1)
+    front.add(solution2)
+
+    assert front.avg_x == 15  # (10 + 20) / 2
+    assert front.avg_y == 15  # (20 + 10) / 2
+
+
+def test_pareto_front_median_x_median_y(simple_state: State):
+    """Test the median_x and median_y properties of ParetoFront."""
+    front = ParetoFront()
+
+    solution1 = create_mock_solution(simple_state, 10, 30)
+    solution2 = create_mock_solution(simple_state, 20, 20)
+    solution3 = create_mock_solution(simple_state, 30, 10)
+    front.add(solution1)
+    front.add(solution2)
+    front.add(solution3)
+
+    assert front.median_x == 20  # middle value of [10, 20, 30]
+    assert front.median_y == 20  # middle value of [10, 20, 30]
+
+
+def test_pareto_front_min_max_x_y(simple_state: State):
+    """Test the min_x, min_y, max_x, max_y properties of ParetoFront."""
+    front = ParetoFront()
+
+    solution1 = create_mock_solution(simple_state, 10, 30)
+    solution2 = create_mock_solution(simple_state, 20, 20)
+    solution3 = create_mock_solution(simple_state, 30, 10)
+    front.add(solution1)
+    front.add(solution2)
+    front.add(solution3)
+
+    assert front.min_x == 10
+    assert front.min_y == 10
+    assert front.max_x == 30
+    assert front.max_y == 30
+
+
+def test_pareto_front_avg_cost_metrics(simple_state: State):
+    """Test the avg_per_case_cost and avg_total_cost properties of ParetoFront."""
+    front = ParetoFront()
+
+    # Create solutions with specific cost values
+    solution1 = create_mock_solution(simple_state, 100, 1000)
+    solution2 = create_mock_solution(simple_state, 200, 2000)
+
+    front.add(solution1)
+    front.add(solution2)
+
+    # Checking the exact values is hard because of how create_mock_solution works
+    # Just ensure they're calculated as an average
+    assert (
+        front.avg_per_case_cost
+        == (solution1.evaluation.avg_cost_by_case + solution2.evaluation.avg_cost_by_case) / 2
+    )
+    assert front.avg_total_cost == (solution1.evaluation.total_cost + solution2.evaluation.total_cost) / 2
+
+
+def test_pareto_front_cycle_time_metrics(simple_state: State):
+    """Test the avg_cycle_time and min_cycle_time properties of ParetoFront."""
+    front = ParetoFront()
+
+    # Create solutions with specific cycle time values
+    solution1 = create_mock_solution(simple_state, 500, 100)
+    solution2 = create_mock_solution(simple_state, 300, 200)
+
+    front.add(solution1)
+    front.add(solution2)
+
+    assert front.avg_cycle_time == 400  # (500 + 300) / 2
+    assert front.min_cycle_time == 300
+
+
+def test_pareto_front_avg_point(simple_state: State):
+    """Test the avg_point property of ParetoFront."""
+    front = ParetoFront()
+
+    solution1 = create_mock_solution(simple_state, 10, 20)
+    solution2 = create_mock_solution(simple_state, 20, 10)
+    front.add(solution1)
+    front.add(solution2)
+
+    assert front.avg_point == (15, 15)  # ((10 + 20) / 2, (20 + 10) / 2)
+
+
+def test_pareto_front_avg_distance_to(simple_state: State):
+    """Test the avg_distance_to method of ParetoFront."""
+    front = ParetoFront()
+
+    solution1 = create_mock_solution(simple_state, 10, 20)
+    solution2 = create_mock_solution(simple_state, 20, 10)
+    target_solution = create_mock_solution(simple_state, 30, 30)
+
+    front.add(solution1)
+    front.add(solution2)
+
+    # Calculate expected value manually
+    expected_avg_distance = (
+        solution1.distance_to(target_solution) + solution2.distance_to(target_solution)
+    ) / 2
+    assert front.avg_distance_to(target_solution) == expected_avg_distance
+
+
+def test_pareto_front_is_dominated_by(simple_state: State):
+    """Test the is_dominated_by method of ParetoFront."""
+    front = ParetoFront()
+
+    solution1 = create_mock_solution(simple_state, 10, 20)
+    solution2 = create_mock_solution(simple_state, 20, 10)
+    front.add(solution1)
+    front.add(solution2)
+
+    # This solution dominates both solutions in the front
+    dominating_solution = create_mock_solution(simple_state, 5, 5)
+    assert front.is_dominated_by(dominating_solution) == True
+
+    # This solution only dominates one solution in the front
+    partial_dominating = create_mock_solution(simple_state, 15, 5)
+    assert front.is_dominated_by(partial_dominating) == False
+
+
+def test_pareto_front_is_dominated_by_evaluation(simple_state: State):
+    """Test the is_dominated_by_evaluation method of ParetoFront."""
+    front = ParetoFront()
+
+    solution1 = create_mock_solution(simple_state, 10, 20)
+    solution2 = create_mock_solution(simple_state, 20, 10)
+    front.add(solution1)
+    front.add(solution2)
+
+    # Use an evaluation that dominates both solutions in the front
+    dominating_solution = create_mock_solution(simple_state, 5, 5)
+    dominating_evaluation = dominating_solution.evaluation
+
+    # Use an evaluation that only dominates one solution in the front
+    partial_dominating = create_mock_solution(simple_state, 15, 5)
+    partial_evaluation = partial_dominating.evaluation
+
+    # Check that the dominating evaluation dominates all solutions in the front
+    assert solution1.evaluation.is_dominated_by(dominating_evaluation) == True
+    assert solution2.evaluation.is_dominated_by(dominating_evaluation) == True
+    assert front.is_dominated_by_evaluation(dominating_evaluation) == True
+
+    # Check that the partial dominating evaluation doesn't dominate all solutions
+    assert not (
+        solution1.evaluation.is_dominated_by(partial_evaluation)
+        and solution2.evaluation.is_dominated_by(partial_evaluation)
+    )
+    assert front.is_dominated_by_evaluation(partial_evaluation) == False
+
+
+def test_pareto_front_get_bounding_rect(simple_state: State):
+    """Test the get_bounding_rect method of ParetoFront."""
+    front = ParetoFront()
+
+    solution1 = create_mock_solution(simple_state, 10, 30)
+    solution2 = create_mock_solution(simple_state, 20, 20)
+    solution3 = create_mock_solution(simple_state, 30, 10)
+    front.add(solution1)
+    front.add(solution2)
+    front.add(solution3)
+
+    min_x, min_y, max_x, max_y = front.get_bounding_rect()
+
+    assert min_x == 10
+    assert min_y == 10
+    assert max_x == 30
+    assert max_y == 30
+
+
+def test_pareto_front_empty_front_properties(simple_state: State):
+    """Test properties of an empty ParetoFront."""
+    front = ParetoFront()
+
+    with pytest.raises(ValueError):  # Min/max/avg of empty sequence raises ValueError
+        _ = front.avg_x
+
+    with pytest.raises(ValueError):
+        _ = front.avg_y
+
+    with pytest.raises(ValueError):
+        _ = front.median_x
+
+    with pytest.raises(ValueError):
+        _ = front.median_y
+
+    with pytest.raises(ValueError):
+        _ = front.min_x
+
+    with pytest.raises(ValueError):
+        _ = front.min_y
+
+    with pytest.raises(ValueError):
+        _ = front.max_x
+
+    with pytest.raises(ValueError):
+        _ = front.max_y
+
+    with pytest.raises(ValueError):
+        _ = front.avg_per_case_cost
+
+    with pytest.raises(ValueError):
+        _ = front.avg_total_cost
+
+    with pytest.raises(ValueError):
+        _ = front.avg_cycle_time
+
+    with pytest.raises(ValueError):
+        _ = front.min_cycle_time
+
+    with pytest.raises(ValueError):
+        _ = front.avg_point

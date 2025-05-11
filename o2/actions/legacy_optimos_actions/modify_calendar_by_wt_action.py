@@ -5,7 +5,7 @@ from o2.actions.base_actions.modify_calendar_base_action import (
     ModifyCalendarBaseAction,
     ModifyCalendarBaseActionParamsType,
 )
-from o2.models.self_rating import SelfRatingInput
+from o2.models.solution import Solution
 from o2.store import Store
 
 
@@ -29,13 +29,13 @@ class ModifyCalendarByWTAction(ModifyCalendarBaseAction, str=False):
     """
 
     @staticmethod
-    def rate_self(store: Store, input: SelfRatingInput) -> RateSelfReturnType:
+    def rate_self(store: Store, solution: Solution) -> RateSelfReturnType:
         """Generate a best set of parameters & self-evaluates this action."""
-        parent_evaluation = input.parent_evaluation
-        tasks = parent_evaluation.get_task_names_sorted_by_waiting_time_desc()
+        evaluation = solution.evaluation
+        tasks = evaluation.get_task_names_sorted_by_waiting_time_desc()
         for task in tasks:
-            days = parent_evaluation.get_most_frequent_enablement_weekdays(task)
-            resources = parent_evaluation.get_most_frequent_resources(task)
+            days = evaluation.get_most_frequent_enablement_weekdays(task)
+            resources = evaluation.get_most_frequent_resources(task)
             for day in days:
                 for resource in resources:
                     calendar = store.current_timetable.get_calendar_for_resource(resource)

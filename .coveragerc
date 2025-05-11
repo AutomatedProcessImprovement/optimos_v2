@@ -8,3 +8,13 @@ omit =
     /tmp/*
     */tmp/*
     */_remote_module_non_scriptable.py
+
+[report]
+exclude_also =
+    def __str__\(self\).*
+    if not Settings.DISABLE_PARALLEL_EVALUATION
+    if Settings.DUMP_DISCARDED_SOLUTIONS
+    if TYPE_CHECKING
+    def get_[a-zA-Z0-9_]*_label
+    def step(self,
+    def render(self,

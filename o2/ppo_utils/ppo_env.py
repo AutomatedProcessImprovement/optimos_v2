@@ -56,7 +56,9 @@ class PPOEnv(Env[StateType, np.int64]):
 
     def action_masks(self) -> np.ndarray:
         """Get the action mask for the current set of actions."""
-        return PPOInput.get_action_mask_from_actions(self.actions)
+        # As we are reimplementing PPO in parts, the action_masks function is actually not needed.
+        # So we raise an exception to avoid using it.
+        raise Exception("PPOEnv does not support action_masks")
 
     def render(self, mode="human"):
         pass

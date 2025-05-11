@@ -114,7 +114,7 @@ class Solution:
 
     def is_dominated_by(self, other: "Solution") -> bool:
         """Check if this solution is dominated by the given solution."""
-        if Settings.EQUAL_DOMINATION_ALLOWED:
+        if not Settings.EQUAL_DOMINATION_ALLOWED:
             return other.pareto_x <= self.pareto_x and other.pareto_y <= self.pareto_y
         return other.pareto_x < self.pareto_x and other.pareto_y < self.pareto_y
 

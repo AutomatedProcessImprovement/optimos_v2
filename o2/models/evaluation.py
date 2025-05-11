@@ -243,25 +243,25 @@ class Evaluation:
         NOTE: This is depended on the global, static setting found in `Settings.COST_TYPE`
         """
         if Settings.COST_TYPE == CostType.FIXED_COST:
-            return self.total_fixed_cost
+            return float(self.total_fixed_cost)
         elif Settings.COST_TYPE == CostType.RESOURCE_COST:
-            return self.total_cost_for_available_time
+            return float(self.total_cost_for_available_time)
         elif Settings.COST_TYPE == CostType.TOTAL_COST:
-            return self.total_cost_for_worked_time
+            return float(self.total_cost_for_worked_time)
         elif Settings.COST_TYPE == CostType.WAITING_TIME_AND_PROCESSING_TIME:
-            return self.total_processing_time
+            return float(self.total_processing_time)
         elif Settings.COST_TYPE == CostType.AVG_WT_AND_PT_PER_TASK_INSTANCE:
-            return self.avg_batch_processing_time_per_task_instance
+            return float(self.avg_batch_processing_time_per_task_instance)
         raise ValueError(f"Unknown cost type: {Settings.COST_TYPE}")
 
     @property
     def pareto_y(self) -> float:
         """Get the duration used for positioning the evaluation in the pareto front."""
         if Settings.COST_TYPE == CostType.WAITING_TIME_AND_PROCESSING_TIME:
-            return self.total_waiting_time + self.total_task_idle_time
+            return float(self.total_waiting_time + self.total_task_idle_time)
         elif Settings.COST_TYPE == CostType.AVG_WT_AND_PT_PER_TASK_INSTANCE:
-            return self.avg_idle_wt_per_task_instance
-        return self.total_duration
+            return float(self.avg_idle_wt_per_task_instance)
+        return float(self.total_duration)
 
     def get_avg_waiting_time_of_task_id(self, task_id: str) -> float:
         """Get the average waiting time of a task."""
