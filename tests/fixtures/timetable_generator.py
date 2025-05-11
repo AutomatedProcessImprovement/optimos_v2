@@ -2,11 +2,12 @@ import io
 import xml.etree.ElementTree as ElementTree
 from dataclasses import replace
 
-from o2.models.constraints import BATCH_TYPE, RULE_TYPE
 from o2.models.days import DAY
 from o2.models.timetable import (
+    BATCH_TYPE,
     COMPARATOR,
     DISTRIBUTION_TYPE,
+    RULE_TYPE,
     ArrivalTimeDistribution,
     BatchingRule,
     Distribution,

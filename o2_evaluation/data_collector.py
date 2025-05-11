@@ -7,11 +7,9 @@ from o2.models.settings import ActionVariationSelection, AgentType, CostType, Se
 from o2.optimizer import Optimizer
 from o2.simulation_runner import SimulationRunner
 from o2.store import Store
+from o2.util.data_collector_helper import store_with_baseline_constraints
 from o2.util.logger import info, setup_logging, stats
 from o2.util.solution_dumper import SolutionDumper
-from o2.util.stat_calculation_helper import (
-    store_with_baseline_constraints,
-)
 
 
 def parse_args():

@@ -3,7 +3,6 @@ from os import path
 from o2.models.constraints import ConstraintsType, SizeRuleConstraints
 from o2.models.days import DAY
 from o2.models.state import State
-from o2.models.time_period import TimePeriod
 from o2.models.timetable import (
     BATCH_TYPE,
     DISTRIBUTION_TYPE,
@@ -19,6 +18,7 @@ from o2.models.timetable import (
     TaskResourceDistributions,
     TimetableType,
 )
+from o2.models.timetable.time_period import TimePeriod
 from o2.store import Store
 
 FIXED_COST_FN = "1 * 1/size"

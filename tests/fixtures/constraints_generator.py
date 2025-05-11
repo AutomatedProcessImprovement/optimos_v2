@@ -3,8 +3,6 @@ import xml.etree.ElementTree as ElementTree
 from typing import Optional
 
 from o2.models.constraints import (
-    BATCH_TYPE,
-    RULE_TYPE,
     ConstraintsType,
     DailyHourRuleConstraints,
     ReadyWtRuleConstraints,
@@ -18,7 +16,7 @@ from o2.models.legacy_constraints import (
     ResourceConstraints,
     WorkMasks,
 )
-from o2.models.timetable import TimePeriod
+from o2.models.timetable import BATCH_TYPE, RULE_TYPE, TimePeriod
 from tests.fixtures.timetable_generator import TimetableGenerator
 
 

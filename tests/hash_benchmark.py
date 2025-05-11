@@ -1,13 +1,8 @@
 # Use deep_hash
 import pickle
 import time
-from dataclasses import fields, is_dataclass
-from typing import Any, Union
 
-from pydantic import BaseModel
-import xxhash
 
-from o2.models.time_period import TimePeriod
 from o2.util.helper import hash_int
 
 with open(
@@ -114,7 +109,7 @@ with open(
 
 # from pydantic import BaseModel
 
-# from o2.models.time_period import TimePeriod
+# from o2.models.timetable.time_period import TimePeriod
 # from o2.util.helper import hash_int
 
 

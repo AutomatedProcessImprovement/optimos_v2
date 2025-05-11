@@ -1,6 +1,6 @@
 from dataclass_wizard import DumpMixin, LoadMixin
 
-from o2.models.time_period import TimePeriod
+from o2.models.timetable.time_period import TimePeriod
 
 
 class CustomDumper(DumpMixin):

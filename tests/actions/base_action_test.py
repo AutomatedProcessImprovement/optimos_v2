@@ -20,7 +20,7 @@ from o2.actions.batching_actions.modify_size_rule_by_cost_action import (
 from o2.agents.tabu_agent import TabuAgent
 from o2.models.rule_selector import RuleSelector
 from o2.models.self_rating import RATING
-from o2.models.time_period import TimePeriod
+from o2.models.timetable.time_period import TimePeriod
 from o2.store import Store
 from tests.fixtures.timetable_generator import TimetableGenerator
 

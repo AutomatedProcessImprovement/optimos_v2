@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Callable, Literal, Optional, Union
 
 from dataclass_wizard import JSONWizard
 
-from o2.models.days import DAY, is_day_in_range
+from o2.models.days import DAY
 from o2.models.timetable.batch_type import BATCH_TYPE
 from o2.models.timetable.batching_rule import BatchingRule
 from o2.models.timetable.firing_rule import FiringRule
@@ -19,13 +19,11 @@ from o2.models.timetable.resource_pool import ResourcePool
 from o2.models.timetable.rule_type import RULE_TYPE
 from o2.models.timetable.task_resource_distribution import (
     ArrivalTimeDistribution,
-    TaskResourceDistribution,
     TaskResourceDistributions,
 )
 from o2.models.timetable.time_period import TimePeriod
 from o2.util.custom_dumper import CustomDumper, CustomLoader
 from o2.util.helper import (
-    CLONE_REGEX,
     cached_lambdify,
     hash_int,
     name_is_clone_of,

@@ -3,7 +3,7 @@ from o2.actions.base_actions.add_datetime_rule_base_action import (
     AddDateTimeRuleBaseActionParamsType,
 )
 from o2.models.solution import Solution
-from o2.models.time_period import TimePeriod
+from o2.models.timetable.time_period import TimePeriod
 from o2.pareto_front import FRONT_STATUS
 from o2.store import Store
 from tests.fixtures.timetable_generator import TimetableGenerator
@@ -17,6 +17,7 @@ def test_store_invalid_solution_handling(one_task_store: Store):
             task_id=TimetableGenerator.FIRST_ACTIVITY,
             # NOTE the invalid time period
             time_period=TimePeriod.from_start_end(start=-12, end=0),
+            duration_fn="1",
         )
     )
     initial_solution = Solution.from_parent(store.solution, invalid_action)

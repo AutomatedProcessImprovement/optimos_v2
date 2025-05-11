@@ -3,10 +3,11 @@ from o2.actions.batching_actions.remove_rule_action import (
     RemoveRuleActionParamsType,
 )
 from o2.agents.tabu_agent import TabuAgent
-from o2.models.constraints import BATCH_TYPE, RULE_TYPE
 from o2.models.rule_selector import RuleSelector
 from o2.models.self_rating import RATING
 from o2.models.timetable import COMPARATOR, BatchingRule, FiringRule
+from o2.models.timetable.batch_type import BATCH_TYPE
+from o2.models.timetable.rule_type import RULE_TYPE
 from o2.store import Store
 from tests.fixtures.test_helpers import (
     assert_no_first_valid,
@@ -23,7 +24,7 @@ def test_remove_single_rule(store: Store):
     )
     first_rule = store.base_timetable.batch_processing[0]
     selector = RuleSelector.from_batching_rule(first_rule, (0, 0))
-    action = RemoveRuleAction(RemoveRuleActionParamsType(rule=selector))
+    action = RemoveRuleAction(RemoveRuleActionParamsType(rule=selector, duration_fn="1"))
     new_state = action.apply(state=store.base_state)
     assert len(new_state.timetable.batch_processing) == 0
 
@@ -38,7 +39,7 @@ def test_remove_one_of_two_batching_rules(store: Store):
     )
     first_rule = store.base_timetable.batch_processing[0]
     selector = RuleSelector.from_batching_rule(first_rule, (0, 0))
-    action = RemoveRuleAction(RemoveRuleActionParamsType(rule=selector))
+    action = RemoveRuleAction(RemoveRuleActionParamsType(rule=selector, duration_fn="1"))
     new_state = action.apply(state=store.base_state)
     assert len(new_state.timetable.batch_processing) == 1
     assert new_state.timetable.batch_processing[0].task_id == "SECOND_ACTIVITY"
@@ -58,7 +59,7 @@ def test_remove_one_of_two_firing_rules(store: Store):
     store = replace_timetable(store, batch_processing=[batching_rule])
     first_rule = store.base_timetable.batch_processing[0]
     selector = RuleSelector.from_batching_rule(first_rule, (0, 0))
-    action = RemoveRuleAction(RemoveRuleActionParamsType(rule=selector))
+    action = RemoveRuleAction(RemoveRuleActionParamsType(rule=selector, duration_fn="1"))
     new_state = action.apply(state=store.base_state)
     assert len(new_state.timetable.batch_processing[0].firing_rules) == 1
     assert new_state.timetable.batch_processing[0].firing_rules[0][0].value == 42
@@ -108,7 +109,7 @@ def test_remove_complex_firing_rule(store: Store):
 
     second_rule = store.base_timetable.batch_processing[1]
     selector = RuleSelector.from_batching_rule(second_rule, (1, 1))
-    action = RemoveRuleAction(RemoveRuleActionParamsType(rule=selector))
+    action = RemoveRuleAction(RemoveRuleActionParamsType(rule=selector, duration_fn="1"))
     new_state = action.apply(state=store.base_state)
     assert len(new_state.timetable.batch_processing[1].firing_rules[1]) == 2
     assert new_state.timetable.batch_processing[1].firing_rules[1][0].value == 41

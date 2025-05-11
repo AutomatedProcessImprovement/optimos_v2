@@ -28,8 +28,8 @@ from o2.actions.batching_actions.remove_date_time_rule_action import (
 )
 from o2.models.days import DAYS
 from o2.models.settings import Settings
-from o2.models.time_period import TimePeriod
 from o2.models.timetable import RULE_TYPE
+from o2.models.timetable.time_period import TimePeriod
 from o2.store import Store
 
 

@@ -4,9 +4,9 @@ from o2.actions.batching_actions.modify_size_rule_by_wt_action import (
     ModifySizeRuleByWTAction,
     ModifySizeRuleByWTActionParamsType,
 )
-from o2.models.constraints import RULE_TYPE
 from o2.models.rule_selector import RuleSelector
 from o2.models.timetable import COMPARATOR, BatchingRule, FiringRule
+from o2.models.timetable.rule_type import RULE_TYPE
 from o2.store import Store
 from tests.fixtures.test_helpers import (
     replace_timetable,
