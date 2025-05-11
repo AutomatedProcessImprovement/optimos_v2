@@ -16,5 +16,5 @@ exclude_also =
     if Settings.DUMP_DISCARDED_SOLUTIONS
     if TYPE_CHECKING
     def get_[a-zA-Z0-9_]*_label
-    def step(self,
-    def render(self,
+    def step\(self,
+    def render\(self,
