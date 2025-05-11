@@ -29,6 +29,7 @@ edgecolor
 edgecolors
 enablements
 Enablements
+etree
 expon
 Expon
 exponnorm
@@ -36,6 +37,7 @@ Exponnorm
 facecolor
 figsize
 Fileless
+getroot
 getsizeof
 Guestimate
 hastle
@@ -46,8 +48,10 @@ Hybrdid
 hyperarea
 hypervolume
 idxs
+ignoreexternal
 intdigest
 Interv
+ipynb
 Jannis
 kpis
 lambdify
@@ -69,10 +73,14 @@ ndarray
 opti
 Optimos
 Orlenys
+ParetoAprox
 persistor
 prosimos
 Prosimos
 PROSIMOS
+pycache
+pypoetry
+pyright
 pytest
 pytz
 redump
@@ -88,6 +96,7 @@ setyaml
 simod
 simparams
 simpy
+snok
 soly
 tabler
 tavg
@@ -106,12 +115,15 @@ ttot
 unsnakecase
 uuidv
 vecnormalize
+Verdana
+verifytypes
+virtualenvs
 Worktime
 xlabel
 xlim
+xlink
 ylabel
 ylim
 yscale
 zipf
 zorder
-ParetoAprox

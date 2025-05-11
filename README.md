@@ -1,5 +1,10 @@
 # Optimos V2
 
+[![CI](https://github.com/sinnaj-r/optimos_v2/actions/workflows/ci.yml/badge.svg)](https://github.com/sinnaj-r/optimos_v2/actions/workflows/ci.yml)
+[![Coverage](https://github.com/sinnaj-r/optimos_v2/raw/gh-pages/badges/coverage.svg?raw=true)](https://sinnaj-r.github.io/optimos_v2/)
+[![Spell Check](https://github.com/sinnaj-r/optimos_v2/actions/workflows/ci.yml/badge.svg?event=push&job=spellcheck)](https://github.com/sinnaj-r/optimos_v2/actions/workflows/ci.yml)
+[![Type Check](https://github.com/sinnaj-r/optimos_v2/actions/workflows/ci.yml/badge.svg?event=push&job=typecheck)](https://github.com/sinnaj-r/optimos_v2/actions/workflows/ci.yml)
+
 The next generation of Optimos. A Resource, Roster and Batching optimizer using Prosimos simulator.
 
 # Evaluation
@@ -1792,7 +1797,7 @@ Individual Pareto images:
 
 ### Production
 
-PRD (Acronym in the paper) corresponds to a manufacturing process extracted by an Enterprise Resource Planning (ERP) system, where tasks are individual steps or ‘‘stations’’ in the manufacturing workflow. [Access Link](https://data.4tu.nl/articles/_/12697997/1)
+PRD (Acronym in the paper) corresponds to a manufacturing process extracted by an Enterprise Resource Planning (ERP) system, where tasks are individual steps or 'stations' in the manufacturing workflow. [Access Link](https://data.4tu.nl/articles/_/12697997/1)
 
 #### Analyzer Overview
 
