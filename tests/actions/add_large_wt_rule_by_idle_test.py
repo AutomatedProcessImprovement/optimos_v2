@@ -67,10 +67,10 @@ def test_add_large_wt_rule_by_idle_basic(large_wt_rule_store: Store):
 
     assert action.params["task_id"] == TimetableGenerator.FIRST_ACTIVITY
     # We expect 1h idle time, because:
-    # the first ideling batch is the one starting to accumlate from 13:00
+    # the first idling batch is the one starting to accumulate from 13:00
     # (as the first one is done after collecting 3x1h WT + 1h of processing time)
     # 13:00 - 14:00 is of course available, but would result in a 0h ready wt rule,
-    # which are forbidden, therefore it propses the slot from 14:00 - 15:00,
+    # which are forbidden, therefore it proposes the slot from 14:00 - 15:00,
     # which results in 1h idle time cutoff
     assert action.params["waiting_time"] == 3600
 

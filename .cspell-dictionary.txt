@@ -95,8 +95,10 @@ textbbbox
 textbbox
 tfevents
 tflog
+timesteps
 timevar
 Timevar
+Trafic
 triang
 Triang
 tsub
@@ -112,3 +114,4 @@ ylim
 yscale
 zipf
 zorder
+ParetoAprox

@@ -306,7 +306,7 @@ class Settings:
     DISABLE_PARALLEL_EVALUATION: ClassVar[bool] = False
     """Should the parallel evaluation be disabled? This is useful for debugging.
 
-    This will overide any MAX_THREADS_ACTION_EVALUATION/MAX_THREADS_MEDIAN_CALCULATION settings.
+    This will override any MAX_THREADS_ACTION_EVALUATION/MAX_THREADS_MEDIAN_CALCULATION settings.
     """
 
     MAX_THREADS_ACTION_EVALUATION: ClassVar[int] = os.cpu_count() or 1
@@ -405,7 +405,7 @@ class Settings:
     """If an archived solution is loaded, should it be overwritten?
 
     This will save (some) disk space, but will be slower, as a solution might
-    need to be delted & rewritten to disk multiple times.
+    need to be deleted & rewritten to disk multiple times.
     """
 
     CHECK_FOR_TIMETABLE_EQUALITY: ClassVar[bool] = False

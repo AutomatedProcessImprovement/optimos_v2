@@ -2530,7 +2530,7 @@ Individual Pareto images:
 
 - After following the steps in [Installation](#installation), you can just run the scripts in the `o2_evaluation/scripts`-folder.
 - The names of the scripts are self-explanatory, e.g. `insurance_proximal_policy_optimization_hard.sh` will run the proximal policy optimization agent on the insurance scenario with the hard mode.
-- The scripts are designed to be run in a conda enviorment named `opti2`, please modify the scripts if you want to use a different environment.
+- The scripts are designed to be run in a conda environment named `opti2`, please modify the scripts if you want to use a different environment.
 - You may of course also run the optimizer with the current python version, for that you may modify the script files. E.g. change
 
 ```bash
@@ -2578,7 +2578,7 @@ python ./o2_evaluation/data_collector.py -h
 ### Installation
 
 1. Create a fresh Python 3.10 virtual environment, e.g. with `conda create --name optimos-python python=3.10`
-1. Install `poetry` on your system by following the [offical guide](https://python-poetry.org/docs/#installation). Make sure, poetry is **NOT** installed in the virtual environment.
+1. Install `poetry` on your system by following the [official guide](https://python-poetry.org/docs/#installation). Make sure, poetry is **NOT** installed in the virtual environment.
 1. Activate the environment, e.g. with `conda activate optimos-python`
 1. Run `poetry install` in the root directory of this repository
 
