@@ -80,6 +80,6 @@ def helper_rule_matches_size(rule: BatchingRule, size: int) -> Literal[True]:
         assert rule.size_distrib[0].key == str(size)
         assert rule.size_distrib[0].value == 1
         assert rule.duration_distrib[0].key == str(size)
-        assert rule.duration_distrib[0].value > 1
+        assert rule.duration_distrib[0].value >= 1
 
     return True

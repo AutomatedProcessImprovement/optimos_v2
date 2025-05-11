@@ -38,70 +38,98 @@ class ParetoFront:
     @property
     def avg_y(self) -> float:
         """Return the average y of the front."""
+        if not self.solutions:
+            return 0
         return sum(s.pareto_y for s in self.solutions) / self.size
 
     @property
     def avg_x(self) -> float:
         """Return the average x of the front."""
+        if not self.solutions:
+            return 0
         return sum(s.pareto_x for s in self.solutions) / self.size
 
     @property
     def median_y(self) -> float:
         """Return the median y of the front."""
+        if not self.solutions:
+            return 0
         return sorted(s.pareto_y for s in self.solutions)[self.size // 2]
 
     @property
     def median_x(self) -> float:
         """Return the median x of the front."""
+        if not self.solutions:
+            return 0
         return sorted(s.pareto_x for s in self.solutions)[self.size // 2]
 
     @property
     def min_y(self) -> float:
         """Return the minimum y of the front."""
+        if not self.solutions:
+            return 0
         return min(s.pareto_y for s in self.solutions)
 
     @property
     def min_x(self) -> float:
         """Return the minimum x of the front."""
+        if not self.solutions:
+            return 0
         return min(s.pareto_x for s in self.solutions)
 
     @property
     def max_y(self) -> float:
         """Return the maximum y of the front."""
+        if not self.solutions:
+            return 0
         return max(s.pareto_y for s in self.solutions)
 
     @property
     def max_x(self) -> float:
         """Return the maximum x of the front."""
+        if not self.solutions:
+            return 0
         return max(s.pareto_x for s in self.solutions)
 
     @property
     def avg_per_case_cost(self) -> float:
         """Return the average cost of the front."""
+        if not self.solutions:
+            return 0
         return sum(s.evaluation.avg_cost_by_case for s in self.solutions) / self.size
 
     @property
     def avg_total_cost(self) -> float:
         """Return the average total cost of the front."""
+        if not self.solutions:
+            return 0
         return sum(s.evaluation.total_cost for s in self.solutions) / self.size
 
     @property
     def avg_cycle_time(self) -> float:
         """Return the average cycle time of the front."""
+        if not self.solutions:
+            return 0
         return sum(s.evaluation.total_cycle_time for s in self.solutions) / self.size
 
     @property
     def min_cycle_time(self) -> float:
         """Return the minimum cycle time of the front."""
+        if not self.solutions:
+            return 0
         return min(s.evaluation.total_cycle_time for s in self.solutions)
 
     @property
     def avg_point(self) -> tuple[float, float]:
         """Return the average point of the front."""
+        if not self.solutions:
+            return 0, 0
         return self.avg_x, self.avg_y
 
     def avg_distance_to(self, solution: "Solution") -> float:
         """Return the average distance to the given evaluation."""
+        if not self.solutions:
+            return 0
         return sum(s.distance_to(solution) for s in self.solutions) / self.size
 
     def add(self, solution: "Solution") -> None:

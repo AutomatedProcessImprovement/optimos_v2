@@ -58,27 +58,27 @@ def first_calendar_first_period_id(store: Store):
 
 def create_mock_solution(
     state: "State",
-    total_cycle_time: int,
-    total_cost: int,
+    x: int,
+    y: int,
     total_waiting_time=0,
     force_uniqueness: bool = True,
 ):
     kpis = KPIMap()
     kpis.cycle_time = KPIInfo()
-    kpis.cycle_time.total = total_cycle_time
+    kpis.cycle_time.total = x
     kpis.waiting_time = KPIInfo()
-    kpis.waiting_time.total = total_cycle_time
+    kpis.waiting_time.total = x
 
     task_kpi = KPIMap()
-    task_kpi.idle_time.total = total_cost
-    task_kpi.processing_time.total = total_cycle_time
+    task_kpi.idle_time.total = 0
+    task_kpi.processing_time.total = y
     task_kpi.processing_time.count = 1
 
     resource_kpi = ResourceKPI(
         r_profile="_",
         task_allocated=[],
-        available_time=total_cost,
-        worked_time=total_cost,
+        available_time=y,
+        worked_time=60 * 60,
         utilization=0,
     )
 
@@ -88,13 +88,13 @@ def create_mock_solution(
         resource_id=random_string(),
         enabled_at=0,
     )
-    event.idle_processing_time = total_cycle_time
+    event.idle_processing_time = x
     event.enabled_datetime = datetime(2000, 1, 1)
     event.started_datetime = event.enabled_datetime + timedelta(  # type: ignore
-        seconds=total_cost
+        seconds=0
     )  # type: ignore
     event.completed_datetime = event.started_datetime + timedelta(  # type: ignore
-        seconds=total_cycle_time
+        seconds=x
     )  # type: ignore
     trace = Trace(
         p_case=0,
@@ -104,12 +104,12 @@ def create_mock_solution(
 
     log_info = LogInfo(None)  # type: ignore
     log_info.started_at = datetime(2000, 1, 1)
-    log_info.ended_at = datetime(2000, 1, 1) + timedelta(seconds=total_cycle_time)
+    log_info.ended_at = datetime(2000, 1, 1) + timedelta(seconds=x)
     log_info.trace_list = [trace]
 
     evaluation = Evaluation.from_run_simulation_result(
-        {"_": total_cost},
-        {"_": lambda x: total_cost},
+        {"_": x},
+        {"_": lambda x: y},
         state.timetable.batching_rules_exist,
         (
             kpis,

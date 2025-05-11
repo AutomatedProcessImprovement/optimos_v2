@@ -23,7 +23,23 @@ from tests.fixtures.timetable_generator import TimetableGenerator
 
 @pytest.fixture
 def self_rating_input():
-    return mock.MagicMock(spec=Solution)
+    # Create a mock for Solution that properly handles timetable access
+    mock_solution = mock.MagicMock(spec=Solution)
+
+    # Create a mock state and timetable that will be used by all tests
+    mock_timetable = mock.MagicMock()
+    mock_timetable.get_task_ids.return_value = [TimetableGenerator.FIRST_ACTIVITY]
+
+    # Create a mock state with the mock timetable
+    mock_state = mock.MagicMock()
+    mock_state.timetable = mock_timetable
+
+    # Set up the solution's state and timetable property access
+    mock_solution.state = mock_state
+    # Mock the timetable property to return the state's timetable
+    type(mock_solution).timetable = mock.PropertyMock(return_value=mock_timetable)
+
+    return mock_solution
 
 
 @pytest.fixture
@@ -34,6 +50,7 @@ def mock_rule():
 
     # Create a mock rule selector
     rule_selector = mock.MagicMock(spec=RuleSelector)
+    rule_selector.batching_rule_task_id = TimetableGenerator.FIRST_ACTIVITY
     rule.get_firing_rule_selectors.return_value = [rule_selector]
 
     return rule, rule_selector
@@ -110,40 +127,74 @@ def test_rate_self_add_size_rule(store: Store, self_rating_input: Solution):
 def test_rate_self_modify_daily_hour_rule(store: Store, self_rating_input: Solution, mock_rule):
     """Test that RandomAction can generate a ModifyDailyHourRuleAction correctly."""
     rule, rule_selector = mock_rule
+
+    # Set up the rule to return the right selector based on rule type
+    rule.get_firing_rule_selectors.side_effect = (
+        lambda rule_type=None: [rule_selector]
+        if rule_type is None or rule_type == RULE_TYPE.DAILY_HOUR
+        else []
+    )
+
+    # Replace the timetable in the store
     store = replace_timetable(store, batch_processing=[rule])
 
-    mock_choice_vals = [
-        ModifyDailyHourRuleAction,  # Action type
-        1,  # Hour increment
-        rule_selector,  # Rule selector
-    ]
+    # Configure the mock timetable's batch_processing property
+    # We need to configure the property access on the mock
+    self_rating_input.timetable.batch_processing = [rule]  # type: ignore
 
-    rating, action = get_next_action(store, self_rating_input, mock_choice_vals)
+    # Using patching in get_next_action helper
+    with mock.patch("o2.actions.batching_actions.random_action.random.choice") as mock_choice:
+        # Set specific return values for each call
+        mock_choice.side_effect = [
+            ModifyDailyHourRuleAction,  # First call selects action type
+            1,  # Second call selects hour increment from [-1, 1]
+            rule_selector,  # Third call selects rule selector
+        ]
 
-    # Verify
-    assert isinstance(action, ModifyDailyHourRuleAction)
-    assert action.params["rule"] == rule_selector
-    assert action.params["hour_increment"] == 1
+        # Get the generator and extract the first yield
+        generator = RandomAction.rate_self(store, self_rating_input)
+        rating, action = next(generator)
+
+        # Verify the action
+        assert isinstance(action, ModifyDailyHourRuleAction)
+        assert action.params["rule"] == rule_selector
+        assert action.params["hour_increment"] == 1
 
 
 def test_rate_self_modify_size_rule(store: Store, self_rating_input: Solution, mock_rule):
     """Test that RandomAction can generate a ModifySizeRuleAction correctly."""
     rule, rule_selector = mock_rule
+
+    # Set up the rule to return the right selector based on rule type
+    rule.get_firing_rule_selectors.side_effect = (
+        lambda rule_type=None: [rule_selector] if rule_type is None or rule_type == RULE_TYPE.SIZE else []
+    )
+
+    # Replace the timetable in the store
     store = replace_timetable(store, batch_processing=[rule])
 
-    mock_choice_vals = [
-        ModifySizeRuleAction,  # Action type
-        rule_selector,  # Rule selector
-        TimetableGenerator.FIRST_ACTIVITY,  # Task ID
-        1,  # Size increment
-    ]
+    # Configure the mock timetable's batch_processing property
+    # Linter warning is expected here, but the code works correctly
+    self_rating_input.timetable.batch_processing = [rule]  # type: ignore
 
-    rating, action = get_next_action(store, self_rating_input, mock_choice_vals)
+    # Using patching directly
+    with mock.patch("o2.actions.batching_actions.random_action.random.choice") as mock_choice:
+        # Set specific return values for each call
+        mock_choice.side_effect = [
+            ModifySizeRuleAction,  # First call selects action type
+            rule_selector,  # Second call selects rule selector
+            TimetableGenerator.FIRST_ACTIVITY,  # Third call selects task ID
+            1,  # Fourth call selects size increment
+        ]
 
-    # Verify
-    assert isinstance(action, ModifySizeRuleAction)
-    assert action.params["rule"] == rule_selector
-    assert action.params["size_increment"] == 1
+        # Get the generator and extract the first yield
+        generator = RandomAction.rate_self(store, self_rating_input)
+        rating, action = next(generator)
+
+        # Verify the action
+        assert isinstance(action, ModifySizeRuleAction)
+        assert action.params["rule"] == rule_selector
+        assert action.params["size_increment"] == 1
 
 
 @pytest.mark.parametrize(
@@ -158,32 +209,45 @@ def test_rate_self_remove_rule(
 ):
     """Test RemoveRuleAction with enabled/disabled settings."""
     rule, rule_selector = mock_rule
+
+    # Set up the rule to return the right selector
+    rule.get_firing_rule_selectors.return_value = [rule_selector]
+
+    # Replace the timetable in the store
     store = replace_timetable(store, batch_processing=[rule])
+
+    # Configure the mock timetable's batch_processing property
+    # Linter warning is expected here, but the code works correctly
+    self_rating_input.timetable.batch_processing = [rule]  # type: ignore
 
     # Set up the setting
     old_setting = Settings.DISABLE_REMOVE_ACTION_RULE
     Settings.DISABLE_REMOVE_ACTION_RULE = disable_remove
 
     try:
-        if disable_remove:
-            # When disabled, it skips RemoveRuleAction and uses AddSizeRuleAction
-            mock_choice_vals = [
-                RemoveRuleAction,  # This should be skipped
-                AddSizeRuleAction,  # This should be chosen instead
-                TimetableGenerator.FIRST_ACTIVITY,  # Task ID
-            ]
-        else:
-            mock_choice_vals = [
-                RemoveRuleAction,  # Action type
-                rule_selector,  # Rule selector
-            ]
+        # Using patching directly
+        with mock.patch("o2.actions.batching_actions.random_action.random.choice") as mock_choice:
+            if disable_remove:
+                # When disabled, it skips RemoveRuleAction and uses AddSizeRuleAction
+                mock_choice.side_effect = [
+                    RemoveRuleAction,  # This should be skipped
+                    AddSizeRuleAction,  # This should be chosen instead
+                    TimetableGenerator.FIRST_ACTIVITY,  # Task ID
+                ]
+            else:
+                mock_choice.side_effect = [
+                    RemoveRuleAction,  # Action type
+                    rule_selector,  # Rule selector
+                ]
 
-        rating, action = get_next_action(store, self_rating_input, mock_choice_vals)
+            # Get the generator and extract the first yield
+            generator = RandomAction.rate_self(store, self_rating_input)
+            rating, action = next(generator)
 
-        # Verify
-        assert isinstance(action, expected_action_type)
-        if expected_action_type == RemoveRuleAction:
-            assert action.params["rule"] == rule_selector
+            # Verify the action
+            assert isinstance(action, expected_action_type)
+            if expected_action_type == RemoveRuleAction:
+                assert action.params["rule"] == rule_selector
     finally:
         # Restore the setting
         Settings.DISABLE_REMOVE_ACTION_RULE = old_setting

@@ -11,7 +11,14 @@
     "**/*.less",
     "node_modules/@mantine/core/styles.css"
   ],
-  "cSpell.words": ["dynamik", "Fileless", "hyperarea", "pytz"],
+  "cSpell.words": [
+    "autouse",
+    "distrib",
+    "dynamik",
+    "Fileless",
+    "hyperarea",
+    "pytz"
+  ],
   "python.analysis.exclude": [
     "stores/",
     "evaluations/",

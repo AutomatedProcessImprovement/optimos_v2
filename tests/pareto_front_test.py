@@ -1,4 +1,5 @@
 from dataclasses import replace
+from unittest import mock
 
 import pandas as pd
 import pytest
@@ -10,6 +11,25 @@ from o2.models.state import State
 from o2.pareto_front import FRONT_STATUS, ParetoFront
 from o2.util.helper import random_string
 from tests.fixtures.test_helpers import create_mock_solution
+
+
+@pytest.fixture(autouse=True)
+def setup_cost_type():
+    """Configure Settings.COST_TYPE = CostType.TOTAL_COST for all tests in this file."""
+    # Save original value
+    original_cost_type = Settings.COST_TYPE
+    # Set to TOTAL_COST for testing
+    Settings.COST_TYPE = CostType.TOTAL_COST
+    # Run the test
+    yield
+    # Restore the original value
+    Settings.COST_TYPE = original_cost_type
+
+
+def test_create_mock_solution(simple_state: State):
+    solution = create_mock_solution(simple_state, 3, 7)
+    assert solution.pareto_x == 3
+    assert solution.pareto_y == 7
 
 
 def test_pareto_front_add(simple_state: State):
@@ -152,7 +172,7 @@ def test_pareto_front_real_numbers_regression(simple_state: State):
 
 
 def test_removal_of_multiple_dominated_solutions(simple_state: State):
-    Settings.EQUAL_DOMINATION_ALLOWED = True
+    Settings.EQUAL_DOMINATION_ALLOWED = False
     front = ParetoFront()
 
     dominated_solution1 = create_mock_solution(simple_state, 3, 5)
@@ -384,41 +404,25 @@ def test_pareto_front_empty_front_properties(simple_state: State):
     """Test properties of an empty ParetoFront."""
     front = ParetoFront()
 
-    with pytest.raises(ValueError):  # Min/max/avg of empty sequence raises ValueError
-        _ = front.avg_x
+    # All properties should return 0 (or 0,0 for avg_point) for an empty front
+    assert front.avg_x == 0
+    assert front.avg_y == 0
+    assert front.median_x == 0
+    assert front.median_y == 0
+    assert front.min_x == 0
+    assert front.min_y == 0
+    assert front.max_x == 0
+    assert front.max_y == 0
+    assert front.avg_per_case_cost == 0
+    assert front.avg_total_cost == 0
+    assert front.avg_cycle_time == 0
+    assert front.min_cycle_time == 0
+    assert front.avg_point == (0, 0)
 
-    with pytest.raises(ValueError):
-        _ = front.avg_y
+    # Test avg_distance_to with an empty front
+    test_solution = create_mock_solution(simple_state, 10, 10)
+    assert front.avg_distance_to(test_solution) == 0
 
-    with pytest.raises(ValueError):
-        _ = front.median_x
-
-    with pytest.raises(ValueError):
-        _ = front.median_y
-
-    with pytest.raises(ValueError):
-        _ = front.min_x
-
-    with pytest.raises(ValueError):
-        _ = front.min_y
-
-    with pytest.raises(ValueError):
-        _ = front.max_x
-
-    with pytest.raises(ValueError):
-        _ = front.max_y
-
-    with pytest.raises(ValueError):
-        _ = front.avg_per_case_cost
-
-    with pytest.raises(ValueError):
-        _ = front.avg_total_cost
-
-    with pytest.raises(ValueError):
-        _ = front.avg_cycle_time
-
-    with pytest.raises(ValueError):
-        _ = front.min_cycle_time
-
-    with pytest.raises(ValueError):
-        _ = front.avg_point
+    # These methods should still work with empty fronts
+    assert front.is_in_front(test_solution) == FRONT_STATUS.IN_FRONT
+    assert front.is_dominated_by(test_solution) is True

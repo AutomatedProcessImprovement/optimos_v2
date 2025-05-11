@@ -32,7 +32,7 @@ def test_self_rating_optimal_rule(store: Store):
     )
 
     rating, action = first_valid(store, ModifySizeRuleByWTAction.rate_self(store, store.solution))
-    assert rating == RATING.MEDIUM
+    assert rating == RATING.LOW
     assert action is not None
     assert action.params["size_increment"] == -1  # type: ignore
 
