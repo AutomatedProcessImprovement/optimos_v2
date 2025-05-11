@@ -37,5 +37,6 @@
     "evaluations/": true,
     "states/": true
   },
-  "python.analysis.ignore": ["states/", "evaluations/"]
+  "python.analysis.ignore": ["states/", "evaluations/"],
+  "python.experiments.optOutFrom": ["pythonTerminalEnvVarActivation"]
 }

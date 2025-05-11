@@ -17,6 +17,8 @@ exclude_also =
     if not Settings.DISABLE_PARALLEL_EVALUATION
     # Dump discarded would pollute the filesystem when testing
     if Settings.DUMP_DISCARDED_SOLUTIONS
+    if self._state is None and Settings.ARCHIVE_SOLUTIONS
+    def archive(self)
     # Type checking can't be tested
     if TYPE_CHECKING
     # Get label methods are for debugging
@@ -29,5 +31,8 @@ exclude_also =
     if not "_normalized" in self.__dict__
     # debug_str is for debugging
     def batching_rules_debug_str
+    # print_batching_rules is for debugging
+    def print_batching_rules
     # TensorBoard logging is not used in production
     if self.settings.log_to_tensor_board
+    
