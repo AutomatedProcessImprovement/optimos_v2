@@ -26,7 +26,6 @@ class ModifySizeRuleBaseActionParamsType(BatchingRuleBaseActionParamsType):
     """Parameter for ModifySizeRuleBaseAction."""
 
     size_increment: int
-    duration_fn: str
 
 
 @dataclass(frozen=True)

@@ -739,7 +739,7 @@ class Evaluation:
 
         total_fixed_cost_by_task = batch_pd.groupby("activity")["fixed_cost"].sum().fillna(0).to_dict()
 
-        avg_fixed_cost_per_case = batch_pd.groupby("case")["fixed_cost"].sum().mean()
+        avg_fixed_cost_per_case = float(batch_pd.groupby("case")["fixed_cost"].sum().mean())
 
         first_enablement = min(
             [event.enabled_datetime for trace in log_info.trace_list for event in trace.event_list],

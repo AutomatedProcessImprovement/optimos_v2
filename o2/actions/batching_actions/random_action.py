@@ -153,6 +153,9 @@ class RandomAction(BaseAction):
                 if not all_rule_selectors:
                     continue
                 random_rule_selector = random.choice(all_rule_selectors)
+                duration_fn = store.constraints.get_duration_fn_for_task(
+                    random_rule_selector.batching_rule_task_id
+                )
                 params = RemoveRuleActionParamsType(rule=random_rule_selector, duration_fn=duration_fn)
             else:
                 raise ValueError(f"Unknown action: {action}")
