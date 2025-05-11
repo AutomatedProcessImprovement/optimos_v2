@@ -125,7 +125,7 @@ jobs:
       # Run tests with coverage (continue even if tests fail)
       - name: Run tests with coverage
         run: |
-          poetry run python -m pytest --cov=o2 --cov-report=xml --cov-report=html:cov_out || true
+          poetry run python -m pytest --cov=o2 --cov-report=xml:coverage.xml  --cov-report=html:cov_out || true
 
       # Create badges directory
       - name: Create badges directory
