@@ -1,5 +1,6 @@
 from abc import ABC
 from dataclasses import dataclass
+from typing import Optional
 
 from typing_extensions import Required
 
@@ -11,6 +12,7 @@ class BatchingRuleBaseActionParamsType(BaseActionParamsType):
     """Base type for all action parameters."""
 
     rule: Required[RuleSelector]
+    duration_fn: Optional[str]
 
 
 @dataclass(frozen=True)

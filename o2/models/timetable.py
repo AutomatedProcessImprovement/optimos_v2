@@ -841,11 +841,50 @@ class BatchingRule(JSONWizard):
             return None
         return replace(self, firing_rules=or_rules)
 
+    def generate_distrib(self, duration_fn: str) -> "BatchingRule":
+        """Regenerate the duration and size distributions.
+
+        Looks at every size rule and then will create a new duration distribution based on every size specified.
+        E.g. if there is a size rule with <= 10, then it will create a new distribution for 1-10.
+
+        It will not touch the existing duration distribution, it will only add new distributions
+        """
+        sizes = set()
+        for and_rules in self.firing_rules:
+            for rule in and_rules:
+                if rule.attribute != RULE_TYPE.SIZE:
+                    continue
+                if rule.is_eq:
+                    sizes.add(rule.value)
+                elif rule.is_gte:
+                    sizes.add(range(rule.value, 101))
+                elif rule.is_gt:
+                    sizes.add(range(rule.value + 1, 101))
+                elif rule.is_lte:
+                    sizes.add(range(1, rule.value + 1))
+                elif rule.is_lt:
+                    sizes.add(range(1, rule.value))
+
+        new_duration_distrib = []
+        new_size_distrib = []
+        duration_lambda = lambdify(Symbol("size"), duration_fn)
+        for size in sizes:
+            new_duration_distrib.append(Distribution(key=str(size), value=duration_lambda(size)))
+        for size in sizes:
+            new_size_distrib.append(Distribution(key=str(size), value=1))
+        # Special case: if 1 is not in sizes, remove any distribution that has 1 as a key and add a new one with value 0
+        if 1 not in sizes:
+            new_size_distrib = [distribution for distribution in new_size_distrib if distribution.key != "1"]
+            new_size_distrib.append(Distribution(key="1", value=0))
+
+        return replace(self, duration_distrib=new_duration_distrib, size_distrib=new_size_distrib)
+
     def replace_firing_rule(
         self,
         rule_selector: "RuleSelector",
         new_rule: FiringRule,
         skip_merge: bool = False,
+        duration_fn: Optional[str] = None,
     ) -> "BatchingRule":
         """Replace a firing rule. Returns a new BatchingRule."""
         assert rule_selector.firing_rule_index is not None
@@ -862,6 +901,8 @@ class BatchingRule(JSONWizard):
         or_rules = self.firing_rules[:or_index] + [and_rules] + self.firing_rules[or_index + 1 :]
 
         updated_batching_rule = replace(self, firing_rules=or_rules)
+        if duration_fn is not None:
+            updated_batching_rule = updated_batching_rule.generate_distrib(duration_fn)
 
         if (
             not skip_merge
@@ -1397,13 +1438,15 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
         )
 
     def replace_firing_rule(
-        self, rule_selector: RuleSelector, new_firing_rule: FiringRule
+        self, rule_selector: RuleSelector, new_firing_rule: FiringRule, duration_fn: Optional[str] = None
     ) -> "TimetableType":
         """Replace a firing rule."""
         _, batching_rule = self.get_batching_rule(rule_selector)
         if batching_rule is None:
             return self
-        new_batching_rule = batching_rule.replace_firing_rule(rule_selector, new_firing_rule)
+        new_batching_rule = batching_rule.replace_firing_rule(
+            rule_selector, new_firing_rule, duration_fn=duration_fn
+        )
         return self.replace_batching_rule(rule_selector, new_batching_rule)
 
     def add_firing_rule(

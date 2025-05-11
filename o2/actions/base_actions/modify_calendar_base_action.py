@@ -60,7 +60,13 @@ class ModifyCalendarBaseAction(BaseAction, ABC):
             # )
             return state
         period = calendar.time_periods[period_index]
-        fixed_day_period = period.model_copy(update={"to": day})
+        fixed_day_period = TimePeriod(
+            from_=period.from_,
+            to=day,
+            begin_time=period.begin_time,
+            end_time=period.end_time,
+            probability=period.probability,
+        )
 
         new_period = fixed_day_period
         if "shift_hours" in self.params:

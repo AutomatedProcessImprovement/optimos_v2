@@ -46,6 +46,7 @@ class ModifySizeRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
     def apply(self, state: State, enable_prints: bool = True) -> State:
         timetable = state.timetable
         rule_selector = self.params["rule"]
+        duration_fn = self.params.get("duration_fn", "1")
 
         _, batching_rule = timetable.get_batching_rule(rule_selector)
         if batching_rule is None:
@@ -62,12 +63,14 @@ class ModifySizeRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
 
         new_size = int(firing_rule.value) + self.params["size_increment"]
         # We don't allow size 1, as that basically means no batching
-        if new_size <= 1:
+        if new_size < 1:
             return state
 
         new_firing_rule = replace(firing_rule, value=new_size)
 
-        new_timetable = state.timetable.replace_firing_rule(rule_selector, new_firing_rule)
+        new_timetable = state.timetable.replace_firing_rule(
+            rule_selector, new_firing_rule, duration_fn=duration_fn
+        )
 
         return replace(state, timetable=new_timetable)
 

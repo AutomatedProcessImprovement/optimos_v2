@@ -155,17 +155,17 @@ class TimePeriod(BaseModel):
         if new_begin < 0 or new_begin >= 24 or new_end < 0 or new_end >= 24:
             return None
 
-        # return replace(
-        #     self,
-        #     begin_time=f"{new_begin:02}:{self.begin_time_minute:02}:{self.begin_time_second:02}",
-        #     end_time=f"{new_end:02}:{self.end_time_minute:02}:{self.end_time_second:02}",
-        # )
-        return self.model_copy(
-            update={
-                "begin_time": f"{new_begin:02}:{self.begin_time_minute:02}:{self.begin_time_second:02}",
-                "end_time": f"{new_end:02}:{self.end_time_minute:02}:{self.end_time_second:02}",
-            }
+        new_begin_time = f"{new_begin:02}:{self.begin_time_minute:02}:{self.begin_time_second:02}"
+        new_end_time = f"{new_end:02}:{self.end_time_minute:02}:{self.end_time_second:02}"
+
+        new_period = TimePeriod(
+            from_=self.from_,
+            to=self.to,
+            begin_time=new_begin_time,
+            end_time=new_end_time,
+            probability=self.probability,
         )
+        return new_period
 
     @functools.cached_property
     def split_by_day(self) -> list["TimePeriod"]:

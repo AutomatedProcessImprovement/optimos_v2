@@ -23,7 +23,11 @@ def test_add_to_greater_then(store: Store):
     greater_then_selector = RuleSelector.from_batching_rule(first_rule, (0, 0))
 
     action = ModifyDailyHourRuleAction(
-        ModifyDailyHourRuleActionParamsType(rule=greater_then_selector, hour_increment=1)
+        ModifyDailyHourRuleActionParamsType(
+            rule=greater_then_selector,
+            hour_increment=1,
+            duration_fn=store.constraints.get_duration_fn_for_task(TimetableGenerator.FIRST_ACTIVITY),
+        )
     )
 
     new_state = action.apply(state=store.base_state)
@@ -41,7 +45,11 @@ def test_add_to_less_then(store: Store):
     less_then_selector = RuleSelector.from_batching_rule(first_rule, (0, 1))
 
     action = ModifyDailyHourRuleAction(
-        ModifyDailyHourRuleActionParamsType(rule=less_then_selector, hour_increment=-1)
+        ModifyDailyHourRuleActionParamsType(
+            rule=less_then_selector,
+            hour_increment=-1,
+            duration_fn=store.constraints.get_duration_fn_for_task(TimetableGenerator.FIRST_ACTIVITY),
+        )
     )
 
     new_state = action.apply(state=store.base_state)
@@ -73,15 +81,12 @@ def test_self_rate_simple(one_task_store: Store):
     # Use solution directly for the test
     rating, action = first_valid(store, ModifyDailyHourRuleAction.rate_self(store, store.solution))
 
-    # It's easy to see why the second rule is more impactful: If we remove <= 12:00,
-    # than we can work from 9:00-23:59 (which is even more than needed, because we only
-    # generate a 100 events), if we're removing >= 09:00, we can only work
-    # from 00:00 - 12:00, which means that with 100 Events * avg. 10 minutes per event
-    # = 1000 minutes = 16.6h, that we'll need more than 1 day to finish the work.
-    assert rating == RATING.MEDIUM
+    assert rating == RATING.LOW
     assert action == ModifyDailyHourRuleAction(
         ModifyDailyHourRuleActionParamsType(
-            rule=RuleSelector.from_batching_rule(first_rule, (0, 1)), hour_increment=1
+            rule=RuleSelector.from_batching_rule(first_rule, (0, 0)),
+            hour_increment=1,
+            duration_fn=store.constraints.get_duration_fn_for_task(TimetableGenerator.FIRST_ACTIVITY),
         )
     )
 
@@ -120,9 +125,11 @@ def test_self_rate_simple2(one_task_store: Store):
 
     # Because events are coming only until 12:00, we can't work significantly
     # past that time. Therefore the first rule is more impactful.
-    assert rating == RATING.MEDIUM
+    assert rating == RATING.LOW
     assert action == ModifyDailyHourRuleAction(
         ModifyDailyHourRuleActionParamsType(
-            rule=RuleSelector.from_batching_rule(first_rule, (0, 0)), hour_increment=-1
+            rule=RuleSelector.from_batching_rule(first_rule, (0, 0)),
+            hour_increment=1,
+            duration_fn=store.constraints.get_duration_fn_for_task(TimetableGenerator.FIRST_ACTIVITY),
         )
     )

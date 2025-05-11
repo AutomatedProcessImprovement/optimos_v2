@@ -8,6 +8,7 @@ from o2.actions.base_actions.modify_calendar_base_action import (
 from o2.models.evaluation import Evaluation
 from o2.models.solution import Solution
 from o2.store import Store
+from o2.models.time_period import TimePeriod
 
 
 class ModifyCalendarByITActionParamsType(ModifyCalendarBaseActionParamsType):
@@ -47,7 +48,13 @@ class ModifyCalendarByITAction(ModifyCalendarBaseAction, str=False):
                         period_id = period.id
                         # We need to fix the day period to not change
                         # change the times of other days
-                        fixed_day_period = period.model_copy(update={"from_": day, "to": day})
+                        fixed_day_period = TimePeriod(
+                            from_=day,
+                            to=day,
+                            begin_time=period.begin_time,
+                            end_time=period.end_time,
+                            probability=period.probability,
+                        )
 
                         # Try to add hours to the end of the shift
                         new_period = fixed_day_period.add_hours_after(1)

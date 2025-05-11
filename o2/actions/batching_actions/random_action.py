@@ -122,6 +122,9 @@ class RandomAction(BaseAction):
                 params = ModifyDailyHourRuleActionParamsType(
                     rule=random_rule_selector,
                     hour_increment=hour_increment,
+                    duration_fn=store.constraints.get_duration_fn_for_task(
+                        random_rule_selector.batching_rule_task_id
+                    ),
                 )
             elif action == ModifySizeRuleAction:
                 all_size_rule_selectors = [

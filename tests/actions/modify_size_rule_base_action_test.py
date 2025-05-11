@@ -60,20 +60,26 @@ def helper_rule_matches_size(rule: BatchingRule, size: int) -> Literal[True]:
     """Check if a given rule is of the expected size and has expected distribution."""
     assert len(rule.firing_rules) == 1
     assert len(rule.firing_rules[0]) == 1
-    assert rule.firing_rules[0][0] == FiringRule(
-        attribute=RULE_TYPE.SIZE, comparison=COMPARATOR.EQUAL, value=size
-    )
+    firing_rule = rule.firing_rules[0][0]
+    assert firing_rule.attribute == RULE_TYPE.SIZE
+    assert firing_rule.is_eq or firing_rule.is_gte
+    assert firing_rule.value == size
     if size != 1:
-        assert len(rule.size_distrib) == 2
-        # Check for first distribution rule (that forbids execution without batching)
-        assert rule.size_distrib[0].key == "1"
-        assert rule.size_distrib[0].value == 0
+        assert len(rule.size_distrib) >= 2
+        # Check for distribution rule, that forbids execution without batching
+        one_distribution = next(distribution for distribution in rule.size_distrib if distribution.key == "1")
+        assert one_distribution.value == 0
         # Check for actual distribution rule
-        assert rule.size_distrib[1].key == str(size)
+        size_distribution = next(distr for distr in rule.size_distrib if distr.key == str(size))
+        assert size_distribution.value == 1
+
+        duration_distribution = next(distr for distr in rule.duration_distrib if distr.key == str(size))
+        assert duration_distribution.value > 0
     else:
-        # Check for actual distribution rule
         assert len(rule.size_distrib) == 1
         assert rule.size_distrib[0].key == str(size)
         assert rule.size_distrib[0].value == 1
+        assert rule.duration_distrib[0].key == str(size)
+        assert rule.duration_distrib[0].value > 1
 
     return True

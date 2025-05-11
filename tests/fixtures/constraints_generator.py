@@ -103,16 +103,23 @@ class ConstraintsGenerator:
 
     @staticmethod
     def work_mask(start_time=0, end_time=0) -> WorkMasks:
+        """Generate a work mask for a given start and end time and every day of the week.
+        If start and end time are 0, the mask is 0.
+        Otherwise, the mask is the bitmask of the time period from start to end.
+        """
+        value = 0
+        if start_time == end_time == 0:
+            value = 0
+        else:
+            value = TimePeriod.from_start_end(start_time, end_time).to_bitmask()
         return WorkMasks(
-            monday=0
-            if (start_time == end_time == 0)
-            else TimePeriod.from_start_end(start_time, end_time).to_bitmask(),
-            tuesday=0,
-            wednesday=0,
-            thursday=0,
-            friday=0,
-            saturday=0,
-            sunday=0,
+            monday=value,
+            tuesday=value,
+            wednesday=value,
+            thursday=value,
+            friday=value,
+            saturday=value,
+            sunday=value,
         )
 
     @staticmethod

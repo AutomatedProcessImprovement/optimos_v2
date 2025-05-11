@@ -421,6 +421,16 @@ def test_work_masks():
     assert bitmask_to_string(work_mask.get(DAY.SUNDAY)) == "0" * 24
 
 
+def test_calendar_work_masks():
+    calendar = ResourceCalendar(
+        id="1",
+        name="Resource Calendar",
+        time_periods=[TimePeriod.from_start_end(10, 12, DAY.MONDAY)],
+    )
+    work_masks = calendar.work_masks
+    assert bitmask_to_string(work_masks.get(DAY.MONDAY)) == "0" * 10 + "1" * 2 + "0" * 12
+
+
 def test_time_period_json():
     time_period = TimePeriod(
         from_=DAY.MONDAY,

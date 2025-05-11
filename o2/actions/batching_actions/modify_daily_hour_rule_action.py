@@ -48,7 +48,7 @@ class ModifyDailyHourRuleAction(BatchingRuleBaseAction, str=False):
         timetable = state.timetable
         rule_selector = self.params["rule"]
         hour_increment = self.params["hour_increment"]
-
+        duration_fn = self.params.get("duration_fn", None)
         index, rule = timetable.get_batching_rule(rule_selector)
         if rule is None or index is None:
             warn(f"BatchingRule not found for {rule_selector}")
@@ -70,7 +70,11 @@ class ModifyDailyHourRuleAction(BatchingRuleBaseAction, str=False):
 
         assert rule_selector.firing_rule_index is not None
 
-        new_batching_rule = rule.replace_firing_rule(rule_selector, replace(firing_rule, value=new_hour))
+        new_batching_rule = rule.replace_firing_rule(
+            rule_selector,
+            replace(firing_rule, value=new_hour),
+            duration_fn=duration_fn,
+        )
 
         return state.replace_timetable(
             batch_processing=timetable.batch_processing[:index]
@@ -96,7 +100,13 @@ class ModifyDailyHourRuleAction(BatchingRuleBaseAction, str=False):
                 yield (
                     RATING.LOW,
                     ModifyDailyHourRuleAction(
-                        ModifyDailyHourRuleActionParamsType(rule=selector, hour_increment=hour_increment),
+                        ModifyDailyHourRuleActionParamsType(
+                            rule=selector,
+                            hour_increment=hour_increment,
+                            duration_fn=store.constraints.get_duration_fn_for_task(
+                                selector.batching_rule_task_id
+                            ),
+                        ),
                     ),
                 )
 

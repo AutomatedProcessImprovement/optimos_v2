@@ -89,7 +89,9 @@ class AddReadyLargeWTRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
                     selector = RuleSelector(batching_rule_task_id=task_id, firing_rule_index=(or_index, 0))
                     return replace(
                         state,
-                        timetable=timetable.replace_firing_rule(selector, updated_firing_rule),
+                        timetable=timetable.replace_firing_rule(
+                            selector, updated_firing_rule, duration_fn=duration_fn
+                        ),
                     )
 
         new_or_rule = [
