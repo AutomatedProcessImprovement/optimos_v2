@@ -35,7 +35,6 @@ class Solution:
     @property
     def evaluation(self) -> Evaluation:
         """Return the evaluation of the solution."""
-
         # In case this is a pre-archived solution (e.g. from a previous run),
         # we can take the evaluation from __dict__['evaluation']
         if (

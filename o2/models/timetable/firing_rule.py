@@ -1,5 +1,3 @@
-"""FiringRule class for controlling when batches can be fired."""
-
 from dataclasses import asdict, dataclass
 from json import dumps
 from typing import Generic, Optional, TypeGuard, TypeVar
@@ -10,7 +8,6 @@ from o2.models.days import DAY
 from o2.models.timetable.comparator import COMPARATOR
 from o2.models.timetable.rule_type import RULE_TYPE
 from o2.util.helper import hash_string
-
 
 V = TypeVar("V", DAY, int)
 
@@ -76,10 +73,18 @@ class FiringRule(JSONWizard, Generic[V]):
 
     @staticmethod
     def eq(attribute: RULE_TYPE, value: V) -> "FiringRule[V]":
+        """Create a FiringRule with an EQUAL comparison.
+
+        Creates a rule that checks if an attribute equals the given value.
+        """
         return FiringRule(attribute=attribute, comparison=COMPARATOR.EQUAL, value=value)
 
     @staticmethod
     def gte(attribute: RULE_TYPE, value: V) -> "FiringRule[V]":
+        """Create a FiringRule with a GREATER_THAN_OR_EQUAL comparison.
+
+        Creates a rule that checks if an attribute is greater than or equal to the given value.
+        """
         return FiringRule(
             attribute=attribute,
             comparison=COMPARATOR.GREATER_THEN_OR_EQUAL,
@@ -88,14 +93,26 @@ class FiringRule(JSONWizard, Generic[V]):
 
     @staticmethod
     def lt(attribute: RULE_TYPE, value: V) -> "FiringRule[V]":
+        """Create a FiringRule with a LESS_THAN comparison.
+
+        Creates a rule that checks if an attribute is less than the given value.
+        """
         return FiringRule(attribute=attribute, comparison=COMPARATOR.LESS_THEN, value=value)
 
     @staticmethod
     def lte(attribute: RULE_TYPE, value: V) -> "FiringRule[V]":
+        """Create a FiringRule with a LESS_THAN_OR_EQUAL comparison.
+
+        Creates a rule that checks if an attribute is less than or equal to the given value.
+        """
         return FiringRule(attribute=attribute, comparison=COMPARATOR.LESS_THEN_OR_EQUAL, value=value)
 
     @staticmethod
     def gt(attribute: RULE_TYPE, value: V) -> "FiringRule[V]":
+        """Create a FiringRule with a GREATER_THAN comparison.
+
+        Creates a rule that checks if an attribute is greater than the given value.
+        """
         return FiringRule(attribute=attribute, comparison=COMPARATOR.GREATER_THEN, value=value)
 
 

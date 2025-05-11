@@ -1,5 +1,3 @@
-"""Distribution class for mapping keys to value distributions."""
-
 from dataclasses import dataclass
 from typing import Union
 

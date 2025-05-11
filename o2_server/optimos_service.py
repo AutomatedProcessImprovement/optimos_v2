@@ -18,7 +18,21 @@ from o2_server.server_types import ProcessingRequest
 
 
 class OptimosService:
-    def __init__(self, cancelled: Event, running: Event, stopped: Event):
+    """Service for handling Optiomos optimization requests.
+
+    This class manages the optimization process for a single request, including
+    configuration setup, optimization execution, and result generation.
+    """
+
+    def __init__(self, cancelled: Event, running: Event, stopped: Event) -> None:
+        """Initialize the OptimosService with synchronization events.
+
+        Args:
+            cancelled: Event to signal that the optimization process should be cancelled
+            running: Event to signal that the optimization process is running
+            stopped: Event to signal that the optimization process has stopped
+
+        """
         self.cancelled = cancelled
         self.running = running
         self.stopped = stopped
@@ -28,7 +42,7 @@ class OptimosService:
         output_file, self.output_path = mkstemp(suffix=".zip", prefix="optimos_output_")
         os.fdopen(output_file).close()
 
-    def process(self, request: ProcessingRequest):
+    def process(self, request: ProcessingRequest) -> None:
         """Process the optimization request."""
         self.running.set()
 
@@ -134,7 +148,7 @@ class OptimosService:
         self.stopped.set()
         self.running.clear()
 
-    def iteration_callback(self, store: Store, last_iteration=False):
+    def iteration_callback(self, store: Store, last_iteration: bool = False) -> None:
         """Write Iteration to file."""
         try:
             json_solutions = JSONReport.from_store(store, is_final=last_iteration)

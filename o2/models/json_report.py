@@ -41,6 +41,11 @@ class JSONReport(BaseModel):
 
     @staticmethod
     def from_store(store: Store, is_final: bool = False) -> "JSONReport":
+        """Create a JSONReport from a Store instance.
+
+        Constructs a complete report containing all solutions and pareto fronts
+        from the given store.
+        """
         return JSONReport(
             name=store.name,
             constraints=store.constraints,
@@ -58,6 +63,8 @@ class JSONReport(BaseModel):
         )
 
     class Config:
+        """pydantic config for JSONReport."""
+
         frozen = True
         ser_json_inf_nan = "strings"
         allow_inf_nan = True

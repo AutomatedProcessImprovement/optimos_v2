@@ -1,5 +1,3 @@
-"""Classes for defining distributions of resources to tasks and arrival times."""
-
 from dataclasses import dataclass, replace
 from functools import cached_property
 from itertools import groupby

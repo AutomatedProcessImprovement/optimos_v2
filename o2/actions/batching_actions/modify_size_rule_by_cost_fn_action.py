@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Mapping
+from collections.abc import Mapping
 
 from o2.actions.base_actions.add_size_rule_base_action import (
     AddSizeRuleAction,

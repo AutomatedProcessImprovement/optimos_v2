@@ -21,6 +21,11 @@ class ColoredFormatter(logging.Formatter):
     }
 
     def format(self, record):
+        """Format the log record with appropriate colors.
+
+        Applies color formatting based on the log level and creates a consistent
+        output format.
+        """
         color = self.COLORS.get(record.levelno, Style.RESET_ALL)
         reset = Style.RESET_ALL
         if record.levelno == logging.INFO:

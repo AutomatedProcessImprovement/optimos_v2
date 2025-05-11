@@ -63,13 +63,21 @@ file_lock = Lock()
 
 
 class OptimizationResponse(TypedDict):
+    """Response type for optimization start requests."""
+
     message: str
+    """Status message about the optimization process"""
     json_url: str
+    """URL to retrieve the JSON results"""
     id: str
+    """Unique identifier for the optimization process"""
 
 
 class CancelResponse(TypedDict):
+    """Response type for optimization cancellation requests."""
+
     message: str
+    """Status message about the cancellation request"""
 
 
 services: dict[str, OptimosService] = {}

@@ -1,5 +1,3 @@
-"""Resource class for modeling personnel, machines, or other resources."""
-
 from dataclasses import dataclass, replace
 from typing import TYPE_CHECKING
 

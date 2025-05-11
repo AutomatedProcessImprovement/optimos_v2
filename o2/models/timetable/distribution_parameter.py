@@ -1,5 +1,3 @@
-"""Distribution parameter class for defining parameters in distributions."""
-
 from dataclasses import dataclass
 from typing import Union
 

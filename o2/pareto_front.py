@@ -1,7 +1,6 @@
 from enum import Enum
 from typing import TYPE_CHECKING
 
-
 from o2.models.evaluation import Evaluation
 
 if TYPE_CHECKING:

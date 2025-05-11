@@ -39,6 +39,11 @@ class PPOEnvRandom(Env[StateType, np.int64]):
         seed: Optional[int] = None,
         options: Optional[dict] = None,
     ) -> tuple[StateType, dict]:
+        """Reset the environment to its initial state.
+
+        Increments the iteration counter and reinitializes the store and state
+        for random action selection.
+        """
         super().reset(seed=seed)
         self.stepCount = 0
         self.iteration += 1
@@ -54,6 +59,10 @@ class PPOEnvRandom(Env[StateType, np.int64]):
         return self.state, {}
 
     def step(self, action: np.int64) -> tuple[StateType, float, bool, bool, dict]:
+        """Take an action in the environment.
+
+        Not implemented in this random environment as we use custom PPO implementation.
+        """
         # As we are reimplementing PPO in parts, the step function is actually not needed.
         # So we raise an exception to avoid using it.
         raise Exception("PPOEnvRandom does not support step")
@@ -65,4 +74,8 @@ class PPOEnvRandom(Env[StateType, np.int64]):
         raise Exception("PPOEnvRandom does not support action_masks")
 
     def render(self, mode="human"):
+        """Render the current state of the environment.
+
+        Not implemented for this random environment.
+        """
         pass

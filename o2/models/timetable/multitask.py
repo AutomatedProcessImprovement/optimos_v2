@@ -1,5 +1,3 @@
-"""Classes for modeling resources that can handle multiple tasks in parallel."""
-
 from dataclasses import dataclass
 from typing import Optional
 

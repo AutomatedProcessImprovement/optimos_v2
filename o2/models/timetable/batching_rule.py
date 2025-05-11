@@ -1,5 +1,3 @@
-"""BatchingRule class for defining how tasks are batched."""
-
 from collections import defaultdict
 from dataclasses import asdict, dataclass, replace
 from json import dumps
@@ -9,6 +7,8 @@ from dataclass_wizard import JSONWizard
 from sympy import Symbol, lambdify
 
 from o2.models.days import DAY
+from o2.models.legacy_constraints import WorkMasks
+from o2.models.rule_selector import RuleSelector
 from o2.models.settings import Settings
 from o2.models.timetable.batch_type import BATCH_TYPE
 from o2.models.timetable.distribution import Distribution
@@ -21,10 +21,7 @@ from o2.models.timetable.firing_rule import (
 )
 from o2.models.timetable.rule_type import RULE_TYPE
 from o2.models.timetable.time_period import TimePeriod
-from o2.models.legacy_constraints import WorkMasks
 from o2.util.helper import hash_string
-
-from o2.models.rule_selector import RuleSelector
 
 
 @dataclass(frozen=True)
@@ -68,11 +65,11 @@ class BatchingRule(JSONWizard):
             return NotImplemented
 
         # TODO: This is due to some timetable objects beeing pickled before the normalization implementation.
-        if not "_normalized" in self.__dict__:
+        if "_normalized" not in self.__dict__:
             normalized = tuple(sorted(tuple(sorted(row)) for row in self.firing_rules))  # type: ignore
             object.__setattr__(self, "_normalized", normalized)
 
-        if not "_normalized" in other.__dict__:
+        if "_normalized" not in other.__dict__:
             normalized = tuple(sorted(tuple(sorted(row)) for row in other.firing_rules))  # type: ignore
             object.__setattr__(other, "_normalized", normalized)
 
@@ -107,6 +104,10 @@ class BatchingRule(JSONWizard):
         )
 
     def id(self) -> str:
+        """Generate a unique hash identifier for this batching rule.
+
+        Creates a string hash based on the serialized representation of this rule.
+        """
         return hash_string(str(dumps(asdict(self))).encode())
 
     def get_firing_rule_selectors(self, type: Optional[RULE_TYPE] = None) -> list["RuleSelector"]:
@@ -129,7 +130,7 @@ class BatchingRule(JSONWizard):
         Returns a dictionary with the optional Rule Selector of the day, lower bound, and upper bound as the key,
         and the day, lower bound, and upper bound as the value.
         """
-        timeperiods_by_or_index = {}
+        time_periods_by_or_index = {}
         for or_index, or_rules in enumerate(self.firing_rules):
             day_selector = None
             lower_bound_selector = None
@@ -154,12 +155,12 @@ class BatchingRule(JSONWizard):
                             lower_bound_selector = RuleSelector.from_batching_rule(
                                 self, (or_index, and_rule_index)
                             )
-            timeperiods_by_or_index[(day_selector, lower_bound_selector, upper_bound_selector)] = (
+            time_periods_by_or_index[(day_selector, lower_bound_selector, upper_bound_selector)] = (
                 day,
                 lower_bound,
                 upper_bound,
             )
-        return timeperiods_by_or_index
+        return time_periods_by_or_index
 
     def get_firing_rule(self, rule_selector: "RuleSelector") -> Optional[FiringRule]:
         """Get a firing rule by rule selector."""
@@ -303,7 +304,6 @@ class BatchingRule(JSONWizard):
         that only contain the same week day + daily hour rule,
         we can merge them into a single OR-Rule.
         """
-
         or_rules_to_remove = []
         work_mask = WorkMasks()
         size_dict: dict[Union[DAY, Literal["ALL"]], dict[int, int]] = defaultdict(dict)

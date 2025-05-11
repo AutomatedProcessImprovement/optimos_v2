@@ -1,5 +1,3 @@
-"""ResourceCalendar class for defining work schedules."""
-
 import operator
 from collections.abc import Iterator
 from dataclasses import dataclass, replace
@@ -117,6 +115,10 @@ class ResourceCalendar(JSONWizard, CustomLoader, CustomDumper):
         return hash_int(self.to_json())
 
     def __hash__(self) -> int:
+        """Return a hash value for this calendar.
+
+        Uses the cached uid property for efficient hashing.
+        """
         return self.uid
 
     def replace_time_period(self, time_period_index: int, time_period: "TimePeriod") -> "ResourceCalendar":

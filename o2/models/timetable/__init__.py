@@ -1,11 +1,15 @@
-"""Timetable package for modeling resource schedules and batching rules."""
+"""Timetable module containing classes related to scheduling and resource management.
+
+This package provides models for scheduling resources, defining calendars,
+batching rules, and other scheduling-related functionality for the optimization engine.
+"""
 
 from o2.models.timetable.batch_type import BATCH_TYPE
 from o2.models.timetable.batching_rule import BatchingRule
 from o2.models.timetable.comparator import COMPARATOR
+from o2.models.timetable.distribution import Distribution
 from o2.models.timetable.distribution_parameter import DistributionParameter
 from o2.models.timetable.distribution_type import DISTRIBUTION_TYPE
-from o2.models.timetable.distribution import Distribution
 from o2.models.timetable.firing_rule import (
     AndRules,
     FiringRule,

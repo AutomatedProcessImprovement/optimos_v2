@@ -1,5 +1,3 @@
-"""Global constraints type for batching and resource constraints."""
-
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Optional, Union
 

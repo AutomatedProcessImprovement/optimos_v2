@@ -1,5 +1,3 @@
-"""GranuleSize class for defining time granularity."""
-
 from dataclasses import dataclass
 from typing import Literal
 

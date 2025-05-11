@@ -1,5 +1,3 @@
-"""TimePeriod class for defining time periods in calendars."""
-
 import functools
 from json import dumps, loads
 from typing import Any, ClassVar, Optional, Union
@@ -78,6 +76,10 @@ class TimePeriod(BaseModel):
 
     @model_validator(mode="before")
     def handle_aliases(cls, values):
+        """Handle field aliases for compatibility with different naming conventions.
+
+        Maps alternative field names to their standardized counterparts.
+        """
         # Handle aliasing for 'from', 'beginTime', and 'endTime'
         if "from" in values:
             values["from_"] = values.pop("from")
@@ -207,6 +209,10 @@ class TimePeriod(BaseModel):
         return int("".join(map(str, bitarray)), 2)
 
     def __repr__(self) -> str:
+        """Create a string representation of the TimePeriod.
+
+        Returns a formatted string showing the day and time information.
+        """
         return f"TimePeriod({self.from_},{self.begin_time} -> {self.to},{self.end_time})"
 
     @staticmethod
@@ -238,6 +244,10 @@ class TimePeriod(BaseModel):
 
     @staticmethod
     def empty(day: "DAY" = DAY.MONDAY) -> "TimePeriod":
+        """Create an empty TimePeriod for the specified day.
+
+        Returns a TimePeriod with default values for the given day.
+        """
         return TimePeriod(
             from_=day,
             to=day,

@@ -83,6 +83,11 @@ R = TypeVar("R")
 def withSignatureFrom(
     f: Callable[Concatenate[Any, P], R], /
 ) -> Callable[[Callable[Concatenate[Any, P], R]], Callable[Concatenate[Any, P], R]]:
+    """Copy the signature from one function to another.
+
+    Allows creating a function that has the same signature as another function,
+    which is useful for creating wrappers while preserving type hinting.
+    """
     return lambda _: _
 
 

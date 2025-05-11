@@ -35,6 +35,10 @@ class PPOEnv(Env[StateType, np.int64]):
         seed: Optional[int] = None,
         options: Optional[dict] = None,
     ) -> tuple[StateType, dict]:
+        """Reset the environment to its initial state.
+
+        Increments the iteration counter and reinitializes the store and state.
+        """
         super().reset(seed=seed)
         self.stepCount = 0
         self.iteration += 1
@@ -46,6 +50,10 @@ class PPOEnv(Env[StateType, np.int64]):
         return self.state, {}
 
     def step(self, action: np.int64) -> tuple[StateType, float, bool, bool, dict]:
+        """Take an action in the environment.
+
+        Not implemented in this environment as we use custom PPO implementation.
+        """
         # As we are reimplementing PPO in parts, the step function is actually not needed.
         # So we raise an exception to avoid using it.
         raise Exception("PPOEnv does not support step")
@@ -57,4 +65,8 @@ class PPOEnv(Env[StateType, np.int64]):
         raise Exception("PPOEnv does not support action_masks")
 
     def render(self, mode="human"):
+        """Render the current state of the environment.
+
+        Not implemented for this environment.
+        """
         pass

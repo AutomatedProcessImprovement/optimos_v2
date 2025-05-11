@@ -144,6 +144,11 @@ class Agent(ABC):
     """Selects the best action to take next, based on the current state of the store."""
 
     def __init__(self, store: Store) -> None:
+        """Initialize an agent with a reference to the store.
+
+        Sets up the action catalog based on store settings and initializes
+        tracking for action generators and tabu actions.
+        """
         super().__init__()
         self.store = store
         self.catalog = (

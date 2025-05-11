@@ -7,7 +7,6 @@ from prosimos.simulation_stats_calculator import (
     TaskEvent,
 )
 
-
 BatchInfoKey = tuple[str, str, datetime]
 """Activity, resource, start time"""
 

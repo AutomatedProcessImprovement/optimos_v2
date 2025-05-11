@@ -1,5 +1,3 @@
-"""DISTRIBUTION_TYPE enum for defining probability distributions."""
-
 from enum import Enum
 
 

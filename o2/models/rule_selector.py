@@ -53,11 +53,20 @@ class RuleSelector(JSONWizard):
         return batching_rule.firing_rules[self.firing_rule_index[0]][self.firing_rule_index[1]]
 
     def id(self) -> str:
+        """Generate a unique identifier for this rule selector.
+
+        Creates a string representation that can be used to identify this rule selector.
+        """
         if self.firing_rule_index is None:
             return f"#{self.batching_rule_task_id}"
         return f"#{self.batching_rule_task_id}-{self.firing_rule_index[0]}-{self.firing_rule_index[1]}"
 
-    def __str__(self):
+    def __str__(self) -> str:
+        """Return a human-readable string representation of the rule selector.
+
+        Formats the rule information in a readable format showing the batching rule
+        and firing rule indices if available.
+        """
         if self.firing_rule_index is not None:
             return f"Batching Rule: {self.batching_rule_task_id}>{self.firing_rule_index[0]}>{self.firing_rule_index[1]}"
         return f"Batching Rule: {self.batching_rule_task_id}"

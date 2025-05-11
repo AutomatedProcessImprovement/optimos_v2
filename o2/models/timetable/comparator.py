@@ -1,5 +1,3 @@
-"""COMPARATOR enum for defining comparison operations."""
-
 from enum import Enum
 
 

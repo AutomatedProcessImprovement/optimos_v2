@@ -1,5 +1,3 @@
-"""TimetableType is the main class for modeling timetables."""
-
 import operator
 from dataclasses import dataclass, field, replace
 from typing import TYPE_CHECKING, Callable, Literal, Optional, Union
@@ -133,7 +131,6 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
 
         Returns the Rule Selector of the day, lower bound, and upper bound.
         """
-
         batching_rules = self.get_batching_rules_for_task(
             task_id=task_id,
         )

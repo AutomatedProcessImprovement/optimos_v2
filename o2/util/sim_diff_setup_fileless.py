@@ -46,6 +46,13 @@ from o2.models.timetable import TimetableType
 
 
 class SimDiffSetupFileless(SimDiffSetup):
+    """A file-less implementation of SimDiffSetup for simulation setup.
+
+    This class extends SimDiffSetup to handle simulation setup without relying on
+    physical files, instead using in-memory string representations of BPMN and
+    timetable data.
+    """
+
     def __init__(
         self,
         process_name,
@@ -54,6 +61,11 @@ class SimDiffSetupFileless(SimDiffSetup):
         is_event_added_to_log,
         total_cases,
     ):
+        """Initialize a SimDiffSetupFileless instance.
+
+        Sets up simulation parameters from in-memory string representations of BPMN and
+        timetable data rather than loading from files.
+        """
         self.process_name = process_name
         self.start_datetime = datetime.datetime.now(pytz.utc)
 
@@ -99,6 +111,12 @@ class SimDiffSetupFileless(SimDiffSetup):
         self.total_num_cases = total_cases  # how many process cases should be simulated
 
     def parse_json_sim_parameters_from_string(self, json_data):
+        """Parse simulation parameters from JSON data.
+
+        Extracts various simulation components from a JSON representation of the
+        timetable and configuration, such as resources, calendars, task distributions,
+        and other simulation properties.
+        """
         model_type = json_data["model_type"] if "model_type" in json_data else "CRSIP"
 
         resources_map, res_pool = parse_resource_profiles(json_data["resource_profiles"])

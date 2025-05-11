@@ -1,5 +1,3 @@
-"""Probability classes for gateway branching in process models."""
-
 from dataclasses import dataclass
 
 from dataclass_wizard import JSONWizard

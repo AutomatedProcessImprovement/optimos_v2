@@ -1,5 +1,3 @@
-"""Size rule constraints for batching."""
-
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Callable, Optional, TypeGuard
 

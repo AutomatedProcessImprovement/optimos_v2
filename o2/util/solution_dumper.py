@@ -71,7 +71,6 @@ class SolutionDumper:
 
     def update_store_name(self, store_name: str) -> None:
         """Update the store name."""
-
         log_io(f"Updating store name to: {store_name}")
 
         self.current_store_name = store_name
@@ -155,7 +154,6 @@ class SolutionDumper:
 
     def load_evaluation(self, solution: "Solution") -> Evaluation:
         """Load an evaluation from the evaluation file."""
-
         # If the solution was dumped, it may not be processed in the context
         # of the current store, so we override the store name.
         if "_store_name" in solution.__dict__:
@@ -198,7 +196,6 @@ class SolutionDumper:
 
     def load_state(self, solution: "Solution") -> State:
         """Load the current state of the solution dumper from disk."""
-
         # If the solution was dumped, it may not be processed in the context
         # of the current store, so we override the store name.
         if "_store_name" in solution.__dict__:
@@ -227,7 +224,6 @@ class SolutionDumper:
 
     def close(self) -> None:
         """Close any open file handles."""
-
         if self.store_file is not None:
             self.store_file.close()
             self.store_file = None

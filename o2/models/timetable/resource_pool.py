@@ -1,5 +1,3 @@
-"""ResourcePool class to represent a collection of resources for a task."""
-
 from dataclasses import dataclass, replace
 
 from dataclass_wizard import JSONWizard
