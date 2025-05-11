@@ -1,5 +1,4 @@
 from dataclasses import replace
-from typing import Literal
 
 from typing_extensions import override
 
@@ -8,14 +7,13 @@ from o2.actions.base_actions.batching_rule_base_action import (
     BatchingRuleBaseAction,
     BatchingRuleBaseActionParamsType,
 )
-from o2.models.evaluation import Evaluation
 from o2.models.rule_selector import RuleSelector
 from o2.models.self_rating import RATING
 from o2.models.solution import Solution
 from o2.models.state import State
 from o2.models.timetable import rule_is_daily_hour
 from o2.store import Store
-from o2.util.helper import select_variant, select_variants
+from o2.util.helper import select_variants
 from o2.util.logger import warn
 
 SIZE_OF_CHANGE = 1

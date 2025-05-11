@@ -1,7 +1,7 @@
 import logging
 from textwrap import TextWrapper
 
-from o2.util.logger import STATS_LOG_LEVEL, debug, info, log, stats
+from o2.util.logger import STATS_LOG_LEVEL, log
 
 PREFERRED_WIDTH = 120
 

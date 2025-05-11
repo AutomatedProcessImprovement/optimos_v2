@@ -1,12 +1,10 @@
 from o2.actions.batching_actions.modify_size_rule_by_cost_action import (
     ModifySizeRuleByCostAction,
 )
-from o2.agents.tabu_agent import TabuAgent
 from o2.models.self_rating import RATING
 from o2.store import Store
 from tests.fixtures.constraints_generator import ConstraintsGenerator
 from tests.fixtures.test_helpers import (
-    assert_no_first_valid,
     first_valid,
     replace_constraints,
     replace_timetable,

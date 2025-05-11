@@ -14,7 +14,6 @@ from o2.models.timetable import (
     RULE_TYPE,
     BatchingRule,
     FiringRule,
-    rule_is_size,
 )
 from o2.store import Store
 

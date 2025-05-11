@@ -11,7 +11,6 @@ from o2.models.timetable import (
     RULE_TYPE,
     BatchingRule,
     FiringRule,
-    Resource,
     ResourceCalendar,
     TimePeriod,
     TimetableType,
@@ -26,7 +25,6 @@ from o2.util.helper import name_is_clone_of
 from tests.fixtures.test_helpers import (
     count_occurrences,
     generate_ranges,
-    replace_timetable,
 )
 from tests.fixtures.timetable_generator import TimetableGenerator
 

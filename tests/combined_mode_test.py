@@ -4,7 +4,7 @@ from o2.agents.tabu_agent import TabuAgent
 from o2.models.self_rating import RATING
 from o2.models.settings import LegacyApproach
 from o2.models.solution import Solution
-from o2.store import SolutionTry, Store
+from o2.store import Store
 
 
 def test_combined_mode(one_task_store: Store):

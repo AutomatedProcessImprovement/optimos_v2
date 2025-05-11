@@ -1,25 +1,18 @@
 import datetime
 import io
-from typing import TYPE_CHECKING
 
 import pytz
 from prosimos.all_attributes import AllAttributes
 from prosimos.batch_processing_parser import BatchProcessingParser
 from prosimos.branch_condition_parser import BranchConditionParser
 from prosimos.branch_condition_rules import AllBranchConditionRules
-from prosimos.case_attributes import AllCaseAttributes, CaseAttribute
-from prosimos.control_flow_manager import BPMN, EVENT_TYPE, BPMNGraph, ElementInfo
+from prosimos.case_attributes import AllCaseAttributes
 from prosimos.event_attributes import AllEventAttributes
 from prosimos.event_attributes_parser import EventAttributesParser
-from prosimos.fuzzy_engine.fuzzy_calendar import FuzzyModel, WeeklyFuzzyCalendar
-from prosimos.gateway_condition_choice import GatewayConditionChoice
 from prosimos.global_attributes import AllGlobalAttributes
 from prosimos.global_attributes_parser import GlobalAttributesParser
-from prosimos.histogram_distribution import HistogramDistribution
 from prosimos.prioritisation import AllPriorityRules
 from prosimos.prioritisation_parser import PrioritisationParser
-from prosimos.probability_distributions import Choice
-from prosimos.resource_profile import PoolInfo, ResourceProfile
 from prosimos.simulation_properties_parser import (
     BATCH_PROCESSING_SECTION,
     BRANCH_RULES,
@@ -48,7 +41,6 @@ from prosimos.simulation_setup import (
     SimDiffSetup,
     parse_simulation_model,
 )
-from prosimos.warning_logger import warning_logger
 
 from o2.models.timetable import TimetableType
 

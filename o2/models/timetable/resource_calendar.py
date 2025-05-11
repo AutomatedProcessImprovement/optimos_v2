@@ -5,7 +5,6 @@ from collections.abc import Iterator
 from dataclasses import dataclass, replace
 from functools import cached_property, reduce
 from itertools import groupby
-from operator import itemgetter
 from typing import Optional
 
 from dataclass_wizard import JSONWizard

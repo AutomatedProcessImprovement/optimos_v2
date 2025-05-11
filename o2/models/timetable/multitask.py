@@ -1,7 +1,7 @@
 """Classes for modeling resources that can handle multiple tasks in parallel."""
 
 from dataclasses import dataclass
-from typing import Literal, Optional
+from typing import Optional
 
 from dataclass_wizard import JSONWizard
 

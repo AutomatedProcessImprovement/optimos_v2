@@ -2,7 +2,7 @@ from enum import Enum
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from o2.actions.base_actions.base_action import BaseAction
+    pass
 
 
 class LegacyApproachAbbreviation(str, Enum):

@@ -3,7 +3,7 @@ import random
 import re
 import string
 from collections.abc import Generator
-from typing import TYPE_CHECKING, Any, Callable, Concatenate, Generic, Optional, ParamSpec, TypeVar
+from typing import TYPE_CHECKING, Any, Callable, Concatenate, Optional, ParamSpec, TypeVar
 
 import numpy as np
 import xxhash

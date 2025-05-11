@@ -9,7 +9,6 @@ from o2.actions.base_actions.modify_size_rule_base_action import (
     ModifySizeRuleAction,
     ModifySizeRuleBaseActionParamsType,
 )
-from o2.models.evaluation import Evaluation
 from o2.models.rule_selector import RuleSelector
 from o2.models.solution import Solution
 from o2.models.state import State

@@ -3,7 +3,7 @@
 from collections import defaultdict
 from dataclasses import asdict, dataclass, replace
 from json import dumps
-from typing import Literal, Optional, TYPE_CHECKING
+from typing import Literal, Optional
 
 from dataclass_wizard import JSONWizard
 from sympy import Symbol, lambdify
@@ -13,7 +13,6 @@ from o2.models.settings import Settings
 from o2.models.timetable.batch_type import BATCH_TYPE
 from o2.models.timetable.distribution import Distribution
 from o2.models.timetable.firing_rule import (
-    AndRules,
     FiringRule,
     OrRules,
     rule_is_daily_hour,

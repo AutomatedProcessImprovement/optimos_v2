@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field, model_validator
 
 from o2.models.days import DAY, day_range
 from o2.util.bit_mask_helper import get_ranges_from_bitmask
-from o2.util.helper import hash_int, hash_string
+from o2.util.helper import hash_string
 
 
 class TimePeriod(BaseModel):

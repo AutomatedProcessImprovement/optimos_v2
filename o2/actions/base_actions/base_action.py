@@ -2,7 +2,6 @@ import functools
 from abc import ABC, abstractmethod
 from collections.abc import Generator
 from dataclasses import dataclass
-from json import dumps
 from typing import (
     TYPE_CHECKING,
     Optional,
@@ -10,7 +9,7 @@ from typing import (
 )
 
 from dataclass_wizard import JSONSerializable
-from typing_extensions import TypedDict, override
+from typing_extensions import TypedDict
 
 from o2.util.helper import hash_string
 from o2.util.logger import warn

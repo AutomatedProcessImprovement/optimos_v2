@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import Any, Optional
 
 from dataclass_wizard import JSONWizard
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
 
 from o2.actions.base_actions.base_action import BaseAction
 from o2.actions.base_actions.modify_calendar_base_action import ModifyCalendarBaseAction

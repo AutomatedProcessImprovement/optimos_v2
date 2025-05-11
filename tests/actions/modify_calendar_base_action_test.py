@@ -3,11 +3,8 @@ from o2.actions.legacy_optimos_actions.modify_calendar_by_wt_action import (
     ModifyCalendarByWTActionParamsType,
 )
 from o2.models.days import DAY
-from o2.models.solution import Solution
 from o2.models.state import State
 from o2.models.timetable import ResourceCalendar, TimePeriod
-from o2.store import Store
-from tests.fixtures.test_helpers import replace_timetable
 from tests.fixtures.timetable_generator import TimetableGenerator
 
 """

@@ -9,7 +9,7 @@ from o2.models.settings import Settings
 from o2.models.solution import Solution
 from o2.pareto_front import ParetoFront
 from o2.util.helper import hex_id
-from o2.util.indented_printer import print_l1, print_l3
+from o2.util.indented_printer import print_l3
 from o2.util.logger import warn
 from o2.util.solution_dumper import SolutionDumper
 

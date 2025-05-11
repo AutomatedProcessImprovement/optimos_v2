@@ -1,6 +1,5 @@
 from unittest.mock import patch
 
-import pytest
 
 from o2.agents.ppo_agent_random import PPOAgentRandom
 from o2.models.settings import AgentType, CostType, Settings

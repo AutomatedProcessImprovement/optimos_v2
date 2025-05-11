@@ -1,5 +1,4 @@
 import logging
-from functools import wraps
 from logging.handlers import RotatingFileHandler
 
 from o2.models.settings import Settings

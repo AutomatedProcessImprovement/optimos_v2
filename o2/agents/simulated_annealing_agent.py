@@ -1,10 +1,9 @@
 import math
 import random
-from typing import Optional, cast
+from typing import Optional
 
 from typing_extensions import override
 
-from o2.actions.base_actions.base_action import BaseAction, RateSelfReturnType
 from o2.agents.agent import (
     ACTION_CATALOG,
     ACTION_CATALOG_BATCHING_ONLY,
@@ -12,7 +11,6 @@ from o2.agents.agent import (
     Agent,
     NoNewBaseSolutionFoundError,
 )
-from o2.agents.tabu_agent import TabuAgent
 from o2.models.solution import Solution
 from o2.pareto_front import FRONT_STATUS
 from o2.store import SolutionTry, Store

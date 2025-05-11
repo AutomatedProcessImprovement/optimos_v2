@@ -1,12 +1,9 @@
 import json
-import math
 import xml.etree.ElementTree as ET
 from typing import Optional
 
-import numpy as np
 
 from o2.models.constraints import ConstraintsType, SizeRuleConstraints
-from o2.models.solution import Solution
 from o2.models.state import State
 from o2.models.timetable import BATCH_TYPE, RULE_TYPE, TimetableType
 from o2.store import Store

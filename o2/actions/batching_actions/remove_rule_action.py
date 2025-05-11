@@ -1,4 +1,3 @@
-import random
 from dataclasses import dataclass
 
 from typing_extensions import override
@@ -10,7 +9,6 @@ from o2.actions.base_actions.batching_rule_base_action import (
     BatchingRuleBaseAction,
     BatchingRuleBaseActionParamsType,
 )
-from o2.models.evaluation import Evaluation
 from o2.models.self_rating import RATING
 from o2.models.settings import Settings
 from o2.models.solution import Solution

@@ -1,5 +1,4 @@
 import concurrent.futures
-import os
 import time
 import traceback
 from collections.abc import Generator

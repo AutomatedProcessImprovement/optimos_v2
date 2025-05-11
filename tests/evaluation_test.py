@@ -1,6 +1,4 @@
-from datetime import datetime, timezone
 
-from o2.models.days import DAY
 from o2.models.state import State
 from tests.fixtures.timetable_generator import TimetableGenerator
 

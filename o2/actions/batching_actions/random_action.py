@@ -19,7 +19,6 @@ from o2.actions.base_actions.base_action import (
     BaseActionParamsType,
     RateSelfReturnType,
 )
-from o2.actions.base_actions.batching_rule_base_action import BatchingRuleBaseAction
 from o2.actions.base_actions.modify_size_rule_base_action import (
     ModifySizeRuleAction,
     ModifySizeRuleBaseActionParamsType,
@@ -33,7 +32,6 @@ from o2.actions.batching_actions.remove_rule_action import (
     RemoveRuleActionParamsType,
 )
 from o2.models.days import DAYS
-from o2.models.evaluation import Evaluation
 from o2.models.self_rating import RATING
 from o2.models.settings import Settings
 from o2.models.solution import Solution

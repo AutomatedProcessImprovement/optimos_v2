@@ -3,7 +3,6 @@ import pickle
 import sys
 
 from guppy import hpy
-from pympler import asizeof
 
 hp = hpy()
 hp.setrelheap()

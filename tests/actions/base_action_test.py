@@ -1,8 +1,6 @@
 from o2.actions.base_actions.add_datetime_rule_base_action import (
-    AddDateTimeRuleBaseAction,
     AddDateTimeRuleBaseActionParamsType,
 )
-from o2.actions.base_actions.base_action import BaseAction, RateSelfReturnType
 from o2.actions.batching_actions.add_date_time_rule_by_availability_action import (
     AddDateTimeRuleByAvailabilityAction,
 )

@@ -1,9 +1,6 @@
 from o2.actions.legacy_optimos_actions.modify_calendar_by_wt_action import (
     ModifyCalendarByWTAction,
 )
-from o2.models.days import DAY
-from o2.models.solution import Solution
-from o2.models.timetable import TimePeriod
 from o2.store import Store
 from tests.fixtures.constraints_generator import ConstraintsGenerator
 from tests.fixtures.test_helpers import (

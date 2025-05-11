@@ -1,11 +1,11 @@
 """Resource class for modeling personnel, machines, or other resources."""
 
 from dataclasses import dataclass, replace
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from dataclass_wizard import JSONWizard
 
-from o2.util.helper import CLONE_REGEX, name_is_clone_of, random_string
+from o2.util.helper import CLONE_REGEX, random_string
 
 if TYPE_CHECKING:
     from o2.models.timetable.timetable_type import TimetableType

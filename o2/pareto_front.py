@@ -1,10 +1,8 @@
 from enum import Enum
 from typing import TYPE_CHECKING
 
-from rtree import index
 
 from o2.models.evaluation import Evaluation
-from o2.util.logger import debug
 
 if TYPE_CHECKING:
     from o2.models.solution import Solution

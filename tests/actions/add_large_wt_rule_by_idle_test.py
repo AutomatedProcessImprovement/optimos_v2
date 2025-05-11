@@ -5,7 +5,7 @@ import pytest
 from o2.actions.batching_actions.add_large_wt_rule_by_idle_action import (
     AddLargeWTRuleByIdleAction,
 )
-from o2.models.constraints import BatchingConstraints, LargeWtRuleConstraints
+from o2.models.constraints import LargeWtRuleConstraints
 from o2.models.timetable import BATCH_TYPE, RULE_TYPE
 from o2.store import Store
 from tests.fixtures.test_helpers import first_valid

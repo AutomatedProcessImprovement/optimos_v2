@@ -1,5 +1,4 @@
 import numpy as np
-import heapq
 import time
 from sklearn.neighbors import KDTree
 from rtree import index

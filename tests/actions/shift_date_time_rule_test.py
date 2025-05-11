@@ -4,7 +4,6 @@ from o2.actions.base_actions.shift_datetime_rule_base_action import (
 )
 from o2.models.days import DAY
 from o2.models.state import State
-from tests.fixtures.test_helpers import replace_timetable
 from tests.fixtures.timetable_generator import TimetableGenerator
 
 

@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING, Optional
 
 from dataclass_wizard import JSONWizard
 
-from o2.models.days import DAY
 from o2.models.timetable.distribution_parameter import DistributionParameter
 from o2.models.timetable.distribution_type import DISTRIBUTION_TYPE
 from o2.models.timetable.time_period import TimePeriod

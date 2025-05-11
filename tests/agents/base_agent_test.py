@@ -1,16 +1,16 @@
-from typing import Any, List, cast
+from typing import List, cast
 from unittest import mock
 
 import pytest
 
 from o2.actions.base_actions.base_action import BaseAction
-from o2.agents.agent import Agent, NoNewBaseSolutionFoundError
+from o2.agents.agent import Agent
 from o2.models.self_rating import RATING
 from o2.models.settings import Settings
 from o2.models.solution import Solution
 from o2.models.state import State
 from o2.pareto_front import FRONT_STATUS, ParetoFront
-from o2.store import SolutionTree, SolutionTry, Store
+from o2.store import SolutionTree, Store
 from tests.fixtures.test_helpers import create_mock_solution
 
 

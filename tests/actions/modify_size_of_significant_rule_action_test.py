@@ -2,7 +2,6 @@ from o2.actions.batching_actions.modify_size_of_significant_rule_action import (
     ModifySizeOfSignificantRuleAction,
     ModifySizeOfSignificantRuleActionParamsType,
 )
-from o2.models.rule_selector import RuleSelector
 from o2.store import Store
 from tests.actions.modify_size_rule_base_action_test import helper_rule_matches_size
 from tests.fixtures.test_helpers import replace_timetable

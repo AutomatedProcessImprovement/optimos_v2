@@ -1,7 +1,7 @@
 """Global constraints type for batching and resource constraints."""
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Callable, Optional, Union
+from typing import TYPE_CHECKING, Optional, Union
 
 from dataclass_wizard import JSONWizard
 
@@ -27,7 +27,7 @@ from o2.models.constraints.week_day_rule_constraints import (
     is_week_day_constraint,
 )
 from o2.models.legacy_constraints import ConstraintsResourcesItem, ResourceConstraints
-from o2.util.helper import cached_lambdify, name_is_clone_of
+from o2.util.helper import name_is_clone_of
 
 if TYPE_CHECKING:
     from o2.models.timetable import TimetableType

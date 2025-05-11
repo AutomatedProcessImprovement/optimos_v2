@@ -1,4 +1,4 @@
-from o2.agents.agent import ACTION_CATALOG_LEGACY, ACTION_CATALOG_RANDOM
+from o2.agents.agent import ACTION_CATALOG_RANDOM
 from o2.agents.tabu_agent import TabuAgent
 from o2.store import Store
 

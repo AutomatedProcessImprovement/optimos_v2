@@ -14,7 +14,6 @@ from prosimos.simulation_stats_calculator import (
 from o2.models.days import DAY
 from o2.models.settings import CostType, Settings
 from o2.simulation_runner import RunSimulationResult
-from o2.util.helper import lambdify_dict
 from o2.util.waiting_time_helper import (
     BatchInfo,
     BatchInfoKey,
@@ -23,8 +22,7 @@ from o2.util.waiting_time_helper import (
 )
 
 if TYPE_CHECKING:
-    from o2.models.timetable import TimetableType
-    from o2.store import Store
+    pass
 
 
 HourlyRates = dict[str, int]

@@ -1,8 +1,5 @@
-import math
 
-import pytest
 
-from o2.agents.simulated_annealing_agent import SimulatedAnnealingAgent
 from o2.models.settings import AgentType
 from o2.optimizer import Optimizer
 from o2.store import Store

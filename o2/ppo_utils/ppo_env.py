@@ -3,12 +3,8 @@ from typing import Optional
 import numpy as np
 from gymnasium import Env, Space
 
-from o2.models.solution import Solution
-from o2.pareto_front import FRONT_STATUS
 from o2.ppo_utils.ppo_input import PPOInput
 from o2.store import Store
-from o2.util.indented_printer import print_l0, print_l1
-from o2.util.logger import error
 
 StateType = dict[str, Space]
 

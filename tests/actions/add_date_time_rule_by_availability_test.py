@@ -2,7 +2,6 @@ from o2.actions.batching_actions.add_date_time_rule_by_availability_action impor
     AddDateTimeRuleByAvailabilityAction,
 )
 from o2.models.days import DAY
-from o2.models.solution import Solution
 from o2.models.timetable import ResourceCalendar, TimePeriod
 from o2.store import Store
 from tests.fixtures.constraints_generator import ConstraintsGenerator

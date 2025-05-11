@@ -1,4 +1,3 @@
-import pytest
 
 from o2.agents.agent import ACTION_CATALOG_RANDOM
 from o2.agents.simulated_annealing_agent_random import SimulatedAnnealingAgentRandom

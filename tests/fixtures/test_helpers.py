@@ -20,7 +20,6 @@ from o2.models.solution import Solution
 from o2.store import Store
 from o2.util.helper import random_string
 from tests.fixtures.mock_action import MockAction, MockActionParamsType
-from tests.fixtures.timetable_generator import TimetableGenerator
 
 if TYPE_CHECKING:
     from o2.models.state import State

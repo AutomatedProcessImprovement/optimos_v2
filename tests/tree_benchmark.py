@@ -1,5 +1,4 @@
 import heapq
-import random
 import numpy as np
 from sklearn.neighbors import KDTree
 from rtree import index
