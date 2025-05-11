@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/sinnaj-r/optimos_v2/actions/workflows/ci.yml/badge.svg)](https://github.com/sinnaj-r/optimos_v2/actions/workflows/ci.yml)
 [![Coverage](https://github.com/sinnaj-r/optimos_v2/raw/gh-pages/badges/coverage.svg?raw=true)](https://sinnaj-r.github.io/optimos_v2/)
+[![Format](https://github.com/sinnaj-r/optimos_v2/actions/workflows/ci.yml/badge.svg?event=push&job=format)](https://github.com/sinnaj-r/optimos_v2/actions/workflows/ci.yml)
 [![Spell Check](https://github.com/sinnaj-r/optimos_v2/actions/workflows/ci.yml/badge.svg?event=push&job=spellcheck)](https://github.com/sinnaj-r/optimos_v2/actions/workflows/ci.yml)
 [![Type Check](https://github.com/sinnaj-r/optimos_v2/actions/workflows/ci.yml/badge.svg?event=push&job=typecheck)](https://github.com/sinnaj-r/optimos_v2/actions/workflows/ci.yml)
 

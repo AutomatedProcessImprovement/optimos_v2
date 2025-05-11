@@ -44,6 +44,38 @@ jobs:
         run: |
           poetry run make lint
 
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: "pip"
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libspatialindex-dev
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: 1.8.2
+          virtualenvs-create: true
+      - name: Cache Poetry dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pypoetry/virtualenvs
+          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-poetry-
+      - name: Install dependencies
+        run: |
+          poetry install
+      - name: Check formatting
+        run: |
+          poetry run ruff format --check o2 o2_server
+
   typecheck:
     runs-on: ubuntu-latest
     steps:
