@@ -1,6 +1,5 @@
-"""Re-export all constraints classes from o2.models.constraints package."""
+"""Constraints package for modeling process constraints."""
 
-# Re-export everything from the individual module files
 from o2.models.constraints.batching_constraints import BatchingConstraints
 from o2.models.constraints.constraints_type import ConstraintsType
 from o2.models.constraints.daily_hour_rule_constraints import (
