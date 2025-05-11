@@ -117,7 +117,7 @@ class SimDiffSetupFileless(SimDiffSetup):
         timetable and configuration, such as resources, calendars, task distributions,
         and other simulation properties.
         """
-        model_type = json_data["model_type"] if "model_type" in json_data else "CRSIP"
+        model_type = json_data.get("model_type", "CRISP")
 
         resources_map, res_pool = parse_resource_profiles(json_data["resource_profiles"])
         # calendars_map = parse_resource_calendars(json_data[RESOURCE_CALENDARS])

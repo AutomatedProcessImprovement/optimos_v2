@@ -17,7 +17,7 @@ class ReadyWtRuleConstraints(BatchingConstraints, JSONWizard):
     min_wt: int
     max_wt: int
 
-    class _(JSONWizard.Meta):
+    class _(JSONWizard.Meta):  # noqa: N801
         key_transform_with_dump = "SNAKE"
         tag = RULE_TYPE.READY_WT.value
         tag_key = "rule_type"

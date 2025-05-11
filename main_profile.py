@@ -24,13 +24,13 @@ def main() -> None:
     # constraints_path = "examples/purchase_constraints.json"
     # bpmn_path = "examples/purchase.bpmn"
 
-    with open(timetable_path, "r") as f:
+    with open(timetable_path) as f:
         timetable = TimetableType.from_dict(json.load(f))
 
-    with open(constraints_path, "r") as f:
+    with open(constraints_path) as f:
         constraints = ConstraintsType.from_dict(json.load(f))
 
-    with open(bpmn_path, "r") as f:
+    with open(bpmn_path) as f:
         bpmn_definition = f.read()
 
     initial_state = o2.store.State(

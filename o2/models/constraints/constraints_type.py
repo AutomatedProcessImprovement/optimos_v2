@@ -59,7 +59,7 @@ class ConstraintsType(JSONWizard):
     time_var: int = 60
     """Legacy Optimos Constraint: Slot duration in minutes"""
 
-    class _(JSONWizard.Meta):
+    class _(JSONWizard.Meta):  # noqa: N801
         key_transform_with_dump = "SNAKE"
         tag_key = "rule_type"
 

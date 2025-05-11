@@ -5,8 +5,8 @@ import pickle
 import subprocess
 import sys
 import tempfile
-from collections import Counter, defaultdict
-from typing import Generator, cast
+from collections import defaultdict
+from collections.abc import Generator
 
 from o2.models.settings import CostType, Settings
 from o2.models.solution import Solution

@@ -1,4 +1,4 @@
-from typing import List, cast
+from typing import cast
 from unittest import mock
 
 import pytest
@@ -156,7 +156,7 @@ def create_random_mock_agent(agent_class, store):
     """Create a mock agent with a random catalog"""
     agent = agent_class(store)
     # Use MockActionClass with type casting to satisfy type checking
-    agent.catalog = cast(List[type[BaseAction]], [MockActionClass])
+    agent.catalog = cast(list[type[BaseAction]], [MockActionClass])
     return agent
 
 
@@ -175,7 +175,7 @@ def test_agent_set_action_generators(mock_store, simple_solution, mock_self_rati
 
     agent = TestAgent(mock_store)
     # Use MockActionClass with type casting
-    agent.catalog = cast(List[type[BaseAction]], [MockActionClass])
+    agent.catalog = cast(list[type[BaseAction]], [MockActionClass])
 
     agent.set_action_generators(simple_solution)
 

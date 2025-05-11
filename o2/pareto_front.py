@@ -7,7 +7,7 @@ if TYPE_CHECKING:
     from o2.models.solution import Solution
 
 
-class FRONT_STATUS(Enum):
+class FRONT_STATUS(Enum):  # noqa: N801
     """The status of a solution compared to a Pareto Front."""
 
     IS_DOMINATED = 1

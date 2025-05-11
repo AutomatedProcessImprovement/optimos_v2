@@ -116,20 +116,12 @@ class PPOInputLegacy:
         # Discrete features
         task_execution_count_with_wt_or_it_dict = evaluation.task_execution_count_with_wt_or_it
         task_execution_count_with_wt_or_it_ = np.array(
-            [
-                task_execution_count_with_wt_or_it_dict[task_id]
-                if task_id in task_execution_count_with_wt_or_it_dict
-                else 0
-                for task_id in task_ids
-            ]
+            [task_execution_count_with_wt_or_it_dict.get(task_id, 0) for task_id in task_ids]
         ).reshape(-1, 1)
 
         task_execution_counts_dict = evaluation.task_execution_counts
         task_execution_counts = np.array(
-            [
-                task_execution_counts_dict[task_id] if task_id in task_execution_counts_dict else 0
-                for task_id in task_ids
-            ]
+            [task_execution_counts_dict.get(task_id, 0) for task_id in task_ids]
         ).reshape(-1, 1)
 
         number_of_resources = np.array(

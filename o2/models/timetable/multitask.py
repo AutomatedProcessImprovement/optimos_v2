@@ -33,7 +33,7 @@ class TimePeriodWithParallelTaskProbability(JSONWizard):
     """The end time of the time period (24h format, e.g. 17:00)"""
     multitask_info: Optional[list[ParallelTaskProbability]] = None
 
-    class _(JSONWizard.Meta):
+    class _(JSONWizard.Meta):  # noqa: N801
         json_key_to_field = {
             "__all__": True,  # type: ignore
             "from": "from_",

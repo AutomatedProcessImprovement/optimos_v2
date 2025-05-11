@@ -11,5 +11,5 @@ class GranuleSize(JSONWizard):
     value: int = 60
     time_unit: Literal["MINUTES"] = "MINUTES"
 
-    class _(JSONWizard.Meta):
+    class _(JSONWizard.Meta):  # noqa: N801
         skip_defaults = False

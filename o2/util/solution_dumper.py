@@ -156,10 +156,7 @@ class SolutionDumper:
         """Load an evaluation from the evaluation file."""
         # If the solution was dumped, it may not be processed in the context
         # of the current store, so we override the store name.
-        if "_store_name" in solution.__dict__:
-            store_name = solution.__dict__["_store_name"]
-        else:
-            store_name = self.current_store_name
+        store_name = solution.__dict__.get("_store_name", self.current_store_name)
 
         assert store_name is not None
         store_name = self._sanitize_store_name(store_name)

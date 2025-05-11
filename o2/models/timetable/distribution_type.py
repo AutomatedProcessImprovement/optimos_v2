@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class DISTRIBUTION_TYPE(str, Enum):
+class DISTRIBUTION_TYPE(str, Enum):  # noqa: N801
     """Different types of probability distributions."""
 
     # No distribution

@@ -17,7 +17,7 @@ class LargeWtRuleConstraints(BatchingConstraints, JSONWizard):
     min_wt: Optional[int]
     max_wt: Optional[int]
 
-    class _(JSONWizard.Meta):
+    class _(JSONWizard.Meta):  # noqa: N801
         key_transform_with_dump = "SNAKE"
         tag = RULE_TYPE.LARGE_WT.value
         tag_key = "rule_type"
@@ -51,12 +51,9 @@ class LargeWtRuleConstraints(BatchingConstraints, JSONWizard):
         # ):
         #     return False
 
-        if (self.min_wt and firing_rule.value < self.min_wt) or (
-            self.max_wt and firing_rule.value > self.max_wt
-        ):
-            return False
-
-        return True
+        return not (
+            self.min_wt and firing_rule.value < self.min_wt or self.max_wt and firing_rule.value > self.max_wt
+        )
 
 
 def is_large_wt_constraint(

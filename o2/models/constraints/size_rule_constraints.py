@@ -20,7 +20,7 @@ class SizeRuleConstraints(BatchingConstraints, JSONWizard):
     min_size: Optional[int]
     max_size: Optional[int]
 
-    class _(JSONWizard.Meta):
+    class _(JSONWizard.Meta):  # noqa: N801
         key_transform_with_dump = "SNAKE"
         tag = RULE_TYPE.SIZE.value
         tag_key = "rule_type"

@@ -1,5 +1,5 @@
 from functools import reduce
-from typing import Optional, Tuple
+from typing import Optional
 
 
 def bitmask_to_string(bitmask: int, pad_left: int = 24) -> str:
@@ -41,9 +41,9 @@ def get_ranges_from_bitmask(bitmask: int) -> list[tuple[int, int]]:
     return ranges
 
 
-def has_overlap(bitmaskA: int, bitmaskB: int) -> bool:
+def has_overlap(bitmask_a: int, bitmask_b: int) -> bool:
     """Check if two bitmasks have an overlap."""
-    return bitmaskA & bitmaskB != 0
+    return bitmask_a & bitmask_b != 0
 
 
 def any_has_overlap(bitmasks: list[int]) -> bool:
@@ -56,7 +56,7 @@ def any_has_overlap(bitmasks: list[int]) -> bool:
     return False
 
 
-def find_most_frequent_overlap(bitmasks: list[int], min_size: int = 1) -> Optional[Tuple[int, int, int]]:
+def find_most_frequent_overlap(bitmasks: list[int], min_size: int = 1) -> Optional[tuple[int, int, int]]:
     """Find the most frequent overlap in a list of bitmasks.
 
     1. Convert bitmasks to bitarrays

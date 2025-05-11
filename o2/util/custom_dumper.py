@@ -1,4 +1,4 @@
-from typing import Type, Union
+from typing import Union
 
 from dataclass_wizard import DumpMixin, LoadMixin
 
@@ -47,7 +47,7 @@ class CustomLoader(LoadMixin):
         cls.register_load_hook(TimePeriod, cls.load_to_time_period)
 
     @staticmethod
-    def load_to_time_period(d: Union[str, TimePeriod, dict], base_type: Type[TimePeriod]) -> TimePeriod:
+    def load_to_time_period(d: Union[str, TimePeriod, dict], base_type: type[TimePeriod]) -> TimePeriod:
         """Convert a dictionary, string, or TimePeriod to a TimePeriod object.
 
         Handles deserialization of TimePeriod objects from various input formats.

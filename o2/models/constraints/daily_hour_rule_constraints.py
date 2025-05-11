@@ -17,7 +17,7 @@ class DailyHourRuleConstraints(BatchingConstraints, JSONWizard):
 
     allowed_hours: dict[DAY, list[int]]
 
-    class _(JSONWizard.Meta):
+    class _(JSONWizard.Meta):  # noqa: N801
         key_transform_with_dump = "SNAKE"
         tag = RULE_TYPE.DAILY_HOUR.value
         tag_key = "rule_type"
