@@ -23,7 +23,6 @@ from tests.fixtures.timetable_generator import TimetableGenerator
 
 @pytest.fixture
 def self_rating_input():
-    # Create a mock SelfRatingInput
     return mock.MagicMock(spec=Solution)
 
 

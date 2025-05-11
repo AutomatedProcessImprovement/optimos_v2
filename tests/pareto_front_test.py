@@ -12,6 +12,7 @@ from tests.fixtures.test_helpers import create_mock_solution
 
 
 def test_pareto_front_add(simple_state: State):
+    Settings.EQUAL_DOMINATION_ALLOWED = False
     bad_solution = create_mock_solution(simple_state, 10, 10)
     # We set the bpmn_definition to a different value to differentiate the states
 
@@ -36,6 +37,7 @@ def test_pareto_front_add(simple_state: State):
 
 
 def test_is_in_front(simple_state: State):
+    Settings.EQUAL_DOMINATION_ALLOWED = False
     front = ParetoFront()
 
     # Create some evaluations for testing

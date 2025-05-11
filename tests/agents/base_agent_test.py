@@ -172,18 +172,16 @@ def test_agent_initialization(mock_store):
 
 def test_agent_set_action_generators(mock_store, simple_solution, mock_self_rating_input):
     """Test that the set_action_generators method works correctly"""
-    with mock.patch("o2.models.self_rating.SelfRatingInput.from_base_solution") as mock_from_base:
-        mock_from_base.return_value = mock_self_rating_input
 
-        agent = TestAgent(mock_store)
-        # Use MockActionClass with type casting
-        agent.catalog = cast(List[type[BaseAction]], [MockActionClass])
+    agent = TestAgent(mock_store)
+    # Use MockActionClass with type casting
+    agent.catalog = cast(List[type[BaseAction]], [MockActionClass])
 
-        agent.set_action_generators(simple_solution)
+    agent.set_action_generators(simple_solution)
 
-        assert len(agent.action_generators) == 1
-        assert agent.action_generator_tabu_ids == set()
-        assert agent.action_generator_counter == {}
+    assert len(agent.action_generators) == 1
+    assert agent.action_generator_tabu_ids == set()
+    assert agent.action_generator_counter == {}
 
 
 def test_agent_get_valid_actions(mock_store, mock_action):
