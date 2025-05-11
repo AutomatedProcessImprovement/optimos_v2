@@ -68,5 +68,8 @@ class RuleSelector(JSONWizard):
         and firing rule indices if available.
         """
         if self.firing_rule_index is not None:
-            return f"Batching Rule: {self.batching_rule_task_id}>{self.firing_rule_index[0]}>{self.firing_rule_index[1]}"
+            return (
+                f"Batching Rule: {self.batching_rule_task_id}"
+                f">{self.firing_rule_index[0]}>{self.firing_rule_index[1]}"
+            )
         return f"Batching Rule: {self.batching_rule_task_id}"

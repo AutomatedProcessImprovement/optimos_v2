@@ -11,7 +11,7 @@ from o2.models.settings import Settings
 from o2.models.timetable import TimetableType
 
 
-def main():
+def main() -> None:
     # timetable_path = "examples/demo_batching/timetable.json"
     # constraints_path = "examples/demo_batching/constraints.json"
     # bpmn_path = "examples/demo_batching/model.bpmn"

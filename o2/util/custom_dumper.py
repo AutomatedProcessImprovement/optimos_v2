@@ -12,7 +12,7 @@ class CustomDumper(DumpMixin):
     into dictionary representations suitable for serialization.
     """
 
-    def __init_subclass__(cls):
+    def __init_subclass__(cls) -> None:
         """Initialize a subclass with custom dump hooks.
 
         Registers custom dump hooks for complex types that require special handling.
@@ -22,7 +22,7 @@ class CustomDumper(DumpMixin):
         cls.register_dump_hook(TimePeriod, cls.dump_with_time_period)
 
     @staticmethod
-    def dump_with_time_period(o: TimePeriod, *_):
+    def dump_with_time_period(o: TimePeriod, *_: object) -> dict:
         """Convert a TimePeriod object to a dictionary.
 
         Handles the serialization of TimePeriod objects using their model_dump method.
@@ -37,7 +37,7 @@ class CustomLoader(LoadMixin):
     back into complex objects like TimePeriod.
     """
 
-    def __init_subclass__(cls):
+    def __init_subclass__(cls) -> None:
         """Initialize a subclass with custom load hooks.
 
         Registers custom load hooks for complex types that require special handling.

@@ -79,7 +79,8 @@ class ShiftDateTimeRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
 
         if enable_prints:
             info(
-                f"\t\t>> Modifying rule {lower_bound_selector.id()} to new time bounds: {new_lower_bound} -> {new_upper_bound}"
+                f"\t\t>> Modifying rule {lower_bound_selector.id()} "
+                f"to new time bounds: {new_lower_bound} -> {new_upper_bound}"
             )
 
         return replace(state, timetable=timetable)

@@ -94,7 +94,8 @@ class ModifySizeRuleByHighAllocationAction(ModifySizeRuleBaseAction):
 
         for task_id, _ in tasks_by_allocation:
             selectors = timetable.get_firing_rule_selectors_for_task(task_id, rule_type=RULE_TYPE.SIZE)
-            # NOTE: We do NOT try to add a new size rule here, because in this action we try to reduce batching
+            # NOTE: We do NOT try to add a new size rule here,
+            # because in this action we try to reduce batching
             for selector in select_variants(store, selectors):
                 duration_fn = store.constraints.get_duration_fn_for_task(task_id)
                 yield (

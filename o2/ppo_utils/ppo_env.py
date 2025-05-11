@@ -16,7 +16,7 @@ class PPOEnv(Env[StateType, np.int64]):
     optimization problem.
     """
 
-    def __init__(self, initial_store: Store, max_steps=float("inf")) -> None:
+    def __init__(self, initial_store: Store, max_steps: float = float("inf")) -> None:
         super().__init__()
 
         self.store = initial_store
@@ -64,7 +64,7 @@ class PPOEnv(Env[StateType, np.int64]):
         # So we raise an exception to avoid using it.
         raise Exception("PPOEnv does not support action_masks")
 
-    def render(self, mode="human"):
+    def render(self, mode: str = "human") -> None:
         """Render the current state of the environment.
 
         Not implemented for this environment.

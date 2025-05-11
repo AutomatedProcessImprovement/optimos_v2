@@ -1,7 +1,7 @@
 import datetime
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass, replace
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import pytz
 from prosimos.simulation_setup import SimDiffSetup
@@ -32,7 +32,7 @@ class State:
     # TODO: Move to setting class
     for_testing: bool = False
 
-    def replace_timetable(self, /, **changes) -> "State":
+    def replace_timetable(self, /, **changes: Any) -> "State":
         """Replace the timetable with the given changes."""
         return replace(self, timetable=replace(self.timetable, **changes))
 

@@ -2,12 +2,12 @@ from functools import reduce
 from typing import Optional, Tuple
 
 
-def bitmask_to_string(bitmask: int, padLeft=24) -> str:
+def bitmask_to_string(bitmask: int, pad_left: int = 24) -> str:
     """Convert a bitmask to a string of 1s and 0s.
 
     Pads the left side with 0s to the specified length.
     """
-    return bin(bitmask)[2:].zfill(padLeft)
+    return bin(bitmask)[2:].zfill(pad_left)
 
 
 def string_to_bitmask(bitmask: str) -> int:
@@ -15,9 +15,9 @@ def string_to_bitmask(bitmask: str) -> int:
     return int(bitmask, 2)
 
 
-def bitmask_to_array(bitmask: int, padLeft=24) -> list[int]:
+def bitmask_to_array(bitmask: int, pad_left: int = 24) -> list[int]:
     """Convert a bitmask to an array of integers."""
-    return [int(i) for i in bitmask_to_string(bitmask, padLeft)]
+    return [int(i) for i in bitmask_to_string(bitmask, pad_left)]
 
 
 def array_to_bitmask(bitmask: list[int]) -> int:
@@ -168,7 +168,8 @@ def find_mixed_ranges_in_bitmask(
 
     Returns:
     -------
-        list[tuple[int, int]]: List of tuples where each tuple represents the start (inclusive) and end (non-inclusive) indices of a valid range.
+        list[tuple[int, int]]: List of tuples where each tuple represents the start (inclusive) and end
+                               (non-inclusive) indices of a valid range.
 
     """
     result = []

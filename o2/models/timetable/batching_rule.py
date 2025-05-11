@@ -34,7 +34,7 @@ class BatchingRule(JSONWizard):
     duration_distrib: list[Distribution]
     firing_rules: OrRules
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Post-init hook to create a normalized representation of the firing rules."""
         if not Settings.CHECK_FOR_TIMETABLE_EQUALITY:
             return
@@ -127,7 +127,8 @@ class BatchingRule(JSONWizard):
     ]:
         """Get the time period for daily hour firing rules.
 
-        Returns a dictionary with the optional Rule Selector of the day, lower bound, and upper bound as the key,
+        Returns a dictionary with the optional Rule Selector of the day,
+        lower bound, and upper bound as the key,
         and the day, lower bound, and upper bound as the value.
         """
         time_periods_by_or_index = {}
@@ -211,7 +212,8 @@ class BatchingRule(JSONWizard):
     def generate_distrib(self, duration_fn: str) -> "BatchingRule":
         """Regenerate the duration and size distributions.
 
-        Looks at every size rule and then will create a new duration distribution based on every size specified.
+        Looks at every size rule and then will create a new duration distribution
+        based on every size specified.
         E.g. if there is a size rule with <= 10, then it will create a new distribution for 1-10.
 
         It will not touch the existing duration distribution, it will only add new distributions
@@ -239,7 +241,8 @@ class BatchingRule(JSONWizard):
             new_duration_distrib.append(Distribution(key=str(size), value=duration_lambda(size)))
         for size in sizes:
             new_size_distrib.append(Distribution(key=str(size), value=1))
-        # Special case: if 1 is not in sizes, remove any distribution that has 1 as a key and add a new one with value 0
+        # Special case: if 1 is not in sizes, remove any distribution that has 1 as a key
+        # and add a new one with value 0
         if 1 not in sizes:
             new_size_distrib = [distribution for distribution in new_size_distrib if distribution.key != "1"]
             new_size_distrib.append(Distribution(key="1", value=0))

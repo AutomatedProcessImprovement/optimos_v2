@@ -176,7 +176,9 @@ class Optimizer:
                                 log_level=STATS_LOG_LEVEL,
                             )
                             print_l4(
-                                f"{solution.id}: {Settings.get_pareto_x_label()}: {solution.pareto_x:_.2f}; {Settings.get_pareto_y_label()}: {solution.pareto_y:_.2f}",
+                                f"{solution.id}: {Settings.get_pareto_x_label()}: "
+                                f"{solution.pareto_x:_.2f}; {Settings.get_pareto_y_label()}: "
+                                f"{solution.pareto_y:_.2f}",
                                 log_level=STATS_LOG_LEVEL,
                             )
                         elif status == FRONT_STATUS.IS_DOMINATED:
@@ -185,7 +187,9 @@ class Optimizer:
                                 log_level=STATS_LOG_LEVEL,
                             )
                             print_l4(
-                                f"{solution.id}: {Settings.get_pareto_x_label()}: {solution.pareto_x:_.2f}; {Settings.get_pareto_y_label()}: {solution.pareto_y:_.2f}",
+                                f"{solution.id}: {Settings.get_pareto_x_label()}: "
+                                f"{solution.pareto_x:_.2f}; {Settings.get_pareto_y_label()}: "
+                                f"{solution.pareto_y:_.2f}",
                                 log_level=STATS_LOG_LEVEL,
                             )
                         yield solution
@@ -228,7 +232,8 @@ class Optimizer:
         est_minutes = (estimated_time_left % 3600) / 60
         est_seconds = estimated_time_left % 60
         print_l1(
-            f"Iteration took {time_taken:_.2f}s (avg: {self.running_avg_time:_.2f}s, est. {est_hours:.0f}h {est_minutes:.0f}m {est_seconds:.0f}s left)"
+            f"Iteration took {time_taken:_.2f}s (avg: {self.running_avg_time:_.2f}s, "
+            f"est. {est_hours:.0f}h {est_minutes:.0f}m {est_seconds:.0f}s left)"
         )
 
     def _execute_actions_parallel(self, actions_to_perform: list[BaseAction]) -> list[Solution]:

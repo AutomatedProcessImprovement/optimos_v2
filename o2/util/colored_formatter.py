@@ -20,7 +20,7 @@ class ColoredFormatter(logging.Formatter):
         25: Style.BRIGHT + Fore.GREEN,
     }
 
-    def format(self, record):
+    def format(self, record: logging.LogRecord) -> str:
         """Format the log record with appropriate colors.
 
         Applies color formatting based on the log level and creates a consistent

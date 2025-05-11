@@ -34,26 +34,26 @@ text_wrapper_l4 = TextWrapper(
 )
 
 
-def print_l0(string, log_level=STATS_LOG_LEVEL) -> None:
+def print_l0(string: str, log_level: int = STATS_LOG_LEVEL) -> None:
     """Print a string with no indentation."""
     log(log_level, string)
 
 
-def print_l1(string, log_level=logging.INFO) -> None:
+def print_l1(string: str, log_level: int = logging.INFO) -> None:
     """Print a string with l1 indentation."""
     log(log_level, text_wrapper_l1.fill(string))
 
 
-def print_l2(string, log_level=logging.DEBUG) -> None:
+def print_l2(string: str, log_level: int = logging.DEBUG) -> None:
     """Print a string with l2 indentation."""
     log(log_level, text_wrapper_l2.fill(string))
 
 
-def print_l3(string, log_level=logging.DEBUG) -> None:
+def print_l3(string: str, log_level: int = logging.DEBUG) -> None:
     """Print a string with l3 indentation."""
     log(log_level, text_wrapper_l3.fill(string))
 
 
-def print_l4(string, log_level=logging.DEBUG) -> None:
+def print_l4(string: str, log_level: int = logging.DEBUG) -> None:
     """Print a string with l4 indentation."""
     log(log_level, text_wrapper_l4.fill(string))

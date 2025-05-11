@@ -178,10 +178,10 @@ class Settings:
 
     To reproduce this in the new Optimos, we have to do the following:
     - We initialize the setting with calendar first,
-    - In this case calendar optimizations will get a higher prio, 
+    - In this case calendar optimizations will get a higher prio,
       the resource optimizations will get a "low" prio, that will only(!)
       be executed after the calendar optimization
-    - Then as soon as one of the calendar optimizations is successful, 
+    - Then as soon as one of the calendar optimizations is successful,
       we switch this setting to resources first, so that the resources
       are optimized first, and the calendar is optimized afterwards.
     """
@@ -227,7 +227,7 @@ class Settings:
     """Percentage of iterations after which the SA should basically be hill climbing.
 
     This is only relveant if sa_cooling_factor is set to "auto".
-    NOTE: Reaching this threshold will not stop the cooling process. 
+    NOTE: Reaching this threshold will not stop the cooling process.
     It's only used to calculate the cooling factor.
     """
 
@@ -277,7 +277,7 @@ class Settings:
     E.g. the ModifySizeRuleByCostAction will first select the task with the highest cost,
     and then get a list of all size rules for that task. Now the question is, how to select
     the rule(s) which should be modified (the "variants"). This setting will set the method how to select
-    the variant(s). 
+    the variant(s).
 
     See the ActionVariationSelection and max_variants_per_action for more details.
     """
@@ -310,7 +310,7 @@ class Settings:
     """
 
     MAX_THREADS_ACTION_EVALUATION: ClassVar[int] = os.cpu_count() or 1
-    """The maximum number of threads to use for parallel evaluation 
+    """The maximum number of threads to use for parallel evaluation
     of actions."""
 
     MAX_THREADS_MEDIAN_CALCULATION: ClassVar[int] = 1

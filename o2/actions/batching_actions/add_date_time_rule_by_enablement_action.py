@@ -21,7 +21,8 @@ class AddDateTimeRuleByEnablementActionParamsType(AddDateTimeRuleBaseActionParam
 
 
 class AddDateTimeRuleByEnablementAction(AddDateTimeRuleBaseAction):
-    """AddDateTimeRuleByEnablementAction will add new daily_hour / weekday rules based on the enablement of the task.
+    """AddDateTimeRuleByEnablementAction will add new daily_hour / weekday rules
+    based on the enablement of the task.
 
     It does the following:
     1. gets the tasks with the most waiting time

@@ -66,14 +66,17 @@ class SimpleBatchInfo(TypedDict):
 def get_batches_from_event_log(
     log: LogInfo,
     fixed_cost_fns: dict[str, Callable[[float], float]],
-    batching_rules_exist=True,
+    batching_rules_exist: bool = True,
 ) -> dict[BatchInfoKey, BatchInfo]:
     """Identify batches with their key statistics.
 
-    - wt_first: Time difference between enablement time of the first task in the batch to the starting time of the batch.
-    - wt_last: Time difference between enablement time of the last task in the batch to the starting time of the batch.
-    - real_proc:  real processing time of the batch, i.e., duration from start to end
-    - ideal_proc: ideal processing time without considering idle time, i.e., removing the idle time from the real processing time.
+    - wt_first: Time difference between enablement time of the first task in the batch
+      to the starting time of the batch.
+    - wt_last: Time difference between enablement time of the last task in the batch
+      to the starting time of the batch.
+    - real_proc: real processing time of the batch, i.e., duration from start to end
+    - ideal_proc: ideal processing time without considering idle time,
+      i.e., removing the idle time from the real processing time.
 
     Additionally the activity, resource and start / end time are kept for each batch.
     """

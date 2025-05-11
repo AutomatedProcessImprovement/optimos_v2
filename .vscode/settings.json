@@ -17,6 +17,7 @@
     "dynamik",
     "Fileless",
     "hyperarea",
+    "ndarray",
     "pytz"
   ],
   "python.analysis.exclude": [

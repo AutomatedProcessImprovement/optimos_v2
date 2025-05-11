@@ -4,6 +4,7 @@ import shutil
 from datetime import datetime
 
 import matplotlib
+import matplotlib.figure
 import tensorflow as tf
 
 from o2.agents.tabu_agent import TabuAgent
@@ -212,7 +213,7 @@ class TensorBoardHelper:
                 tf.summary.image("pareto_front", image, step=self.step)
                 plt.close(fig)
 
-    def _create_pareto_front_plot(self):
+    def _create_pareto_front_plot(self) -> matplotlib.figure.Figure:
         """Create a Matplotlib figure for the Pareto front.
 
         - Pareto front solution points are plotted in blue.
@@ -292,7 +293,8 @@ class TensorBoardHelper:
                 s=100,
                 label="Average Point",
             )
-            # If using Simulated Annealing, draw a circle around the average point with radius equal to self.agent.temperature
+            # If using Simulated Annealing, draw a circle around the average point
+            # with radius equal to self.agent.temperature
             if isinstance(self.agent, SimulatedAnnealingAgent):
                 # Save current axis limits to prevent zooming out when adding the rectangle
                 current_xlim = ax.get_xlim()
@@ -368,7 +370,7 @@ class TensorBoardHelper:
         fig.tight_layout()
         return fig
 
-    def _plot_to_image(self, figure):
+    def _plot_to_image(self, figure: matplotlib.figure.Figure) -> tf.Tensor:
         """Convert the Matplotlib figure to a PNG image and returns it as a tensor."""
         buf = io.BytesIO()
         figure.savefig(buf, format="png", dpi=50)

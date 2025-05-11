@@ -122,7 +122,7 @@ class Evaluation:
 
     avg_batch_processing_time_per_task_instance: float
     """Get the average batch processing time per task instance.
-    
+
     Pseudo-Code:
     sum(batch.processing_time for batch in batches) / sum(batch.size for batch in batches)
     """
@@ -474,7 +474,7 @@ class Evaluation:
         }
 
     @staticmethod
-    def get_task_execution_counts(cases) -> dict[str, int]:
+    def get_task_execution_counts(cases: list[Trace]) -> dict[str, int]:
         """Get the count each task was executed."""
         occurrences: dict[str, int] = {}
         for case in cases:
@@ -653,7 +653,7 @@ class Evaluation:
         return sum(batch["size"] for batch in batches.values()) / len(batches)
 
     @staticmethod
-    def empty():
+    def empty() -> "Evaluation":
         """Create an empty evaluation."""
         return Evaluation(
             hourly_rates={},
@@ -759,10 +759,12 @@ class Evaluation:
 
         total_duration = total_idle_time + total_processing_time
 
-        # Caculate the average processing time per task_instance
-        # This means that we take sum of processing times per unique batch and divide by the number of task_instances
+        # Calculate the average processing time per task_instance
+        # This means that we take sum of processing times per unique batch
+        # and divide by the number of task_instances
         # Which in this case can be achivied by taking the sum of batch sizes
         task_instance_count = batch_pd.groupby("batch_id")["batch_size"].first().sum()
+
         if task_instance_count > 0:
             avg_batch_processing_time_per_task_instance = (
                 batch_pd.groupby("batch_id")["processing_time"].first().sum() / task_instance_count
@@ -788,7 +790,13 @@ class Evaluation:
             [kpi.idle_cycle_time.total for kpi in task_kpis.values() if kpi.idle_cycle_time.total is not None]
         )
 
-        # print("\n".join([f"{event.started_datetime.isoformat()} -> {event.completed_datetime.isoformat()} (enabled: {event.enabled_datetime.isoformat()}) (I:{event.idle_time / 3600}, P:{event.processing_time/3600}, WT:{event.waiting_time/3600}, C:{event.cycle_time / 3600})" for trace in log_info.trace_list for event in trace.event_list]))
+        # print("\n".join([
+        #    f"{event.started_datetime.isoformat()} -> {event.completed_datetime.isoformat()} "
+        #    f"(enabled: {event.enabled_datetime.isoformat()}) "
+        #    f"(I:{event.idle_time / 3600}, P:{event.processing_time/3600}, "
+        #    f"WT:{event.waiting_time/3600}, C:{event.cycle_time / 3600})"
+        #    for trace in log_info.trace_list for event in trace.event_list
+        # ]))
         return Evaluation(
             hourly_rates=hourly_rates,
             total_duration=total_duration,

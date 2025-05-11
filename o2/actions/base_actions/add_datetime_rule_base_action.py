@@ -71,7 +71,8 @@ class AddDateTimeRuleBaseAction(BatchingRuleBaseAction, ABC, str=False):
 
         if enable_prints:
             info(
-                f"\t\t>> Adding rule for {task_id} on {time_period.from_} from {time_period.begin_time} to {time_period.end_time}"
+                f"\t\t>> Adding rule for {task_id} on {time_period.from_} "
+                f"from {time_period.begin_time} to {time_period.end_time}"
             )
 
         return replace(

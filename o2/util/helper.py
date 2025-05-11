@@ -35,10 +35,10 @@ def name_is_clone_of(potential_clone_name: str, resource_id: str) -> bool:
 T = TypeVar("T")
 
 
-def safe_list_index(l: list[T], item: T) -> Optional[int]:
+def safe_list_index(lst: list[T], item: T) -> Optional[int]:
     """Return the index of the item in the list, or None if it is not present."""
     try:
-        return l.index(item)
+        return lst.index(item)
     except ValueError:
         return None
 
@@ -106,7 +106,8 @@ def select_variant(
     The inner parameter can be used to signal, that this is an inner loop,
     and so we should at max pick 1 element.
 
-    If inner is True and the action_variation_selection is FIRST_MAX_VARIANTS_PER_ACTION_IN_ORDER or RANDOM_MAX_VARIANTS_PER_ACTION,
+    If inner is True and the action_variation_selection is
+    FIRST_MAX_VARIANTS_PER_ACTION_IN_ORDER or RANDOM_MAX_VARIANTS_PER_ACTION,
     we will pick at max 1 element. This is used to limit the number of elements
     we need to consider in the inner loop.
 
@@ -152,8 +153,8 @@ def select_variants(
     In accordance with the action_variation_selection setting.
 
     The inner parameter can be used to signal, that this is an inner loop,
-    and (if action_variation_selection is FIRST_MAX_VARIANTS_PER_ACTION_IN_ORDER or RANDOM_MAX_VARIANTS_PER_ACTION)
-    we should pick at max 1 element.
+    and (if action_variation_selection is FIRST_MAX_VARIANTS_PER_ACTION_IN_ORDER or
+    RANDOM_MAX_VARIANTS_PER_ACTION) we should pick at max 1 element.
 
     The ordered parameter can be used to signal, that the options are already ordered,
     so random selection is not needed.

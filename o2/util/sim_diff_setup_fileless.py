@@ -55,12 +55,12 @@ class SimDiffSetupFileless(SimDiffSetup):
 
     def __init__(
         self,
-        process_name,
+        process_name: str,
         bpmn: str,
         timetable: "TimetableType",
-        is_event_added_to_log,
-        total_cases,
-    ):
+        is_event_added_to_log: bool,
+        total_cases: int,
+    ) -> None:
         """Initialize a SimDiffSetupFileless instance.
 
         Sets up simulation parameters from in-memory string representations of BPMN and
@@ -110,7 +110,7 @@ class SimDiffSetupFileless(SimDiffSetup):
         self.is_event_added_to_log = is_event_added_to_log
         self.total_num_cases = total_cases  # how many process cases should be simulated
 
-    def parse_json_sim_parameters_from_string(self, json_data):
+    def parse_json_sim_parameters_from_string(self, json_data: dict) -> tuple:
         """Parse simulation parameters from JSON data.
 
         Extracts various simulation components from a JSON representation of the

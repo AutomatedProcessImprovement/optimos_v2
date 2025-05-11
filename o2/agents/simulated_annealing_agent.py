@@ -61,7 +61,8 @@ class SimulatedAnnealingAgent(Agent):
                 )
             if self.store.settings.error_radius_in_percent is None:
                 raise ValueError(
-                    "Settings.error_radius_in_percent is not set, so we can't auto calculate the cooling factor."
+                    "Settings.error_radius_in_percent is not set, "
+                    "so we can't auto calculate the cooling factor."
                 )
             temperature_to_reach = self.store.settings.error_radius_in_percent * math.sqrt(
                 store.base_evaluation.pareto_x**2 + store.base_evaluation.pareto_y**2
@@ -71,7 +72,8 @@ class SimulatedAnnealingAgent(Agent):
             )
             print_l1(f"Auto-estimated cooling factor: {self.store.settings.sa_cooling_factor:.4f}")
             print_l2(
-                f"Which will reach {temperature_to_reach:_.2f} after {number_of_iterations_to_cool} iterations..."
+                f"Which will reach {temperature_to_reach:_.2f} after "
+                f"{number_of_iterations_to_cool} iterations..."
             )
             max_iterations = self.store.settings.max_iterations
             assert isinstance(self.store.settings.sa_cooling_factor, float)
@@ -147,7 +149,8 @@ class SimulatedAnnealingAgent(Agent):
 
         distance = self.store.current_pareto_front.avg_distance_to(solution)
         print_l2(
-            f"Selected {'nearest' if self.store.settings.sa_strict_ordered else 'random'} base solution {solution.id} with distance: {distance:_.2f}"
+            f"Selected {'nearest' if self.store.settings.sa_strict_ordered else 'random'} "
+            f"base solution {solution.id} with distance: {distance:_.2f}"
         )
 
         # We delete the newly found solution from the tree, so this is a "pop" action,

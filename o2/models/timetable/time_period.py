@@ -44,7 +44,7 @@ class TimePeriod(BaseModel):
         return data
 
     # Override model_dump_json for custom JSON serialization
-    def model_dump_json(self, **kwargs):  # noqa: ANN201, D102
+    def model_dump_json(self, **kwargs: Any):  # noqa: ANN201, D102
         # Serialize using model_dump and convert to JSON string
         return dumps(self.model_dump(**kwargs))
 
@@ -75,7 +75,7 @@ class TimePeriod(BaseModel):
         return cls.model_validate(data, **kwargs)
 
     @model_validator(mode="before")
-    def handle_aliases(cls, values):
+    def handle_aliases(cls, values: dict[str, Any]) -> dict[str, Any]:
         """Handle field aliases for compatibility with different naming conventions.
 
         Maps alternative field names to their standardized counterparts.
@@ -153,7 +153,7 @@ class TimePeriod(BaseModel):
         """
         return self._modify(add_start=-hours, add_end=hours)
 
-    def _modify(self, add_start: int = 0, add_end: int = 0):
+    def _modify(self, add_start: int = 0, add_end: int = 0) -> Optional["TimePeriod"]:
         new_begin = self.begin_time_hour - add_start
         new_end = self.end_time_hour + add_end
         if new_begin < 0 or new_begin >= 24 or new_end < 0 or new_end >= 24:

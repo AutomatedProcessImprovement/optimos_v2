@@ -115,7 +115,7 @@ class PPOInput:
         )
 
     @staticmethod
-    def _get_task_features(store: Store):
+    def _get_task_features(store: Store) -> dict[str, np.ndarray]:
         task_ids = store.current_timetable.get_task_ids()
         kpis = store.current_evaluation.task_kpis
         evaluation = store.current_evaluation
@@ -200,7 +200,7 @@ class PPOInput:
         }
 
     @staticmethod
-    def _get_resource_features(store: Store):
+    def _get_resource_features(store: Store) -> dict[str, np.ndarray]:
         # TODO: This only uses base resources
         resources = store.base_timetable.get_all_resources()
         evaluation = store.current_evaluation
