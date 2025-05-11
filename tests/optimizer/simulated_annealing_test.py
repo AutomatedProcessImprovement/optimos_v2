@@ -3,7 +3,7 @@ import math
 import pytest
 
 from o2.agents.simulated_annealing_agent import SimulatedAnnealingAgent
-from o2.models.settings import AgentType
+from o2.models.settings import AgentType, CostType, Settings
 from o2.optimizer import Optimizer
 from o2.store import Store
 from tests.fixtures.test_helpers import create_mock_solution
@@ -21,6 +21,7 @@ def test_simulated_annealing(one_task_store: Store):
 
 
 def test_auto_cooling_factor(one_task_store: Store):
+    Settings.COST_TYPE = CostType.TOTAL_COST
     store = one_task_store
 
     store.settings.agent = AgentType.SIMULATED_ANNEALING
