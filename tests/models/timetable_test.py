@@ -421,6 +421,107 @@ def test_work_masks():
     assert bitmask_to_string(work_mask.get(DAY.SUNDAY)) == "0" * 24
 
 
+def test_work_masks_has_hour_for_day():
+    work_mask = WorkMasks().set_hour_range_for_day(DAY.MONDAY, 10, 14)
+
+    assert work_mask.has_hour_for_day(DAY.MONDAY, 10) is True
+    assert work_mask.has_hour_for_day(DAY.MONDAY, 11) is True
+    assert work_mask.has_hour_for_day(DAY.MONDAY, 12) is True
+    assert work_mask.has_hour_for_day(DAY.MONDAY, 13) is True
+
+    assert work_mask.has_hour_for_day(DAY.MONDAY, 9) is False
+    assert work_mask.has_hour_for_day(DAY.MONDAY, 14) is False
+
+    assert work_mask.has_hour_for_day(DAY.TUESDAY, 10) is False
+    assert work_mask.has_hour_for_day(DAY.SUNDAY, 12) is False
+
+
+def test_work_masks_is_super_set():
+    work_mask = WorkMasks().set_hour_range_for_day(DAY.MONDAY, 8, 17)
+
+    # Calendar is a subset of work_mask
+    calendar_subset = ResourceCalendar(
+        id="1",
+        name="Resource Calendar",
+        time_periods=[
+            TimePeriod.from_start_end(10, 12, DAY.MONDAY),
+            TimePeriod.from_start_end(14, 16, DAY.MONDAY),
+        ],
+    )
+    assert work_mask.is_super_set(calendar_subset) is True
+
+    # Calendar has hours outside work_mask
+    calendar_not_subset = ResourceCalendar(
+        id="2",
+        name="Resource Calendar",
+        time_periods=[
+            TimePeriod.from_start_end(7, 9, DAY.MONDAY),
+            TimePeriod.from_start_end(14, 16, DAY.MONDAY),
+        ],
+    )
+    assert work_mask.is_super_set(calendar_not_subset) is False
+
+    # Calendar has hours on different day
+    calendar_different_day = ResourceCalendar(
+        id="3",
+        name="Resource Calendar",
+        time_periods=[
+            TimePeriod.from_start_end(10, 12, DAY.MONDAY),
+            TimePeriod.from_start_end(14, 16, DAY.TUESDAY),
+        ],
+    )
+    assert work_mask.is_super_set(calendar_different_day) is False
+
+
+def test_work_masks_set_hour_for_day():
+    work_mask = WorkMasks()
+
+    # Set a single hour for Monday
+    updated_mask = work_mask.set_hour_for_day(DAY.MONDAY, 10)
+    assert bitmask_to_string(updated_mask.get(DAY.MONDAY)) == "0" * 10 + "1" + "0" * 13
+    assert bitmask_to_string(updated_mask.get(DAY.TUESDAY)) == "0" * 24
+
+    # Set another hour for Monday
+    updated_mask = updated_mask.set_hour_for_day(DAY.MONDAY, 15)
+    assert bitmask_to_string(updated_mask.get(DAY.MONDAY)) == "0" * 10 + "1" + "0" * 4 + "1" + "0" * 8
+
+    # Set an hour for a different day
+    updated_mask = updated_mask.set_hour_for_day(DAY.FRIDAY, 8)
+    assert bitmask_to_string(updated_mask.get(DAY.FRIDAY)) == "0" * 8 + "1" + "0" * 15
+    assert bitmask_to_string(updated_mask.get(DAY.MONDAY)) == "0" * 10 + "1" + "0" * 4 + "1" + "0" * 8
+
+
+def test_work_masks_set_hour_for_every_day():
+    work_mask = WorkMasks()
+
+    # Set a single hour for all days
+    updated_mask = work_mask.set_hour_for_every_day(12)
+
+    # Check that the hour is set for all days
+    for day in DAY:
+        assert bitmask_to_string(updated_mask.get(day)) == "0" * 12 + "1" + "0" * 11
+
+    # Set another hour for all days
+    updated_mask = updated_mask.set_hour_for_every_day(18)
+
+    # Check that both hours are set for all days
+    for day in DAY:
+        assert bitmask_to_string(updated_mask.get(day)) == "0" * 12 + "1" + "0" * 5 + "1" + "0" * 5
+
+
+def test_work_masks_all_day():
+    work_mask = WorkMasks.all_day()
+
+    # Check that all hours are set for all days
+    for day in DAY:
+        assert bitmask_to_string(work_mask.get(day)) == "1" * 24
+
+    # Check has_hour_for_day for a few sample hours
+    assert work_mask.has_hour_for_day(DAY.MONDAY, 0) is True
+    assert work_mask.has_hour_for_day(DAY.WEDNESDAY, 12) is True
+    assert work_mask.has_hour_for_day(DAY.SUNDAY, 23) is True
+
+
 def test_calendar_work_masks():
     calendar = ResourceCalendar(
         id="1",

@@ -11,10 +11,23 @@ omit =
 
 [report]
 exclude_also =
+    # Str methods are for debugging
     def __str__\(self\).*
+    # Parallel evaluation can't be tested
     if not Settings.DISABLE_PARALLEL_EVALUATION
+    # Dump discarded would pollute the filesystem when testing
     if Settings.DUMP_DISCARDED_SOLUTIONS
+    # Type checking can't be tested
     if TYPE_CHECKING
+    # Get label methods are for debugging
     def get_[a-zA-Z0-9_]*_label
+    # step, render and action masks are not used in production
     def step\(self,
     def render\(self,
+    def action_masks\(self
+    # This is for downward compatibility
+    if not "_normalized" in self.__dict__
+    # debug_str is for debugging
+    def batching_rules_debug_str
+    # TensorBoard logging is not used in production
+    if self.settings.log_to_tensor_board
