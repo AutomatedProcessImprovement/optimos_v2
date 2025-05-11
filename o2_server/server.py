@@ -5,6 +5,7 @@ import os
 import zipfile
 from concurrent.futures import ProcessPoolExecutor
 from threading import Lock
+from typing import Optional
 
 from fastapi import FastAPI, HTTPException, Path
 from fastapi.middleware.cors import CORSMiddleware
@@ -205,7 +206,7 @@ def save_mapping(id: str, path: str) -> None:
         json.dump(current, f)
 
 
-def get_mapping(id: str) -> str | None:
+def get_mapping(id: str) -> Optional[str]:
     """Retrieve the path from the mappings."""
     if not os.path.exists(MAPPING_FILE):
         return None

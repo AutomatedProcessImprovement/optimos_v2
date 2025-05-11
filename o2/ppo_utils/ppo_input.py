@@ -281,8 +281,8 @@ class PPOInput:
     def get_actions_from_store(store: Store) -> list[Optional[BaseAction]]:
         """Get the action based on the index."""
         # TODO: This only uses base resources
-        resources = store.base_timetable.get_all_resources()
-        current_timetable = store.current_timetable
+        resources = store.base_timetable.get_all_resources()  # type: ignore # noqa: F841
+        current_timetable = store.current_timetable  # type: ignore # noqa: F841
 
         actions: list[Optional[BaseAction]] = []
 

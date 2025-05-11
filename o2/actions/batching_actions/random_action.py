@@ -1,4 +1,5 @@
 import random
+from typing import Union
 
 from typing_extensions import override
 
@@ -67,7 +68,7 @@ class RandomAction(BaseAction):
     @staticmethod
     def rate_self(store: Store, input: Solution) -> RateSelfReturnType:
         timetable = input.timetable
-        params: BaseActionParamsType | None = None
+        params: Union[BaseActionParamsType, None] = None
 
         # We generate infinite actions
         while True:
@@ -152,7 +153,7 @@ class RandomAction(BaseAction):
                 if not all_rule_selectors:
                     continue
                 random_rule_selector = random.choice(all_rule_selectors)
-                params = RemoveRuleActionParamsType(rule=random_rule_selector)
+                params = RemoveRuleActionParamsType(rule=random_rule_selector, duration_fn=duration_fn)
             else:
                 raise ValueError(f"Unknown action: {action}")
 

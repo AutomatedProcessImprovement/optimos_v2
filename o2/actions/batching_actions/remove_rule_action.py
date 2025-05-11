@@ -72,7 +72,8 @@ class RemoveRuleAction(BatchingRuleBaseAction, str=False):
         ]
 
         for rule_selector in selectors:
+            duration_fn = store.constraints.get_duration_fn_for_task(rule_selector.batching_rule_task_id)
             yield (
                 RATING.VERY_LOW,
-                RemoveRuleAction(RemoveRuleActionParamsType(rule=rule_selector)),
+                RemoveRuleAction(RemoveRuleActionParamsType(rule=rule_selector, duration_fn=duration_fn)),
             )

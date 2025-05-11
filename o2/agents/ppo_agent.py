@@ -173,7 +173,7 @@ class PPOAgent(Agent):
     def step_info_from_try(self, solution_try: SolutionTry) -> tuple[dict, float, bool]:
         """Get the step info from the given SolutionTry."""
         # TODO Improve scores based on how good/bad the solution is
-        status, solution = solution_try
+        status, _ = solution_try
         if status == FRONT_STATUS.INVALID:
             reward = -1
         elif status == FRONT_STATUS.IN_FRONT:

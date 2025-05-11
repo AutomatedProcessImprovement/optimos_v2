@@ -3,7 +3,7 @@ import random
 import re
 import string
 from collections.abc import Generator
-from typing import TYPE_CHECKING, Any, Callable, Concatenate, Optional, ParamSpec, TypeVar
+from typing import TYPE_CHECKING, Any, Callable, Concatenate, Optional, ParamSpec, TypeVar, Union
 
 import numpy as np
 import xxhash
@@ -53,7 +53,7 @@ def hash_string(s: object) -> str:
     return xxhash.xxh3_64_hexdigest(str(s)).zfill(16)
 
 
-def hex_id(id: int | np.int64) -> str:
+def hex_id(id: Union[int, np.int64]) -> str:
     """Convert an item id to a hex id."""
     # If the item id is negative, then it "overflowed" to a signed int,
     # so we need to convert it to an unsigned int.

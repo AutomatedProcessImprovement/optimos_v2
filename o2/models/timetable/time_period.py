@@ -2,7 +2,7 @@
 
 import functools
 from json import dumps, loads
-from typing import Any, ClassVar, Optional
+from typing import Any, ClassVar, Optional, Union
 
 from pydantic import BaseModel, Field, model_validator
 
@@ -56,9 +56,9 @@ class TimePeriod(BaseModel):
         cls,  # noqa: ANN102
         obj: Any,  # noqa: ANN401
         *,
-        strict: bool | None = None,
-        from_attributes: bool | None = None,
-        context: Any | None = None,  # noqa: ANN401
+        strict: Union[bool, None] = None,
+        from_attributes: Union[bool, None] = None,
+        context: Union[Any, None] = None,  # noqa: ANN401
     ):
         # Convert JSON keys back to Python attribute names
         if "from" in obj:

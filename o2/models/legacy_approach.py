@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 
 if TYPE_CHECKING:
     pass
@@ -40,7 +40,7 @@ class LegacyApproach(str, Enum):
         return self == LegacyApproach.CALENDAR_ONLY
 
     @staticmethod
-    def from_abbreviation(abbreviation: str | LegacyApproachAbbreviation) -> "LegacyApproach":
+    def from_abbreviation(abbreviation: Union[str, LegacyApproachAbbreviation]) -> "LegacyApproach":
         """Get the LegacyApproach from its abbreviation."""
         if abbreviation == "CAAR":
             return LegacyApproach.CALENDAR_FIRST

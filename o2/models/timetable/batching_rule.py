@@ -3,7 +3,7 @@
 from collections import defaultdict
 from dataclasses import asdict, dataclass, replace
 from json import dumps
-from typing import Literal, Optional
+from typing import Literal, Optional, Union
 
 from dataclass_wizard import JSONWizard
 from sympy import Symbol, lambdify
@@ -306,7 +306,7 @@ class BatchingRule(JSONWizard):
 
         or_rules_to_remove = []
         work_mask = WorkMasks()
-        size_dict: dict[DAY | Literal["ALL"], dict[int, int]] = defaultdict(dict)
+        size_dict: dict[Union[DAY, Literal["ALL"]], dict[int, int]] = defaultdict(dict)
 
         for index, or_rules in enumerate(self.firing_rules):
             length = len(or_rules)
@@ -378,7 +378,7 @@ class BatchingRule(JSONWizard):
         )
 
     def _find_max_size(
-        self, size_dict: dict[DAY | Literal["ALL"], dict[int, int]], period: TimePeriod
+        self, size_dict: dict[Union[DAY, Literal["ALL"]], dict[int, int]], period: TimePeriod
     ) -> int:
         all_entries = size_dict.get("ALL", {})
         day_entries = size_dict.get(period.from_, {})
