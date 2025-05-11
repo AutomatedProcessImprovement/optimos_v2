@@ -80,7 +80,7 @@ P = ParamSpec("P")
 R = TypeVar("R")
 
 
-def withSignatureFrom(
+def with_signature_from(
     f: Callable[Concatenate[Any, P], R], /
 ) -> Callable[[Callable[Concatenate[Any, P], R]], Callable[Concatenate[Any, P], R]]:
     """Copy the signature from one function to another.

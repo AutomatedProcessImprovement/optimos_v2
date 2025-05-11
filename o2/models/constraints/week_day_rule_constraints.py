@@ -17,7 +17,7 @@ class WeekDayRuleConstraints(BatchingConstraints, JSONWizard):
 
     allowed_days: list[DAY]
 
-    class _(JSONWizard.Meta):
+    class _(JSONWizard.Meta):  # noqa: N801
         key_transform_with_dump = "SNAKE"
         tag = RULE_TYPE.WEEK_DAY.value
         tag_key = "rule_type"

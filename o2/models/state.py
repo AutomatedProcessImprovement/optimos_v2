@@ -32,7 +32,7 @@ class State:
     # TODO: Move to setting class
     for_testing: bool = False
 
-    def replace_timetable(self, /, **changes: Any) -> "State":
+    def replace_timetable(self, /, **changes: Any) -> "State":  # noqa: ANN401
         """Replace the timetable with the given changes."""
         return replace(self, timetable=replace(self.timetable, **changes))
 

@@ -183,11 +183,7 @@ class SimDiffSetupFileless(SimDiffSetup):
             else AllPriorityRules([])
         )
 
-        gateway_execution_limit = (
-            json_data[GATEWAY_EXECUTION_LIMIT]
-            if GATEWAY_EXECUTION_LIMIT in json_data
-            else DEFAULT_GATEWAY_EXECUTION_LIMIT
-        )
+        gateway_execution_limit = json_data.get(GATEWAY_EXECUTION_LIMIT, DEFAULT_GATEWAY_EXECUTION_LIMIT)
 
         multitasking_info = (
             parse_multitasking_model(json_data[MULTITASKING_SECTION], task_resource_distribution)

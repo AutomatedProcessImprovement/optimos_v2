@@ -3,7 +3,7 @@ from logging.handlers import RotatingFileHandler
 
 from o2.models.settings import Settings
 from o2.util.colored_formatter import ColoredFormatter
-from o2.util.helper import withSignatureFrom
+from o2.util.helper import with_signature_from
 
 STATS_LOG_LEVEL = 25
 IO_LOG_LEVEL = 5
@@ -20,13 +20,13 @@ critical = logger.critical
 log = logger.log
 
 
-@withSignatureFrom(logger.debug)
+@with_signature_from(logger.debug)
 def stats(*args, **kwargs):  # noqa: ANN002, ANN003, ANN201
     """Log a message at the STATS log level."""
     return logger.log(STATS_LOG_LEVEL, *args, **kwargs)
 
 
-@withSignatureFrom(logger.debug)
+@with_signature_from(logger.debug)
 def log_io(*args, **kwargs) -> None:  # noqa: ANN002, ANN003, ANN201
     """Log a message at the IO log level."""
     return logger.log(IO_LOG_LEVEL, *args, **kwargs)

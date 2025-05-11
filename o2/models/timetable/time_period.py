@@ -44,7 +44,7 @@ class TimePeriod(BaseModel):
         return data
 
     # Override model_dump_json for custom JSON serialization
-    def model_dump_json(self, **kwargs: Any):  # noqa: ANN201, D102
+    def model_dump_json(self, **kwargs: Any):  # noqa: ANN201, D102, ANN401
         # Serialize using model_dump and convert to JSON string
         return dumps(self.model_dump(**kwargs))
 
@@ -75,7 +75,7 @@ class TimePeriod(BaseModel):
         return cls.model_validate(data, **kwargs)
 
     @model_validator(mode="before")
-    def handle_aliases(cls, values: dict[str, Any]) -> dict[str, Any]:
+    def handle_aliases(cls, values: dict[str, Any]) -> dict[str, Any]:  # noqa: N805
         """Handle field aliases for compatibility with different naming conventions.
 
         Maps alternative field names to their standardized counterparts.

@@ -134,7 +134,7 @@ class NoActionsLeftError(Exception):
     pass
 
 
-class IterationsPerSolutionReached(Exception):
+class IterationsPerSolutionReachedError(Exception):
     """Exception raised when the iterations per solution limit is reached."""
 
     pass

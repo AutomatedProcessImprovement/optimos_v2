@@ -150,12 +150,11 @@ class BatchingRule(JSONWizard):
                             upper_bound_selector = RuleSelector.from_batching_rule(
                                 self, (or_index, and_rule_index)
                             )
-                    elif and_rule.is_gt_or_gte:
-                        if lower_bound is None or and_rule.value > lower_bound:
-                            lower_bound = and_rule.value
-                            lower_bound_selector = RuleSelector.from_batching_rule(
-                                self, (or_index, and_rule_index)
-                            )
+                    elif and_rule.is_gt_or_gte and (lower_bound is None or and_rule.value > lower_bound):
+                        lower_bound = and_rule.value
+                        lower_bound_selector = RuleSelector.from_batching_rule(
+                            self, (or_index, and_rule_index)
+                        )
             time_periods_by_or_index[(day_selector, lower_bound_selector, upper_bound_selector)] = (
                 day,
                 lower_bound,
@@ -420,19 +419,24 @@ class BatchingRule(JSONWizard):
                 if and_rules.count(rule) > 1:
                     return False
                 if rule_is_daily_hour(rule):
-                    if rule.is_lt_or_lte:
-                        if largest_smaller_than_time is None or rule.value > largest_smaller_than_time:
-                            largest_smaller_than_time = rule.value
-                    elif rule.is_gt_or_gte:
-                        if smallest_larger_than_time is None or rule.value < smallest_larger_than_time:
-                            smallest_larger_than_time = rule.value
+                    if rule.is_lt_or_lte and (
+                        largest_smaller_than_time is None or rule.value > largest_smaller_than_time
+                    ):
+                        largest_smaller_than_time = rule.value
+                    elif rule.is_gt_or_gte and (
+                        smallest_larger_than_time is None or rule.value < smallest_larger_than_time
+                    ):
+                        smallest_larger_than_time = rule.value
                     has_daily_hour_rule = True
                 if rule_is_week_day(rule) and has_daily_hour_rule:
                     return False
 
-            if largest_smaller_than_time is not None and smallest_larger_than_time is not None:
-                if smallest_larger_than_time >= largest_smaller_than_time:
-                    return False
+            if (
+                largest_smaller_than_time is not None
+                and smallest_larger_than_time is not None
+                and smallest_larger_than_time >= largest_smaller_than_time
+            ):
+                return False
 
         return True
 
@@ -440,7 +444,7 @@ class BatchingRule(JSONWizard):
     def from_task_id(
         task_id: str,
         type: BATCH_TYPE = BATCH_TYPE.PARALLEL,
-        firing_rules: list[FiringRule] = [],
+        firing_rules: list[FiringRule] = [],  # noqa: B006
         size: Optional[int] = None,
         duration_fn: Optional[str] = None,
     ) -> "BatchingRule":

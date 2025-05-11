@@ -52,7 +52,7 @@ def calculate_hyperarea(pareto_solutions: list[Solution], reference_point: tuple
     return area
 
 
-def generational_distance_p2(A: list[Solution], B: list[Solution]) -> float:
+def generational_distance_p2(a: list[Solution], b: list[Solution]) -> float:
     """Compute GD₂(A,B).
 
     Steps:
@@ -60,20 +60,20 @@ def generational_distance_p2(A: list[Solution], B: list[Solution]) -> float:
     - Accumulate the square of that minimum distance.
     - Return the square root of the average of those squared distances (RMS).
     """
-    if not A:
+    if not a:
         return 0.0
     sum_of_squares = 0.0
-    for sol_a in A:
+    for sol_a in a:
         a_pt = sol_a.point
         min_d = float("inf")
-        for sol_b in B:
+        for sol_b in b:
             b_pt = sol_b.point
             dist = distance(a_pt, b_pt)
             if dist < min_d:
                 min_d = dist
         sum_of_squares += min_d**2
 
-    mean_sq = sum_of_squares / len(A)
+    mean_sq = sum_of_squares / len(a)
     return math.sqrt(mean_sq)
 
 

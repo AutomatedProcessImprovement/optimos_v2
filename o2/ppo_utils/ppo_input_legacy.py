@@ -157,10 +157,8 @@ class PPOInputLegacy:
         waiting_times_dict = evaluation.total_batching_waiting_time_per_resource
         waiting_times = np.array(
             [
-                waiting_times_dict[resource.id]
-                if resource.id in waiting_times_dict
                 # TODO: 0 might not be the best default value
-                else 0
+                waiting_times_dict.get(resource.id, 0)
                 for resource in resources
             ]
         ).reshape(-1, 1)

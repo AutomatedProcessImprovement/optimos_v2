@@ -56,7 +56,7 @@ class TimetableType(JSONWizard, CustomLoader, CustomDumper):
     event_attributes: Optional[list[dict]] = None
     branch_rules: Optional[list[dict]] = None
 
-    class _(JSONWizard.Meta):
+    class _(JSONWizard.Meta):  # noqa: N801
         key_transform_with_dump = "SNAKE"
         skip_defaults = True
 
