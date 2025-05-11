@@ -8,7 +8,7 @@ from o2.actions.base_actions.modify_calendar_base_action import (
 from o2.models.evaluation import Evaluation
 from o2.models.solution import Solution
 from o2.store import Store
-from o2.models.time_period import TimePeriod
+from o2.models.timetable.time_period import TimePeriod
 
 
 class ModifyCalendarByITActionParamsType(ModifyCalendarBaseActionParamsType):

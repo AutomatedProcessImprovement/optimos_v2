@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, replace
 
-from sympy import Symbol, lambdify
 from typing_extensions import override
 
 from o2.actions.base_actions.base_action import (
@@ -11,11 +10,9 @@ from o2.actions.base_actions.batching_rule_base_action import (
     BatchingRuleBaseAction,
     BatchingRuleBaseActionParamsType,
 )
-from o2.models.constraints import RULE_TYPE
-from o2.models.evaluation import Evaluation
 from o2.models.self_rating import RATING
 from o2.models.solution import Solution
-from o2.models.state import State, TabuState
+from o2.models.state import State
 from o2.models.timetable import (
     BatchingRule,
     Distribution,

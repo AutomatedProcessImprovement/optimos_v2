@@ -1,6 +1,5 @@
 from o2.models.days import DAY
 from o2.models.state import State
-from o2.models.time_period import TimePeriod
 from o2.models.timetable import (
     BATCH_TYPE,
     RULE_TYPE,
@@ -8,6 +7,7 @@ from o2.models.timetable import (
     Distribution,
     FiringRule,
 )
+from o2.models.timetable.time_period import TimePeriod
 from tests.fixtures.store_fixture import TWO_TASKS_BPMN_PATH
 from tests.fixtures.timetable_generator import TimetableGenerator
 

@@ -37,8 +37,8 @@ from o2.models.evaluation import Evaluation
 from o2.models.self_rating import RATING
 from o2.models.settings import Settings
 from o2.models.solution import Solution
-from o2.models.time_period import TimePeriod
 from o2.models.timetable import RULE_TYPE
+from o2.models.timetable.time_period import TimePeriod
 from o2.store import Store
 
 ACTIONS: list[type[BaseAction]] = [

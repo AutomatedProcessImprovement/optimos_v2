@@ -9,14 +9,12 @@ from o2.actions.base_actions.base_action import (
     BaseActionParamsType,
     RateSelfReturnType,
 )
-from o2.models.constraints import RULE_TYPE
-from o2.models.evaluation import Evaluation
 from o2.models.rule_selector import RuleSelector
 from o2.models.self_rating import RATING
 from o2.models.solution import Solution
 from o2.models.state import State
 from o2.models.timetable import (
-    COMPARATOR,
+    RULE_TYPE,
     BatchingRule,
     Distribution,
     FiringRule,
