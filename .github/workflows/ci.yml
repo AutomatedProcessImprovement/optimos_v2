@@ -21,6 +21,10 @@ jobs:
         with:
           python-version: "3.10"
           cache: "pip"
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libspatialindex-dev
       - name: Install Poetry
         uses: snok/install-poetry@v1
         with:
@@ -49,6 +53,10 @@ jobs:
         with:
           python-version: "3.10"
           cache: "pip"
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libspatialindex-dev
       - name: Install Poetry
         uses: snok/install-poetry@v1
         with:
@@ -76,7 +84,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: "npm"
       - name: Install cspell
         run: |
           npm install -g cspell
@@ -95,6 +102,10 @@ jobs:
         with:
           python-version: "3.10"
           cache: "pip"
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libspatialindex-dev
       - name: Install Poetry
         uses: snok/install-poetry@v1
         with:
