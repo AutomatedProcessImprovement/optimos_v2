@@ -712,29 +712,17 @@ class Evaluation:
         }
 
         batch_pd = pd.DataFrame(
-            (
-                {
-                    "batch_id": batch["batch_id"],
-                    "activity": batch["activity"],
-                    "case": batch["case"],
-                    "resource": batch["resource"],
-                    "batch_size": batch["size"],
-                    "batch_waiting_time_seconds": batch["wt_batching"],
-                    "fixed_cost": batch["fixed_cost"],
-                    "processing_time": batch["ideal_proc"],
-                }
-                for batch in batches.values()
-            ),
-            columns=[
-                "batch_id",
-                "activity",
-                "case",
-                "resource",
-                "batch_size",
-                "batch_waiting_time_seconds",
-                "fixed_cost",
-                "processing_time",
-            ],
+            {
+                "batch_id": batch["batch_id"],
+                "activity": batch["activity"],
+                "case": batch["case"],
+                "resource": batch["resource"],
+                "batch_size": batch["size"],
+                "batch_waiting_time_seconds": batch["wt_batching"],
+                "fixed_cost": batch["fixed_cost"],
+                "processing_time": batch["ideal_proc"],
+            }
+            for batch in batches.values()
         )
 
         total_fixed_cost_by_task = batch_pd.groupby("activity")["fixed_cost"].sum().fillna(0).to_dict()
@@ -827,7 +815,7 @@ class Evaluation:
             total_batching_waiting_time_per_resource=(
                 batch_pd.groupby("resource")["batch_waiting_time_seconds"].sum().fillna(0).to_dict()
             ),
-            avg_batching_waiting_time_by_case=(batch_pd["batch_waiting_time_seconds"].mean()),
+            avg_batching_waiting_time_by_case=float(batch_pd["batch_waiting_time_seconds"].mean()),
             total_batching_waiting_time=(batch_pd["batch_waiting_time_seconds"].sum()),
             total_fixed_cost_by_task=total_fixed_cost_by_task,
             avg_fixed_cost_per_case=avg_fixed_cost_per_case,

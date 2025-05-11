@@ -154,33 +154,55 @@ jobs:
         run: |
           poetry install
 
+      # Create directory outside the repository for coverage reports
+      - name: Create coverage directory
+        run: |
+          mkdir -p /tmp/coverage-reports/html
+          mkdir -p /tmp/coverage-reports/badges
+
       # Run tests with coverage (continue even if tests fail)
       - name: Run tests with coverage
         run: |
-          poetry run python -m pytest --cov=o2 --cov-report=xml:coverage.xml  --cov-report=html:cov_out || true
-
-      # Create badges directory
-      - name: Create badges directory
-        run: mkdir -p cov_out/badges
+          poetry run python -m pytest --cov=o2 --cov-report=xml:/tmp/coverage-reports/coverage.xml --cov-report=html:/tmp/coverage-reports/html || true
 
       # Generate the coverage badge (even if tests failed)
       - name: Generate coverage badge
         run: |
-          if [ -f coverage.xml ]; then
-            COVERAGE=$(python -c "import xml.etree.ElementTree as ET; print('{:.2f}%'.format(float(ET.parse('coverage.xml').getroot().attrib['line-rate']) * 100))")
-            COLOR=$(python -c "import xml.etree.ElementTree as ET; rate = float(ET.parse('coverage.xml').getroot().attrib['line-rate']); print('red' if rate < 0.5 else 'yellow' if rate < 0.75 else 'green')")
+          if [ -f /tmp/coverage-reports/coverage.xml ]; then
+            COVERAGE=$(python -c "import xml.etree.ElementTree as ET; print('{:.2f}%'.format(float(ET.parse('/tmp/coverage-reports/coverage.xml').getroot().attrib['line-rate']) * 100))")
+            COLOR=$(python -c "import xml.etree.ElementTree as ET; rate = float(ET.parse('/tmp/coverage-reports/coverage.xml').getroot().attrib['line-rate']); print('red' if rate < 0.5 else 'yellow' if rate < 0.75 else 'green')")
           else
             COVERAGE="0.00%"
             COLOR="red"
           fi
 
-          echo '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="96" height="20" role="img" aria-label="coverage: $COVERAGE"><title>coverage: $COVERAGE</title><linearGradient id="s" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient><clipPath id="r"><rect width="96" height="20" rx="3" fill="#fff"/></clipPath><g clip-path="url(#r)"><rect width="61" height="20" fill="#555"/><rect x="61" width="35" height="20" fill="#${COLOR}"/><rect width="96" height="20" fill="url(#s)"/></g><g fill="#fff" text-anchor="middle" font-family="Verdana,Geneva,DejaVu Sans,sans-serif" text-rendering="geometricPrecision" font-size="110"><text aria-hidden="true" x="315" y="150" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="510">coverage</text><text x="315" y="140" transform="scale(.1)" fill="#fff" textLength="510">coverage</text><text aria-hidden="true" x="775" y="150" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="250">${COVERAGE}</text><text x="775" y="140" transform="scale(.1)" fill="#fff" textLength="250">${COVERAGE}</text></g></svg>' | sed "s/\$COVERAGE/$COVERAGE/g" | sed "s/\$COLOR/$COLOR/g" > cov_out/badges/coverage.svg
+          echo '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="96" height="20" role="img" aria-label="coverage: $COVERAGE"><title>coverage: $COVERAGE</title><linearGradient id="s" x2="0" y2="100%"><stop offset="0" stop-color="#bbb" stop-opacity=".1"/><stop offset="1" stop-opacity=".1"/></linearGradient><clipPath id="r"><rect width="96" height="20" rx="3" fill="#fff"/></clipPath><g clip-path="url(#r)"><rect width="61" height="20" fill="#555"/><rect x="61" width="35" height="20" fill="#${COLOR}"/><rect width="96" height="20" fill="url(#s)"/></g><g fill="#fff" text-anchor="middle" font-family="Verdana,Geneva,DejaVu Sans,sans-serif" text-rendering="geometricPrecision" font-size="110"><text aria-hidden="true" x="315" y="150" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="510">coverage</text><text x="315" y="140" transform="scale(.1)" fill="#fff" textLength="510">coverage</text><text aria-hidden="true" x="775" y="150" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="250">${COVERAGE}</text><text x="775" y="140" transform="scale(.1)" fill="#fff" textLength="250">${COVERAGE}</text></g></svg>' | sed "s/\$COVERAGE/$COVERAGE/g" | sed "s/\$COLOR/$COLOR/g" > /tmp/coverage-reports/badges/coverage.svg
+
+      # Show directory contents for debugging
+      - name: Debug directory contents
+        run: |
+          echo "Contents of /tmp/coverage-reports:"
+          ls -la /tmp/coverage-reports
+          echo "Contents of /tmp/coverage-reports/html:"
+          ls -la /tmp/coverage-reports/html || echo "HTML directory empty"
+          echo "Contents of /tmp/coverage-reports/badges:"
+          ls -la /tmp/coverage-reports/badges || echo "Badges directory empty"
+
+      # Save coverage report as an artifact
+      - name: Save coverage report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: /tmp/coverage-reports
+          retention-days: 7
 
       # If main branch, deploy to GitHub Pages
       - name: Deploy coverage report to GitHub Pages
         if: github.ref == 'refs/heads/main'
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: cov_out
+          folder: /tmp/coverage-reports
           branch: gh-pages
           token: ${{ secrets.GITHUB_TOKEN }}
+          clean: true
+          commit-message: "Update coverage report [skip ci]"
