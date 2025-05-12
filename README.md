@@ -2,9 +2,9 @@
 
 [![Tests](https://github.com/AutomatedProcessImprovement/optimos_v2/actions/workflows/ci.yml/badge.svg?label=Tests)](https://github.com/AutomatedProcessImprovement/optimos_v2/actions/workflows/ci.yml)
 [![Coverage](https://github.com/AutomatedProcessImprovement/optimos_v2/raw/gh-pages/badges/coverage.svg?raw=true)](https://automatedprocessimprovement.github.io/optimos_v2/)
-[![Format](https://github.com/AutomatedProcessImprovement/optimos_v2/actions/workflows/ci.yml/badge.svg?event=push&job=format&label=Format)](https://github.com/AutomatedProcessImprovement/optimos_v2/actions/workflows/ci.yml)
-[![Spell Check](https://github.com/AutomatedProcessImprovement/optimos_v2/actions/workflows/ci.yml/badge.svg?event=push&job=spellcheck&label=Spell%20Check)](https://github.com/AutomatedProcessImprovement/optimos_v2/actions/workflows/ci.yml)
-[![Type Check](https://github.com/AutomatedProcessImprovement/optimos_v2/actions/workflows/ci.yml/badge.svg?event=push&job=typecheck&label=Type%20Check)](https://github.com/AutomatedProcessImprovement/optimos_v2/actions/workflows/ci.yml)
+[![Format](https://github.com/AutomatedProcessImprovement/optimos_v2/actions/workflows/format.yml/badge.svg)](https://github.com/AutomatedProcessImprovement/optimos_v2/actions/workflows/format.yml)
+[![Spell Check](https://github.com/AutomatedProcessImprovement/optimos_v2/actions/workflows/spellcheck.yml/badge.svg)](https://github.com/AutomatedProcessImprovement/optimos_v2/actions/workflows/spellcheck.yml)
+[![Type Check](https://github.com/AutomatedProcessImprovement/optimos_v2/actions/workflows/typecheck.yml/badge.svg)](https://github.com/AutomatedProcessImprovement/optimos_v2/actions/workflows/typecheck.yml)
 
 The next generation of Optimos. A Resource, Roster and Batching optimizer using Prosimos simulator.
 

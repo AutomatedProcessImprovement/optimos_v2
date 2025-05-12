@@ -1,0 +1,59 @@
+name: Format
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: "pip"
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake git
+      - name: Cache libspatialindex
+        uses: actions/cache@v3
+        id: libspatialindex-cache
+        with:
+          path: |
+            /usr/local/lib/libspatialindex*
+            /usr/local/include/spatialindex
+          key: ${{ runner.os }}-libspatialindex-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-libspatialindex-
+      - name: Build libspatialindex
+        if: steps.libspatialindex-cache.outputs.cache-hit != 'true'
+        run: |
+          git clone https://github.com/libspatialindex/libspatialindex.git /tmp/libspatialindex
+          cd /tmp/libspatialindex
+          cmake -DCMAKE_BUILD_TYPE=Release -DSIDX_BUILD_TESTS=OFF .
+          make -j$(nproc)
+          sudo make install
+          sudo ldconfig
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: 1.8.2
+          virtualenvs-create: true
+      - name: Cache Poetry dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pypoetry/virtualenvs
+          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-poetry-
+      - name: Install dependencies
+        run: |
+          poetry install
+      - name: Check formatting
+        run: |
+          poetry run ruff format --check o2 o2_server
