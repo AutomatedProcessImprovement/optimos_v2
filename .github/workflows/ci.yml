@@ -24,7 +24,28 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libspatialindex-dev
+          sudo apt-get install -y build-essential cmake git
+
+      - name: Cache libspatialindex
+        uses: actions/cache@v3
+        id: libspatialindex-cache
+        with:
+          path: |
+            /usr/local/lib/libspatialindex*
+            /usr/local/include/spatialindex
+          key: ${{ runner.os }}-libspatialindex-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-libspatialindex-
+
+      - name: Build libspatialindex
+        if: steps.libspatialindex-cache.outputs.cache-hit != 'true'
+        run: |
+          git clone https://github.com/libspatialindex/libspatialindex.git /tmp/libspatialindex
+          cd /tmp/libspatialindex
+          cmake -DCMAKE_BUILD_TYPE=Release -DSIDX_BUILD_TESTS=OFF .
+          make -j$(nproc)
+          sudo make install
+          sudo ldconfig
       - name: Install Poetry
         uses: snok/install-poetry@v1
         with:
@@ -56,7 +77,28 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libspatialindex-dev
+          sudo apt-get install -y build-essential cmake git
+
+      - name: Cache libspatialindex
+        uses: actions/cache@v3
+        id: libspatialindex-cache
+        with:
+          path: |
+            /usr/local/lib/libspatialindex*
+            /usr/local/include/spatialindex
+          key: ${{ runner.os }}-libspatialindex-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-libspatialindex-
+
+      - name: Build libspatialindex
+        if: steps.libspatialindex-cache.outputs.cache-hit != 'true'
+        run: |
+          git clone https://github.com/libspatialindex/libspatialindex.git /tmp/libspatialindex
+          cd /tmp/libspatialindex
+          cmake -DCMAKE_BUILD_TYPE=Release -DSIDX_BUILD_TESTS=OFF .
+          make -j$(nproc)
+          sudo make install
+          sudo ldconfig
       - name: Install Poetry
         uses: snok/install-poetry@v1
         with:
@@ -88,7 +130,28 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libspatialindex-dev
+          sudo apt-get install -y build-essential cmake git
+
+      - name: Cache libspatialindex
+        uses: actions/cache@v3
+        id: libspatialindex-cache
+        with:
+          path: |
+            /usr/local/lib/libspatialindex*
+            /usr/local/include/spatialindex
+          key: ${{ runner.os }}-libspatialindex-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-libspatialindex-
+
+      - name: Build libspatialindex
+        if: steps.libspatialindex-cache.outputs.cache-hit != 'true'
+        run: |
+          git clone https://github.com/libspatialindex/libspatialindex.git /tmp/libspatialindex
+          cd /tmp/libspatialindex
+          cmake -DCMAKE_BUILD_TYPE=Release -DSIDX_BUILD_TESTS=OFF .
+          make -j$(nproc)
+          sudo make install
+          sudo ldconfig
       - name: Install Poetry
         uses: snok/install-poetry@v1
         with:
@@ -137,7 +200,28 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libspatialindex-dev
+          sudo apt-get install -y build-essential cmake git
+
+      - name: Cache libspatialindex
+        uses: actions/cache@v3
+        id: libspatialindex-cache
+        with:
+          path: |
+            /usr/local/lib/libspatialindex*
+            /usr/local/include/spatialindex
+          key: ${{ runner.os }}-libspatialindex-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-libspatialindex-
+
+      - name: Build libspatialindex
+        if: steps.libspatialindex-cache.outputs.cache-hit != 'true'
+        run: |
+          git clone https://github.com/libspatialindex/libspatialindex.git /tmp/libspatialindex
+          cd /tmp/libspatialindex
+          cmake -DCMAKE_BUILD_TYPE=Release -DSIDX_BUILD_TESTS=OFF .
+          make -j$(nproc)
+          sudo make install
+          sudo ldconfig
       - name: Install Poetry
         uses: snok/install-poetry@v1
         with:
@@ -163,17 +247,17 @@ jobs:
       # Run tests with coverage (continue even if tests fail)
       - name: Run tests with coverage
         run: |
-          poetry run python -m pytest --cov=o2 --cov-report=xml:/tmp/coverage-reports/coverage.xml --cov-report=html:/tmp/coverage-reports/html || true
+          poetry run python -m pytest --cov=o2 --cov-report=term-missing --cov-report=xml:/tmp/coverage-reports/coverage.xml --cov-report=html:/tmp/coverage-reports/html || true
 
       # Generate the coverage badge (even if tests failed)
       - name: Generate coverage badge
         run: |
           if [ -f /tmp/coverage-reports/coverage.xml ]; then
-            COVERAGE=$(python -c "import xml.etree.ElementTree as ET; print('{:.2f}%'.format(float(ET.parse('/tmp/coverage-reports/coverage.xml').getroot().attrib['line-rate']) * 100))")
-            COLOR=$(python -c "import xml.etree.ElementTree as ET; rate = float(ET.parse('/tmp/coverage-reports/coverage.xml').getroot().attrib['line-rate']); print('red' if rate < 0.5 else 'yellow' if rate < 0.75 else 'green')")
+            COVERAGE=$(python -c "import xml.etree.ElementTree as ET; print('{:.0f}%'.format(float(ET.parse('/tmp/coverage-reports/coverage.xml').getroot().attrib['line-rate']) * 100))")
+            COLOR=$(python -c "import xml.etree.ElementTree as ET; rate = float(ET.parse('/tmp/coverage-reports/coverage.xml').getroot().attrib['line-rate']); print('e05d44' if rate < 0.5 else 'dfb317' if rate < 0.75 else '97ca00')")
           else
-            COVERAGE="0.00%"
-            COLOR="red"
+            COVERAGE="0%"
+            COLOR="e05d44"
           fi
 
           # Create badge with actual values instead of variables
@@ -201,16 +285,6 @@ jobs:
           </svg>
           EOF
 
-      # Show directory contents for debugging
-      - name: Debug directory contents
-        run: |
-          echo "Contents of /tmp/coverage-reports:"
-          ls -la /tmp/coverage-reports
-          echo "Contents of /tmp/coverage-reports/html:"
-          ls -la /tmp/coverage-reports/html || echo "HTML directory empty"
-          echo "Contents of /tmp/coverage-reports/badges:"
-          ls -la /tmp/coverage-reports/badges || echo "Badges directory empty"
-
       # Save coverage report as an artifact
       - name: Save coverage report artifact
         uses: actions/upload-artifact@v4
@@ -227,9 +301,6 @@ jobs:
           cp -r /tmp/coverage-reports/html/* /tmp/coverage-reports/
           # Keep badges directory
           mkdir -p /tmp/coverage-reports/badges
-          cp /tmp/coverage-reports/badges/coverage.svg /tmp/coverage-reports/badges/
-          # Keep coverage.xml
-          cp /tmp/coverage-reports/coverage.xml /tmp/coverage-reports/
 
       - name: Deploy to GitHub Pages
         if: github.ref == 'refs/heads/main'
