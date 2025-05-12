@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for o2/models/constraints/daily_hour_rule_constraints.py: 76%</title>
+    <title>Coverage for o2/models/constraints/daily_hour_rule_constraints.py: 88%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_58284776.png">
     <link rel="stylesheet" href="style_cb_8e611ae1.css" type="text/css">
     <script src="coverage_html_cb_6fb7b396.js" defer></script>
@@ -12,7 +12,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>o2/models/constraints/daily_hour_rule_constraints.py</b>:
-            <span class="pc_cov">76%</span>
+            <span class="pc_cov">88%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -55,8 +55,8 @@
         </aside>
         <h2>
             <span class="text">25 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">19<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">6<span class="text"> missing</span></button>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">22<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">3<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">2<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="z_170c1340f24c6514_large_wt_rule_constraints_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.6.12">coverage.py v7.6.12</a>,
-            created at 2025-05-12 20:20 +0000
+            created at 2025-05-12 20:41 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -106,15 +106,15 @@
     <p class="pln"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t">    <span class="key">def</span> <span class="nam">verify_timetable</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">timetable</span><span class="op">:</span> <span class="str">"TimetableType"</span><span class="op">)</span> <span class="op">-></span> <span class="nam">bool</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t">        <span class="str">"""Check if the timetable is valid against the constraints."""</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t">        <span class="nam">rules</span><span class="op">:</span> <span class="nam">list</span><span class="op">[</span><span class="nam">FiringRule</span><span class="op">[</span><span class="nam">int</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="nam">timetable</span><span class="op">.</span><span class="nam">get_firing_rules_for_tasks</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t">        <span class="nam">rules</span><span class="op">:</span> <span class="nam">list</span><span class="op">[</span><span class="nam">FiringRule</span><span class="op">[</span><span class="nam">int</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="nam">timetable</span><span class="op">.</span><span class="nam">get_firing_rules_for_tasks</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t">            <span class="nam">self</span><span class="op">.</span><span class="nam">tasks</span><span class="op">,</span> <span class="nam">rule_type</span><span class="op">=</span><span class="nam">RULE_TYPE</span><span class="op">.</span><span class="nam">DAILY_HOUR</span><span class="op">,</span> <span class="nam">batch_type</span><span class="op">=</span><span class="nam">self</span><span class="op">.</span><span class="nam">batch_type</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t">        <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t">        <span class="key">return</span> <span class="nam">all</span><span class="op">(</span><span class="nam">self</span><span class="op">.</span><span class="nam">_verify_firing_rule</span><span class="op">(</span><span class="nam">rule</span><span class="op">)</span> <span class="key">for</span> <span class="nam">rule</span> <span class="key">in</span> <span class="nam">rules</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t">        <span class="key">return</span> <span class="nam">all</span><span class="op">(</span><span class="nam">self</span><span class="op">.</span><span class="nam">_verify_firing_rule</span><span class="op">(</span><span class="nam">rule</span><span class="op">)</span> <span class="key">for</span> <span class="nam">rule</span> <span class="key">in</span> <span class="nam">rules</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t">    <span class="key">def</span> <span class="nam">_verify_firing_rule</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">firing_rule</span><span class="op">:</span> <span class="nam">FiringRule</span><span class="op">[</span><span class="nam">int</span><span class="op">]</span><span class="op">)</span> <span class="op">-></span> <span class="nam">bool</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t">        <span class="str">"""Check if the firing rule is valid against the constraints."""</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t">        <span class="com"># TODO: Implement this</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t">        <span class="key">return</span> <span class="key">True</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t">        <span class="key">return</span> <span class="key">True</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t">    <span class="key">def</span> <span class="nam">allowed_hours_for_day</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">day</span><span class="op">:</span> <span class="nam">DAY</span><span class="op">)</span> <span class="op">-></span> <span class="nam">list</span><span class="op">[</span><span class="nam">int</span><span class="op">]</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t">        <span class="str">"""Get the allowed hours for a specific day."""</span>&nbsp;</span><span class="r"></span></p>
@@ -148,7 +148,7 @@
             <a class="nav" href="z_170c1340f24c6514_large_wt_rule_constraints_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.6.12">coverage.py v7.6.12</a>,
-            created at 2025-05-12 20:20 +0000
+            created at 2025-05-12 20:41 +0000
         </p>
     </div>
 </footer>
