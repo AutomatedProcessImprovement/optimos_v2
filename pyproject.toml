@@ -27,6 +27,7 @@ torch = "^2.5.0"
 sb3-contrib = "^2.3.0"
 tensorflow = "^2.18.0"
 orjson = "^3.10.16"
+colorama = "^0.4.6"
 
 
 [tool.poetry.group.dev.dependencies]
